@@ -1,0 +1,8 @@
+do we need explicit "inline"s in .h files?
+make named constructors (with real ctors private) for smart ptrs
+privatize copy-ctor and operator= wherever possible
+instead of void foo.add_thing(thing); thing_ptr = foo.new_thing()?
+FIXMEs
+const everything possible
+preserve/set/clear flags for registers
+pp_device
