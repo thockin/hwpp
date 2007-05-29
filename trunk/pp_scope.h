@@ -33,7 +33,6 @@ class pp_scope: public pp_dirent, public pp_container {
 	 *
 	 * Add a named constant to this scope.
 	 */
-	keyed_vector<string, pp_value> constants;
 	void add_constant(const string &name, const pp_value value) {
 		constants.insert(name, value);
 	}
@@ -43,7 +42,6 @@ class pp_scope: public pp_dirent, public pp_container {
 	 *
 	 * Add a named datatype to this scope.
 	 */
-	keyed_vector<string, pp_datatype_ptr> datatypes;
 	void add_datatype(const string &name,
 	    const pp_datatype_ptr &datatype) {
 		datatypes.insert(name, datatype);
@@ -54,14 +52,9 @@ class pp_scope: public pp_dirent, public pp_container {
 	 *
 	 * Add a named register to this scope.
 	 */
-	keyed_vector<string, pp_register_ptr> registers;
 	void add_register(const string &name, const pp_register_ptr &reg) {
 		registers.insert(name, reg);
 	}
-
-	//FIXME: generate a random name (.anon123) for anonymous scopes.  Or
-	//do we support anon scopes at all?  How do you address them?
-	keyed_vector<string, pp_dirent_ptr> dirents;
 
 	/*
 	 * pp_scope::add_field(name, field)
@@ -72,6 +65,8 @@ class pp_scope: public pp_dirent, public pp_container {
 		dirents.insert(name, field);
 	}
 
+	//FIXME: generate a random name (.anon123) for anonymous scopes.  Or
+	//do we support anon scopes at all?  How do you address them?
 	/*
 	 * pp_scope::add_scope(name, scope)
 	 *
@@ -82,6 +77,12 @@ class pp_scope: public pp_dirent, public pp_container {
 		scope->set_parent(tmp);
 		dirents.insert(name, scope);
 	}
+
+	keyed_vector<string, pp_value> constants;
+	keyed_vector<string, pp_datatype_ptr> datatypes;
+	keyed_vector<string, pp_register_ptr> registers;
+	keyed_vector<string, pp_dirent_ptr> dirents;
+
 };
 
 inline pp_scope_ptr
