@@ -5,4 +5,3 @@ instead of void foo.add_thing(thing); thing_ptr = foo.new_thing()?
 FIXMEs
 const everything possible
 preserve/set/clear flags for registers
-pp_device

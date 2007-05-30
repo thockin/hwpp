@@ -1,12 +1,12 @@
 TESTS = keyed_vector_test \
 	pp_datatype_test \
 	pp_container_test \
-	pp_dirent_test \
 	pp_binding_test \
 	pp_field_test \
 	pp_register_test \
 	pp_scope_test \
-	pp_space_test
+	pp_space_test \
+	pp_device_test
 SRCS = $(TESTS:=.cpp)
 
 INCLUDES = -I..
