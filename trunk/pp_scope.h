@@ -8,7 +8,6 @@
 #include "pp_datatype.h"
 #include "pp_register.h"
 #include "pp_field.h"
-#include "pp_dirent.h"
 
 /*
  * pp_scope - a lexical scope.
@@ -21,9 +20,48 @@
 class pp_scope;
 typedef boost::shared_ptr<pp_scope> pp_scope_ptr;
 
-class pp_scope: public pp_dirent, public pp_container {
+class pp_scope: public pp_container {
     public:
-	explicit pp_scope(): pp_dirent(PP_DIRENT_SCOPE) {}
+	typedef enum {
+		DIRENT_SCOPE,
+		DIRENT_FIELD,
+	} dirent_type;
+
+    private:
+	class dirent {
+	    public:
+		explicit dirent(pp_scope_ptr scope)
+		    : m_type(DIRENT_SCOPE), m_scope(scope) {}
+		explicit dirent(pp_field_ptr field)
+		    : m_type(DIRENT_FIELD), m_field(field) {}
+		~dirent() {}
+
+		dirent_type type() const {
+			return m_type;
+		}
+
+		bool is_scope() const {
+			return m_type == DIRENT_SCOPE;
+		}
+		pp_scope_ptr scope() const {
+			return m_scope;
+		}
+
+		bool is_field() const {
+			return m_type == DIRENT_FIELD;
+		}
+		pp_field_ptr field() const {
+			return m_field;
+		}
+
+	    private:
+		dirent_type m_type;
+		pp_scope_ptr m_scope;
+		pp_field_ptr m_field;
+	};
+
+    public:
+	explicit pp_scope() {}
 	virtual ~pp_scope() {}
 
 	//FIXME: access methods for the raw vectors to be read-only?
@@ -62,7 +100,7 @@ class pp_scope: public pp_dirent, public pp_container {
 	 * Add a named field to this scope.
 	 */
 	void add_field(const string &name, const pp_field_ptr &field) {
-		dirents.insert(name, field);
+		dirents.insert(name, dirent(field));
 	}
 
 	//FIXME: generate a random name (.anon123) for anonymous scopes.  Or
@@ -75,21 +113,14 @@ class pp_scope: public pp_dirent, public pp_container {
 	void add_scope(const string &name, const pp_scope_ptr &scope) {
 		pp_container_ptr tmp = shared_from_this();
 		scope->set_parent(tmp);
-		dirents.insert(name, scope);
+		dirents.insert(name, dirent(scope));
 	}
 
 	keyed_vector<string, pp_value> constants;
 	keyed_vector<string, pp_datatype_ptr> datatypes;
 	keyed_vector<string, pp_register_ptr> registers;
-	keyed_vector<string, pp_dirent_ptr> dirents;
+	keyed_vector<string, dirent> dirents;
 
 };
-
-inline pp_scope_ptr
-pp_scope_from_dirent(pp_dirent_ptr dirent)
-{
-	//FIXME: check type?  return error?
-	return boost::static_pointer_cast<pp_scope>(dirent);
-}
 
 #endif // PP_PP_SCOPE_H__
