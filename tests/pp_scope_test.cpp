@@ -26,11 +26,10 @@ dump_scope(const pp_scope_ptr &scope)
 	}
 	for (size_t i = 0; i < scope->dirents.size(); i++) {
 		cout << "dirent:   "
-		     << scope->dirents[i]->type() << ": " 
+		     << scope->dirents[i].type() << ": " 
 		     << scope->dirents.key_at(i) << endl;
-		if (scope->dirents[i]->type() == PP_DIRENT_SCOPE) {
-			pp_dirent_ptr tmp = scope->dirents[i];
-			pp_scope_ptr sub = pp_scope_from_dirent(tmp);
+		if (scope->dirents[i].is_scope()) {
+			pp_scope_ptr sub = scope->dirents[i].scope();
 			dump_scope(sub);
 		}
 	}
@@ -42,60 +41,59 @@ test_pp_scope()
 	int ret = 0;
 
 	/* test the basic constructor */
-	pp_scope_ptr s1(new pp_scope);
-
-	pp_binding_ptr ts1(new pp_test_binding);
+	pp_scope_ptr scope1(new pp_scope);
 
 	/* define a constant */
-	pp_value c1(1);
-	s1->add_constant("const1", c1);
-	pp_value c2 = s1->constants["const1"];
-	if (c2 != c1) {
+	pp_value const1(1);
+	scope1->add_constant("const1", const1);
+	pp_value const2 = scope1->constants["const1"];
+	if (const2 != const1) {
 		PP_TEST_ERROR("pp_scope::add_constant()");
 		ret++;
 	}
 
 	/* define a datatype */
-	pp_datatype_ptr dt1(new pp_int);
-	s1->add_datatype("dt1", dt1); //FIXME: handle errors?
-	pp_datatype_ptr pdt1 = s1->datatypes["dt1"];
-	if (pdt1 != dt1) {
+	pp_datatype_ptr type1(new pp_int);
+	scope1->add_datatype("type1", type1); //FIXME: handle errors?
+	pp_datatype_ptr type2 = scope1->datatypes["type1"];
+	if (type2 != type1) {
 		PP_TEST_ERROR("pp_scope::add_datatype()");
 		ret++;
 	}
-	pp_datatype_ptr pdt2 = s1->datatypes[0];
-	if (pdt2 != dt1) {
+	pp_datatype_ptr type3 = scope1->datatypes[0];
+	if (type3 != type1) {
 		PP_TEST_ERROR("pp_scope::add_datatype()");
 		ret++;
 	}
 
 	/* define a register */
-	pp_register_ptr r1(new pp_register(ts1, 1, BITS16));
-	s1->add_register("r1", r1); //FIXME: handle errors
-	pp_register_ptr pr1 = s1->registers["r1"];
-	if (pr1 != r1) {
+	pp_binding_ptr bind1(new pp_test_binding);
+	pp_register_ptr reg1(new pp_register(bind1, 1, BITS16));
+	scope1->add_register("reg1", reg1); //FIXME: handle errors
+	pp_register_ptr reg2 = scope1->registers["reg1"];
+	if (reg2 != reg1) {
 		PP_TEST_ERROR("pp_scope::add_register()");
 		ret++;
 	}
 
 	/* define a field */
-	pp_direct_field_ptr f1(new pp_direct_field(pdt1));
-	f1->add_regbits(pr1, 0, pp_value(0xffff), 0);
-	s1->add_field("f1", f1);
-	pp_field_ptr pf1 = pp_field_from_dirent(s1->dirents["f1"]);
-	if (pf1 != f1) {
+	pp_direct_field_ptr field1(new pp_direct_field(type1));
+	field1->add_regbits(reg1, 0, pp_value(0xffff), 0);
+	scope1->add_field("field1", field1);
+	pp_field_ptr field2 = scope1->dirents["field1"].field();
+	if (field2 != field1) {
 		PP_TEST_ERROR("pp_scope::add_field()");
 		ret++;
 	}
 
 	/* test sub-scopes */
-	pp_scope_ptr s2(new pp_scope);
-	s2->add_constant("one", 1);
-	s2->add_constant("two", 2);
-	s2->add_constant("three", 3);
-	s1->add_scope("subscope", s2);
+	pp_scope_ptr scope2(new pp_scope);
+	scope2->add_constant("one", 1);
+	scope2->add_constant("two", 2);
+	scope2->add_constant("three", 3);
+	scope1->add_scope("subscope", scope2);
 
-	//dump_scope(s1);
+	//dump_scope(scope1);
 
 	return ret;
 }

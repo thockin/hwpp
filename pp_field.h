@@ -4,7 +4,6 @@
 
 #include "pp.h"
 #include "pp_datatype.h"
-#include "pp_dirent.h"
 
 /*
  * pp_field - abstract base class for a data field.
@@ -14,10 +13,10 @@
  *
  * Notes:
  */
-class pp_field: public pp_dirent {
+class pp_field {
     public:
 	explicit pp_field(const pp_datatype_ptr &datatype)
-	    : pp_dirent(PP_DIRENT_FIELD), m_datatype(datatype) {}
+	    : m_datatype(datatype) {}
 	virtual ~pp_field() {}
 
 	/*
@@ -50,12 +49,5 @@ class pp_field: public pp_dirent {
 	pp_datatype_ptr m_datatype;
 };
 typedef boost::shared_ptr<pp_field> pp_field_ptr;
-
-inline pp_field_ptr
-pp_field_from_dirent(pp_dirent_ptr dirent)
-{
-	//FIXME: check type?  return error?
-	return boost::static_pointer_cast<pp_field>(dirent);
-}
 
 #endif // PP_PP_FIELD_H__
