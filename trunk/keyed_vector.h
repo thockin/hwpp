@@ -25,7 +25,7 @@ template<typename Tkey, typename Tval> class keyed_vector;
 template<typename Titer, typename Tval>
 class keyvec_iter
     : public boost::iterator_facade<keyvec_iter<Titer, Tval>, Tval,
-      std::random_access_iterator_tag>
+      typename std::iterator_traits<Titer>::iterator_category>
 {
 	friend class boost::iterator_core_access;
 	template<class,class> friend class keyvec_iter;
@@ -38,7 +38,7 @@ class keyvec_iter
 	/* implicit conversion from the underlying iterator */
 	keyvec_iter(Titer it): m_it(it) {}
 
-	/* implicit conversion from non-const to const_iterator */
+	/* implicit conversion from iterator to const_iterator */
 	template<class Tother>
 	keyvec_iter(const keyvec_iter<Titer, Tother> &other)
 	    : m_it(other.m_it), m_trap(other.m_trap) {}
@@ -151,8 +151,7 @@ class keyed_vector
 	}
 	const_reverse_iterator rbegin() const {
 		keyed_vector *p = const_cast<keyed_vector *>(this);
-		reverse_iterator r = p->rbegin();
-		return r;
+		return p->rbegin();
 	}
 	const_reverse_iterator rend() const {
 		keyed_vector *p = const_cast<keyed_vector *>(this);
@@ -174,15 +173,6 @@ class keyed_vector
 	}
 	void reserve(size_type n) {
 		m_vector.reserve(n);
-	}
-
-	/* get the pair at an int index - can throw std::out_of_range */
-	Tpair& pair_at(size_type index) {
-		return *kviter_at(index);
-	}
-	const Tpair& pair_at(size_type index) const {
-		keyed_vector *p = const_cast<keyed_vector *>(this);
-		return *p->kviter_at(index);
 	}
 
 	/* get the value at an int index - can throw std::out_of_range */
@@ -240,14 +230,19 @@ class keyed_vector
 		return m_vector.back().second;
 	}
 
-	/* get the key at an int index - can throw std::out_of_range */
+	/* get the const key at an int index - can throw std::out_of_range */
 	const Tkey& key_at(size_type index) const {
 		keyed_vector *p = const_cast<keyed_vector *>(this);
 		return p->kviter_at(index)->first;
 	}
 
-	/* check for the existence of a key - does not throw
-	 * std::out_of_range */
+	/* get the const pair at an int index - can throw std::out_of_range */
+	const Tpair& pair_at(size_type index) const {
+		keyed_vector *p = const_cast<keyed_vector *>(this);
+		return *p->kviter_at(index);
+	}
+
+	/* check for the existence of a key - does not throw */
 	bool has_key(const Tkey &key) const {
 		return (find(key) != end());
 	}
