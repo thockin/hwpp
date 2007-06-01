@@ -15,6 +15,7 @@
  */
 class pp_container;
 typedef boost::shared_ptr<pp_container> pp_container_ptr;
+typedef boost::shared_ptr<const pp_container> pp_const_container_ptr;
 
 class pp_container: public boost::enable_shared_from_this<pp_container> {
     public:
@@ -28,9 +29,10 @@ class pp_container: public boost::enable_shared_from_this<pp_container> {
 	 * container is the top of the hierarchy, this method returns a
 	 * pointer to this object.
 	 */
-	const pp_container_ptr parent() const {
-		pp_container *p = const_cast<pp_container *>(this);
-		return p->parent();
+	pp_const_container_ptr parent() const {
+		if (is_root()) {
+			return shared_from_this();
+		}
 	}
 	pp_container_ptr parent() {
 		if (is_root()) {
