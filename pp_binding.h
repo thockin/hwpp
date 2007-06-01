@@ -48,5 +48,6 @@ class pp_binding {
 	    const pp_bitwidth width, const pp_value value) const = 0;
 };
 typedef boost::shared_ptr<pp_binding> pp_binding_ptr;
+typedef boost::shared_ptr<const pp_binding> pp_const_binding_ptr;
 
 #endif // PP_PP_BINDING_H__

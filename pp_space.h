@@ -24,7 +24,7 @@ class pp_space: public pp_scope {
 	 *
 	 * Get the binding of this space.
 	 */
-	const pp_binding_ptr binding() const { return m_binding; }
+	pp_const_binding_ptr binding() const { return m_binding; }
 
     private:
 	pp_binding_ptr m_binding;
