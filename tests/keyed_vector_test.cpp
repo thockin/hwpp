@@ -16,10 +16,11 @@ int
 test_keyed_vector_int() {
 	int ret = 0;
 
-	keyed_vector<string, int> keyvec;
-	const keyed_vector<string, int> &const_keyvec = keyvec;
-	keyed_vector<string, int>::iterator it;
-	keyed_vector<string, int> empty_keyvec;
+	typedef keyed_vector<string, int> si_keyvec;
+	si_keyvec keyvec;
+	const si_keyvec &const_keyvec = keyvec;
+	si_keyvec::iterator it;
+	si_keyvec empty_keyvec;
 
 	keyvec.push_back("three", 3);
 	keyvec.push_back("two", 2);
@@ -43,7 +44,7 @@ test_keyed_vector_int() {
 		ERROR("keyed_vector::end()");
 		ret++;
 	}
-	keyed_vector<string, int>::const_iterator cit = const_keyvec.begin();
+	si_keyvec::const_iterator cit = const_keyvec.begin();
 	cit = keyvec.begin();
 	// manual test: these should fail
 	//it = const_keyvec.begin();
@@ -108,16 +109,13 @@ test_keyed_vector_int() {
 	}
 
 	/* test pair_at() */
-	pair<string, int> &kvpair = keyvec.pair_at(0);
-	if (kvpair.first != "three" || kvpair.second != 3) {
-		ERROR("keyed_vector::pair_at()");
-		ret++;
-	}
-	const pair<string, int> &ckvpair = const_keyvec.pair_at(0);
+	const si_keyvec::pair_type &ckvpair = const_keyvec.pair_at(0);
 	if (ckvpair.first != "three" || ckvpair.second != 3) {
 		ERROR("keyed_vector::pair_at()");
 		ret++;
 	}
+	//ckvpair.first = string("three");  // must fail
+	//ckvpair.second = 3;  // must fail
 
 	/* test simple int indexing and at() */
 	if (keyvec[0] != 3) {
