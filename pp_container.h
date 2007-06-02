@@ -33,11 +33,6 @@ class pp_container: public boost::enable_shared_from_this<pp_container> {
 		if (is_root()) {
 			return shared_from_this();
 		}
-	}
-	pp_container_ptr parent() {
-		if (is_root()) {
-			return shared_from_this();
-		}
 		return m_parent;
 	}
 
