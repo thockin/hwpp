@@ -50,6 +50,7 @@ class pp_scope: public pp_container {
 		bool is_field() const {
 			return m_type == DIRENT_FIELD;
 		}
+		//FIXME: return pp_const_field_ptr?
 		pp_field_ptr field() const {
 			return m_field;
 		}
@@ -120,7 +121,8 @@ class pp_scope: public pp_container {
 	keyed_vector<string, pp_datatype_ptr> datatypes;
 	keyed_vector<string, pp_register_ptr> registers;
 	keyed_vector<string, dirent> dirents;
-
 };
+
+#define new_pp_scope(...) pp_scope_ptr(new pp_scope(__VA_ARGS__))
 
 #endif // PP_PP_SCOPE_H__

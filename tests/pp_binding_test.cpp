@@ -10,7 +10,7 @@ test_pp_binding()
 	int ret = 0;
 
 	/* test the read() method */
-	pp_binding_ptr sp(new pp_test_binding);
+	pp_binding_ptr sp = new_test_binding();
 	if (sp->read(0, BITS8) != 0xff) {
 		PP_TEST_ERROR("pp_binding::read()");
 		ret++;

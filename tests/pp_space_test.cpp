@@ -41,8 +41,8 @@ test_pp_space()
 	int ret = 0;
 
 	/* test the basic constructor */
-	pp_binding_ptr bind1(new pp_test_binding);
-	pp_space_ptr space1(new pp_space(bind1));
+	pp_binding_ptr bind1 = new_test_binding();
+	pp_space_ptr space1 = new_pp_space(bind1);
 
 	/* define a constant */
 	pp_value const1(1);
@@ -54,7 +54,7 @@ test_pp_space()
 	}
 
 	/* define a datatype */
-	pp_datatype_ptr type1(new pp_int);
+	pp_datatype_ptr type1 = new_pp_int();
 	space1->add_datatype("type1", type1); //FIXME: handle errors?
 	pp_datatype_ptr type2 = space1->datatypes["type1"];
 	if (type2 != type1) {
@@ -68,8 +68,8 @@ test_pp_space()
 	}
 
 	/* define a field */
-	pp_register_ptr reg1(new pp_register(bind1, 1, BITS16));
-	pp_direct_field_ptr field1(new pp_direct_field(type1));
+	pp_register_ptr reg1 = new_pp_register(bind1, 1, BITS16);
+	pp_direct_field_ptr field1 = new_pp_direct_field(type1);
 	field1->add_regbits(reg1, 0, pp_value(0xffff), 0);
 	space1->add_field("field1", field1);
 	pp_field_ptr field2 = space1->dirents["field1"].field();
@@ -79,7 +79,7 @@ test_pp_space()
 	}
 
 	/* test sub-scopes */
-	pp_scope_ptr scope1(new pp_scope);
+	pp_scope_ptr scope1 = new_pp_scope();
 	scope1->add_constant("one", 1);
 	scope1->add_constant("two", 2);
 	scope1->add_constant("three", 3);

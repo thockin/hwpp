@@ -31,6 +31,7 @@ class pp_enum: public pp_datatype {
 				return m_values.key_at(i);
 			}
 		}
+		//FIXME: need a better answer
 		return "<!!unknown!!>";
 	}
 
@@ -47,6 +48,8 @@ class pp_enum: public pp_datatype {
 	keyed_vector<string, pp_value> m_values;
 };
 typedef boost::shared_ptr<pp_enum> pp_enum_ptr;
+
+#define new_pp_enum(...) pp_enum_ptr(new pp_enum(__VA_ARGS__))
 
 /*
  * pp_bitmask - datatype for bitmasks.
@@ -111,6 +114,8 @@ class pp_bitmask: public pp_datatype {
 };
 typedef boost::shared_ptr<pp_bitmask> pp_bitmask_ptr;
 
+#define new_pp_bitmask(...) pp_bitmask_ptr(new pp_bitmask(__VA_ARGS__))
+
 /*
  * pp_int - datatype for signed integer values.
  *
@@ -147,6 +152,8 @@ class pp_int: public pp_datatype {
 };
 typedef boost::shared_ptr<pp_int> pp_int_ptr;
 
+#define new_pp_int(...) pp_int_ptr(new pp_int(__VA_ARGS__))
+
 /*
  * pp_uint - datatype for unsigned integer values.
  *
@@ -178,6 +185,8 @@ class pp_uint: public pp_int {
 	}
 };
 typedef boost::shared_ptr<pp_uint> pp_uint_ptr;
+
+#define new_pp_uint(...) pp_uint_ptr(new pp_uint(__VA_ARGS__))
 
 /*
  * pp_hex - datatype for hexadecimal values.
@@ -214,5 +223,7 @@ class pp_hex: public pp_int {
 	pp_bitwidth m_width;
 };
 typedef boost::shared_ptr<pp_hex> pp_hex_ptr;
+
+#define new_pp_hex(...) pp_hex_ptr(new pp_hex(__VA_ARGS__))
 
 #endif // PP_PP_DATATYPES_H__

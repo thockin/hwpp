@@ -64,4 +64,6 @@ class pp_register {
 };
 typedef boost::shared_ptr<pp_register> pp_register_ptr;
 
+#define new_pp_register(...) pp_register_ptr(new pp_register(__VA_ARGS__))
+
 #endif // PP_PP_REGISTER_H__

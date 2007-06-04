@@ -133,4 +133,6 @@ class pp_device: public pp_container {
 	keyed_vector<string, dirent> dirents;
 };
 
+#define new_pp_device(...) pp_device_ptr(new pp_device(__VA_ARGS__))
+
 #endif // PP_PP_DEVICE_H__

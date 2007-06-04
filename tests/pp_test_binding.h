@@ -1,15 +1,15 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_TESTS_PP_TEST_BINDING_H__
-#define PP_TESTS_PP_TEST_BINDING_H__
+#ifndef PP_TESTS_TEST_BINDING_H__
+#define PP_TESTS_TEST_BINDING_H__
 
 #include "pp_binding.h"
 #include "pp.h"
 
 /* define a test binding */
-class pp_test_binding: public pp_binding {
+class test_binding: public pp_binding {
     public:
-	explicit pp_test_binding(): m_data(-1ULL) {}
-	virtual ~pp_test_binding() {}
+	explicit test_binding(): m_data(-1ULL) {}
+	virtual ~test_binding() {}
 
 	pp_value read(const pp_regaddr address,
 	    const pp_bitwidth width) const {
@@ -29,4 +29,6 @@ class pp_test_binding: public pp_binding {
 	mutable pp_value m_data;
 };
 
-#endif // PP_TESTS_PP_TEST_BINDING_H__
+#define new_test_binding(...) pp_binding_ptr(new test_binding(__VA_ARGS__))
+
+#endif // PP_TESTS_TEST_BINDING_H__
