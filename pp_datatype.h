@@ -12,7 +12,8 @@
  *
  * Notes:
  */
-class pp_datatype {
+class pp_datatype
+{
     public:
 	virtual ~pp_datatype() {}
 
@@ -23,7 +24,8 @@ class pp_datatype {
 	 * string containing the evaluated representation of the 'value'
 	 * argument.
 	 */
-	virtual string evaluate(const pp_value value) const = 0;
+	virtual string
+	evaluate(const pp_value value) const = 0;
 };
 typedef boost::shared_ptr<pp_datatype> pp_datatype_ptr;
 

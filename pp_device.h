@@ -20,7 +20,8 @@
 class pp_device;
 typedef boost::shared_ptr<pp_device> pp_device_ptr;
 
-class pp_device: public pp_container {
+class pp_device: public pp_container
+{
     public:
 	typedef enum {
 		DIRENT_DEVICE,
@@ -29,7 +30,8 @@ class pp_device: public pp_container {
 	} dirent_type;
 
     private:
-	class dirent {
+	class dirent
+	{
 	    public:
 		explicit dirent(pp_device_ptr device)
 		    : m_type(DIRENT_DEVICE), m_device(device) {}
@@ -39,28 +41,42 @@ class pp_device: public pp_container {
 		    : m_type(DIRENT_FIELD), m_field(field) {}
 		~dirent() {}
 
-		dirent_type type() const {
+		dirent_type
+		type() const
+		{
 			return m_type;
 		}
 
-		bool is_device() const {
+		bool
+		is_device() const
+		{
 			return m_type == DIRENT_DEVICE;
 		}
-		pp_device_ptr device() const {
+		pp_device_ptr
+		device() const
+		{
 			return m_device;
 		}
 
-		bool is_space() const {
+		bool
+		is_space() const
+		{
 			return m_type == DIRENT_SPACE;
 		}
-		pp_space_ptr space() const {
+		pp_space_ptr
+		space() const
+		{
 			return m_space;
 		}
 
-		bool is_field() const {
+		bool
+		is_field() const
+		{
 			return m_type == DIRENT_FIELD;
 		}
-		pp_field_ptr field() const {
+		pp_field_ptr
+		field() const
+		{
 			return m_field;
 		}
 
@@ -83,7 +99,9 @@ class pp_device: public pp_container {
 	 * Add a named constant to this device.
 	 */
 	//FIXME: do we use constants at all?
-	void add_constant(const string &name, const pp_value value) {
+	void
+	add_constant(const string &name, const pp_value value)
+	{
 		constants.insert(name, value);
 	}
 
@@ -92,8 +110,10 @@ class pp_device: public pp_container {
 	 *
 	 * Add a named datatype to this device.
 	 */
-	void add_datatype(const string &name,
-	    const pp_datatype_ptr &datatype) {
+	void
+	add_datatype(const string &name,
+	    const pp_datatype_ptr &datatype)
+	{
 		datatypes.insert(name, datatype);
 	}
 
@@ -102,7 +122,9 @@ class pp_device: public pp_container {
 	 *
 	 * Add a named field to this device.
 	 */
-	void add_field(const string &name, const pp_field_ptr &field) {
+	void
+	add_field(const string &name, const pp_field_ptr &field)
+	{
 		dirents.insert(name, dirent(field));
 	}
 
@@ -111,7 +133,9 @@ class pp_device: public pp_container {
 	 *
 	 * Add a named device to this device.
 	 */
-	void add_device(const string &name, const pp_device_ptr &device) {
+	void
+	add_device(const string &name, const pp_device_ptr &device)
+	{
 		pp_container_ptr tmp = shared_from_this();
 		device->set_parent(tmp);
 		dirents.insert(name, dirent(device));
@@ -122,7 +146,9 @@ class pp_device: public pp_container {
 	 *
 	 * Add a named space to this device.
 	 */
-	void add_space(const string &name, const pp_space_ptr &space) {
+	void
+	add_space(const string &name, const pp_space_ptr &space)
+	{
 		pp_container_ptr tmp = shared_from_this();
 		space->set_parent(tmp);
 		dirents.insert(name, dirent(space));

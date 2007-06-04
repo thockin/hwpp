@@ -6,19 +6,24 @@
 #include "pp.h"
 
 /* define a test binding */
-class test_binding: public pp_binding {
+class test_binding: public pp_binding
+{
     public:
 	explicit test_binding(): m_data(-1ULL) {}
 	virtual ~test_binding() {}
 
-	pp_value read(const pp_regaddr address,
-	    const pp_bitwidth width) const {
+	pp_value
+	read(const pp_regaddr address, const pp_bitwidth width) const
+	{
 		if (address == 0x12345678)
 			throw pp_binding_error("test binding read");
 		return (m_data & PP_MASK(width));
 	}
-	void write(const pp_regaddr address, const pp_bitwidth width,
-	    const pp_value value) const {
+
+	void
+	write(const pp_regaddr address, const pp_bitwidth width,
+	    const pp_value value) const
+	{
 		if (address == 0x12345678)
 			throw pp_binding_error("test binding write");
 		m_data &= ~PP_MASK(width);

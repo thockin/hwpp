@@ -20,7 +20,8 @@
 class pp_scope;
 typedef boost::shared_ptr<pp_scope> pp_scope_ptr;
 
-class pp_scope: public pp_container {
+class pp_scope: public pp_container
+{
     public:
 	typedef enum {
 		DIRENT_SCOPE,
@@ -28,7 +29,8 @@ class pp_scope: public pp_container {
 	} dirent_type;
 
     private:
-	class dirent {
+	class dirent
+	{
 	    public:
 		explicit dirent(pp_scope_ptr scope)
 		    : m_type(DIRENT_SCOPE), m_scope(scope) {}
@@ -36,22 +38,32 @@ class pp_scope: public pp_container {
 		    : m_type(DIRENT_FIELD), m_field(field) {}
 		~dirent() {}
 
-		dirent_type type() const {
+		dirent_type
+		type() const
+		{
 			return m_type;
 		}
 
-		bool is_scope() const {
+		bool
+		is_scope() const
+		{
 			return m_type == DIRENT_SCOPE;
 		}
-		pp_scope_ptr scope() const {
+		pp_scope_ptr
+		scope() const
+		{
 			return m_scope;
 		}
 
-		bool is_field() const {
+		bool
+		is_field() const
+		{
 			return m_type == DIRENT_FIELD;
 		}
 		//FIXME: return pp_const_field_ptr?
-		pp_field_ptr field() const {
+		pp_field_ptr
+		field() const
+		{
 			return m_field;
 		}
 
@@ -72,7 +84,9 @@ class pp_scope: public pp_container {
 	 *
 	 * Add a named constant to this scope.
 	 */
-	void add_constant(const string &name, const pp_value value) {
+	void
+	add_constant(const string &name, const pp_value value)
+	{
 		constants.insert(name, value);
 	}
 
@@ -81,8 +95,9 @@ class pp_scope: public pp_container {
 	 *
 	 * Add a named datatype to this scope.
 	 */
-	void add_datatype(const string &name,
-	    const pp_datatype_ptr &datatype) {
+	void
+	add_datatype(const string &name, const pp_datatype_ptr &datatype)
+	{
 		datatypes.insert(name, datatype);
 	}
 
@@ -91,7 +106,9 @@ class pp_scope: public pp_container {
 	 *
 	 * Add a named register to this scope.
 	 */
-	void add_register(const string &name, const pp_register_ptr &reg) {
+	void
+	add_register(const string &name, const pp_register_ptr &reg)
+	{
 		registers.insert(name, reg);
 	}
 
@@ -100,7 +117,9 @@ class pp_scope: public pp_container {
 	 *
 	 * Add a named field to this scope.
 	 */
-	void add_field(const string &name, const pp_field_ptr &field) {
+	void
+	add_field(const string &name, const pp_field_ptr &field)
+	{
 		dirents.insert(name, dirent(field));
 	}
 
@@ -111,7 +130,9 @@ class pp_scope: public pp_container {
 	 *
 	 * Add a named scope to this scope.
 	 */
-	void add_scope(const string &name, const pp_scope_ptr &scope) {
+	void
+	add_scope(const string &name, const pp_scope_ptr &scope)
+	{
 		pp_container_ptr tmp = shared_from_this();
 		scope->set_parent(tmp);
 		dirents.insert(name, dirent(scope));

@@ -14,7 +14,8 @@
  *
  * Notes:
  */
-class pp_space: public pp_scope {
+class pp_space: public pp_scope
+{
     public:
 	explicit pp_space(const pp_binding_ptr &binding): m_binding(binding) {}
 	virtual ~pp_space() {}
@@ -24,7 +25,11 @@ class pp_space: public pp_scope {
 	 *
 	 * Get the binding of this space.
 	 */
-	pp_const_binding_ptr binding() const { return m_binding; }
+	pp_const_binding_ptr
+	binding() const
+	{
+		return m_binding;
+	}
 
     private:
 	pp_binding_ptr m_binding;
