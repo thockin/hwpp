@@ -17,7 +17,8 @@ class pp_container;
 typedef boost::shared_ptr<pp_container> pp_container_ptr;
 typedef boost::shared_ptr<const pp_container> pp_const_container_ptr;
 
-class pp_container: public boost::enable_shared_from_this<pp_container> {
+class pp_container: public boost::enable_shared_from_this<pp_container>
+{
     public:
 	explicit pp_container() {}
 	virtual ~pp_container() {}
@@ -29,7 +30,9 @@ class pp_container: public boost::enable_shared_from_this<pp_container> {
 	 * container is the top of the hierarchy, this method returns a
 	 * pointer to this object.
 	 */
-	pp_const_container_ptr parent() const {
+	pp_const_container_ptr
+	parent() const
+	{
 		if (is_root()) {
 			return shared_from_this();
 		}
@@ -41,7 +44,9 @@ class pp_container: public boost::enable_shared_from_this<pp_container> {
 	 *
 	 * Set the parent container of this object.
 	 */
-	void set_parent(const pp_container_ptr &parent) {
+	void
+	set_parent(const pp_container_ptr &parent)
+	{
 		m_parent = parent;
 	}
 
@@ -53,7 +58,9 @@ class pp_container: public boost::enable_shared_from_this<pp_container> {
 	 * for:
 	 *     (object->parent() == object)
 	 */
-	bool is_root() const {
+	bool
+	is_root() const
+	{
 		return (m_parent.get() == NULL);
 	}
 

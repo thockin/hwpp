@@ -13,7 +13,8 @@
  *
  * Notes:
  */
-class pp_enum: public pp_datatype {
+class pp_enum: public pp_datatype
+{
     public:
 	explicit pp_enum() {}
 	virtual ~pp_enum() {}
@@ -25,7 +26,9 @@ class pp_enum: public pp_datatype {
 	 * string containing the evaluated representation of the 'value'
 	 * argument.
 	 */
-	virtual string evaluate(const pp_value value) const {
+	virtual string
+	evaluate(const pp_value value) const
+	{
 		for (size_t i=0; i < m_values.size(); i++) {
 			if (m_values[i] == value) {
 				return m_values.key_at(i);
@@ -40,7 +43,9 @@ class pp_enum: public pp_datatype {
 	 *
 	 * Add a possible value to this enumeration.
 	 */
-	void add_value(const string &name, pp_value value) {
+	void
+	add_value(const string &name, pp_value value)
+	{
 		m_values.insert(name, value);
 	}
 
@@ -59,7 +64,8 @@ typedef boost::shared_ptr<pp_enum> pp_enum_ptr;
  *
  * Notes:
  */
-class pp_bitmask: public pp_datatype {
+class pp_bitmask: public pp_datatype
+{
     public:
 	explicit pp_bitmask() {}
 	virtual ~pp_bitmask() {}
@@ -71,7 +77,9 @@ class pp_bitmask: public pp_datatype {
 	 * string containing the evaluated representation of the 'value'
 	 * argument.
 	 */
-	virtual string evaluate(const pp_value value) const {
+	virtual string
+	evaluate(const pp_value value) const
+	{
 		string ret;
 		pp_value myval = value;
 
@@ -105,7 +113,9 @@ class pp_bitmask: public pp_datatype {
 	 *
 	 * Add a named bit to this bitmask.
 	 */
-	void add_bit(const string &name, const pp_value value) {
+	void
+	add_bit(const string &name, const pp_value value)
+	{
 		m_bits.insert(name, value);
 	}
 
@@ -125,7 +135,8 @@ typedef boost::shared_ptr<pp_bitmask> pp_bitmask_ptr;
  * Notes:
  * 	This class makes a private copy of the 'units' argument.
  */
-class pp_int: public pp_datatype {
+class pp_int: public pp_datatype
+{
     public:
 	explicit pp_int(const string &units = ""): m_units(units) {}
 	virtual ~pp_int() {}
@@ -137,7 +148,9 @@ class pp_int: public pp_datatype {
 	 * string containing the evaluated representation of the 'value'
 	 * argument.
 	 */
-	virtual string evaluate(const pp_value value) const {
+	virtual string
+	evaluate(const pp_value value) const
+	{
 		pp_svalue svalue(value);
 		string ret = to_string(svalue);
 		if (!m_units.empty()) {
@@ -163,7 +176,8 @@ typedef boost::shared_ptr<pp_int> pp_int_ptr;
  * Notes:
  * 	This class makes a private copy of the 'units' argument.
  */
-class pp_uint: public pp_int {
+class pp_uint: public pp_int
+{
     public:
 	explicit pp_uint(const string &units = ""): pp_int(units) {}
 	virtual ~pp_uint() {}
@@ -175,7 +189,9 @@ class pp_uint: public pp_int {
 	 * string containing the evaluated representation of the 'value'
 	 * argument.
 	 */
-	virtual string evaluate(const pp_value value) const {
+	virtual string
+	evaluate(const pp_value value) const
+	{
 		string ret = to_string(value);
 		if (!m_units.empty()) {
 			ret += " ";
@@ -196,7 +212,8 @@ typedef boost::shared_ptr<pp_uint> pp_uint_ptr;
  *
  * Notes:
  */
-class pp_hex: public pp_int {
+class pp_hex: public pp_int
+{
     public:
 	explicit pp_hex(const pp_bitwidth width, const string &units = "")
 	    : pp_int(units), m_width(width) {}
@@ -209,7 +226,9 @@ class pp_hex: public pp_int {
 	 * string containing the evaluated representation of the 'value'
 	 * argument.
 	 */
-	virtual string evaluate(const pp_value value) const {
+	virtual string
+	evaluate(const pp_value value) const
+	{
 		string fmt = "0x%0" + to_string(m_width/4) + "x";
 		string ret = to_string(boost::format(fmt) %value);
 		if (!m_units.empty()) {

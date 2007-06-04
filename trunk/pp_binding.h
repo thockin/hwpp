@@ -5,10 +5,12 @@
 #include <stdexcept>
 #include "pp.h"
 
+//FIXME: too generic?
 /*
  * pp_binding_error - thrown when something goes awry with a binding.
  */
-class pp_binding_error: public std::runtime_error {
+class pp_binding_error: public std::runtime_error
+{
     public:
 	explicit pp_binding_error(const string &arg)
 	    : std::runtime_error(arg) {}
@@ -22,7 +24,8 @@ class pp_binding_error: public std::runtime_error {
  *
  * Notes:
  */
-class pp_binding {
+class pp_binding
+{
     public:
 	explicit pp_binding() {}
 	virtual ~pp_binding() {}
@@ -34,8 +37,8 @@ class pp_binding {
 	 *
 	 * Throws: pp_binding_error
 	 */
-	virtual pp_value read(const pp_regaddr address,
-	    const pp_bitwidth width) const = 0;
+	virtual pp_value
+	read(const pp_regaddr address, const pp_bitwidth width) const = 0;
 
 	/*
 	 * pp_binding::write(address, width, value)
@@ -44,8 +47,9 @@ class pp_binding {
 	 *
 	 * Throws: pp_binding_error
 	 */
-	virtual void write(const pp_regaddr address,
-	    const pp_bitwidth width, const pp_value value) const = 0;
+	virtual void
+	write(const pp_regaddr address, const pp_bitwidth width,
+	    const pp_value value) const = 0;
 };
 typedef boost::shared_ptr<pp_binding> pp_binding_ptr;
 typedef boost::shared_ptr<const pp_binding> pp_const_binding_ptr;

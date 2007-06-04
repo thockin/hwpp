@@ -13,7 +13,8 @@
  *
  * Notes:
  */
-class pp_field {
+class pp_field
+{
     public:
 	explicit pp_field(const pp_datatype_ptr &datatype)
 	    : m_datatype(datatype) {}
@@ -24,14 +25,16 @@ class pp_field {
 	 *
 	 * Read the current value of this field.
 	 */
-	virtual pp_value read() const = 0;
+	virtual pp_value
+	read() const = 0;
 
 	/*
 	 * pp_field::write(value)
 	 *
 	 * Write a value to this field.
 	 */
-	virtual void write(const pp_value value) const = 0;
+	virtual void
+	write(const pp_value value) const = 0;
 
 	/*
 	 * pp_field::evaluate()
@@ -40,7 +43,9 @@ class pp_field {
 	 * method returns a string containing the evaluated representation
 	 * of the field.
 	 */
-	virtual string evaluate() const {
+	virtual string
+	evaluate() const
+	{
 		pp_value value = read();
 		return m_datatype->evaluate(value);
 	}

@@ -17,7 +17,8 @@
  * Notes:
  *	This class is a helper for pp_direct_field.
  */
-class regbits {
+class regbits
+{
     public:
 	explicit regbits(const pp_register_ptr &reg, const int shift,
 	    const pp_value mask, const int position)
@@ -33,7 +34,9 @@ class regbits {
 	 *
 	 * Throws: pp_binding_error
 	 */
-	pp_value read() const {
+	pp_value
+	read() const
+	{
 		pp_value result = m_reg->read();
 		result >>= m_regshift;
 		result &= m_mask;
@@ -49,7 +52,9 @@ class regbits {
 	 *
 	 * Throws: pp_binding_error
 	 */
-	void write(const pp_value value) const {
+	void
+	write(const pp_value value) const
+	{
 		pp_value myval = value;
 		myval >>= m_position;
 		myval &= m_mask;
@@ -76,7 +81,8 @@ class regbits {
  *
  * Notes:
  */
-class pp_direct_field: public pp_field {
+class pp_direct_field: public pp_field
+{
     public:
 	explicit pp_direct_field(const pp_datatype_ptr &datatype)
 	    : pp_field(datatype) {}
@@ -89,7 +95,9 @@ class pp_direct_field: public pp_field {
 	 *
 	 * Throws: pp_binding_error
 	 */
-	virtual pp_value read() const {
+	virtual pp_value
+	read() const
+	{
 		pp_value result = 0;
 		for (size_t i=0; i < m_regbits.size(); i++) {
 			result |= m_regbits[i].read();
@@ -104,7 +112,9 @@ class pp_direct_field: public pp_field {
 	 *
 	 * Throws: pp_binding_error
 	 */
-	virtual void write(const pp_value value) const {
+	virtual void
+	write(const pp_value value) const
+	{
 		for (size_t i=0; i < m_regbits.size(); i++) {
 			m_regbits[i].write(value);
 		}
@@ -117,8 +127,10 @@ class pp_direct_field: public pp_field {
 	 * Add register bits to this field.
 	 */
 	 //FIXME: just pass a vector to ctor?
-	void add_regbits(const pp_register_ptr &reg,
-	    const int shift, const pp_value mask, const int position) {
+	void
+	add_regbits(const pp_register_ptr &reg,
+	    const int shift, const pp_value mask, const int position)
+	{
 		m_regbits.push_back(regbits(reg, shift, mask, position));
 	}
 

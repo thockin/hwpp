@@ -14,7 +14,8 @@
  *
  * Notes:
  */
-class pp_register {
+class pp_register
+{
     public:
 	explicit pp_register(const pp_binding_ptr &binding,
 	    const pp_regaddr address, const pp_bitwidth width)
@@ -26,14 +27,22 @@ class pp_register {
 	 *
 	 * Get the address of this register.
 	 */
-	pp_regaddr address() const { return m_address; }
+	pp_regaddr
+	address() const
+	{
+		return m_address;
+	}
 
 	/*
 	 * pp_register::width()
 	 *
 	 * Get the access width of this register.
 	 */
-	pp_bitwidth width() const { return m_width; }
+	pp_bitwidth
+	width() const
+	{
+		return m_width;
+	}
 
 	/*
 	 * pp_register::read()
@@ -42,7 +51,9 @@ class pp_register {
 	 *
 	 * Throws: pp_binding_error
 	 */
-	pp_value read() const {
+	pp_value
+	read() const
+	{
 		return m_binding->read(m_address, m_width);
 	}
 
@@ -53,7 +64,9 @@ class pp_register {
 	 *
 	 * Throws: pp_binding_error
 	 */
-	void write(const pp_value value) const {
+	void
+	write(const pp_value value) const
+	{
 		m_binding->write(m_address, m_width, value);
 	}
 
