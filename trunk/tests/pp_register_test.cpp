@@ -10,7 +10,7 @@ test_pp_register()
 	int ret = 0;
 
 	/* test the binding constructor */
-	pp_binding_ptr ts(new pp_test_binding);
+	pp_binding_ptr ts = new_test_binding();
 
 	/* test the reg constructor */
 	pp_register r0(ts, 1, BITS8);

@@ -61,4 +61,6 @@ class pp_container: public boost::enable_shared_from_this<pp_container> {
 	pp_container_ptr m_parent;
 };
 
+#define new_pp_container(...) pp_container_ptr(new pp_container(__VA_ARGS__))
+
 #endif // PP_PP_CONTAINER_H__

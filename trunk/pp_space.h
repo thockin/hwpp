@@ -16,7 +16,7 @@
  */
 class pp_space: public pp_scope {
     public:
-	explicit pp_space(pp_binding_ptr binding): m_binding(binding) {}
+	explicit pp_space(const pp_binding_ptr &binding): m_binding(binding) {}
 	virtual ~pp_space() {}
 
 	/*
@@ -30,5 +30,7 @@ class pp_space: public pp_scope {
 	pp_binding_ptr m_binding;
 };
 typedef boost::shared_ptr<pp_space> pp_space_ptr;
+
+#define new_pp_space(...) pp_space_ptr(new pp_space(__VA_ARGS__))
 
 #endif // PP_PP_SPACE_H__

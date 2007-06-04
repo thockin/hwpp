@@ -11,8 +11,8 @@ test_regbits()
 {
 	int ret = 0;
 
-	pp_binding_ptr ts(new pp_test_binding);
-	pp_register_ptr r1(new pp_register(ts, 1, BITS16));
+	pp_binding_ptr ts = new_test_binding();
+	pp_register_ptr r1 = new_pp_register(ts, 1, BITS16);
 
 	/* test a read() with valid shift */
 	regbits rb1(r1, 0, 0xf, 16);
@@ -47,14 +47,14 @@ test_pp_int_field()
 	int ret = 0;
 
 	/* two bindings with one reg each */
-	pp_binding_ptr ts1(new pp_test_binding);
+	pp_binding_ptr ts1 = new_test_binding();
 	ts1->write(0, BITS16, 0x1111);
-	pp_register_ptr r1(new pp_register(ts1, 1, BITS16));
-	pp_binding_ptr ts2(new pp_test_binding);
+	pp_register_ptr r1 = new_pp_register(ts1, 1, BITS16);
+	pp_binding_ptr ts2 = new_test_binding();
 	ts2->write(0, BITS16, 0x2222);
-	pp_register_ptr r2(new pp_register(ts2, 1, BITS16));
+	pp_register_ptr r2 = new_pp_register(ts2, 1, BITS16);
 
-	pp_datatype_ptr integer(new pp_int);
+	pp_datatype_ptr integer = new_pp_int();
 	pp_direct_field f1(integer);
 	f1.add_regbits(r1, 0, 0xff, 0);
 	f1.add_regbits(r2, 0, 0xff, 8);
@@ -93,14 +93,14 @@ test_pp_uint_field()
 	int ret = 0;
 
 	/* two bindings with one reg each */
-	pp_binding_ptr ts1(new pp_test_binding);
+	pp_binding_ptr ts1 = new_test_binding();
 	ts1->write(0, BITS16, 0x1111);
-	pp_register_ptr r1(new pp_register(ts1, 1, BITS16));
-	pp_binding_ptr ts2(new pp_test_binding);
+	pp_register_ptr r1 = new_pp_register(ts1, 1, BITS16);
+	pp_binding_ptr ts2 = new_test_binding();
 	ts2->write(0, BITS16, 0x2222);
-	pp_register_ptr r2(new pp_register(ts2, 1, BITS16));
+	pp_register_ptr r2 = new_pp_register(ts2, 1, BITS16);
 
-	pp_datatype_ptr uinteger(new pp_uint);
+	pp_datatype_ptr uinteger = new_pp_uint();
 	pp_direct_field f1(uinteger);
 	f1.add_regbits(r1, 0, 0xff, 0);
 	f1.add_regbits(r2, 0, 0xff, 8);
@@ -139,15 +139,15 @@ test_pp_hex_field()
 	int ret = 0;
 
 	/* two bindings with one reg each */
-	pp_binding_ptr ts1(new pp_test_binding);
+	pp_binding_ptr ts1 = new_test_binding();
 	ts1->write(0, BITS16, 0x1111);
-	pp_register_ptr r1(new pp_register(ts1, 1, BITS16));
-	pp_binding_ptr ts2(new pp_test_binding);
+	pp_register_ptr r1 = new_pp_register(ts1, 1, BITS16);
+	pp_binding_ptr ts2 = new_test_binding();
 	ts2->write(0, BITS16, 0x2222);
-	pp_register_ptr r2(new pp_register(ts2, 1, BITS16));
+	pp_register_ptr r2 = new_pp_register(ts2, 1, BITS16);
 
 	/* test a hex16 field */
-	pp_datatype_ptr hex16(new pp_hex(BITS16));
+	pp_datatype_ptr hex16 = new_pp_hex(BITS16);
 	pp_direct_field f1(hex16);
 	f1.add_regbits(r1, 0, 0xff, 0);
 	f1.add_regbits(r2, 0, 0xff, 8);
@@ -186,20 +186,20 @@ test_pp_enum_field()
 	int ret = 0;
 
 	/* two bindings with one reg each */
-	pp_binding_ptr ts1(new pp_test_binding);
+	pp_binding_ptr ts1 = new_test_binding();
 	ts1->write(0, BITS16, 0x1111);
-	pp_register_ptr r1(new pp_register(ts1, 1, BITS16));
-	pp_binding_ptr ts2(new pp_test_binding);
+	pp_register_ptr r1 = new_pp_register(ts1, 1, BITS16);
+	pp_binding_ptr ts2 = new_test_binding();
 	ts2->write(0, BITS16, 0x2222);
-	pp_register_ptr r2(new pp_register(ts2, 1, BITS16));
+	pp_register_ptr r2 = new_pp_register(ts2, 1, BITS16);
 
 	/* test an enum field */
-	pp_enum_ptr e1(new pp_enum);
+	pp_enum_ptr e1 = new_pp_enum();
 	e1->add_value("one", 1);
 	e1->add_value("two", 2);
 	e1->add_value("three", 3);
 	e1->add_value("correct", 0x2211);
-	pp_direct_field_ptr f1(new pp_direct_field(e1));
+	pp_direct_field_ptr f1 = new_pp_direct_field(e1);
 	f1->add_regbits(r1, 0, 0xff, 0);
 	f1->add_regbits(r2, 0, 0xff, 8);
 
@@ -238,15 +238,15 @@ test_pp_bitmask_field()
 	int ret = 0;
 
 	/* two bindings with one reg each */
-	pp_binding_ptr ts1(new pp_test_binding);
+	pp_binding_ptr ts1 = new_test_binding();
 	ts1->write(0, BITS16, 0x1111);
-	pp_register_ptr r1(new pp_register(ts1, 1, BITS16));
-	pp_binding_ptr ts2(new pp_test_binding);
+	pp_register_ptr r1 = new_pp_register(ts1, 1, BITS16);
+	pp_binding_ptr ts2 = new_test_binding();
 	ts2->write(0, BITS16, 0x2222);
-	pp_register_ptr r2(new pp_register(ts2, 1, BITS16));
+	pp_register_ptr r2 = new_pp_register(ts2, 1, BITS16);
 
 	/* test a bitmask field */
-	pp_bitmask_ptr b1(new pp_bitmask);
+	pp_bitmask_ptr b1 = new_pp_bitmask();
 	b1->add_bit("zero", 0);
 	b1->add_bit("one", 1);
 	b1->add_bit("two", 2);
@@ -254,7 +254,7 @@ test_pp_bitmask_field()
 	b1->add_bit("four", 4);
 	b1->add_bit("nine", 9);
 	b1->add_bit("thirteen", 13);
-	pp_direct_field_ptr f1(new pp_direct_field(b1));
+	pp_direct_field_ptr f1 = new_pp_direct_field(b1);
 	f1->add_regbits(r1, 0, 0xff, 0);
 	f1->add_regbits(r2, 0, 0xff, 8);
 

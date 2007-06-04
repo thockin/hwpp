@@ -67,6 +67,7 @@ class regbits {
 	int m_position;
 };
 
+//FIXME: better name
 /*
  * pp_direct_field - a field that maps directly to register bits.
  *
@@ -125,6 +126,8 @@ class pp_direct_field: public pp_field {
 	std::vector<regbits> m_regbits;
 };
 typedef boost::shared_ptr<pp_direct_field> pp_direct_field_ptr;
+
+#define new_pp_direct_field(...) pp_direct_field_ptr(new pp_direct_field(__VA_ARGS__))
 
 //FIXME: method fields?
 
