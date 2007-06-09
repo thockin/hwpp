@@ -29,7 +29,6 @@ class keyvec_iter
 {
 	friend class boost::iterator_core_access;
 	template<class,class> friend class keyvec_iter;
-	template<class,class> friend class keyed_vector;
 
     public:
 	/* default constructor */
@@ -42,6 +41,13 @@ class keyvec_iter
 	template<class Tother>
 	keyvec_iter(const keyvec_iter<Titer, Tother> &other)
 	    : m_it(other.m_it), m_trap(other.m_trap) {}
+
+	/* get the underlying iterator */
+	const Titer&
+	get() const
+	{
+		return m_it;
+	}
 
     private:
 	/* check for equality */
@@ -209,11 +215,11 @@ class keyed_vector
 	/* get the value at the next matching Tkey index - can throw
 	 * std::out_of_range */
 	reference at(const Tkey &index, const iterator &from) {
-		return kviter_at(index, from.m_it)->second;
+		return kviter_at(index, from.get())->second;
 	}
 	const_reference at(const Tkey &index, const iterator &from) const {
 		keyed_vector *p = const_cast<keyed_vector *>(this);
-		return p->kviter_at(index, from.m_it)->second;
+		return p->kviter_at(index, from.get())->second;
 	}
 
 	/* access the first/last values */
@@ -256,7 +262,7 @@ class keyed_vector
 	}
 	iterator find(const Tkey &key, const iterator &from) {
 		try {
-			return kviter_at(key, from.m_it);
+			return kviter_at(key, from.get());
 		} catch (std::out_of_range) {
 			return m_vector.end();
 		}
@@ -304,10 +310,10 @@ class keyed_vector
 
 	/* remove a value or values by iterator */
 	iterator erase(iterator pos) {
-		return m_vector.erase(pos.m_it);
+		return m_vector.erase(pos.get());
 	}
 	iterator erase(iterator first, iterator last) {
-		return m_vector.erase(first.m_it, last.m_it);
+		return m_vector.erase(first.get(), last.get());
 	}
 
     private:

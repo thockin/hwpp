@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <boost/iterator_adaptors.hpp>
 
-/* forward declaration of path class */
+/* forward declaration */
 class pp_path;
 
 /*
@@ -25,7 +25,6 @@ class pp_path_iterator
 {
 	friend class boost::iterator_core_access;
 	template<class,class> friend class pp_path_iterator;
-	friend class pp_path;
 
     public:
 	/* default constructor */
@@ -38,6 +37,13 @@ class pp_path_iterator
 	template<class Tother>
 	pp_path_iterator(const pp_path_iterator<Titer, Tother> &other)
 	    : m_it(other.m_it), m_trap(other.m_trap) {}
+
+	/* get the underlying iterator */
+	const Titer&
+	get() const
+	{
+		return m_it;
+	}
 
     private:
 	/* check for equality */
@@ -70,7 +76,7 @@ class pp_path_iterator
 
 	/* get at the referent */
 	Tval& dereference() const {
-    		return *m_it;
+		return *m_it;
 	}
 
     private:
@@ -81,13 +87,10 @@ class pp_path_iterator
 	Tval *m_trap;
 };
 
-
-/* The pp_path Object */
-class pp_path 
+class pp_path
 {
-    /* typedefs for list and iterator */
-    typedef std::list<std::string> Tlist;
-    typedef Tlist::iterator Titer;
+	typedef std::list<std::string> Tlist;
+	typedef Tlist::iterator Titer;
 
     public:
 	typedef std::string value_type;
@@ -98,183 +101,178 @@ class pp_path
 	typedef std::size_t size_type;
 	typedef std::ptrdiff_t difference_type;
 	typedef pp_path_iterator<Titer, std::string> iterator;
-	typedef pp_path_iterator<Titer, const std::string > const_iterator;
+	typedef pp_path_iterator<Titer, const std::string> const_iterator;
 	typedef std::reverse_iterator<iterator> reverse_iterator;
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 	/* Constructors */
-	explicit pp_path() : m_list() {};
-	explicit pp_path(const std::string  &path) {
-	    /* Create a path from the input string */
-	    std::string temp_path = path;
-	    std::string path_item;
+	explicit pp_path() : m_list() {}
+	explicit pp_path(const std::string &path) {
+		/* Create a path from the input string */
+		std::string tmp = path;
+		std::string path_item;
 
-	    /* the location of the / */
-	    unsigned int last_location = 1;
+		/* the location of the / */
+		std::string::size_type last_loc = 0;
 
-	    /* 
-             * Until we can find no more /
-	     * note that this function will self-correct excess /'s, for 
-             * example: /red/orange/yellow/ the function does not create
-             * an empty string that would occur after the final /.  And in 
-             * the path //red//orange, it will not add extra empty strings 
-             * between the double slashes.  This algorithm also does not 
-             * care whether you lead or end with a /, it finds only valid 
-             * non-empty strings and creates the path from them.
-	     *
-	     * Valid is defined as any non-empty string between a pair of 
-	     * /'s.
-             * */
-	    while (last_location != std::string::npos) {
-		/* find the location of / */
-		last_location = temp_path.find_first_of("/");
-		if (last_location == 0) {
-		    temp_path = temp_path.substr(1, temp_path.length());
-		} else {
-		    /* non-empty strings */
-		    if (temp_path.length() > 0) {
-			path_item = temp_path.substr(0, last_location);
-			m_list.push_back(path_item);
-			temp_path = temp_path.substr(last_location+1, 
-                                                     temp_path.length()+1);
-		    }
+		/*
+		 * Until we can find no more /
+		 * note that this function will self-correct excess /'s, for
+		 * example: /red/orange/yellow/ the function does not create
+		 * an empty string that would occur after the final /.  And in
+		 * the path //red//orange, it will not add extra empty strings
+		 * between the double slashes.  This algorithm also does not
+		 * care whether you lead or end with a /, it finds only valid
+		 * non-empty strings and creates the path from them.
+		 *
+		 * Valid is defined as any non-empty string between a pair of
+		 * /'s.
+		 */
+		while (last_loc != std::string::npos) {
+			/* find the location of / */
+			last_loc = tmp.find_first_of("/");
+			if (last_loc == 0) {
+				tmp = tmp.substr(1, tmp.length());
+			} else {
+				/* non-empty strings */
+				if (tmp.length() > 0) {
+					path_item = tmp.substr(0, last_loc);
+					m_list.push_back(path_item);
+					tmp = tmp.substr(last_loc+1,
+					    tmp.length()+1);
+				}
+			}
 		}
-	    }
-	};
+	}
 
 	/* Destructor */
-	~pp_path() {};
+	~pp_path() {}
 
 	/* Iterator Functionality */
 	iterator begin() {
-	    return m_list.begin();
-	};
+		return m_list.begin();
+	}
 
 	iterator end() {
-	    return m_list.end();
-	};
+		return m_list.end();
+	}
 
 	const_iterator begin() const {
-	    pp_path *p = const_cast<pp_path *>(this);
-	    return p->begin();
-	};
+		pp_path *p = const_cast<pp_path *>(this);
+		return p->begin();
+	}
 
 	const_iterator end() const {
-	    pp_path *p = const_cast<pp_path *>(this);
-	    return p->end();
-	};
+		pp_path *p = const_cast<pp_path *>(this);
+		return p->end();
+	}
 
 	reverse_iterator rbegin() {
-	    return m_list.rbegin();
-	};
+		return m_list.rbegin();
+	}
 
 	reverse_iterator rend() {
-	    return m_list.rend();
-	};
+		return m_list.rend();
+	}
 
 	const_reverse_iterator rbegin() const {
-	    pp_path *p = const_cast<pp_path *>(this);
-	    return p->rbegin();
-	};
+		pp_path *p = const_cast<pp_path *>(this);
+		return p->rbegin();
+	}
 
 	const_reverse_iterator rend() const {
-	    pp_path *p = const_cast<pp_path *>(this);
-	    return p->rend();
-	};
+		pp_path *p = const_cast<pp_path *>(this);
+		return p->rend();
+	}
 
 	/* Size Functionality */
 	size_type size() const {
-	    return m_list.size();
-	};
+		return m_list.size();
+	}
 
 	size_type max_size() const {
-	    return m_list.max_size();
-	};
+		return m_list.max_size();
+	}
 
 	/* A function that returns true if the list is empty */
 	bool empty() const {
-	    return m_list.empty();
-	};
+		return m_list.empty();
+	}
 
 	/* access the first/last values */
 	reference front() {
-	    return m_list.front();
-        };
-    
+		return m_list.front();
+	}
+
 	reference back() {
-	    return m_list.back();
-	};
-    
+		return m_list.back();
+	}
+
 	const_reference front() const {
-	    return m_list.front();
-	};
+		return m_list.front();
+	}
 
 	const_reference back() const {
-	    return m_list.back();
-	};
+		return m_list.back();
+	}
 
 	/* Push and pop functions */
 	void push_front(const_reference item) {
-	    m_list.push_front(item);
-	};
+		m_list.push_front(item);
+	}
 
 	void push_back(const_reference item) {
-	    m_list.push_back(item);
-	};
+		m_list.push_back(item);
+	}
 
 	void pop_front() {
-	    m_list.pop_front();
-	};
+		m_list.pop_front();
+	}
 
 	void pop_back() {
-	    m_list.pop_back();
-	};
+		m_list.pop_back();
+	}
 
 	/* Clear function */
 	void clear() {
-	    m_list.clear();
-	};
+		m_list.clear();
+	}
 
 	/* A function for testing if two paths are equal */
 	bool equals(const pp_path &item) const {
-	    /* 
-             * If the two lists are different lengths, exit, 
-             * they cannot be equal 
-             * */
-	    if (m_list.size() != item.size()) {
-		return false;
-	    }
-      
-	    /* 
-             * Iterate through both lists at the same rate comparing 
-             * each element 
-             * */
-	    const_iterator my_pp_path_iterator;
-	    const_iterator your_pp_path_iterator;
-	    my_pp_path_iterator = begin();
-	    your_pp_path_iterator = item.begin();
-      
-	    while (my_pp_path_iterator != end()) {
-        
-		/* If any element comparison is non-equal, return false */
-		if ((*my_pp_path_iterator).compare(*your_pp_path_iterator) != 0)
-                {
-		    return false;
+		/*
+		 * If the two lists are different lengths, exit,
+		 * they cannot be equal
+		 * */
+		 if (m_list.size() != item.size()) {
+			return false;
+		 }
+
+		/*
+		 * Iterate through both lists at the same rate comparing
+		 * each element
+		 * */
+		const_iterator my_pp_path_iterator;
+		const_iterator your_pp_path_iterator;
+		my_pp_path_iterator = begin();
+		your_pp_path_iterator = item.begin();
+
+		while (my_pp_path_iterator != end()) {
+			/* if any elements are non-equal, return false */
+			if ((*my_pp_path_iterator).compare(
+			    *your_pp_path_iterator) != 0) {
+				return false;
+			}
+
+			my_pp_path_iterator++;
+			your_pp_path_iterator++;
 		}
 
-		my_pp_path_iterator++;
-		your_pp_path_iterator++;
-	    }
+		return true;
+	}
 
-	    /* 
-             * Return true at the end, as we would have exited as false prior 
-             * */
-	    return true;
-	};
-        
     private:
-
-	/* The list that is being wrapped */
+	/* the list that is being wrapped */
 	Tlist m_list;
 };
 
