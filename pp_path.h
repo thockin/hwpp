@@ -4,8 +4,10 @@
 #ifndef PP_PATH_HPP__
 #define PP_PATH_HPP__
 
+#include "pp.h"
 #include <list>
-#include <stdexcept>
+#include <iostream>
+#include <string>
 #include <boost/iterator_adaptors.hpp>
 
 /* forward declaration */
@@ -93,26 +95,25 @@ class pp_path
 	typedef Tlist::iterator Titer;
 
     public:
-	typedef std::string value_type;
-	typedef value_type* pointer;
-	typedef const value_type* const_pointer;
-	typedef value_type& reference;
-	typedef const value_type& const_reference;
-	typedef std::size_t size_type;
-	typedef std::ptrdiff_t difference_type;
 	typedef pp_path_iterator<Titer, std::string> iterator;
 	typedef pp_path_iterator<Titer, const std::string> const_iterator;
 	typedef std::reverse_iterator<iterator> reverse_iterator;
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-	/* Constructors */
+	/* default constructor */
 	explicit pp_path() : m_list() {}
-	explicit pp_path(const std::string &path) {
+
+	/* copy constructor */
+	pp_path(const pp_path &that) : m_list(that.m_list) {}
+
+	/* implicit conversion from string */
+	pp_path(const std::string &path) {
+		//FIXME: take delimiter as an argument, too
 		/* Create a path from the input string */
 		std::string tmp = path;
 		std::string path_item;
 
-		/* the location of the / */
+		/* the location of the delimiter */
 		std::string::size_type last_loc = 0;
 
 		/*
@@ -130,7 +131,7 @@ class pp_path
 		 */
 		while (last_loc != std::string::npos) {
 			/* find the location of / */
-			last_loc = tmp.find_first_of("/");
+			last_loc = tmp.find_first_of(delim());
 			if (last_loc == 0) {
 				tmp = tmp.substr(1, tmp.length());
 			} else {
@@ -145,10 +146,10 @@ class pp_path
 		}
 	}
 
-	/* Destructor */
+	/* destructor */
 	~pp_path() {}
 
-	/* Iterator Functionality */
+	/* iterator functionality */
 	iterator begin() {
 		return m_list.begin();
 	}
@@ -185,44 +186,60 @@ class pp_path
 		return p->rend();
 	}
 
-	/* Size Functionality */
-	size_type size() const {
+	/* size functionality */
+	Tlist::size_type size() const {
 		return m_list.size();
 	}
 
-	size_type max_size() const {
+	Tlist::size_type max_size() const {
 		return m_list.max_size();
 	}
 
-	/* A function that returns true if the list is empty */
+	/* check if the list is empty */
 	bool empty() const {
 		return m_list.empty();
 	}
 
 	/* access the first/last values */
-	reference front() {
+	std::string &front() {
 		return m_list.front();
 	}
 
-	reference back() {
+	std::string &back() {
 		return m_list.back();
 	}
 
-	const_reference front() const {
+	const std::string &front() const {
 		return m_list.front();
 	}
 
-	const_reference back() const {
+	const std::string &back() const {
 		return m_list.back();
 	}
 
-	/* Push and pop functions */
-	void push_front(const_reference item) {
+	/* push and pop functions */
+	void push_front(const std::string &item) {
+		//FIXME: check for / characters?
 		m_list.push_front(item);
 	}
+	void push_front(const pp_path &path) {
+		const_reverse_iterator rit = path.rbegin();
+		while (rit != path.rend()) {
+			m_list.push_front(*rit);
+			rit++;
+		}
+	}
 
-	void push_back(const_reference item) {
+	void push_back(const std::string &item) {
+		//FIXME: check for / characters?
 		m_list.push_back(item);
+	}
+	void push_back(const pp_path &path) {
+		const_iterator it = path.begin();
+		while (it != path.end()) {
+			m_list.push_back(*it);
+			it++;
+		}
 	}
 
 	void pop_front() {
@@ -252,28 +269,126 @@ class pp_path
 		 * Iterate through both lists at the same rate comparing
 		 * each element
 		 * */
-		const_iterator my_pp_path_iterator;
-		const_iterator your_pp_path_iterator;
-		my_pp_path_iterator = begin();
-		your_pp_path_iterator = item.begin();
+		const_iterator my_iter = begin();
+		const_iterator your_iter = item.begin();
 
-		while (my_pp_path_iterator != end()) {
+		while (my_iter != end()) {
 			/* if any elements are non-equal, return false */
-			if ((*my_pp_path_iterator).compare(
-			    *your_pp_path_iterator) != 0) {
+			if (my_iter->compare(*your_iter) != 0) {
 				return false;
 			}
-
-			my_pp_path_iterator++;
-			your_pp_path_iterator++;
+			my_iter++;
+			your_iter++;
 		}
 
 		return true;
+	}
+
+	std::string delim() const {
+		return "/";
 	}
 
     private:
 	/* the list that is being wrapped */
 	Tlist m_list;
 };
+
+inline std::ostream &
+operator<<(std::ostream& o, const pp_path &path)
+{
+	pp_path::const_iterator it = path.begin();
+	while (it != path.end()) {
+		o << *it;
+		it++;
+		if (it != path.end()) {
+			o << path.delim();
+		}
+	}
+	return o;
+}
+
+inline bool
+operator==(const pp_path &left, const pp_path &right)
+{
+	return left.equals(right);
+}
+
+inline bool
+operator==(const pp_path &path, const std::string &str)
+{
+	return path.equals(pp_path(str));
+}
+
+inline bool
+operator==(const std::string &str, const pp_path &path)
+{
+	return path.equals(pp_path(str));
+}
+
+inline bool
+operator!=(const pp_path &left, const pp_path &right)
+{
+	return !(left == right);
+}
+
+inline bool
+operator!=(const pp_path &path, const std::string &str)
+{
+	return !(path == str);
+}
+
+inline bool
+operator!=(const std::string &str, const pp_path &path)
+{
+	return !(path == str);
+}
+
+inline pp_path &
+operator+=(pp_path &left, const pp_path &right)
+{
+	/* return the original pp_path, the arg here is a reference */
+	left.push_back(right);
+	return left;
+}
+
+inline pp_path &
+operator+=(pp_path &path, const std::string &str)
+{
+	/* return the original pp_path, the arg here is a reference */
+	path.push_back(str);
+	return path;
+}
+
+inline std::string &
+operator+=(std::string &str, const pp_path &path)
+{
+	/* return the original string */
+	str += path.delim() + to_string(path);
+	return str;
+}
+
+inline pp_path
+operator+(pp_path left, const pp_path &right)
+{
+	/* return a new pp_path, the arg here is a copy */
+	left.push_back(right);
+	return left;
+}
+
+inline pp_path
+operator+(pp_path path, const std::string &str)
+{
+	/* return a new pp_path, the arg here is a copy */
+	path.push_back(str);
+	return path;
+}
+
+inline std::string
+operator+(std::string str, const pp_path &path)
+{
+	/* return a new string */
+	str += path.delim() + to_string(path);
+	return str;
+}
 
 #endif // PP_PATH_HPP__
