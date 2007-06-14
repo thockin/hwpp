@@ -5,9 +5,12 @@
 #define PP_PATH_HPP__
 
 #include "pp.h"
-#include <list>
 #include <iostream>
+#include <list>
+#include <stdexcept>
 #include <string>
+#include <vector>
+#include <boost/algorithm/string.hpp>
 #include <boost/iterator_adaptors.hpp>
 
 /* forward declaration */
@@ -120,40 +123,31 @@ class pp_path
 	pp_path(const std::string &path)
 	{
 		//FIXME: take delimiter as an argument, too
-		/* Create a path from the input string */
-		std::string tmp = path;
-		std::string path_item;
-
-		/* the location of the delimiter */
-		std::string::size_type last_loc = 0;
+		std::vector<std::string> path_parts;
 
 		/*
-		 * Until we can find no more /
-		 * note that this function will self-correct excess /'s, for
-		 * example: /red/orange/yellow/ the function does not create
-		 * an empty string that would occur after the final /.  And in
-		 * the path //red//orange, it will not add extra empty strings
-		 * between the double slashes.  This algorithm also does not
-		 * care whether you lead or end with a /, it finds only valid
-		 * non-empty strings and creates the path from them.
-		 *
-		 * Valid is defined as any non-empty string between a pair of
-		 * /'s.
+		 * Until we can't find any more delim()'s
+		 * note that this function will self-correct excess delim()'s, 
+		 * for example: /red/orange/yellow/ the function does not create
+		 * an empty string that would occur after the final delim(). And
+		 * in the path //red//orange, it will not add extra empty
+		 * strings between the double slashes.  This algorithm also 
+		 * does not care whether you lead or end with a delim(), it 
+		 * finds only valid non-empty strings and creates the path from
+		 * them.
 		 */
-		while (last_loc != std::string::npos) {
-			/* find the location of / */
-			last_loc = tmp.find_first_of(delim());
-			if (last_loc == 0) {
-				tmp = tmp.substr(1, tmp.length());
-			} else {
-				/* non-empty strings */
-				if (tmp.length() > 0) {
-					path_item = tmp.substr(0, last_loc);
-					m_list.push_back(path_item);
-					tmp = tmp.substr(last_loc+1,
-					    tmp.length()+1);
-				}
-			}
+		boost::split(path_parts, path, boost::is_any_of(delim()));
+		/*
+		 * Determine if the path is relative or absolute by the first
+		 * element of the vector. If it is an empty string, then the
+		 * path is absolute.
+		 */
+		m_absolute = (path_parts.size() > 0 && 
+			      path_parts[0].length() == 0);
+
+		for (std::size_t i = 0; i < path_parts.size(); i++) {
+			if (path_parts[i].length() != 0)
+				m_list.push_back(path_parts[i]);
 		}
 	}
 
@@ -310,6 +304,11 @@ class pp_path
 		m_list.clear();
 	}
 
+	/* Return true if the path is absolute, else false. */
+	bool is_absolute(void) const {
+		return m_absolute;
+	}
+
 	/* A function for testing if two paths are equal */
 	bool
 	equals(const pp_path &item) const
@@ -350,6 +349,7 @@ class pp_path
     private:
 	/* the list that is being wrapped */
 	Tlist m_list;
+	bool m_absolute;
 };
 
 inline std::ostream &
