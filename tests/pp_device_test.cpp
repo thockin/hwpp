@@ -19,16 +19,11 @@ dump_scope(const pp_scope_ptr &scope)
 		cout << "datatype: "
 		     << scope->datatypes.key_at(i) << endl;
 	}
-	for (size_t i = 0; i < scope->registers.size(); i++) {
-		cout << "register: "
-		     << scope->registers.key_at(i) << endl;
-	}
 	for (size_t i = 0; i < scope->dirents.size(); i++) {
 		cout << "dirent:   "
-		     << scope->dirents[i].type() << ": "
 		     << scope->dirents.key_at(i) << endl;
 		if (scope->dirents[i].is_scope()) {
-			pp_scope_ptr sub = scope->dirents[i].scope();
+			pp_scope_ptr sub = scope->dirents[i].as_scope();
 			dump_scope(sub);
 		}
 	}
@@ -48,13 +43,12 @@ dump_device(const pp_device_ptr &dev)
 	}
 	for (size_t i = 0; i < dev->dirents.size(); i++) {
 		cout << "dirent:   "
-		     << dev->dirents[i].type() << ": "
 		     << dev->dirents.key_at(i) << endl;
 		if (dev->dirents[i].is_space()) {
-			pp_space_ptr sub = dev->dirents[i].space();
+			pp_space_ptr sub = dev->dirents[i].as_space();
 			dump_scope(sub);
 		} else if (dev->dirents[i].is_device()) {
-			pp_device_ptr sub = dev->dirents[i].device();
+			pp_device_ptr sub = dev->dirents[i].as_device();
 			dump_device(sub);
 		}
 	}
@@ -99,7 +93,7 @@ test_pp_device()
 	pp_direct_field_ptr field1 = new_pp_direct_field(type1);
 	field1->add_regbits(reg1, 0, pp_value(0xffff), 0);
 	dev->add_field("field1", field1);
-	pp_field_ptr field2 = dev->dirents["field1"].field();
+	pp_field_ptr field2 = dev->dirents["field1"].as_field();
 	if (field2 != field1) {
 		PP_TEST_ERROR("pp_device::add_field()");
 		ret++;

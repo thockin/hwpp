@@ -20,16 +20,11 @@ dump_scope(const pp_scope_ptr &scope)
 		cout << "datatype: "
 		     << scope->datatypes.key_at(i) << endl;
 	}
-	for (size_t i = 0; i < scope->registers.size(); i++) {
-		cout << "register: "
-		     << scope->registers.key_at(i) << endl;
-	}
 	for (size_t i = 0; i < scope->dirents.size(); i++) {
 		cout << "dirent:   "
-		     << scope->dirents[i].type() << ": " 
 		     << scope->dirents.key_at(i) << endl;
 		if (scope->dirents[i].is_scope()) {
-			pp_scope_ptr sub = scope->dirents[i].scope();
+			pp_scope_ptr sub = scope->dirents[i].as_scope();
 			dump_scope(sub);
 		}
 	}
@@ -69,8 +64,8 @@ test_pp_scope()
 	/* define a register */
 	pp_binding_ptr bind1 = new_test_binding();
 	pp_register_ptr reg1 = new_pp_register(bind1, 1, BITS16);
-	scope1->add_register("reg1", reg1); //FIXME: handle errors
-	pp_register_ptr reg2 = scope1->registers["reg1"];
+	scope1->add_register("%reg1", reg1); //FIXME: handle errors
+	pp_register_ptr reg2 = scope1->dirents["%reg1"].as_register();
 	if (reg2 != reg1) {
 		PP_TEST_ERROR("pp_scope::add_register()");
 		ret++;
@@ -80,7 +75,7 @@ test_pp_scope()
 	pp_direct_field_ptr field1 = new_pp_direct_field(type1);
 	field1->add_regbits(reg1, 0, pp_value(0xffff), 0);
 	scope1->add_field("field1", field1);
-	pp_field_ptr field2 = scope1->dirents["field1"].field();
+	pp_field_ptr field2 = scope1->dirents["field1"].as_field();
 	if (field2 != field1) {
 		PP_TEST_ERROR("pp_scope::add_field()");
 		ret++;

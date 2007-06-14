@@ -20,16 +20,11 @@ dump_scope(const pp_scope_ptr &scope)
 		cout << "datatype: "
 		     << scope->datatypes.key_at(i) << endl;
 	}
-	for (size_t i = 0; i < scope->registers.size(); i++) {
-		cout << "register: "
-		     << scope->registers.key_at(i) << endl;
-	}
 	for (size_t i = 0; i < scope->dirents.size(); i++) {
 		cout << "dirent:   "
-		     << scope->dirents[i].type() << ": "
 		     << scope->dirents.key_at(i) << endl;
 		if (scope->dirents[i].is_scope()) {
-			pp_scope_ptr sub = scope->dirents[i].scope();
+			pp_scope_ptr sub = scope->dirents[i].as_scope();
 			dump_scope(sub);
 		}
 	}
@@ -72,7 +67,7 @@ test_pp_space()
 	pp_direct_field_ptr field1 = new_pp_direct_field(type1);
 	field1->add_regbits(reg1, 0, pp_value(0xffff), 0);
 	space1->add_field("field1", field1);
-	pp_field_ptr field2 = space1->dirents["field1"].field();
+	pp_field_ptr field2 = space1->dirents["field1"].as_field();
 	if (field2 != field1) {
 		PP_TEST_ERROR("pp_space::add_field()");
 		ret++;
