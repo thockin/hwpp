@@ -12,6 +12,8 @@ SRCS = $(TESTS:=.cpp)
 INCLUDES = -I..
 CXXFLAGS = -Wall -Werror $(INCLUDES) -g -DBUILD_TESTS
 
+all: .depend $(TESTS)
+
 test: .depend $(TESTS)
 	@for f in $(TESTS); do \
 		echo -ne "Running $$f: "; \
@@ -25,7 +27,8 @@ $(TESTS): %: %.o
 clean:
 	$(RM) *.o $(TESTS)
 
-dep .depend:
+.PHONY: dep
+dep .depend: $(SRCS)
 	@for f in $(SRCS); do \
 		$(CPP) $(INCLUDES) -MM $$f; \
 	done > .depend
