@@ -67,7 +67,8 @@ class pp_path_iterator
 	}
 
 	/* move the iterator backward by one */
-	void decrement()
+	void
+	decrement()
 	{
 		--m_it;
 	}
@@ -123,7 +124,7 @@ class pp_path
 	pp_path(const std::string &path)
 	{
 		//FIXME: take delimiter as an argument, too
-		std::vector<std::string> path_parts;
+		std::vector<std::string> parts;
 
 		/*
 		 * Until we can't find any more delim()'s
@@ -136,18 +137,17 @@ class pp_path
 		 * finds only valid non-empty strings and creates the path from
 		 * them.
 		 */
-		boost::split(path_parts, path, boost::is_any_of(delim()));
+		boost::split(parts, path, boost::is_any_of(delim()));
 		/*
 		 * Determine if the path is relative or absolute by the first
 		 * element of the vector. If it is an empty string, then the
 		 * path is absolute.
 		 */
-		m_absolute = (path_parts.size() > 0 && 
-			      path_parts[0].length() == 0);
+		m_absolute = (parts.size() > 0 && parts[0].length() == 0);
 
-		for (std::size_t i = 0; i < path_parts.size(); i++) {
-			if (path_parts[i].length() != 0)
-				m_list.push_back(path_parts[i]);
+		for (std::size_t i = 0; i < parts.size(); i++) {
+			if (parts[i].length() != 0)
+				m_list.push_back(parts[i]);
 		}
 	}
 
@@ -305,7 +305,7 @@ class pp_path
 	}
 
 	/* Return true if the path is absolute, else false. */
-	bool is_absolute(void) const {
+	bool is_absolute() const {
 		return m_absolute;
 	}
 
@@ -355,6 +355,10 @@ class pp_path
 inline std::ostream &
 operator<<(std::ostream& o, const pp_path &path)
 {
+	if (path.is_absolute()) {
+		o << path.delim();
+	}
+
 	pp_path::const_iterator it = path.begin();
 	while (it != path.end()) {
 		o << *it;
