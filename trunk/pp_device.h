@@ -9,6 +9,8 @@
 #include "pp_space.h"
 #include "pp_field.h"
 
+#include <stdexcept>
+
 /*
  * pp_device - a logical device container.
  *
@@ -23,13 +25,9 @@ typedef boost::shared_ptr<pp_device> pp_device_ptr;
 class pp_device: public pp_container
 {
     public:
-	typedef enum {
-		DIRENT_DEVICE,
-		DIRENT_SPACE,
-		DIRENT_FIELD,
-	} dirent_type;
-
-    private:
+	/*
+	 * pp_device::dirent
+	 */
 	class dirent
 	{
 	    public:
@@ -41,20 +39,18 @@ class pp_device: public pp_container
 		    : m_type(DIRENT_FIELD), m_field(field) {}
 		~dirent() {}
 
-		dirent_type
-		type() const
-		{
-			return m_type;
-		}
-
 		bool
 		is_device() const
 		{
 			return m_type == DIRENT_DEVICE;
 		}
 		pp_device_ptr
-		device() const
+		as_device() const
 		{
+			if (!is_device()) {
+				throw std::runtime_error(
+				    "non-device dirent used as device");
+			}
 			return m_device;
 		}
 
@@ -64,8 +60,12 @@ class pp_device: public pp_container
 			return m_type == DIRENT_SPACE;
 		}
 		pp_space_ptr
-		space() const
+		as_space() const
 		{
+			if (!is_space()) {
+				throw std::runtime_error(
+				    "non-space dirent used as space");
+			}
 			return m_space;
 		}
 
@@ -75,13 +75,21 @@ class pp_device: public pp_container
 			return m_type == DIRENT_FIELD;
 		}
 		pp_field_ptr
-		field() const
+		as_field() const
 		{
+			if (!is_field()) {
+				throw std::runtime_error(
+				    "non-field dirent used as field");
+			}
 			return m_field;
 		}
 
 	    private:
-		dirent_type m_type;
+		enum {
+			DIRENT_DEVICE,
+			DIRENT_SPACE,
+			DIRENT_FIELD,
+		} m_type;
 		pp_device_ptr m_device;
 		pp_space_ptr m_space;
 		pp_field_ptr m_field;

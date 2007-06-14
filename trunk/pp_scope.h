@@ -9,6 +9,8 @@
 #include "pp_register.h"
 #include "pp_field.h"
 
+#include <stdexcept>
+
 /*
  * pp_scope - a lexical scope.
  *
@@ -23,25 +25,33 @@ typedef boost::shared_ptr<pp_scope> pp_scope_ptr;
 class pp_scope: public pp_container
 {
     public:
-	typedef enum {
-		DIRENT_SCOPE,
-		DIRENT_FIELD,
-	} dirent_type;
-
-    private:
+	/*
+	 * pp_scope::dirent
+	 */
 	class dirent
 	{
 	    public:
+		explicit dirent(pp_register_ptr reg)
+		    : m_type(DIRENT_REGISTER), m_register(reg) {}
 		explicit dirent(pp_scope_ptr scope)
 		    : m_type(DIRENT_SCOPE), m_scope(scope) {}
 		explicit dirent(pp_field_ptr field)
 		    : m_type(DIRENT_FIELD), m_field(field) {}
 		~dirent() {}
 
-		dirent_type
-		type() const
+		bool
+		is_register() const
 		{
-			return m_type;
+			return m_type == DIRENT_REGISTER;
+		}
+		pp_register_ptr
+		as_register() const
+		{
+			if (!is_register()) {
+				throw std::runtime_error(
+				    "non-register dirent used as register");
+			}
+			return m_register;
 		}
 
 		bool
@@ -50,8 +60,12 @@ class pp_scope: public pp_container
 			return m_type == DIRENT_SCOPE;
 		}
 		pp_scope_ptr
-		scope() const
+		as_scope() const
 		{
+			if (!is_scope()) {
+				throw std::runtime_error(
+				    "non-scope dirent used as scope");
+			}
 			return m_scope;
 		}
 
@@ -62,13 +76,22 @@ class pp_scope: public pp_container
 		}
 		//FIXME: return pp_const_field_ptr?
 		pp_field_ptr
-		field() const
+		as_field() const
 		{
+			if (!is_field()) {
+				throw std::runtime_error(
+				    "non-field dirent used as field");
+			}
 			return m_field;
 		}
 
 	    private:
-		dirent_type m_type;
+		enum {
+			DIRENT_REGISTER,
+			DIRENT_SCOPE,
+			DIRENT_FIELD,
+		} m_type;
+		pp_register_ptr m_register;
 		pp_scope_ptr m_scope;
 		pp_field_ptr m_field;
 	};
@@ -109,7 +132,7 @@ class pp_scope: public pp_container
 	void
 	add_register(const string &name, const pp_register_ptr &reg)
 	{
-		registers.insert(name, reg);
+		dirents.insert(name, dirent(reg));
 	}
 
 	/*
@@ -123,8 +146,6 @@ class pp_scope: public pp_container
 		dirents.insert(name, dirent(field));
 	}
 
-	//FIXME: generate a random name (.anon123) for anonymous scopes.  Or
-	//do we support anon scopes at all?  How do you address them?
 	/*
 	 * pp_scope::add_scope(name, scope)
 	 *
@@ -140,7 +161,6 @@ class pp_scope: public pp_container
 
 	keyed_vector<string, pp_value> constants;
 	keyed_vector<string, pp_datatype_ptr> datatypes;
-	keyed_vector<string, pp_register_ptr> registers;
 	keyed_vector<string, dirent> dirents;
 };
 
