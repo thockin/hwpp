@@ -16,7 +16,7 @@
 class pp_enum: public pp_datatype
 {
     public:
-	explicit pp_enum() {}
+	explicit pp_enum(): m_default("<!!unknown!!>") {}
 	virtual ~pp_enum() {}
 
 	/*
@@ -34,10 +34,10 @@ class pp_enum: public pp_datatype
 				return m_values.key_at(i);
 			}
 		}
-		//FIXME: need a better answer
-		return "<!!unknown!!>";
+		return m_default;
 	}
 
+	//FIXME: swap args?  just call it add?
 	/*
 	 * pp_enum::add_value(name, value)
 	 *
@@ -49,8 +49,20 @@ class pp_enum: public pp_datatype
 		m_values.insert(name, value);
 	}
 
+	/*
+	 * pp_enum::set_default(name)
+	 *
+	 * Use a string for unknown enumerated values.
+	 */
+	void
+	set_default(const string &name)
+	{
+		m_default = name;
+	}
+
     private:
 	keyed_vector<string, pp_value> m_values;
+	string m_default;
 };
 typedef boost::shared_ptr<pp_enum> pp_enum_ptr;
 
