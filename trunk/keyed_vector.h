@@ -52,34 +52,45 @@ class keyvec_iter
     private:
 	/* check for equality */
 	template<typename Tthat>
-	bool equal(const keyvec_iter<Titer, Tthat> &that) const {
+	bool
+	equal(const keyvec_iter<Titer, Tthat> &that) const
+	{
 		return (this->m_it == that.m_it);
 	}
 
 	/* move the iterator forward by one */
-	void increment() {
+	void
+	increment()
+	{
 		++m_it;
 	}
 
 	/* move the iterator backward by one */
-	void decrement() {
+	void
+	decrement()
+	{
 		--m_it;
 	}
 
 	/* move the iterator forward or backward by n */
-	void advance(const std::ptrdiff_t n) {
+	void
+	advance(const std::ptrdiff_t n)
+	{
 		m_it += n;
 	}
 
 	/* figure out the distance to another iterator */
 	template<typename Tthere>
-	std::ptrdiff_t distance_to(
-	    const keyvec_iter<Titer, Tthere> &there) const {
+	std::ptrdiff_t
+	distance_to(const keyvec_iter<Titer, Tthere> &there) const
+	{
 		return there.m_it - this->m_it;
 	}
 
 	/* get at the referent */
-	Tval& dereference() const {
+	Tval &
+	dereference() const
+	{
 		return m_it->second;
 	}
 
@@ -135,160 +146,236 @@ class keyed_vector
 	~keyed_vector() {}
 
 	/* get an iterator */
-	iterator begin() {
+	iterator
+	begin()
+	{
 		return m_vector.begin();
 	}
-	iterator end() {
+	iterator
+	end()
+	{
 		return m_vector.end();
 	}
-	const_iterator begin() const {
+	const_iterator
+	begin() const
+	{
 		keyed_vector *p = const_cast<keyed_vector *>(this);
 		return p->begin();
 	}
-	const_iterator end() const {
+	const_iterator
+	end() const
+	{
 		keyed_vector *p = const_cast<keyed_vector *>(this);
 		return p->end();
 	}
-	reverse_iterator rbegin() {
+	reverse_iterator
+	rbegin()
+	{
 		return m_vector.rbegin();
 	}
-	reverse_iterator rend() {
+	reverse_iterator
+	rend()
+	{
 		return m_vector.rend();
 	}
-	const_reverse_iterator rbegin() const {
+	const_reverse_iterator
+	rbegin() const
+	{
 		keyed_vector *p = const_cast<keyed_vector *>(this);
 		return p->rbegin();
 	}
-	const_reverse_iterator rend() const {
+	const_reverse_iterator
+	rend() const
+	{
 		keyed_vector *p = const_cast<keyed_vector *>(this);
 		return p->rend();
 	}
 
 	/* size related methods */
-	size_type size() const {
+	size_type
+	size() const
+	{
 		return m_vector.size();
 	}
-	size_type max_size() const {
+	size_type
+	max_size() const
+	{
 		return m_vector.max_size();
 	}
-	size_type capacity() const {
+	size_type
+	capacity() const
+	{
 		return m_vector.capacity();
 	}
-	bool empty() const {
+	bool
+	empty() const
+	{
 		return m_vector.empty();
 	}
-	void reserve(size_type n) {
+	void
+	reserve(size_type n)
+	{
 		m_vector.reserve(n);
 	}
 
 	/* get the value at an int index - can throw std::out_of_range */
-	reference at(size_type index) {
+	reference
+	at(size_type index)
+	{
 		return kviter_at(index)->second;
 	}
-	reference operator[](size_type index) {
+	reference
+	operator[](size_type index)
+	{
 		return at(index);
 	}
-	const_reference at(size_type index) const {
+	const_reference
+	at(size_type index) const
+	{
 		keyed_vector *p = const_cast<keyed_vector *>(this);
 		return p->kviter_at(index)->second;
 	}
-	const_reference operator[](size_type index) const {
+	const_reference
+	operator[](size_type index) const
+	{
 		return at(index);
 	}
 
 	/* get the value at the first matching Tkey index - can throw
 	 * std::out_of_range */
-	reference at(const Tkey &index) {
+	reference
+	at(const Tkey &index)
+	{
 		return kviter_at(index)->second;
 	}
-	reference operator[](const Tkey &index) {
+	reference
+	operator[](const Tkey &index)
+	{
 		return at(index);
 	}
-	const_reference at(const Tkey &index) const {
+	const_reference
+	at(const Tkey &index) const
+	{
 		keyed_vector *p = const_cast<keyed_vector *>(this);
 		return p->kviter_at(index)->second;
 	}
-	const_reference operator[](const Tkey &index) const {
+	const_reference
+	operator[](const Tkey &index) const
+	{
 		return at(index);
 	}
 
 	/* get the value at the next matching Tkey index - can throw
 	 * std::out_of_range */
-	reference at(const Tkey &index, const iterator &from) {
+	reference
+	at(const Tkey &index, const iterator &from)
+	{
 		return kviter_at(index, from.get())->second;
 	}
-	const_reference at(const Tkey &index, const iterator &from) const {
+	const_reference
+	at(const Tkey &index, const iterator &from) const
+	{
 		keyed_vector *p = const_cast<keyed_vector *>(this);
 		return p->kviter_at(index, from.get())->second;
 	}
 
 	/* access the first/last values */
-	reference front() {
+	reference
+	front()
+	{
 		return m_vector.front().second;
 	}
-	reference back() {
+	reference
+	back()
+	{
 		return m_vector.back().second;
 	}
-	const_reference front() const {
+	const_reference
+	front() const
+	{
 		return m_vector.front().second;
 	}
-	const_reference back() const {
+	const_reference
+	back() const
+	{
 		return m_vector.back().second;
 	}
 
 	/* get the const key at an int index - can throw std::out_of_range */
-	const Tkey& key_at(size_type index) const {
+	const Tkey &
+	key_at(size_type index) const
+	{
 		keyed_vector *p = const_cast<keyed_vector *>(this);
 		return p->kviter_at(index)->first;
 	}
 
 	/* get the const pair at an int index - can throw std::out_of_range */
-	const Tpair& pair_at(size_type index) const {
+	const Tpair &
+	pair_at(size_type index) const
+	{
 		keyed_vector *p = const_cast<keyed_vector *>(this);
 		return *p->kviter_at(index);
 	}
 
 	/* check for the existence of a key - does not throw */
-	bool has_key(const Tkey &key) const {
+	bool
+	has_key(const Tkey &key) const
+	{
 		return (find(key) != end());
 	}
-	bool has_key(const Tkey &key, const iterator &from) const {
+	bool
+	has_key(const Tkey &key, const iterator &from) const
+	{
 		return (find(key, from) != end());
 	}
 
 	/* look up a key, return end() if not found - does not throw */
-	iterator find(const Tkey &key) {
+	iterator
+	find(const Tkey &key)
+	{
 		return find(key, m_vector.begin());
 	}
-	iterator find(const Tkey &key, const iterator &from) {
+	iterator
+	find(const Tkey &key, const iterator &from)
+	{
 		try {
 			return kviter_at(key, from.get());
 		} catch (std::out_of_range) {
 			return m_vector.end();
 		}
 	}
-	const_iterator find(const Tkey &key) const {
+	const_iterator
+	find(const Tkey &key) const
+	{
 		keyed_vector *p = const_cast<keyed_vector *>(this);
 		return p->find(key);
 	}
-	const_iterator find(const Tkey &key, const iterator &from) const {
+	const_iterator
+	find(const Tkey &key, const iterator &from) const
+	{
 		keyed_vector *p = const_cast<keyed_vector *>(this);
 		return p->find(key, from);
 	}
 
 	/* push a value onto the end */
-	void push_back(const Tkey &key, const Tval &value) {
+	void
+	push_back(const Tkey &key, const Tval &value)
+	{
 		m_vector.push_back(Tpair(key, value));
 	}
 
 	/* pop a value from the end */
-	void pop_back() {
+	void
+	pop_back()
+	{
 		m_vector.pop_back();
 	}
 
 	/* add a unique key-value pair, or overwrite the value if the key
 	 * already exists */
-	iterator insert(const Tkey &key, const Tval &value) {
+	iterator
+	insert(const Tkey &key, const Tval &value)
+	{
 		try {
 			Titer it = kviter_at(key);
 			it->second = value;
@@ -300,7 +387,9 @@ class keyed_vector
 	}
 
 	/* remove a value by key */
-	void remove(const Tkey &key) {
+	void
+	remove(const Tkey &key)
+	{
 		try {
 			Titer it = kviter_at(key);
 			m_vector.erase(it);
@@ -309,10 +398,14 @@ class keyed_vector
 	}
 
 	/* remove a value or values by iterator */
-	iterator erase(iterator pos) {
+	iterator
+	erase(iterator pos)
+	{
 		return m_vector.erase(pos.get());
 	}
-	iterator erase(iterator first, iterator last) {
+	iterator
+	erase(iterator first, iterator last)
+	{
 		return m_vector.erase(first.get(), last.get());
 	}
 
@@ -321,7 +414,9 @@ class keyed_vector
 	Tvector m_vector;
 
 	/* get the pair iterator at an int index */
-	Titer kviter_at(size_type index) {
+	Titer
+	kviter_at(size_type index)
+	{
 		if (index < m_vector.size()) {
 			Titer it = m_vector.begin();
 			it += index;
@@ -331,10 +426,14 @@ class keyed_vector
 	}
 
 	/* get the pair iterator at a Tkey index */
-	Titer kviter_at(const Tkey &index) {
+	Titer
+	kviter_at(const Tkey &index)
+	{
 		return kviter_at(index, m_vector.begin());
 	}
-	Titer kviter_at(const Tkey &index, Titer it) {
+	Titer
+	kviter_at(const Tkey &index, Titer it)
+	{
 		while (it != m_vector.end()) {
 			if (it->first == index) {
 				return it;

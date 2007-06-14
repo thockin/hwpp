@@ -50,34 +50,44 @@ class pp_path_iterator
     private:
 	/* check for equality */
 	template<typename Tthat>
-	bool equal(const pp_path_iterator<Titer, Tthat> &that) const {
+	bool
+	equal(const pp_path_iterator<Titer, Tthat> &that) const
+	{
 		return(this->m_it == that.m_it);
 	}
 
 	/* move the iterator forward by one */
-	void increment() {
+	void
+	increment()
+	{
 		++m_it;
 	}
 
 	/* move the iterator backward by one */
-	void decrement() {
+	void decrement()
+	{
 		--m_it;
 	}
 
 	/* move the iterator forward or backward by n */
-	void advance(const std::ptrdiff_t n) {
+	void
+	advance(const std::ptrdiff_t n)
+	{
 		m_it += n;
 	}
 
 	/* figure out the distance to another iterator */
 	template<typename Tthere>
-	std::ptrdiff_t distance_to(
-	    const pp_path_iterator<Titer, Tthere> &there) const {
+	std::ptrdiff_t
+	distance_to(const pp_path_iterator<Titer, Tthere> &there) const
+	{
 		return there.m_it - this->m_it;
 	}
 
 	/* get at the referent */
-	Tval& dereference() const {
+	Tval &
+	dereference() const
+	{
 		return *m_it;
 	}
 
@@ -107,7 +117,8 @@ class pp_path
 	pp_path(const pp_path &that) : m_list(that.m_list) {}
 
 	/* implicit conversion from string */
-	pp_path(const std::string &path) {
+	pp_path(const std::string &path)
+	{
 		//FIXME: take delimiter as an argument, too
 		/* Create a path from the input string */
 		std::string tmp = path;
@@ -150,79 +161,113 @@ class pp_path
 	~pp_path() {}
 
 	/* iterator functionality */
-	iterator begin() {
+	iterator
+	begin()
+	{
 		return m_list.begin();
 	}
 
-	iterator end() {
+	iterator
+	end()
+	{
 		return m_list.end();
 	}
 
-	const_iterator begin() const {
+	const_iterator
+	begin() const
+	{
 		pp_path *p = const_cast<pp_path *>(this);
 		return p->begin();
 	}
 
-	const_iterator end() const {
+	const_iterator
+	end() const
+	{
 		pp_path *p = const_cast<pp_path *>(this);
 		return p->end();
 	}
 
-	reverse_iterator rbegin() {
+	reverse_iterator
+	rbegin()
+	{
 		return m_list.rbegin();
 	}
 
-	reverse_iterator rend() {
+	reverse_iterator
+	rend()
+	{
 		return m_list.rend();
 	}
 
-	const_reverse_iterator rbegin() const {
+	const_reverse_iterator
+	rbegin() const
+	{
 		pp_path *p = const_cast<pp_path *>(this);
 		return p->rbegin();
 	}
 
-	const_reverse_iterator rend() const {
+	const_reverse_iterator
+	rend() const
+	{
 		pp_path *p = const_cast<pp_path *>(this);
 		return p->rend();
 	}
 
 	/* size functionality */
-	Tlist::size_type size() const {
+	Tlist::size_type
+	size() const
+	{
 		return m_list.size();
 	}
 
-	Tlist::size_type max_size() const {
+	Tlist::size_type
+	max_size() const
+	{
 		return m_list.max_size();
 	}
 
 	/* check if the list is empty */
-	bool empty() const {
+	bool
+	empty() const
+	{
 		return m_list.empty();
 	}
 
 	/* access the first/last values */
-	std::string &front() {
+	std::string &
+	front()
+	{
 		return m_list.front();
 	}
 
-	std::string &back() {
+	std::string &
+	back()
+	{
 		return m_list.back();
 	}
 
-	const std::string &front() const {
+	const std::string &
+	front() const
+	{
 		return m_list.front();
 	}
 
-	const std::string &back() const {
+	const std::string &
+	back() const
+	{
 		return m_list.back();
 	}
 
 	/* push and pop functions */
-	void push_front(const std::string &item) {
+	void
+	push_front(const std::string &item)
+	{
 		//FIXME: check for / characters?
 		m_list.push_front(item);
 	}
-	void push_front(const pp_path &path) {
+	void
+	push_front(const pp_path &path)
+	{
 		const_reverse_iterator rit = path.rbegin();
 		while (rit != path.rend()) {
 			m_list.push_front(*rit);
@@ -230,11 +275,15 @@ class pp_path
 		}
 	}
 
-	void push_back(const std::string &item) {
+	void
+	push_back(const std::string &item)
+	{
 		//FIXME: check for / characters?
 		m_list.push_back(item);
 	}
-	void push_back(const pp_path &path) {
+	void
+	push_back(const pp_path &path)
+	{
 		const_iterator it = path.begin();
 		while (it != path.end()) {
 			m_list.push_back(*it);
@@ -242,25 +291,33 @@ class pp_path
 		}
 	}
 
-	void pop_front() {
+	void
+	pop_front()
+	{
 		m_list.pop_front();
 	}
 
-	void pop_back() {
+	void
+	pop_back()
+	{
 		m_list.pop_back();
 	}
 
 	/* Clear function */
-	void clear() {
+	void
+	clear()
+	{
 		m_list.clear();
 	}
 
 	/* A function for testing if two paths are equal */
-	bool equals(const pp_path &item) const {
+	bool
+	equals(const pp_path &item) const
+	{
 		/*
 		 * If the two lists are different lengths, exit,
 		 * they cannot be equal
-		 * */
+		 */
 		 if (m_list.size() != item.size()) {
 			return false;
 		 }
@@ -268,7 +325,7 @@ class pp_path
 		/*
 		 * Iterate through both lists at the same rate comparing
 		 * each element
-		 * */
+		 */
 		const_iterator my_iter = begin();
 		const_iterator your_iter = item.begin();
 
@@ -284,7 +341,9 @@ class pp_path
 		return true;
 	}
 
-	std::string delim() const {
+	std::string
+	delim() const
+	{
 		return "/";
 	}
 
