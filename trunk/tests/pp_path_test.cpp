@@ -390,6 +390,20 @@ test_operators()
 		return_value++;
 	}
 
+	// path + path w/ a '\' as a delimiter
+	path = pp_path("a\\b\\c", "\\") + pp_path("d\\e\\f", "\\");
+	if (path != "a\\b\\c\\d\\e\\f") {
+		ERROR("pp_path::operator+=(pp_path, pp_path) with delim");
+		return_value++;
+	}
+
+	// path + string w/ a '\' as a delimiter
+	path = pp_path("a\\b\\c", "\\") + "d";
+	if (path != "a\\b\\c\\d") {
+		ERROR("pp_path::operator+(pp_path, string) with delim");
+		return_value++;
+	}
+
 	return return_value;
 }
 
