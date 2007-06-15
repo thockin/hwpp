@@ -17,9 +17,9 @@ all: .depend $(TESTS)
 
 test: .depend $(TESTS)
 	@for f in $(TESTS); do \
-		echo -ne "Running $$f: "; \
+		echo -n "Running $$f: "; \
 		./$$f; \
-		if [ $$? == 0 ]; then echo PASS; else echo FAIL; fi; \
+		if [ "$$?" -eq "0" ]; then echo PASS; else echo FAIL; fi; \
 	done
 
 $(TESTS): %: %.o
