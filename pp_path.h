@@ -115,15 +115,16 @@ class pp_path
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 	/* default constructor */
-	explicit pp_path(): m_list(), m_absolute(false) {}
+	explicit pp_path() : m_list(), m_absolute(false), m_delim("/") {}
 
 	/* copy constructor */
 	pp_path(const pp_path &that)
-	    : m_list(that.m_list), m_absolute(that.m_absolute) {}
+	    : m_list(that.m_list), m_absolute(that.m_absolute),
+	      m_delim(that.m_delim) {}
 
-	/* implicit conversion from string */
-	//FIXME: take delimiter as an argument, too
-	pp_path(const std::string &path): m_list(), m_absolute(false)
+	/* implicit conversion from string with a specified delimiter */
+	pp_path(const std::string &path, const std::string delim = "/")
+	    : m_list(), m_absolute(false), m_delim(delim)
 	{
 		append(path);
 	}
@@ -242,7 +243,7 @@ class pp_path
 	void
 	push_front(const std::string &item)
 	{
-		//FIXME: check for / characters?
+		//FIXME: check for delim() characters?
 		m_list.push_front(item);
 	}
 	void
@@ -258,7 +259,7 @@ class pp_path
 	void
 	push_back(const std::string &item)
 	{
-		//FIXME: check for / characters?
+		//FIXME: check for delim() characters?
 		m_list.push_back(item);
 	}
 	void
@@ -331,20 +332,25 @@ class pp_path
 	std::string
 	delim() const
 	{
-		return "/";
+		return m_delim;
 	}
-	//FIXME: set_delim
+
+	void
+	set_delim(const std::string &delim)
+	{
+		m_delim = delim;
+	}
 
     private:
 	/* the list that is being wrapped */
 	Tlist m_list;
 	bool m_absolute;
+	std::string m_delim;
 
+	/* Helper function for initializing during object construction. */
 	void
 	append(const std::string &string)
 	{
-		m_absolute = false;
-
 		/* special case for "" */
 		if (string.size() == 0)
 			return;
@@ -405,13 +411,13 @@ operator==(const pp_path &left, const pp_path &right)
 inline bool
 operator==(const pp_path &path, const std::string &str)
 {
-	return path.equals(pp_path(str));
+	return path.equals(pp_path(str, path.delim()));
 }
 
 inline bool
 operator==(const std::string &str, const pp_path &path)
 {
-	return path.equals(pp_path(str));
+	return path.equals(pp_path(str, path.delim()));
 }
 
 inline bool
