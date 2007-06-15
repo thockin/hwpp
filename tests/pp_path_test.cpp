@@ -181,7 +181,7 @@ test_comparisons()
 
 int test_ctors()
 {
-	int return_value;
+	int return_value = 0;
 	pp_path path;
 
 	/* test construction from a string */
@@ -252,7 +252,7 @@ int test_ctors()
 int
 test_operators()
 {
-	int return_value;
+	int return_value = 0;
 	string str;
 	pp_path path;
 
