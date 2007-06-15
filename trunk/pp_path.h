@@ -115,44 +115,30 @@ class pp_path
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 	/* default constructor */
-	explicit pp_path() : m_list() {}
+	explicit pp_path(): m_list(), m_absolute(false) {}
 
 	/* copy constructor */
-	pp_path(const pp_path &that) : m_list(that.m_list) {}
+	pp_path(const pp_path &that)
+	    : m_list(that.m_list), m_absolute(that.m_absolute) {}
 
 	/* implicit conversion from string */
-	pp_path(const std::string &path)
+	//FIXME: take delimiter as an argument, too
+	pp_path(const std::string &path): m_list(), m_absolute(false)
 	{
-		//FIXME: take delimiter as an argument, too
-		std::vector<std::string> parts;
-
-		/*
-		 * Until we can't find any more delim()'s
-		 * note that this function will self-correct excess delim()'s, 
-		 * for example: /red/orange/yellow/ the function does not create
-		 * an empty string that would occur after the final delim(). And
-		 * in the path //red//orange, it will not add extra empty
-		 * strings between the double slashes.  This algorithm also 
-		 * does not care whether you lead or end with a delim(), it 
-		 * finds only valid non-empty strings and creates the path from
-		 * them.
-		 */
-		boost::split(parts, path, boost::is_any_of(delim()));
-		/*
-		 * Determine if the path is relative or absolute by the first
-		 * element of the vector. If it is an empty string, then the
-		 * path is absolute.
-		 */
-		m_absolute = (parts.size() > 0 && parts[0].length() == 0);
-
-		for (std::size_t i = 0; i < parts.size(); i++) {
-			if (parts[i].length() != 0)
-				m_list.push_back(parts[i]);
-		}
+		append(path);
 	}
 
 	/* destructor */
 	~pp_path() {}
+
+	/* assignment from string */
+	pp_path &
+	operator=(const string &str)
+	{
+		m_list.clear();
+		append(str);
+		return *this;
+	}
 
 	/* iterator functionality */
 	iterator
@@ -308,22 +294,24 @@ class pp_path
 	bool is_absolute() const {
 		return m_absolute;
 	}
+	//FIXME: set_absolute(bool)
 
 	/* A function for testing if two paths are equal */
 	bool
 	equals(const pp_path &item) const
 	{
-		/*
-		 * If the two lists are different lengths, exit,
-		 * they cannot be equal
-		 */
-		 if (m_list.size() != item.size()) {
+		/* if they are different lengths they cannot be equal */
+		if (m_list.size() != item.size()) {
 			return false;
-		 }
+		}
+		/* if only one is absolute, they cannot be equal */
+		if (is_absolute() != item.is_absolute()) {
+			return false;
+		}
 
 		/*
 		 * Iterate through both lists at the same rate comparing
-		 * each element
+		 * each element.
 		 */
 		const_iterator my_iter = begin();
 		const_iterator your_iter = item.begin();
@@ -345,11 +333,49 @@ class pp_path
 	{
 		return "/";
 	}
+	//FIXME: set_delim
 
     private:
 	/* the list that is being wrapped */
 	Tlist m_list;
 	bool m_absolute;
+
+	void
+	append(const std::string &string)
+	{
+		m_absolute = false;
+
+		/* special case for "" */
+		if (string.size() == 0)
+			return;
+
+		std::vector<std::string> parts;
+
+		/*
+		 * Note: this function will self-correct excess delim()'s,
+		 * for example: given "/red/orange/yellow/", it does not
+		 * create an empty part after the final delim().  Given
+		 * the path "//red//orange", it will compact the duplicate
+		 * delim()s.
+		 */
+		boost::split(parts, string, boost::is_any_of(delim()));
+
+		/*
+		 * Determine if the path is relative or absolute by the first
+		 * element of the vector. If it is an empty string, then the
+		 * path is absolute.
+		 */
+		if (parts.size() > 0 && parts[0].length() == 0) {
+			m_absolute = true;
+		}
+
+		/* add each non-empty part to the list */
+		for (std::size_t i = 0; i < parts.size(); i++) {
+			if (parts[i].length() != 0) {
+				m_list.push_back(parts[i]);
+			}
+		}
+	}
 };
 
 inline std::ostream &
@@ -422,14 +448,6 @@ operator+=(pp_path &path, const std::string &str)
 	return path;
 }
 
-inline std::string &
-operator+=(std::string &str, const pp_path &path)
-{
-	/* return the original string */
-	str += path.delim() + to_string(path);
-	return str;
-}
-
 inline pp_path
 operator+(pp_path left, const pp_path &right)
 {
@@ -444,14 +462,6 @@ operator+(pp_path path, const std::string &str)
 	/* return a new pp_path, the arg here is a copy */
 	path.push_back(str);
 	return path;
-}
-
-inline std::string
-operator+(std::string str, const pp_path &path)
-{
-	/* return a new string */
-	str += path.delim() + to_string(path);
-	return str;
 }
 
 #endif // PP_PATH_HPP__
