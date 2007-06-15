@@ -13,7 +13,7 @@ using std::string;
 #include <sstream>
 template <typename T>
 string
-convert_to_string(T val)
+convert_to_string(const T &val)
 {
 	std::ostringstream oss;
 	oss << val;
