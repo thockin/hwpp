@@ -1,7 +1,7 @@
 #include "pp_device.h"
 #include "pp.h"
 #include "pp_test.h"
-#include "pp_test_binding.h"
+#include "test_binding.h"
 #include "pp_datatypes.h"
 #include "pp_fields.h"
 #include "keyed_vector.h"
