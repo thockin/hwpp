@@ -3,7 +3,7 @@
 #include "pp_test.h"
 #include "pp_datatypes.h"
 #include "pp_register.h"
-#include "pp_test_binding.h"
+#include "test_binding.h"
 using namespace std;
 
 int

@@ -1,5 +1,5 @@
 #include "pp_binding.h"
-#include "pp_test_binding.h"
+#include "test_binding.h"
 #include "pp.h"
 #include "pp_test.h"
 using namespace std;
