@@ -12,7 +12,7 @@ using std::string;
 /* convert any stream-ready object to a string */
 #include <sstream>
 template <typename T>
-string
+inline string
 convert_to_string(const T &val)
 {
 	std::ostringstream oss;
@@ -22,7 +22,7 @@ convert_to_string(const T &val)
 #define to_string(x) convert_to_string<typeof(x)>(x)
 
 /* enable simple string manipulations of boost::format */
-string &
+inline string &
 operator+=(string &str, const boost::format &fmt)
 {
 	/* return the original lhs */
