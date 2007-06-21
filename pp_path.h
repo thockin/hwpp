@@ -115,7 +115,7 @@ class pp_path
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 	/* default constructor */
-	explicit pp_path(const string &delim = "/")
+	explicit pp_path(const char delim = '/')
 	    : m_list(), m_absolute(false), m_delim(delim)
 	{
 	}
@@ -128,7 +128,7 @@ class pp_path
 	}
 
 	/* implicit conversion from string with a specified delimiter */
-	pp_path(const std::string &path, const std::string &delim = "/")
+	pp_path(const std::string &path, const char delim = '/')
 	    : m_list(), m_absolute(false), m_delim(delim)
 	{
 		append(path);
@@ -249,10 +249,10 @@ class pp_path
 #if 0
 	/* push and pop functions */
 	void
-	push_front(const std::string &item)
+	push_front(const std::string &that)
 	{
 		//FIXME: check for delim() characters?
-		m_list.push_front(item);
+		m_list.push_front(that);
 	}
 	void
 	push_front(const pp_path &path)
@@ -266,9 +266,9 @@ class pp_path
 #endif
 
 	void
-	push_back(const std::string &string)
+	push_back(const std::string &str)
 	{
-		append(string);
+		append(str);
 	}
 	void
 	push_back(const pp_path &path)
@@ -280,10 +280,12 @@ class pp_path
 		}
 	}
 
+	//FIXME: nix this too? change m_list to m_vector?
 	void
 	pop_front()
 	{
 		m_list.pop_front();
+		//FIXME: m_delim = false;
 	}
 
 	void
@@ -315,14 +317,14 @@ class pp_path
 
 	/* test if two paths are equal */
 	bool
-	equals(const pp_path &item) const
+	equals(const pp_path &that) const
 	{
 		/* if they are different lengths they cannot be equal */
-		if (m_list.size() != item.size()) {
+		if (m_list.size() != that.size()) {
 			return false;
 		}
 		/* if only one is absolute, they cannot be equal */
-		if (absolute() != item.absolute()) {
+		if (absolute() != that.absolute()) {
 			return false;
 		}
 
@@ -331,7 +333,7 @@ class pp_path
 		 * each element.
 		 */
 		const_iterator my_iter = begin();
-		const_iterator your_iter = item.begin();
+		const_iterator your_iter = that.begin();
 
 		while (my_iter != end()) {
 			/* if any elements are non-equal, return false */
@@ -345,14 +347,14 @@ class pp_path
 		return true;
 	}
 
-	std::string
+	char
 	delim() const
 	{
 		return m_delim;
 	}
 
 	void
-	set_delim(const std::string &delim)
+	set_delim(const char delim)
 	{
 		m_delim = delim;
 	}
@@ -360,13 +362,13 @@ class pp_path
     private:
 	Tlist m_list;
 	bool m_absolute;
-	std::string m_delim;
+	char m_delim;
 
 	void
-	append(const std::string &string)
+	append(const std::string &str)
 	{
 		/* special case for "" */
-		if (string.size() == 0)
+		if (str.size() == 0)
 			return;
 
 		std::vector<std::string> parts;
@@ -378,7 +380,8 @@ class pp_path
 		 * the path "//red//orange", it will compact the duplicate
 		 * delim()s.
 		 */
-		boost::split(parts, string, boost::is_any_of(delim()));
+		boost::split(parts, str,
+		    boost::is_any_of(to_string(m_delim)));
 
 		/*
 		 * Determine if the path is relative or absolute by the first
