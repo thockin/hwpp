@@ -115,28 +115,35 @@ class pp_path
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 	/* default constructor */
-	explicit pp_path() : m_list(), m_absolute(false), m_delim("/") {}
+	explicit pp_path(const string &delim = "/")
+	    : m_list(), m_absolute(false), m_delim(delim)
+	{
+	}
 
 	/* copy constructor */
 	pp_path(const pp_path &that)
 	    : m_list(that.m_list), m_absolute(that.m_absolute),
-	      m_delim(that.m_delim) {}
+	      m_delim(that.m_delim)
+	{
+	}
 
 	/* implicit conversion from string with a specified delimiter */
-	pp_path(const std::string &path, const std::string delim = "/")
+	pp_path(const std::string &path, const std::string &delim = "/")
 	    : m_list(), m_absolute(false), m_delim(delim)
 	{
 		append(path);
 	}
 
 	/* destructor */
-	~pp_path() {}
+	~pp_path()
+	{
+	}
 
 	/* assignment from string */
 	pp_path &
 	operator=(const string &str)
 	{
-		m_list.clear();
+		clear();
 		append(str);
 		return *this;
 	}
@@ -239,6 +246,7 @@ class pp_path
 		return m_list.back();
 	}
 
+#if 0
 	/* push and pop functions */
 	void
 	push_front(const std::string &item)
@@ -255,12 +263,12 @@ class pp_path
 			rit++;
 		}
 	}
+#endif
 
 	void
-	push_back(const std::string &item)
+	push_back(const std::string &string)
 	{
-		//FIXME: check for delim() characters?
-		m_list.push_back(item);
+		append(string);
 	}
 	void
 	push_back(const pp_path &path)
@@ -284,20 +292,28 @@ class pp_path
 		m_list.pop_back();
 	}
 
-	/* Clear function */
+	/* reset everything */
 	void
 	clear()
 	{
+		m_absolute = false;
 		m_list.clear();
 	}
 
-	/* Return true if the path is absolute, else false. */
-	bool is_absolute() const {
+	/* handle absolute vs relative paths */
+	bool
+	absolute() const
+	{
 		return m_absolute;
 	}
-	//FIXME: set_absolute(bool)
 
-	/* A function for testing if two paths are equal */
+	void
+	set_absolute(bool value)
+	{
+		m_absolute = value;
+	}
+
+	/* test if two paths are equal */
 	bool
 	equals(const pp_path &item) const
 	{
@@ -306,7 +322,7 @@ class pp_path
 			return false;
 		}
 		/* if only one is absolute, they cannot be equal */
-		if (is_absolute() != item.is_absolute()) {
+		if (absolute() != item.absolute()) {
 			return false;
 		}
 
@@ -342,12 +358,10 @@ class pp_path
 	}
 
     private:
-	/* the list that is being wrapped */
 	Tlist m_list;
 	bool m_absolute;
 	std::string m_delim;
 
-	/* Helper function for initializing during object construction. */
 	void
 	append(const std::string &string)
 	{
@@ -387,7 +401,7 @@ class pp_path
 inline std::ostream &
 operator<<(std::ostream& o, const pp_path &path)
 {
-	if (path.is_absolute()) {
+	if (path.absolute()) {
 		o << path.delim();
 	}
 
