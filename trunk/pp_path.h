@@ -105,12 +105,12 @@ class pp_path_iterator
 
 class pp_path
 {
-	typedef std::list<std::string> Tlist;
+	typedef std::list<string> Tlist;
 	typedef Tlist::iterator Titer;
 
     public:
-	typedef pp_path_iterator<Titer, std::string> iterator;
-	typedef pp_path_iterator<Titer, const std::string> const_iterator;
+	typedef pp_path_iterator<Titer, string> iterator;
+	typedef pp_path_iterator<Titer, const string> const_iterator;
 	typedef std::reverse_iterator<iterator> reverse_iterator;
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
@@ -128,7 +128,7 @@ class pp_path
 	}
 
 	/* implicit conversion from string with a specified delimiter */
-	pp_path(const std::string &path, const char delim = '/')
+	pp_path(const string &path, const char delim = '/')
 	    : m_list(), m_absolute(false), m_delim(delim)
 	{
 		append(path);
@@ -222,25 +222,25 @@ class pp_path
 	}
 
 	/* access the first/last values */
-	std::string &
+	string &
 	front()
 	{
 		return m_list.front();
 	}
 
-	std::string &
+	string &
 	back()
 	{
 		return m_list.back();
 	}
 
-	const std::string &
+	const string &
 	front() const
 	{
 		return m_list.front();
 	}
 
-	const std::string &
+	const string &
 	back() const
 	{
 		return m_list.back();
@@ -249,7 +249,7 @@ class pp_path
 #if 0
 	/* push and pop functions */
 	void
-	push_front(const std::string &that)
+	push_front(const string &that)
 	{
 		//FIXME: check for delim() characters?
 		m_list.push_front(that);
@@ -266,7 +266,7 @@ class pp_path
 #endif
 
 	void
-	push_back(const std::string &str)
+	push_back(const string &str)
 	{
 		append(str);
 	}
@@ -365,13 +365,13 @@ class pp_path
 	char m_delim;
 
 	void
-	append(const std::string &str)
+	append(const string &str)
 	{
 		/* special case for "" */
 		if (str.size() == 0)
 			return;
 
-		std::vector<std::string> parts;
+		std::vector<string> parts;
 
 		/*
 		 * Note: this function will self-correct excess delim()'s,
@@ -426,13 +426,13 @@ operator==(const pp_path &left, const pp_path &right)
 }
 
 inline bool
-operator==(const pp_path &path, const std::string &str)
+operator==(const pp_path &path, const string &str)
 {
 	return path.equals(pp_path(str, path.delim()));
 }
 
 inline bool
-operator==(const std::string &str, const pp_path &path)
+operator==(const string &str, const pp_path &path)
 {
 	return path.equals(pp_path(str, path.delim()));
 }
@@ -444,13 +444,13 @@ operator!=(const pp_path &left, const pp_path &right)
 }
 
 inline bool
-operator!=(const pp_path &path, const std::string &str)
+operator!=(const pp_path &path, const string &str)
 {
 	return !(path == str);
 }
 
 inline bool
-operator!=(const std::string &str, const pp_path &path)
+operator!=(const string &str, const pp_path &path)
 {
 	return !(path == str);
 }
@@ -464,7 +464,7 @@ operator+=(pp_path &left, const pp_path &right)
 }
 
 inline pp_path &
-operator+=(pp_path &path, const std::string &str)
+operator+=(pp_path &path, const string &str)
 {
 	/* return the original pp_path, the arg here is a reference */
 	path.push_back(str);
@@ -480,7 +480,7 @@ operator+(pp_path left, const pp_path &right)
 }
 
 inline pp_path
-operator+(pp_path path, const std::string &str)
+operator+(pp_path path, const string &str)
 {
 	/* return a new pp_path, the arg here is a copy */
 	path.push_back(str);
