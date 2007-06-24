@@ -50,6 +50,26 @@ class pp_field
 		return m_datatype->evaluate(value);
 	}
 
+	/*
+	 * pp_field::lookup(str)
+	 * pp_field::lookup(value)
+	 *
+	 * Lookup the numeric value of a (potentially valid) evaluation for
+	 * this field.
+	 *
+	 * This can throw pp_datatype_invalid_error.
+	 */
+	virtual pp_value
+	lookup(const string &str) const
+	{
+		return m_datatype->lookup(str);
+	}
+	virtual pp_value
+	lookup(const pp_value value) const
+	{
+		return m_datatype->lookup(value);
+	}
+
     private:
 	pp_datatype_ptr m_datatype;
 };
