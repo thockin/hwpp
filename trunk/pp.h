@@ -86,6 +86,6 @@ typedef enum pp_bitwidth {
 /*
  * pp_regaddr - the address of a register.
  */
-typedef uint32_t pp_regaddr;
+typedef uint64_t pp_regaddr;
 
 #endif // PP_PP_H__

@@ -37,7 +37,28 @@ class pp_enum: public pp_datatype
 		return m_default;
 	}
 
-	//FIXME: swap args?  just call it add?
+	/*
+	 * pp_enum::lookup(str)
+	 *
+	 * Lookup the value of a (potentially valid) evaluation for this
+	 * datatype.  For an enum type, that means converting a string to
+	 * it's corresponding value.
+	 *
+	 * This will throw pp_datatype_invalid_error if the string is not a
+	 * valid value for this enum.
+	 */
+	virtual pp_value
+	lookup(const string &str) const
+	{
+		for (size_t i=0; i < m_values.size(); i++) {
+			if (m_values.key_at(i) == str) {
+				return m_values[i];
+			}
+		}
+		throw pp_datatype_invalid_error(str);
+	}
+	//FIXME: should probably have a lookup(pp_value), too
+
 	/*
 	 * pp_enum::add_value(name, value)
 	 *
@@ -70,6 +91,7 @@ typedef boost::shared_ptr<pp_enum> pp_enum_ptr;
 
 /*
  * pp_bitmask - datatype for bitmasks.
+ * //FIXME: this is operating on bit numbers, not masks - should it?
  *
  * Constructors:
  * 	()
@@ -121,7 +143,29 @@ class pp_bitmask: public pp_datatype
 	}
 
 	/*
-	 * pp_bitmask::add_value(name, value)
+	 * pp_bitmask::lookup(value)
+	 *
+	 * Lookup the value of a (potentially valid) evaluation for this
+	 * datatype.  For a bitmask type, this means converting a string to
+	 * it's corresponding bit value.
+	 *
+	 * This will throw pp_datatype_invalid_error if the string is not a
+	 * valid value in this bitmask.
+	 */
+	virtual pp_value
+	lookup(const string &str) const
+	{
+		for (size_t i=0; i < m_bits.size(); i++) {
+			if (m_bits.key_at(i) == str) {
+				return m_bits[i];
+			}
+		}
+		throw pp_datatype_invalid_error(str);
+	}
+	//FIXME: should probably have a lookup(pp_value), too
+
+	/*
+	 * pp_bitmask::add_bit(name, value)
 	 *
 	 * Add a named bit to this bitmask.
 	 */
@@ -172,6 +216,18 @@ class pp_int: public pp_datatype
 		return ret;
 	}
 
+	/*
+	 * pp_int::lookup(value)
+	 *
+	 * Lookup the value of a (potentially valid) evaluation for this
+	 * datatype.  For an int type, this is a no-op.
+	 */
+	virtual pp_value
+	lookup(const pp_value value) const
+	{
+		return value;
+	}
+
     protected:
 	string m_units;
 };
@@ -211,6 +267,18 @@ class pp_uint: public pp_int
 		}
 		return ret;
 	}
+
+	/*
+	 * pp_uint::lookup(value)
+	 *
+	 * Lookup the value of a (potentially valid) evaluation for this
+	 * datatype.  For a uint type, this is a no-op.
+	 */
+	virtual pp_value
+	lookup(const pp_value value) const
+	{
+		return value;
+	}
 };
 typedef boost::shared_ptr<pp_uint> pp_uint_ptr;
 
@@ -248,6 +316,19 @@ class pp_hex: public pp_int
 			ret += m_units;
 		}
 		return ret;
+	}
+
+	/*
+	 * pp_hex::lookup(value)
+	 *
+	 * Lookup the value of a (potentially valid) evaluation for this
+	 * datatype.  For a hex type, this is a no-op.
+	 */
+	virtual pp_value
+	lookup(const pp_value value) const
+	{
+		//FIXME: could do bounds checking here
+		return value;
 	}
 
     private:
