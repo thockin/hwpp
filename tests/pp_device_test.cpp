@@ -10,11 +10,6 @@ using namespace std;
 void
 dump_scope(const pp_scope_ptr &scope)
 {
-	for (size_t i = 0; i < scope->constants.size(); i++) {
-		cout << "constant: ";
-		cout << scope->constants.key_at(i) << " = "
-		     << scope->constants[i] << endl;
-	}
 	for (size_t i = 0; i < scope->datatypes.size(); i++) {
 		cout << "datatype: "
 		     << scope->datatypes.key_at(i) << endl;
@@ -32,11 +27,6 @@ dump_scope(const pp_scope_ptr &scope)
 void
 dump_device(const pp_device_ptr &dev)
 {
-	for (size_t i = 0; i < dev->constants.size(); i++) {
-		cout << "constant: ";
-		cout << dev->constants.key_at(i) << " = "
-		     << dev->constants[i] << endl;
-	}
 	for (size_t i = 0; i < dev->datatypes.size(); i++) {
 		cout << "datatype: "
 		     << dev->datatypes.key_at(i) << endl;
@@ -61,16 +51,6 @@ test_pp_device()
 
 	/* test the basic constructor */
 	pp_device_ptr dev = new_pp_device();
-
-
-	/* define a constant */
-	pp_value val1(1);
-	dev->add_constant("const1", val1);
-	pp_value val2 = dev->constants["const1"];
-	if (val2 != val1) {
-		PP_TEST_ERROR("pp_device::add_constant()");
-		ret++;
-	}
 
 	/* define a datatype */
 	pp_datatype_ptr type1 = new_pp_int();
@@ -101,16 +81,10 @@ test_pp_device()
 
 	/* test spaces */
 	pp_space_ptr space1 = new_pp_space(bind1);
-	space1->add_constant("one", 1);
-	space1->add_constant("two", 2);
-	space1->add_constant("three", 3);
 	dev->add_space("space1", space1);
 
 	/* test sub-devices */
 	pp_device_ptr dev2 = new_pp_device();
-	dev2->add_constant("one", 1);
-	dev2->add_constant("two", 2);
-	dev2->add_constant("three", 3);
 	dev->add_device("subdevice", dev2);
 
 	//dump_device(dev);
