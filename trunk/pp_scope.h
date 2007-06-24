@@ -103,17 +103,6 @@ class pp_scope: public pp_container
 	//FIXME: access methods for the raw vectors to be read-only?
 
 	/*
-	 * pp_scope::add_constant(name, value)
-	 *
-	 * Add a named constant to this scope.
-	 */
-	void
-	add_constant(const string &name, const pp_value value)
-	{
-		constants.insert(name, value);
-	}
-
-	/*
 	 * pp_scope::add_datatype(name, datatype)
 	 *
 	 * Add a named datatype to this scope.
@@ -159,7 +148,6 @@ class pp_scope: public pp_container
 		dirents.insert(name, dirent(scope));
 	}
 
-	keyed_vector<string, pp_value> constants;
 	keyed_vector<string, pp_datatype_ptr> datatypes;
 	keyed_vector<string, dirent> dirents;
 };

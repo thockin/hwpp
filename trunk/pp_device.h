@@ -102,18 +102,6 @@ class pp_device: public pp_container
 	//FIXME: access methods for the raw vectors to be read-only?
 
 	/*
-	 * pp_device::add_constant(name, value)
-	 *
-	 * Add a named constant to this device.
-	 */
-	//FIXME: do we use constants at all?
-	void
-	add_constant(const string &name, const pp_value value)
-	{
-		constants.insert(name, value);
-	}
-
-	/*
 	 * pp_device::add_datatype(name, datatype)
 	 *
 	 * Add a named datatype to this device.
@@ -162,7 +150,6 @@ class pp_device: public pp_container
 		dirents.insert(name, dirent(space));
 	}
 
-	keyed_vector<string, pp_value> constants;
 	keyed_vector<string, pp_datatype_ptr> datatypes;
 	keyed_vector<string, dirent> dirents;
 };

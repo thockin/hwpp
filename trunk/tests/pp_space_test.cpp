@@ -11,11 +11,6 @@ using namespace std;
 void
 dump_scope(const pp_scope_ptr &scope)
 {
-	for (size_t i = 0; i < scope->constants.size(); i++) {
-		cout << "constant: ";
-		cout << scope->constants.key_at(i) << " = "
-		     << scope->constants[i] << endl;
-	}
 	for (size_t i = 0; i < scope->datatypes.size(); i++) {
 		cout << "datatype: "
 		     << scope->datatypes.key_at(i) << endl;
@@ -38,15 +33,6 @@ test_pp_space()
 	/* test the basic constructor */
 	pp_binding_ptr bind1 = new_test_binding();
 	pp_space_ptr space1 = new_pp_space(bind1);
-
-	/* define a constant */
-	pp_value const1(1);
-	space1->add_constant("const1", const1);
-	pp_value const2 = space1->constants["const1"];
-	if (const2 != const1) {
-		PP_TEST_ERROR("pp_space::add_constant()");
-		ret++;
-	}
 
 	/* define a datatype */
 	pp_datatype_ptr type1 = new_pp_int();
@@ -75,9 +61,6 @@ test_pp_space()
 
 	/* test sub-scopes */
 	pp_scope_ptr scope1 = new_pp_scope();
-	scope1->add_constant("one", 1);
-	scope1->add_constant("two", 2);
-	scope1->add_constant("three", 3);
 	space1->add_scope("subscope", scope1);
 
 	//dump_scope(space1);
