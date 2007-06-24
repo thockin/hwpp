@@ -12,7 +12,7 @@ class test_binding: public pp_binding
 	explicit test_binding(): m_data(-1ULL) {}
 	virtual ~test_binding() {}
 
-	pp_value
+	virtual pp_value
 	read(const pp_regaddr address, const pp_bitwidth width) const
 	{
 		if (address == 0x12345678)
@@ -20,7 +20,7 @@ class test_binding: public pp_binding
 		return (m_data & PP_MASK(width));
 	}
 
-	void
+	virtual void
 	write(const pp_regaddr address, const pp_bitwidth width,
 	    const pp_value value) const
 	{

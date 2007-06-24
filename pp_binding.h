@@ -2,8 +2,8 @@
 #ifndef PP_PP_BINDING_H__
 #define PP_PP_BINDING_H__
 
-#include <stdexcept>
 #include "pp.h"
+#include <stdexcept>
 
 //FIXME: too generic?
 /*
