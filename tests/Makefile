@@ -1,4 +1,5 @@
 TESTS = keyed_vector_test \
+	filesystem_test \
 	pp_datatype_test \
 	pp_container_test \
 	pp_binding_test \
