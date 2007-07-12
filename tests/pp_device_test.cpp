@@ -10,9 +10,9 @@ using namespace std;
 void
 dump_scope(const pp_scope_ptr &scope)
 {
-	for (size_t i = 0; i < scope->datatypes.size(); i++) {
+	for (size_t i = 0; i < scope->datatypes().size(); i++) {
 		cout << "datatype: "
-		     << scope->datatypes.key_at(i) << endl;
+		     << scope->datatypes().key_at(i) << endl;
 	}
 	for (size_t i = 0; i < scope->dirents.size(); i++) {
 		cout << "dirent:   "
@@ -27,9 +27,9 @@ dump_scope(const pp_scope_ptr &scope)
 void
 dump_device(const pp_device_ptr &dev)
 {
-	for (size_t i = 0; i < dev->datatypes.size(); i++) {
+	for (size_t i = 0; i < dev->datatypes().size(); i++) {
 		cout << "datatype: "
-		     << dev->datatypes.key_at(i) << endl;
+		     << dev->datatypes().key_at(i) << endl;
 	}
 	for (size_t i = 0; i < dev->dirents.size(); i++) {
 		cout << "dirent:   "
@@ -55,12 +55,12 @@ test_pp_device()
 	/* define a datatype */
 	pp_datatype_ptr type1 = new_pp_int();
 	dev->add_datatype("type1", type1); //FIXME: handle errors?
-	pp_datatype_ptr type2 = dev->datatypes["type1"];
+	pp_const_datatype_ptr type2 = dev->datatypes()["type1"];
 	if (type2 != type1) {
 		PP_TEST_ERROR("pp_device::add_datatype()");
 		ret++;
 	}
-	pp_datatype_ptr type3 = dev->datatypes[0];
+	pp_const_datatype_ptr type3 = dev->datatypes()[0];
 	if (type3 != type1) {
 		PP_TEST_ERROR("pp_device::add_datatype()");
 		ret++;

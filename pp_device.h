@@ -102,18 +102,6 @@ class pp_device: public pp_container
 	//FIXME: access methods for the raw vectors to be read-only?
 
 	/*
-	 * pp_device::add_datatype(name, datatype)
-	 *
-	 * Add a named datatype to this device.
-	 */
-	void
-	add_datatype(const string &name,
-	    const pp_datatype_ptr &datatype)
-	{
-		datatypes.insert(name, datatype);
-	}
-
-	/*
 	 * pp_device::add_field(name, field)
 	 *
 	 * Add a named field to this device.
@@ -150,7 +138,6 @@ class pp_device: public pp_container
 		dirents.insert(name, dirent(space));
 	}
 
-	keyed_vector<string, pp_datatype_ptr> datatypes;
 	keyed_vector<string, dirent> dirents;
 };
 

@@ -101,17 +101,7 @@ class pp_scope: public pp_container
 	virtual ~pp_scope() {}
 
 	//FIXME: access methods for the raw vectors to be read-only?
-
-	/*
-	 * pp_scope::add_datatype(name, datatype)
-	 *
-	 * Add a named datatype to this scope.
-	 */
-	void
-	add_datatype(const string &name, const pp_datatype_ptr &datatype)
-	{
-		datatypes.insert(name, datatype);
-	}
+	//FIXME: put m_dirents in container?
 
 	/*
 	 * pp_scope::add_register(name, reg)
@@ -148,7 +138,6 @@ class pp_scope: public pp_container
 		dirents.insert(name, dirent(scope));
 	}
 
-	keyed_vector<string, pp_datatype_ptr> datatypes;
 	keyed_vector<string, dirent> dirents;
 };
 
