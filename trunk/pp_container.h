@@ -3,6 +3,8 @@
 #define PP_PP_CONTAINER_H__
 
 #include "pp.h"
+#include "keyed_vector.h"
+#include "pp_datatype.h"
 #include <boost/enable_shared_from_this.hpp>
 
 /*
@@ -64,8 +66,51 @@ class pp_container: public boost::enable_shared_from_this<pp_container>
 		return (m_parent.get() == NULL);
 	}
 
+	/*
+	 * pp_container::datatypes()
+	 *
+	 * Provide raw access to the datatypes vector.
+	 */
+	const keyed_vector<string, pp_const_datatype_ptr> &
+	datatypes()
+	{
+		return m_datatypes;
+	}
+
+	/*
+	 * pp_container::add_datatype(name, datatype)
+	 *
+	 * Add a named datatype to this container.
+	 */
+	void
+	add_datatype(const string &name, const pp_const_datatype_ptr &datatype)
+	{
+		m_datatypes.insert(name, datatype);
+	}
+
+	/*
+	 * pp_container::resolve_datatype(name)
+	 *
+	 * Look up a datatype by name.
+	 */
+	pp_const_datatype_ptr
+	resolve_datatype(const string &name)
+	{
+		try {
+			return m_datatypes[name];
+		} catch (std::out_of_range) {
+		}
+
+		if (!is_root()) {
+			return m_parent->resolve_datatype(name);
+		}
+
+		return pp_const_datatype_ptr();
+	}
+
     protected:
 	pp_container_ptr m_parent;
+	keyed_vector<string, pp_const_datatype_ptr> m_datatypes;
 };
 
 #define new_pp_container(...) pp_container_ptr(new pp_container(__VA_ARGS__))

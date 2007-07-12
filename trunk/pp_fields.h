@@ -77,14 +77,14 @@ class regbits
  * pp_direct_field - a field that maps directly to register bits.
  *
  * Constructors:
- * 	(const pp_datatype &datatype)
+ * 	(const pp_const_datatype &datatype)
  *
  * Notes:
  */
 class pp_direct_field: public pp_field
 {
     public:
-	explicit pp_direct_field(const pp_datatype_ptr &datatype)
+	explicit pp_direct_field(const pp_const_datatype_ptr &datatype)
 	    : pp_field(datatype) {}
 	virtual ~pp_direct_field() {}
 

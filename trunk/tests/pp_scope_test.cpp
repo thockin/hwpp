@@ -11,9 +11,9 @@ using namespace std;
 void
 dump_scope(const pp_scope_ptr &scope)
 {
-	for (size_t i = 0; i < scope->datatypes.size(); i++) {
+	for (size_t i = 0; i < scope->datatypes().size(); i++) {
 		cout << "datatype: "
-		     << scope->datatypes.key_at(i) << endl;
+		     << scope->datatypes().key_at(i) << endl;
 	}
 	for (size_t i = 0; i < scope->dirents.size(); i++) {
 		cout << "dirent:   "
@@ -35,13 +35,13 @@ test_pp_scope()
 
 	/* define a datatype */
 	pp_datatype_ptr type1 = new_pp_int();
-	scope1->add_datatype("type1", type1); //FIXME: handle errors?
-	pp_datatype_ptr type2 = scope1->datatypes["type1"];
+	scope1->add_datatype("type1", type1);
+	pp_const_datatype_ptr type2 = scope1->datatypes()["type1"];
 	if (type2 != type1) {
 		PP_TEST_ERROR("pp_scope::add_datatype()");
 		ret++;
 	}
-	pp_datatype_ptr type3 = scope1->datatypes[0];
+	pp_const_datatype_ptr type3 = scope1->datatypes()[0];
 	if (type3 != type1) {
 		PP_TEST_ERROR("pp_scope::add_datatype()");
 		ret++;
@@ -50,7 +50,7 @@ test_pp_scope()
 	/* define a register */
 	pp_binding_ptr bind1 = new_test_binding();
 	pp_register_ptr reg1 = new_pp_register(bind1, 1, BITS16);
-	scope1->add_register("%reg1", reg1); //FIXME: handle errors
+	scope1->add_register("%reg1", reg1);
 	pp_register_ptr reg2 = scope1->dirents["%reg1"].as_register();
 	if (reg2 != reg1) {
 		PP_TEST_ERROR("pp_scope::add_register()");

@@ -9,14 +9,14 @@
  * pp_field - abstract base class for a data field.
  *
  * Constructors:
- * 	(const pp_datatype &datatype)
+ * 	(const pp_const_datatype &datatype)
  *
  * Notes:
  */
 class pp_field
 {
     public:
-	explicit pp_field(const pp_datatype_ptr &datatype)
+	explicit pp_field(const pp_const_datatype_ptr &datatype)
 	    : m_datatype(datatype) {}
 	virtual ~pp_field() {}
 
@@ -71,7 +71,7 @@ class pp_field
 	}
 
     private:
-	pp_datatype_ptr m_datatype;
+	pp_const_datatype_ptr m_datatype;
 };
 typedef boost::shared_ptr<pp_field> pp_field_ptr;
 

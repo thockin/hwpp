@@ -11,9 +11,9 @@ using namespace std;
 void
 dump_scope(const pp_scope_ptr &scope)
 {
-	for (size_t i = 0; i < scope->datatypes.size(); i++) {
+	for (size_t i = 0; i < scope->datatypes().size(); i++) {
 		cout << "datatype: "
-		     << scope->datatypes.key_at(i) << endl;
+		     << scope->datatypes().key_at(i) << endl;
 	}
 	for (size_t i = 0; i < scope->dirents.size(); i++) {
 		cout << "dirent:   "
@@ -37,12 +37,12 @@ test_pp_space()
 	/* define a datatype */
 	pp_datatype_ptr type1 = new_pp_int();
 	space1->add_datatype("type1", type1); //FIXME: handle errors?
-	pp_datatype_ptr type2 = space1->datatypes["type1"];
+	pp_const_datatype_ptr type2 = space1->datatypes()["type1"];
 	if (type2 != type1) {
 		PP_TEST_ERROR("pp_space::add_datatype()");
 		ret++;
 	}
-	pp_datatype_ptr type3 = space1->datatypes[0];
+	pp_const_datatype_ptr type3 = space1->datatypes()[0];
 	if (type3 != type1) {
 		PP_TEST_ERROR("pp_space::add_datatype()");
 		ret++;
