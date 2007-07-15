@@ -340,7 +340,7 @@ class keyed_vector
 	{
 		try {
 			return kviter_at(key, from.get());
-		} catch (std::out_of_range) {
+		} catch (std::out_of_range e) {
 			return m_vector.end();
 		}
 	}
@@ -380,7 +380,7 @@ class keyed_vector
 			Titer it = kviter_at(key);
 			it->second = value;
 			return it;
-		} catch (std::out_of_range) {
+		} catch (std::out_of_range e) {
 			m_vector.push_back(Tpair(key, value));
 			return (m_vector.end() - 1);
 		}
@@ -393,7 +393,7 @@ class keyed_vector
 		try {
 			Titer it = kviter_at(key);
 			m_vector.erase(it);
-		} catch (std::out_of_range) {
+		} catch (std::out_of_range e) {
 		}
 	}
 
