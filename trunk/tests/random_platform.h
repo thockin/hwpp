@@ -1,5 +1,7 @@
+#ifndef PP_TESTS_RANDOM_PLATFORM_H__
+#define PP_TESTS_RANDOM_PLATFORM_H__
 /*
- * generate_platform.h
+ * random_platform.h
  *
  * Functions to automatically generate a platform tree filled
  * with registers, fields, devices, spaces and scopes.
@@ -23,15 +25,11 @@
 #include <iostream>
 
 /*
- * generate_x
- * These functions are used together to randomly generate the tree.
- * generate_platform is the "base" function and returns a pointer to the
- * root (platform) tree.
+ * generate_random_platform()
  *
- * All other functions should not be called directly as they return
- * nothing.
+ * Randomly generate a platform tree.
  */
-pp_platform_ptr generate_platform();
+pp_platform_ptr generate_random_platform();
 
 /*
  * display_tree
@@ -39,3 +37,5 @@ pp_platform_ptr generate_platform();
  * a means of indicating ownership/tree structure.
  */
 void display_tree(pp_platform_ptr, int);
+
+#endif PP_TESTS_RANDOM_PLATFORM_H__
