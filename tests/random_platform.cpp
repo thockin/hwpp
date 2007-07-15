@@ -1,4 +1,4 @@
-#include "generate_test_platform.h"
+#include "random_platform.h"
 #include "test_binding.h"
 #include <iostream>
 
@@ -144,7 +144,7 @@ static void generate_device(pp_device_ptr root)
 }
 
 /* Generate a Platform base */
-pp_platform_ptr generate_platform()
+pp_platform_ptr generate_random_platform()
 {
 	pp_platform_ptr root = new_pp_platform();
 	int choice = 0;
