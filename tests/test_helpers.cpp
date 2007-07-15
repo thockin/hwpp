@@ -1,4 +1,4 @@
-#include "random_platform.h"
+#include "test_helpers.h"
 #include "test_binding.h"
 #include <iostream>
 

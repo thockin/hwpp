@@ -1,5 +1,5 @@
-#ifndef PP_TESTS_RANDOM_PLATFORM_H__
-#define PP_TESTS_RANDOM_PLATFORM_H__
+#ifndef PP_TESTS_TEST_HELPERS_H__
+#define PP_TESTS_TEST_HELPERS_H__
 /*
  * random_platform.h
  *
@@ -32,10 +32,11 @@
 pp_platform_ptr generate_random_platform();
 
 /*
- * display_tree
+ * display_tree()
+ *
  * Given an input tree, display it neatly on the screen using tabs as
  * a means of indicating ownership/tree structure.
  */
 void display_tree(pp_platform_ptr, int);
 
-#endif PP_TESTS_RANDOM_PLATFORM_H__
+#endif PP_TESTS_TEST_HELPERS_H__
