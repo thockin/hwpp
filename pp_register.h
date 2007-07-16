@@ -3,7 +3,10 @@
 #define PP_PP_REGISTER_H__
 
 #include "pp.h"
+#include "pp_dirent.h"
 #include "pp_binding.h"
+
+#include <stdexcept>
 
 /*
  * pp_register - a register definition.
@@ -14,12 +17,13 @@
  *
  * Notes:
  */
-class pp_register
+class pp_register: public pp_dirent
 {
     public:
 	explicit pp_register(const pp_binding_ptr &binding,
 	    const pp_regaddr address, const pp_bitwidth width)
-	    : m_binding(binding), m_address(address), m_width(width) {}
+	    : pp_dirent(PP_DIRENT_REGISTER),
+	      m_binding(binding), m_address(address), m_width(width) {}
 	virtual ~pp_register() {}
 
 	/*
@@ -76,6 +80,16 @@ class pp_register
 	pp_bitwidth m_width;
 };
 typedef boost::shared_ptr<pp_register> pp_register_ptr;
+
+inline pp_register_ptr
+pp_register_from_dirent(pp_dirent_ptr dirent)
+{
+	if (dirent->dirent_type() != PP_DIRENT_REGISTER) {
+		throw std::runtime_error(
+		    "non-register dirent used as register");
+	}
+	return boost::static_pointer_cast<pp_register>(dirent);
+}
 
 #define new_pp_register(...) pp_register_ptr(new pp_register(__VA_ARGS__))
 

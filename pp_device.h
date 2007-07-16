@@ -3,6 +3,7 @@
 #define PP_PP_DEVICE_H__
 
 #include "pp.h"
+#include "pp_dirent.h"
 #include "pp_container.h"
 #include "keyed_vector.h"
 #include "pp_datatype.h"
@@ -22,84 +23,13 @@
 class pp_device;
 typedef boost::shared_ptr<pp_device> pp_device_ptr;
 
-class pp_device: public pp_container
+class pp_device: public pp_dirent, public pp_container
 {
+    protected:
+	explicit pp_device(pp_dirent_type detype): pp_dirent(detype) {}
     public:
-	/*
-	 * pp_device::dirent
-	 */
-	class dirent
-	{
-	    public:
-		explicit dirent(pp_device_ptr device)
-		    : m_type(DIRENT_DEVICE), m_device(device) {}
-		explicit dirent(pp_space_ptr space)
-		    : m_type(DIRENT_SPACE), m_space(space) {}
-		explicit dirent(pp_field_ptr field)
-		    : m_type(DIRENT_FIELD), m_field(field) {}
-		~dirent() {}
-
-		bool
-		is_device() const
-		{
-			return m_type == DIRENT_DEVICE;
-		}
-		pp_device_ptr
-		as_device() const
-		{
-			if (!is_device()) {
-				throw std::runtime_error(
-				    "non-device dirent used as device");
-			}
-			return m_device;
-		}
-
-		bool
-		is_space() const
-		{
-			return m_type == DIRENT_SPACE;
-		}
-		pp_space_ptr
-		as_space() const
-		{
-			if (!is_space()) {
-				throw std::runtime_error(
-				    "non-space dirent used as space");
-			}
-			return m_space;
-		}
-
-		bool
-		is_field() const
-		{
-			return m_type == DIRENT_FIELD;
-		}
-		pp_field_ptr
-		as_field() const
-		{
-			if (!is_field()) {
-				throw std::runtime_error(
-				    "non-field dirent used as field");
-			}
-			return m_field;
-		}
-
-	    private:
-		enum {
-			DIRENT_DEVICE,
-			DIRENT_SPACE,
-			DIRENT_FIELD,
-		} m_type;
-		pp_device_ptr m_device;
-		pp_space_ptr m_space;
-		pp_field_ptr m_field;
-	};
-
-    public:
-	explicit pp_device() {}
+	explicit pp_device(): pp_dirent(PP_DIRENT_DEVICE) {}
 	virtual ~pp_device() {}
-
-	//FIXME: access methods for the raw vectors to be read-only?
 
 	/*
 	 * pp_device::add_field(name, field)
@@ -109,7 +39,7 @@ class pp_device: public pp_container
 	void
 	add_field(const string &name, const pp_field_ptr &field)
 	{
-		dirents.insert(name, dirent(field));
+		dirents.insert(name, field);
 	}
 
 	/*
@@ -122,7 +52,7 @@ class pp_device: public pp_container
 	{
 		pp_container_ptr tmp = shared_from_this();
 		device->set_parent(tmp);
-		dirents.insert(name, dirent(device));
+		dirents.insert(name, device);
 	}
 
 	/*
@@ -135,11 +65,18 @@ class pp_device: public pp_container
 	{
 		pp_container_ptr tmp = shared_from_this();
 		space->set_parent(tmp);
-		dirents.insert(name, dirent(space));
+		dirents.insert(name, space);
 	}
-
-	keyed_vector<string, dirent> dirents;
 };
+
+inline pp_device_ptr
+pp_device_from_dirent(pp_dirent_ptr dirent)
+{
+	if (dirent->dirent_type() != PP_DIRENT_DEVICE) {
+		throw std::runtime_error("non-device dirent used as device");
+	}
+	return boost::static_pointer_cast<pp_device>(dirent);
+}
 
 #define new_pp_device(...) pp_device_ptr(new pp_device(__VA_ARGS__))
 

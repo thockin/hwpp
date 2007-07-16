@@ -3,6 +3,7 @@
 #define PP_PP_SCOPE_H__
 
 #include "pp.h"
+#include "pp_dirent.h"
 #include "pp_container.h"
 #include "keyed_vector.h"
 #include "pp_datatype.h"
@@ -22,86 +23,13 @@
 class pp_scope;
 typedef boost::shared_ptr<pp_scope> pp_scope_ptr;
 
-class pp_scope: public pp_container
+class pp_scope: public pp_dirent, public pp_container
 {
+    protected:
+	explicit pp_scope(pp_dirent_type detype): pp_dirent(detype) {}
     public:
-	/*
-	 * pp_scope::dirent
-	 */
-	class dirent
-	{
-	    public:
-		explicit dirent(pp_register_ptr reg)
-		    : m_type(DIRENT_REGISTER), m_register(reg) {}
-		explicit dirent(pp_scope_ptr scope)
-		    : m_type(DIRENT_SCOPE), m_scope(scope) {}
-		explicit dirent(pp_field_ptr field)
-		    : m_type(DIRENT_FIELD), m_field(field) {}
-		~dirent() {}
-
-		bool
-		is_register() const
-		{
-			return m_type == DIRENT_REGISTER;
-		}
-		pp_register_ptr
-		as_register() const
-		{
-			if (!is_register()) {
-				throw std::runtime_error(
-				    "non-register dirent used as register");
-			}
-			return m_register;
-		}
-
-		bool
-		is_scope() const
-		{
-			return m_type == DIRENT_SCOPE;
-		}
-		pp_scope_ptr
-		as_scope() const
-		{
-			if (!is_scope()) {
-				throw std::runtime_error(
-				    "non-scope dirent used as scope");
-			}
-			return m_scope;
-		}
-
-		bool
-		is_field() const
-		{
-			return m_type == DIRENT_FIELD;
-		}
-		//FIXME: return pp_const_field_ptr?
-		pp_field_ptr
-		as_field() const
-		{
-			if (!is_field()) {
-				throw std::runtime_error(
-				    "non-field dirent used as field");
-			}
-			return m_field;
-		}
-
-	    private:
-		enum {
-			DIRENT_REGISTER,
-			DIRENT_SCOPE,
-			DIRENT_FIELD,
-		} m_type;
-		pp_register_ptr m_register;
-		pp_scope_ptr m_scope;
-		pp_field_ptr m_field;
-	};
-
-    public:
-	explicit pp_scope() {}
+	explicit pp_scope(): pp_dirent(PP_DIRENT_SCOPE) {}
 	virtual ~pp_scope() {}
-
-	//FIXME: access methods for the raw vectors to be read-only?
-	//FIXME: put m_dirents in container?
 
 	/*
 	 * pp_scope::add_register(name, reg)
@@ -111,7 +39,7 @@ class pp_scope: public pp_container
 	void
 	add_register(const string &name, const pp_register_ptr &reg)
 	{
-		dirents.insert(name, dirent(reg));
+		dirents.insert(name, reg);
 	}
 
 	/*
@@ -122,7 +50,7 @@ class pp_scope: public pp_container
 	void
 	add_field(const string &name, const pp_field_ptr &field)
 	{
-		dirents.insert(name, dirent(field));
+		dirents.insert(name, field);
 	}
 
 	/*
@@ -135,11 +63,18 @@ class pp_scope: public pp_container
 	{
 		pp_container_ptr tmp = shared_from_this();
 		scope->set_parent(tmp);
-		dirents.insert(name, dirent(scope));
+		dirents.insert(name, scope);
 	}
-
-	keyed_vector<string, dirent> dirents;
 };
+
+inline pp_scope_ptr
+pp_scope_from_dirent(pp_dirent_ptr dirent)
+{
+	if (dirent->dirent_type() != PP_DIRENT_SCOPE) {
+		throw std::runtime_error("non-scope dirent used as scope");
+	}
+	return boost::static_pointer_cast<pp_scope>(dirent);
+}
 
 #define new_pp_scope(...) pp_scope_ptr(new pp_scope(__VA_ARGS__))
 

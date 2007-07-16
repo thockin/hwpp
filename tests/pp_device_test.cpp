@@ -2,47 +2,11 @@
 #include "pp.h"
 #include "pp_test.h"
 #include "test_binding.h"
+#include "test_helpers.h"
 #include "pp_datatypes.h"
 #include "pp_fields.h"
 #include "keyed_vector.h"
 using namespace std;
-
-void
-dump_scope(const pp_scope_ptr &scope)
-{
-	for (size_t i = 0; i < scope->datatypes().size(); i++) {
-		cout << "datatype: "
-		     << scope->datatypes().key_at(i) << endl;
-	}
-	for (size_t i = 0; i < scope->dirents.size(); i++) {
-		cout << "dirent:   "
-		     << scope->dirents.key_at(i) << endl;
-		if (scope->dirents[i].is_scope()) {
-			pp_scope_ptr sub = scope->dirents[i].as_scope();
-			dump_scope(sub);
-		}
-	}
-}
-
-void
-dump_device(const pp_device_ptr &dev)
-{
-	for (size_t i = 0; i < dev->datatypes().size(); i++) {
-		cout << "datatype: "
-		     << dev->datatypes().key_at(i) << endl;
-	}
-	for (size_t i = 0; i < dev->dirents.size(); i++) {
-		cout << "dirent:   "
-		     << dev->dirents.key_at(i) << endl;
-		if (dev->dirents[i].is_space()) {
-			pp_space_ptr sub = dev->dirents[i].as_space();
-			dump_scope(sub);
-		} else if (dev->dirents[i].is_device()) {
-			pp_device_ptr sub = dev->dirents[i].as_device();
-			dump_device(sub);
-		}
-	}
-}
 
 int
 test_pp_device()
@@ -73,7 +37,7 @@ test_pp_device()
 	pp_direct_field_ptr field1 = new_pp_direct_field(type1);
 	field1->add_regbits(reg1, 0, pp_value(0xffff), 0);
 	dev->add_field("field1", field1);
-	pp_field_ptr field2 = dev->dirents["field1"].as_field();
+	pp_field_ptr field2 = pp_field_from_dirent(dev->dirents["field1"]);
 	if (field2 != field1) {
 		PP_TEST_ERROR("pp_device::add_field()");
 		ret++;
@@ -87,7 +51,7 @@ test_pp_device()
 	pp_device_ptr dev2 = new_pp_device();
 	dev->add_device("subdevice", dev2);
 
-	//dump_device(dev);
+	//display_tree(dev);
 
 	return ret;
 }

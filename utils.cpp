@@ -3,132 +3,97 @@
  * Author: lesleyn@google.com (Lesley Northam)
  *
  * Implementation of functions contained in utils.h
- * These functions are used for getting a specified field
- * or register.
  */
 
 #include "utils.h"
 using namespace std;
 
 /*
- * get_field
+ * get_field()
+ *
  * A function to search the tree and return a pointer to
  * the field in question.
  */
-pp_field_ptr get_field(const pp_scope_ptr item, pp_path path)
+pp_field_ptr
+get_field(const pp_container_ptr container, pp_path path)
 {
 	pp_field_ptr null_ptr;
 
-	/* Error Case */
+	/* error case */
 	if (path.empty()) {
+		//FIXME: should this just throw?
 		return null_ptr;
 	}
 
-	/* Grab first element of path */
-	string path_front = path.front();
-	path.pop_front();
-	/* Non Error, Recursive Cases */
-	if ((item->dirents.find(path_front))->is_scope()) {
-		return get_field((item->dirents.find(path_front))->as_scope(), path);
-	} else if ((item->dirents.find(path_front))->is_field()) {
-		return (item->dirents.find(path_front))->as_field();
+	/* grab first element of path */
+	string path_front = path.pop_front();
+
+	/* look up the dirent of the next element */
+	pp_dirent_ptr de = container->dirents[path_front];
+
+	/* did we find the field? */
+	if (path.empty() && de->dirent_type() == PP_DIRENT_FIELD) {
+		return pp_field_from_dirent(de);
 	}
+
+	/* recursive case */
+	switch (de->dirent_type()) {
+	case PP_DIRENT_SCOPE:
+		return get_field(pp_scope_from_dirent(de), path);
+	case PP_DIRENT_SPACE:
+		return get_field(pp_space_from_dirent(de), path);
+	case PP_DIRENT_DEVICE:
+		return get_field(pp_device_from_dirent(de), path);
+	default:
+		break;
+	}
+
+	/* default error case */
+	//FIXME: should this just throw?
 	return null_ptr;
-}
-
-pp_field_ptr get_field(const pp_space_ptr item, pp_path path)
-{
-	pp_scope_ptr scope = item;
-	return get_field(scope, path);
-}
-
-pp_field_ptr get_field( const pp_device_ptr item, pp_path path )
-{
-	pp_field_ptr null_ptr;
-
-	/* Error Case */
-	if (path.empty()) {
-		return null_ptr;
-	}
-
-	/* Grab first item of path */
-	string path_front = path.front();
-	path.pop_front ();
-
-	/* Non Error Cases */
-	if (item->dirents.find(path_front)->is_device()) {
-		return get_field((item->dirents.find(path_front))->as_device(), path);
-	} else if ((item->dirents.find(path_front))->is_space()) {
-		return get_field((item->dirents.find(path_front))->as_space(), path);
-	} else if ((item->dirents.find(path_front))->is_field()) {
-		return (item->dirents.find(path_front))->as_field();
-	}
-	return null_ptr;
-}
-
-pp_field_ptr get_field( const pp_platform_ptr item, pp_path path )
-{
-	pp_device_ptr device = item;
-	return get_field(device, path);
 }
 
 /*
- * get_register
+ * get_register()
+ *
  * A function to search the tree and return a pointer to
  * the field in question.
  */
-pp_register_ptr get_register(const pp_scope_ptr item, pp_path path)
+pp_register_ptr
+get_register(const pp_container_ptr container, pp_path path)
 {
 	pp_register_ptr null_ptr;
 
-	/* Error Case */
+	/* error case */
 	if (path.empty()) {
+		//FIXME: should this just throw?
 		return null_ptr;
 	}
 
-	/* Grab first element of path */
-	string path_front = path.front();
-	path.pop_front();
+	/* grab first element of path */
+	string path_front = path.pop_front();
 
-	/* Non Error, Recursive Cases */
-	if ((item->dirents.find(path_front))->is_scope()) {
-		return get_register((item->dirents.find(path_front))->as_scope(), path);
-	} else if ((item->dirents.find(path_front))->is_register()) {
-		return (item->dirents.find(path_front))->as_register();
+	/* look up the dirent of the next element */
+	pp_dirent_ptr de = container->dirents[path_front];
+
+	/* did we find the field? */
+	if (path.empty() && de->dirent_type() == PP_DIRENT_REGISTER) {
+		return pp_register_from_dirent(de);
 	}
+
+	/* recursive case */
+	switch (de->dirent_type()) {
+	case PP_DIRENT_SCOPE:
+		return get_register(pp_scope_from_dirent(de), path);
+	case PP_DIRENT_SPACE:
+		return get_register(pp_space_from_dirent(de), path);
+	case PP_DIRENT_DEVICE:
+		return get_register(pp_device_from_dirent(de), path);
+	default:
+		break;
+	}
+
+	/* default error case */
+	//FIXME: should this just throw?
 	return null_ptr;
-}
-
-pp_register_ptr get_register(const pp_space_ptr item, pp_path path)
-{
-	pp_scope_ptr scope = item;
-	return get_register(scope, path);
-}
-
-pp_register_ptr get_register(const pp_device_ptr item, pp_path path)
-{
-	pp_register_ptr null_ptr;
-
-	/* Error Case */
-	if (path.empty()) {
-		return null_ptr;
-	}
-
-	/* Grab first item of path */
-	string path_front = path.front();
-	path.pop_front ();
-
-	/* Non Error Cases */
-	if (item->dirents.find(path_front)->is_device()) {
-		return get_register((item->dirents.find(path_front))->as_device(), path);
-	} else if ((item->dirents.find(path_front))->is_space()) {
-		return get_register((item->dirents.find(path_front))->as_space(), path);
-	}
-	return null_ptr;
-}
-
-pp_register_ptr get_register(const pp_platform_ptr item, pp_path path)
-{
-	pp_device_ptr device = item;
-	return get_register(device, path);
 }

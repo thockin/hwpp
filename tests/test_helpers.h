@@ -1,33 +1,20 @@
 #ifndef PP_TESTS_TEST_HELPERS_H__
 #define PP_TESTS_TEST_HELPERS_H__
 /*
- * random_platform.h
+ * test_helpers.h
  *
- * Functions to automatically generate a platform tree filled
- * with registers, fields, devices, spaces and scopes.
- *
- * The trees are randomly generated, but the distribution of items
- * can be controlled via MAX_X values defined in generate_platform.cpp file.
- *
- * Print_tabs and display_tree are used for neatly displaying our randomly
- * generated platform tree.
+ * Functions to help writing tests.
  */
 
-#include "pp_datatypes.h"
-#include "pp_path.h"
+#include "pp.h"
+#include "pp_test.h"
 #include "pp_platform.h"
-#include "pp_device.h"
-#include "pp_space.h"
-#include "pp_scope.h"
-#include "pp_field.h"
-#include "pp_fields.h"
-#include "pp_register.h"
-#include <iostream>
 
 /*
  * generate_random_platform()
  *
- * Randomly generate a platform tree.
+ * Randomly generate a platform tree.  The distribution of items can be
+ * controlled via MAX_X values defined in the corresponding .cpp file.
  */
 pp_platform_ptr generate_random_platform();
 
@@ -37,6 +24,6 @@ pp_platform_ptr generate_random_platform();
  * Given an input tree, display it neatly on the screen using tabs as
  * a means of indicating ownership/tree structure.
  */
-void display_tree(pp_platform_ptr, int);
+void display_tree(pp_container_ptr container);
 
-#endif PP_TESTS_TEST_HELPERS_H__
+#endif /* PP_TESTS_TEST_HELPERS_H__ */
