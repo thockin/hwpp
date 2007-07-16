@@ -1,3 +1,7 @@
+INCLUDES = -I..
+CXXFLAGS = -Wall -Werror $(INCLUDES) -g -DBUILD_TESTS
+LDFLAGS = -L. -lpptest -L.. -lpp
+
 TESTS = keyed_vector_test \
 	filesystem_test \
 	pp_datatype_test \
@@ -8,13 +12,19 @@ TESTS = keyed_vector_test \
 	pp_scope_test \
 	pp_space_test \
 	pp_device_test \
-	pp_path_test
-SRCS = $(TESTS:=.cpp)
+	pp_dirent_test \
+	pp_path_test \
+	utils_test
+TESTS_SRCS = $(TESTS:=.cpp)
 
-INCLUDES = -I..
-CXXFLAGS = -Wall -Werror $(INCLUDES) -g -DBUILD_TESTS
+libpptest_SRCS = test_helpers.cpp
+libpptest_OBJS = $(libpptest_SRCS:.cpp=.o)
 
-all: .depend $(TESTS)
+
+all: libpptest.a $(TESTS)
+
+libpptest.a: .depend $(libpptest_OBJS)
+	ar rcs $@ $^
 
 test: .depend $(TESTS)
 	@for f in $(TESTS); do \
@@ -24,14 +34,14 @@ test: .depend $(TESTS)
 	done
 
 $(TESTS): %: %.o
-	$(CXX) -o $@ $^
+	$(CXX) -o $@ $^ $(LDFLAGS)
 
 clean:
-	$(RM) *.o $(TESTS)
+	$(RM) *.o *.a $(TESTS)
 
 .PHONY: dep
-dep .depend: $(SRCS)
-	@for f in $(SRCS); do \
+dep .depend: $(TESTS_SRCS)
+	@for f in $^; do \
 		$(CPP) $(INCLUDES) -MM $$f; \
 	done > .depend
 

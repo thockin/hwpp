@@ -1,16 +1,31 @@
 INCLUDES =
 CXXFLAGS = -Wall -Werror $(INCLUDES) -g -DBUILD_TESTS
 
-all: .depend
+libpp_SRCS = utils.cpp
+libpp_OBJS = $(libpp_SRCS:.cpp=.o)
 
+TEST_DIRS = tests drivers
+
+all: libpp.a
+
+libpp.a: .depend $(libpp_OBJS)
+	ar rcs $@ $^
+
+.PHONY: test
 test:
-	$(MAKE) -C tests test
+	@for d in $(TEST_DIRS); do \
+		$(MAKE) -C $$d test; \
+	done
 
+.PHONY: clean
 clean:
-	$(MAKE) -C tests clean
-	$(RM) *.o 
+	$(RM) *.o *.a
+	@for d in $(TEST_DIRS); do \
+		$(MAKE) -C $$d clean; \
+	done
 
-dep .depend:
+.PHONY: dep
+dep .depend: $(SRCS)
 	@for f in $(SRCS); do \
 		$(CPP) $(INCLUDES) -MM $$f; \
 	done > .depend

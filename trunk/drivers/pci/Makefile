@@ -5,4 +5,11 @@ INCLUDES = -I../.. -I../../test
 all:  pci_device
 
 pci_device: pci_device.cpp
-	$(CPP) -g -Wall -Werror $(INCLUDES) -o $@ $^
+	$(CXX) -g -Wall -Werror $(INCLUDES) -o $@ $^
+
+test:
+	$(MAKE) -C tests clean
+
+clean:
+	$(RM) *.o
+	$(MAKE) -C tests clean

@@ -1,6 +1,22 @@
+#include "pp.h"
+#include "pp_register.h"
+#include "pp_fields.h"
+#include "pp_datatypes.h"
+#include "pp_scope.h"
+#include "pp_space.h"
+#include "pp_device.h"
+#include "pp_dirent.h"
+#include "pp_platform.h"
 #include "test_helpers.h"
 #include "test_binding.h"
 #include <iostream>
+
+using namespace std;
+
+
+/*
+ * Generate a random platform.
+ */
 
 /* Give each PP tree item an identifying integer */
 #define DEVICE 0
@@ -25,8 +41,6 @@
 #define MAX_REGISTERS 12
 #define MAX_FIELDS 15
 
-using namespace std;
-
 /* Item Counters */
 static int device_count = 0;
 static int space_count = 0;
@@ -49,7 +63,8 @@ static pp_binding_ptr binding = new_test_binding();
  * purposes (for example, testing utils.h).
  * */
 
-static void generate_scope(pp_scope_ptr root)
+static void
+generate_scope(pp_scope_ptr root)
 {
 	/* To a space we can add a register, scope or field */
 	int choice = 0;
@@ -80,7 +95,8 @@ static void generate_scope(pp_scope_ptr root)
 	}
 }
 
-static void generate_space(pp_space_ptr root)
+static void
+generate_space(pp_space_ptr root)
 {
 	/* To a space we can add a register, scope or field */
 	int choice = 0;
@@ -111,7 +127,8 @@ static void generate_space(pp_space_ptr root)
 	}
 }
 
-static void generate_device(pp_device_ptr root)
+static void
+generate_device(pp_device_ptr root)
 {
 	/* We want to add devices, spaces and fields to the input device */
 	int choice = 0;
@@ -143,8 +160,9 @@ static void generate_device(pp_device_ptr root)
 	}
 }
 
-/* Generate a Platform base */
-pp_platform_ptr generate_random_platform()
+/* generate a random platform */
+pp_platform_ptr
+generate_random_platform()
 {
 	pp_platform_ptr root = new_pp_platform();
 	int choice = 0;
@@ -176,96 +194,85 @@ pp_platform_ptr generate_random_platform()
 	return root;
 }
 
+
 /*
- * Print Tabs
- * This function prints a given number of tabs.
- * It is used for displaying the randomly generated trees in a usefull and
- * understandable manner.
+ * Display pp_* objects.
  */
-static void print_tabs(int tab_count)
+
+/*
+ * indent()
+ *
+ * This function prints a given number of indentations.
+ */
+static void
+indent(int tab_count)
 {
 	for (int i = 0; i < tab_count; i++) {
-		cout << "\t";
+		cout << "  ";
 	}
 }
 
-/*
- * display_tree
- * A set of functions to "Display" the tree we just created. 
- */
-static void display_tree(pp_register_ptr root, int layer)
+static void
+display_field(pp_field_ptr field, int depth)
 {
 }
 
-static void display_tree(pp_field_ptr root, int layer)
+static void
+display_reg(pp_register_ptr reg, int depth)
 {
 }
 
-static void display_tree(pp_scope_ptr root, int layer)
+static void
+display_tree(pp_container_ptr ctr, int depth)
 {
-	for (size_t i = 0; i < root->dirents.size(); i++) {
-		print_tabs(layer+1);
-		if (root->dirents[i].is_scope()) {
-			cout << "SCOPE-" << root->dirents.key_at(i) << endl;
-			display_tree(root->dirents[i].as_scope(), layer+1);
-		} else if (root->dirents[i].is_register()) {
-			cout << "REGISTER-" << root->dirents.key_at(i) << endl;
-			display_tree(root->dirents[i].as_register(), layer+1);
-		} else if (root->dirents[i].is_field()) {
-			cout << "FIELD-" << root->dirents.key_at(i) << endl;
-			display_tree(root->dirents[i].as_field(), layer+1);
+	depth++;
+
+	for (size_t i = 0; i < ctr->datatypes().size(); i++) {
+		indent(depth);
+		cout << "datatype: "
+		     << ctr->datatypes().key_at(i)
+		     << endl;
+	}
+
+	for (size_t i = 0; i < ctr->dirents.size(); i++) {
+		pp_dirent_ptr dirent = ctr->dirents[i];
+
+		indent(depth);
+
+		if (dirent->is_scope()) {
+			cout << "scope: "
+			     << ctr->dirents.key_at(i)
+			     << endl;
+			display_tree(pp_scope_from_dirent(dirent), depth);
+		} else if (dirent->is_space()) {
+			cout << "space: "
+			     << ctr->dirents.key_at(i)
+			     << endl;
+			display_tree(pp_space_from_dirent(dirent), depth);
+		} else if (dirent->is_device()) {
+			cout << "device: "
+			     << ctr->dirents.key_at(i)
+			     << endl;
+			display_tree(pp_device_from_dirent(dirent), depth);
+		} else if (dirent->is_field()) {
+			cout << "field: "
+			     << ctr->dirents.key_at(i)
+			     << endl;
+			display_field(pp_field_from_dirent(dirent), depth);
+		} else if (dirent->is_register()) {
+			cout << "register: "
+			     << ctr->dirents.key_at(i)
+			     << endl;
+			display_reg(pp_register_from_dirent(dirent), depth);
 		}
 	}
 }
 
-static void display_tree(pp_space_ptr root, int layer)
+/* this is the externally visible interface */
+void
+display_tree(pp_container_ptr ctr)
 {
-	for (size_t i = 0; i < root->dirents.size(); i++) {
-		print_tabs(layer+1);
-		if (root->dirents[i].is_scope()) {
-			cout << "SCOPE-" << root->dirents.key_at(i) << endl;
-			display_tree(root->dirents[i].as_scope(), layer+1);
-		} else if (root->dirents[i].is_register()) {
-			cout << "REGISTER-" << root->dirents.key_at(i) << endl;
-			display_tree(root->dirents[i].as_register(), layer+1);
-		} else if (root->dirents[i].is_field()) {
-			cout << "FIELD-" << root->dirents.key_at(i) << endl;
-			display_tree(root->dirents[i].as_field(), layer+1);
-		}
-	}
+	cout << "root" << endl;
+	display_tree(ctr, 0);
 }
 
-static void display_tree(pp_device_ptr root, int layer)
-{
-	for (size_t i = 0; i < root->dirents.size(); i++) {
-		print_tabs(layer+1);
-		if (root->dirents[i].is_space()) {
-			cout << "SPACE-" << root->dirents.key_at(i) << endl;
-			display_tree(root->dirents[i].as_space(), layer+1);
-		} else if (root->dirents[i].is_device()) {
-			cout << "DEVICE-" << root->dirents.key_at(i) << endl;
-			display_tree(root->dirents[i].as_device(), layer+1);
-		} else if (root->dirents[i].is_field()) {
-			cout << "FIELD-" << root->dirents.key_at(i) << endl;
-			display_tree(root->dirents[i].as_field(), layer+1);
-		}
-	}
-}
-
-void display_tree(pp_platform_ptr root, int layer)
-{
-	cout << "ROOT" << endl;
-	for (size_t i = 0; i < root->dirents.size(); i++) {
-		print_tabs(layer+1);
-		if (root->dirents[i].is_space()) {
-			cout << "SPACE-" << root->dirents.key_at(i) << endl;
-			display_tree(root->dirents[i].as_space(), layer+1);
-		} else if (root->dirents[i].is_device()) {
-			cout << "DEVICE-" << root->dirents.key_at(i) << endl;
-			display_tree(root->dirents[i].as_device(), layer+1);
-		} else if (root->dirents[i].is_field()) {
-			cout << "FIELD-" << root->dirents.key_at(i) << endl;
-			display_tree(root->dirents[i].as_field(), layer+1);
-		}
-	}
-}

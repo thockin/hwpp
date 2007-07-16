@@ -5,6 +5,7 @@
 #include "pp.h"
 #include "keyed_vector.h"
 #include "pp_datatype.h"
+#include "pp_dirent.h"
 #include <boost/enable_shared_from_this.hpp>
 
 /*
@@ -72,7 +73,7 @@ class pp_container: public boost::enable_shared_from_this<pp_container>
 	 * Provide raw access to the datatypes vector.
 	 */
 	const keyed_vector<string, pp_const_datatype_ptr> &
-	datatypes()
+	datatypes() const
 	{
 		return m_datatypes;
 	}
@@ -94,7 +95,7 @@ class pp_container: public boost::enable_shared_from_this<pp_container>
 	 * Look up a datatype by name.
 	 */
 	pp_const_datatype_ptr
-	resolve_datatype(const string &name)
+	resolve_datatype(const string &name) const
 	{
 		try {
 			return m_datatypes[name];
@@ -107,6 +108,9 @@ class pp_container: public boost::enable_shared_from_this<pp_container>
 
 		return pp_const_datatype_ptr();
 	}
+
+	//FIXME: access methods for the raw vectors to be read-only?
+	keyed_vector<string, pp_dirent_ptr> dirents;
 
     protected:
 	pp_container_ptr m_parent;

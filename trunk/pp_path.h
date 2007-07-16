@@ -246,25 +246,6 @@ class pp_path
 		return m_list.back();
 	}
 
-#if 0
-	/* push and pop functions */
-	void
-	push_front(const string &that)
-	{
-		//FIXME: check for delim() characters?
-		m_list.push_front(that);
-	}
-	void
-	push_front(const pp_path &path)
-	{
-		const_reverse_iterator rit = path.rbegin();
-		while (rit != path.rend()) {
-			m_list.push_front(*rit);
-			rit++;
-		}
-	}
-#endif
-
 	void
 	push_back(const string &str)
 	{
@@ -280,12 +261,13 @@ class pp_path
 		}
 	}
 
-	//FIXME: nix this too? change m_list to m_vector?
-	void
+	string
 	pop_front()
 	{
+		string old_front = m_list.front();
 		m_list.pop_front();
-		//FIXME: m_delim = false;
+		m_absolute = false;
+		return old_front;
 	}
 
 	void

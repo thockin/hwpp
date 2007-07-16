@@ -2,83 +2,13 @@
 #include "pp.h"
 #include "pp_test.h"
 #include "test_binding.h"
+#include "test_helpers.h"
 #include "pp_datatypes.h"
 #include "pp_fields.h"
 #include "keyed_vector.h"
 #include <iostream>
 
 using namespace std;
-
-void dump_scope(const pp_scope_ptr &scope)
-{
-	for (size_t i = 0; i < scope->constants.size(); i++) {
-            cout << "constant: ";
-            cout << scope->constants.key_at(i) << " = "
-		     << scope->constants[i] << endl;
-	}
-	for (size_t i = 0; i < scope->datatypes.size(); i++) {
-		cout << "datatype: "
-		     << scope->datatypes.key_at(i) << endl;
-	}
-	for (size_t i = 0; i < scope->dirents.size(); i++) {
-		cout << "dirent:   "
-		     << scope->dirents.key_at(i) << endl;
-		if (scope->dirents[i].is_scope()) {
-			pp_scope_ptr sub = scope->dirents[i].as_scope();
-			dump_scope(sub);
-		}
-	}
-}
-void
-dump_device(const pp_device_ptr &dev)
-{
-	for (size_t i = 0; i < dev->constants.size(); i++) {
-		cout << "constant: ";
-		cout << dev->constants.key_at(i) << " = "
-		     << dev->constants[i] << endl;
-	}
-	for (size_t i = 0; i < dev->datatypes.size(); i++) {
-		cout << "datatype: "
-		     << dev->datatypes.key_at(i) << endl;
-	}
-	for (size_t i = 0; i < dev->dirents.size(); i++) {
-		cout << "dirent:   "
-		     << dev->dirents.key_at(i) << endl;
-		if (dev->dirents[i].is_space()) {
-			pp_space_ptr sub = dev->dirents[i].as_space();
-			dump_scope(sub);
-		} else if (dev->dirents[i].is_device()) {
-			pp_device_ptr sub = dev->dirents[i].as_device();
-			dump_device(sub);
-		}
-	}
-}
-
-void
-dump_device(const pp_platform_ptr &dev)
-{
-	for (size_t i = 0; i < dev->constants.size(); i++) {
-		cout << "constant: ";
-		cout << dev->constants.key_at(i) << " = "
-		     << dev->constants[i] << endl;
-	}
-	for (size_t i = 0; i < dev->datatypes.size(); i++) {
-		cout << "datatype: "
-		     << dev->datatypes.key_at(i) << endl;
-	}
-	for (size_t i = 0; i < dev->dirents.size(); i++) {
-		cout << "dirent:   "
-		     << dev->dirents.key_at(i) << endl;
-		if (dev->dirents[i].is_space()) {
-			pp_space_ptr sub = dev->dirents[i].as_space();
-			dump_scope(sub);
-		} else if (dev->dirents[i].is_device()) {
-			pp_device_ptr sub = dev->dirents[i].as_device();
-			dump_device(sub);
-		}
-	}
-}
-
 
 int
 test_pp_platform()
@@ -139,7 +69,7 @@ test_pp_platform()
 	dev2->add_constant("three", 3);
 	dev->add_device("subdevice", dev2);
 
-	//dump_device(dev);
+	//display_tree(dev);
 
 	return ret;
 }

@@ -468,32 +468,36 @@ dump_scope(const pp_scope_ptr &scope, string indent = "")
 		     << scope->datatypes().key_at(i) << endl;
 	}
 	for (size_t i = 0; i < scope->dirents.size(); i++) {
-		if (scope->dirents[i].is_register()) {
+		if (scope->dirents[i]->is_register()) {
 			cout << indent;
 			cout << "register: "
 			     << scope->dirents.key_at(i)
 			     << ": (0x"
 			     << std::hex
-			     << scope->dirents[i].as_register()->read()
+			     << pp_register_from_dirent(
+			        scope->dirents[i])->read()
 			     << ")"
 			     << endl;
 		}
-		if (scope->dirents[i].is_field()) {
+		if (scope->dirents[i]->is_field()) {
 			cout << indent;
 			cout << "field:   "
 			     << scope->dirents.key_at(i)
 			     << ": "
-			     << scope->dirents[i].as_field()->evaluate()
+			     << pp_field_from_dirent(
+			        scope->dirents[i])->evaluate()
 			     << " (0x"
 			     << std::hex
-			     << scope->dirents[i].as_field()->read()
+			     << pp_field_from_dirent(
+			        scope->dirents[i])->read()
 			     << ")"
 			     << endl;
 		}
-		if (scope->dirents[i].is_scope()) {
+		if (scope->dirents[i]->is_scope()) {
 			cout << indent;
 			cout << "scope:   " << scope->dirents.key_at(i) << endl;
-			pp_scope_ptr sub = scope->dirents[i].as_scope();
+			pp_scope_ptr sub = pp_scope_from_dirent(
+			    scope->dirents[i]);
 			dump_scope(sub, indent+"    ");
 		}
 	}
@@ -515,27 +519,30 @@ dump_device(const pp_device_ptr &dev, string indent = "")
 		     << dev->datatypes().key_at(i) << endl;
 	}
 	for (size_t i = 0; i < dev->dirents.size(); i++) {
-		if (dev->dirents[i].is_device()) {
+		if (dev->dirents[i]->is_device()) {
 			cout << indent;
 			cout << "device: "
 			     << dev->dirents.key_at(i)
 			     << endl;
-			dump_device(dev->dirents[i].as_device());
+			dump_device(pp_device_from_dirent(dev->dirents[i]));
 		}
-		if (dev->dirents[i].is_space()) {
+		if (dev->dirents[i]->is_space()) {
 			cout << indent;
 			cout << "space:   " << dev->dirents.key_at(i) << endl;
-			dump_space(dev->dirents[i].as_space(), indent+"    ");
+			dump_space(pp_space_from_dirent(dev->dirents[i]),
+			    indent+"    ");
 		}
-		if (dev->dirents[i].is_field()) {
+		if (dev->dirents[i]->is_field()) {
 			cout << indent;
 			cout << "field:   "
 			     << dev->dirents.key_at(i)
 			     << ": "
-			     << dev->dirents[i].as_field()->evaluate()
+			     << pp_field_from_dirent(
+			        dev->dirents[i])->evaluate()
 			     << " (0x"
 			     << std::hex
-			     << dev->dirents[i].as_field()->read()
+			     << pp_field_from_dirent(
+			        dev->dirents[i])->read()
 			     << ")"
 			     << endl;
 		}

@@ -122,8 +122,6 @@ class pci_io
 	static std::vector<pci_address>
 	enumerate()
 	{
-		struct stat s;
-
 		if (fs::direntry::is_dir(PCI_SYSFS_DIR)) {
 			return enumerate_sysfs();
 		}
@@ -173,8 +171,6 @@ class pci_io
 	void
 	seek(const pp_regaddr address) const
 	{
-		int r;
-
 		/* we only support 4KB config space */
 		if (address >= 4096) {
 			//FIXME: format, more specific type

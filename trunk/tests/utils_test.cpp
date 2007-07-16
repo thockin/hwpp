@@ -7,13 +7,14 @@
  * tell me if this path exists in our tree.
  */
 
+#include "pp.h"
+#include "pp_test.h"
+#include "pp_datatypes.h"
+#include "pp_fields.h"
 #include "utils.h"
 #include "test_binding.h"
 #include <iostream>
 using namespace std;
-
-#define ERROR(msg) \
-        cerr << "ERROR: [" __FILE__ << ":" << __LINE__ << "] " << msg << endl
 
 int get_field_test(const pp_device_ptr tree)
 {
@@ -25,19 +26,19 @@ int get_field_test(const pp_device_ptr tree)
 	/* Search for an item that is not a field */
 	if (get_field(tree, path1) != NULL) {
 		return_value ++;
-		ERROR("Found Colour/Value which is not a Field");
+		PP_TEST_ERROR("Found Colour/Value which is not a Field");
 	}
 
 	/* Search for an item that is in the tree and is a field */
 	if (get_field(tree, path2) == NULL) {
 		return_value++;
-		ERROR("Couldn't Find ID");
+		PP_TEST_ERROR("Couldn't Find ID");
 	}
 
 	/* Search for an item that is not a field */
 	if (get_field(tree, path3) != NULL) {
 		return_value++;
-		ERROR("Found empty path, which is not a Field");
+		PP_TEST_ERROR("Found empty path, which is not a Field");
 	}
 	return return_value;
 }
@@ -51,17 +52,17 @@ int get_register_test(const pp_device_ptr tree)
 
 	if (get_register(tree, path1) == NULL) {
 		return_value ++;
-		ERROR("Couldn't Find Colour/Value");
+		PP_TEST_ERROR("Couldn't Find Colour/Value");
 	}
 
 	if (get_register(tree, path2) != NULL) {
 		return_value++;
-		ERROR("ID is not a Register");
+		PP_TEST_ERROR("ID is not a Register");
 	}
 
 	if (get_field(tree, path3) != NULL) {
 		return_value++;
-		ERROR("Found empty path, which is not a Register");
+		PP_TEST_ERROR("Found empty path, which is not a Register");
 	}
 
 	return return_value;
