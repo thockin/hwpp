@@ -26,7 +26,7 @@ all: libpptest.a $(TESTS)
 libpptest.a: .depend $(libpptest_OBJS)
 	ar rcs $@ $^
 
-test: .depend $(TESTS)
+test: all
 	@for f in $(TESTS); do \
 		echo -n "Running $$f: "; \
 		./$$f; \

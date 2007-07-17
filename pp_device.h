@@ -22,6 +22,7 @@
  */
 class pp_device;
 typedef boost::shared_ptr<pp_device> pp_device_ptr;
+typedef boost::shared_ptr<const pp_device> pp_const_device_ptr;
 
 class pp_device: public pp_dirent, public pp_container
 {
@@ -37,9 +38,9 @@ class pp_device: public pp_dirent, public pp_container
 	 * Add a named field to this device.
 	 */
 	void
-	add_field(const string &name, const pp_field_ptr &field)
+	add_field(const string &name, pp_field_ptr field)
 	{
-		dirents.insert(name, field);
+		m_dirents.insert(name, field);
 	}
 
 	/*
@@ -48,11 +49,11 @@ class pp_device: public pp_dirent, public pp_container
 	 * Add a named device to this device.
 	 */
 	void
-	add_device(const string &name, const pp_device_ptr &device)
+	add_device(const string &name, pp_device_ptr device)
 	{
 		pp_container_ptr tmp = shared_from_this();
 		device->set_parent(tmp);
-		dirents.insert(name, device);
+		m_dirents.insert(name, device);
 	}
 
 	/*
@@ -61,21 +62,21 @@ class pp_device: public pp_dirent, public pp_container
 	 * Add a named space to this device.
 	 */
 	void
-	add_space(const string &name, const pp_space_ptr &space)
+	add_space(const string &name, pp_space_ptr space)
 	{
 		pp_container_ptr tmp = shared_from_this();
 		space->set_parent(tmp);
-		dirents.insert(name, space);
+		m_dirents.insert(name, space);
 	}
 };
 
-inline pp_device_ptr
-pp_device_from_dirent(pp_dirent_ptr dirent)
+inline pp_const_device_ptr
+pp_device_from_dirent(pp_const_dirent_ptr dirent)
 {
 	if (dirent->dirent_type() != PP_DIRENT_DEVICE) {
 		throw std::runtime_error("non-device dirent used as device");
 	}
-	return boost::static_pointer_cast<pp_device>(dirent);
+	return boost::static_pointer_cast<const pp_device>(dirent);
 }
 
 #define new_pp_device(...) pp_device_ptr(new pp_device(__VA_ARGS__))

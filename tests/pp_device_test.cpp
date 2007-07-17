@@ -37,7 +37,7 @@ test_pp_device()
 	pp_direct_field_ptr field1 = new_pp_direct_field(type1);
 	field1->add_regbits(reg1, 0, pp_value(0xffff), 0);
 	dev->add_field("field1", field1);
-	pp_field_ptr field2 = pp_field_from_dirent(dev->dirents["field1"]);
+	pp_const_field_ptr field2 = pp_field_from_dirent(dev->dirents()["field1"]);
 	if (field2 != field1) {
 		PP_TEST_ERROR("pp_device::add_field()");
 		ret++;

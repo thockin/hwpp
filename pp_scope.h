@@ -22,6 +22,7 @@
  */
 class pp_scope;
 typedef boost::shared_ptr<pp_scope> pp_scope_ptr;
+typedef boost::shared_ptr<const pp_scope> pp_const_scope_ptr;
 
 class pp_scope: public pp_dirent, public pp_container
 {
@@ -37,9 +38,9 @@ class pp_scope: public pp_dirent, public pp_container
 	 * Add a named register to this scope.
 	 */
 	void
-	add_register(const string &name, const pp_register_ptr &reg)
+	add_register(const string &name, pp_register_ptr reg)
 	{
-		dirents.insert(name, reg);
+		m_dirents.insert(name, reg);
 	}
 
 	/*
@@ -48,9 +49,9 @@ class pp_scope: public pp_dirent, public pp_container
 	 * Add a named field to this scope.
 	 */
 	void
-	add_field(const string &name, const pp_field_ptr &field)
+	add_field(const string &name, pp_field_ptr field)
 	{
-		dirents.insert(name, field);
+		m_dirents.insert(name, field);
 	}
 
 	/*
@@ -59,21 +60,21 @@ class pp_scope: public pp_dirent, public pp_container
 	 * Add a named scope to this scope.
 	 */
 	void
-	add_scope(const string &name, const pp_scope_ptr &scope)
+	add_scope(const string &name, pp_scope_ptr scope)
 	{
 		pp_container_ptr tmp = shared_from_this();
 		scope->set_parent(tmp);
-		dirents.insert(name, scope);
+		m_dirents.insert(name, scope);
 	}
 };
 
-inline pp_scope_ptr
-pp_scope_from_dirent(pp_dirent_ptr dirent)
+inline pp_const_scope_ptr
+pp_scope_from_dirent(pp_const_dirent_ptr dirent)
 {
 	if (dirent->dirent_type() != PP_DIRENT_SCOPE) {
 		throw std::runtime_error("non-scope dirent used as scope");
 	}
-	return boost::static_pointer_cast<pp_scope>(dirent);
+	return boost::static_pointer_cast<const pp_scope>(dirent);
 }
 
 #define new_pp_scope(...) pp_scope_ptr(new pp_scope(__VA_ARGS__))

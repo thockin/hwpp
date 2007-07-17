@@ -213,17 +213,17 @@ indent(int tab_count)
 }
 
 static void
-display_field(pp_field_ptr field, int depth)
+display_field(pp_const_field_ptr field, int depth)
 {
 }
 
 static void
-display_reg(pp_register_ptr reg, int depth)
+display_reg(pp_const_register_ptr reg, int depth)
 {
 }
 
 static void
-display_tree(pp_container_ptr ctr, int depth)
+display_tree(pp_const_container_ptr ctr, int depth)
 {
 	depth++;
 
@@ -234,34 +234,34 @@ display_tree(pp_container_ptr ctr, int depth)
 		     << endl;
 	}
 
-	for (size_t i = 0; i < ctr->dirents.size(); i++) {
-		pp_dirent_ptr dirent = ctr->dirents[i];
+	for (size_t i = 0; i < ctr->dirents().size(); i++) {
+		pp_const_dirent_ptr dirent = ctr->dirents()[i];
 
 		indent(depth);
 
 		if (dirent->is_scope()) {
 			cout << "scope: "
-			     << ctr->dirents.key_at(i)
+			     << ctr->dirents().key_at(i)
 			     << endl;
 			display_tree(pp_scope_from_dirent(dirent), depth);
 		} else if (dirent->is_space()) {
 			cout << "space: "
-			     << ctr->dirents.key_at(i)
+			     << ctr->dirents().key_at(i)
 			     << endl;
 			display_tree(pp_space_from_dirent(dirent), depth);
 		} else if (dirent->is_device()) {
 			cout << "device: "
-			     << ctr->dirents.key_at(i)
+			     << ctr->dirents().key_at(i)
 			     << endl;
 			display_tree(pp_device_from_dirent(dirent), depth);
 		} else if (dirent->is_field()) {
 			cout << "field: "
-			     << ctr->dirents.key_at(i)
+			     << ctr->dirents().key_at(i)
 			     << endl;
 			display_field(pp_field_from_dirent(dirent), depth);
 		} else if (dirent->is_register()) {
 			cout << "register: "
-			     << ctr->dirents.key_at(i)
+			     << ctr->dirents().key_at(i)
 			     << endl;
 			display_reg(pp_register_from_dirent(dirent), depth);
 		}
@@ -270,7 +270,7 @@ display_tree(pp_container_ptr ctr, int depth)
 
 /* this is the externally visible interface */
 void
-display_tree(pp_container_ptr ctr)
+display_tree(pp_const_container_ptr ctr)
 {
 	cout << "root" << endl;
 	display_tree(ctr, 0);

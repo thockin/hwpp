@@ -45,27 +45,27 @@ class pp_dirent {
 	 * Check the type of this object.
 	 */
 	bool
-	is_register()
+	is_register() const
 	{
 		return m_type == PP_DIRENT_REGISTER;
 	}
 	bool
-	is_field()
+	is_field() const
 	{
 		return m_type == PP_DIRENT_FIELD;
 	}
 	bool
-	is_scope()
+	is_scope() const
 	{
 		return m_type == PP_DIRENT_SCOPE;
 	}
 	bool
-	is_space()
+	is_space() const
 	{
 		return m_type == PP_DIRENT_SPACE;
 	}
 	bool
-	is_device()
+	is_device() const
 	{
 		return m_type == PP_DIRENT_DEVICE;
 	}
@@ -74,6 +74,7 @@ class pp_dirent {
 	pp_dirent_type m_type;
 };
 typedef boost::shared_ptr<pp_dirent> pp_dirent_ptr;
+typedef boost::shared_ptr<const pp_dirent> pp_const_dirent_ptr;
 
 #define new_pp_dirent(...) pp_dirent_ptr(new pp_dirent(__VA_ARGS__))
 
