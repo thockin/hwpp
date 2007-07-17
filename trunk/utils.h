@@ -24,7 +24,7 @@
  * If the field does not exist, or pp_path does not specify a field,
  * NULL is returned.
  */
-pp_field_ptr get_field(const pp_container_ptr container, pp_path path);
+pp_const_field_ptr get_field(pp_const_container_ptr container, pp_path path);
 
 /*
  * get_register()
@@ -33,4 +33,4 @@ pp_field_ptr get_field(const pp_container_ptr container, pp_path path);
  * If the register does not exist, or pp_path does not specify a register,
  * NULL is returned.
  */
-pp_register_ptr get_register(const pp_container_ptr container, pp_path path);
+pp_const_register_ptr get_register(pp_const_container_ptr container, pp_path path);

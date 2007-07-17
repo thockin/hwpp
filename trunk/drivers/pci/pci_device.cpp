@@ -460,89 +460,89 @@ pci_generic_space(pp_binding_ptr binding)
 using namespace std;
 
 void
-dump_scope(const pp_scope_ptr &scope, string indent = "")
+dump_scope(pp_const_scope_ptr scope, string indent = "")
 {
 	for (size_t i = 0; i < scope->datatypes().size(); i++) {
 		cout << indent;
 		cout << "datatype: "
 		     << scope->datatypes().key_at(i) << endl;
 	}
-	for (size_t i = 0; i < scope->dirents.size(); i++) {
-		if (scope->dirents[i]->is_register()) {
+	for (size_t i = 0; i < scope->dirents().size(); i++) {
+		if (scope->dirents()[i]->is_register()) {
 			cout << indent;
 			cout << "register: "
-			     << scope->dirents.key_at(i)
+			     << scope->dirents().key_at(i)
 			     << ": (0x"
 			     << std::hex
 			     << pp_register_from_dirent(
-			        scope->dirents[i])->read()
+			        scope->dirents()[i])->read()
 			     << ")"
 			     << endl;
 		}
-		if (scope->dirents[i]->is_field()) {
+		if (scope->dirents()[i]->is_field()) {
 			cout << indent;
 			cout << "field:   "
-			     << scope->dirents.key_at(i)
+			     << scope->dirents().key_at(i)
 			     << ": "
 			     << pp_field_from_dirent(
-			        scope->dirents[i])->evaluate()
+			        scope->dirents()[i])->evaluate()
 			     << " (0x"
 			     << std::hex
 			     << pp_field_from_dirent(
-			        scope->dirents[i])->read()
+			        scope->dirents()[i])->read()
 			     << ")"
 			     << endl;
 		}
-		if (scope->dirents[i]->is_scope()) {
+		if (scope->dirents()[i]->is_scope()) {
 			cout << indent;
-			cout << "scope:   " << scope->dirents.key_at(i) << endl;
-			pp_scope_ptr sub = pp_scope_from_dirent(
-			    scope->dirents[i]);
+			cout << "scope:   " << scope->dirents().key_at(i) << endl;
+			pp_const_scope_ptr sub = pp_scope_from_dirent(
+			    scope->dirents()[i]);
 			dump_scope(sub, indent+"    ");
 		}
 	}
 }
 
 void
-dump_space(const pp_space_ptr &space, string indent = "")
+dump_space(pp_const_space_ptr space, string indent = "")
 {
-	pp_scope_ptr scope = space;
+	pp_const_scope_ptr scope = space;
 	dump_scope(scope, indent);
 }
 
 void
-dump_device(const pp_device_ptr &dev, string indent = "")
+dump_device(pp_const_device_ptr dev, string indent = "")
 {
 	for (size_t i = 0; i < dev->datatypes().size(); i++) {
 		cout << indent;
 		cout << "datatype: "
 		     << dev->datatypes().key_at(i) << endl;
 	}
-	for (size_t i = 0; i < dev->dirents.size(); i++) {
-		if (dev->dirents[i]->is_device()) {
+	for (size_t i = 0; i < dev->dirents().size(); i++) {
+		if (dev->dirents()[i]->is_device()) {
 			cout << indent;
 			cout << "device: "
-			     << dev->dirents.key_at(i)
+			     << dev->dirents().key_at(i)
 			     << endl;
-			dump_device(pp_device_from_dirent(dev->dirents[i]));
+			dump_device(pp_device_from_dirent(dev->dirents()[i]));
 		}
-		if (dev->dirents[i]->is_space()) {
+		if (dev->dirents()[i]->is_space()) {
 			cout << indent;
-			cout << "space:   " << dev->dirents.key_at(i) << endl;
-			dump_space(pp_space_from_dirent(dev->dirents[i]),
+			cout << "space:   " << dev->dirents().key_at(i) << endl;
+			dump_space(pp_space_from_dirent(dev->dirents()[i]),
 			    indent+"    ");
 		}
-		if (dev->dirents[i]->is_field()) {
+		if (dev->dirents()[i]->is_field()) {
 			cout << indent;
 			cout << "field:   "
-			     << dev->dirents.key_at(i)
+			     << dev->dirents().key_at(i)
 			     << ": "
 			     << pp_field_from_dirent(
-			        dev->dirents[i])->evaluate()
+			        dev->dirents()[i])->evaluate()
 			     << " (0x"
 			     << std::hex
 			     << pp_field_from_dirent(
-			        dev->dirents[i])->read()
+			        dev->dirents()[i])->read()
 			     << ")"
 			     << endl;
 		}
@@ -550,9 +550,9 @@ dump_device(const pp_device_ptr &dev, string indent = "")
 }
 
 void
-dump_platform(const pp_platform_ptr &plat, string indent = "")
+dump_platform(pp_const_platform_ptr plat, string indent = "")
 {
-	pp_device_ptr dev = plat;
+	pp_const_device_ptr dev = plat;
 	dump_device(dev, indent);
 }
 

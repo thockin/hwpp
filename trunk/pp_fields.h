@@ -11,7 +11,7 @@
  * regbits - a bit range from a register.
  *
  * Constructors:
- * 	(const pp_register_ptr &reg, const int shift,
+ * 	(pp_register_ptr reg, const int shift,
  * 	 const pp_value mask, const int position)
  *
  * Notes:
@@ -20,7 +20,7 @@
 class regbits
 {
     public:
-	explicit regbits(const pp_register_ptr &reg, const int shift,
+	explicit regbits(pp_const_register_ptr reg, const int shift,
 	    const pp_value mask, const int position)
 	    : m_reg(reg), m_regshift(shift), m_mask(mask),
 	      m_position(position) {}
@@ -66,7 +66,7 @@ class regbits
 	}
 
     private:
-	pp_register_ptr m_reg;
+	pp_const_register_ptr m_reg;
 	int m_regshift;
 	pp_value m_mask;
 	int m_position;
@@ -84,7 +84,7 @@ class regbits
 class pp_direct_field: public pp_field
 {
     public:
-	explicit pp_direct_field(const pp_const_datatype_ptr &datatype)
+	explicit pp_direct_field(pp_const_datatype_ptr datatype)
 	    : pp_field(datatype) {}
 	virtual ~pp_direct_field() {}
 
@@ -121,14 +121,14 @@ class pp_direct_field: public pp_field
 	}
 
 	/*
-	 * pp_direct_field::add_regbits(const pp_register_ptr &reg,
+	 * pp_direct_field::add_regbits(pp_register_ptr reg,
 	 * 	const int shift, const pp_value mask, const int position)
 	 *
 	 * Add register bits to this field.
 	 */
 	 //FIXME: just pass a vector to ctor?
 	void
-	add_regbits(const pp_register_ptr &reg,
+	add_regbits(pp_register_ptr reg,
 	    const int shift, const pp_value mask, const int position)
 	{
 		m_regbits.push_back(regbits(reg, shift, mask, position));

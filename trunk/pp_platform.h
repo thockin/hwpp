@@ -21,6 +21,7 @@ class pp_platform: public pp_device
 	virtual ~pp_platform() {};
 };
 typedef boost::shared_ptr<pp_platform> pp_platform_ptr;
+typedef boost::shared_ptr<const pp_platform> pp_const_platform_ptr;
 
 #define new_pp_platform(...) pp_platform_ptr(new pp_platform(__VA_ARGS__))
 

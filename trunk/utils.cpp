@@ -14,8 +14,8 @@ using namespace std;
  * A function to search the tree and return a pointer to
  * the field in question.
  */
-pp_field_ptr
-get_field(const pp_container_ptr container, pp_path path)
+pp_const_field_ptr
+get_field(pp_const_container_ptr container, pp_path path)
 {
 	pp_field_ptr null_ptr;
 
@@ -29,7 +29,7 @@ get_field(const pp_container_ptr container, pp_path path)
 	string path_front = path.pop_front();
 
 	/* look up the dirent of the next element */
-	pp_dirent_ptr de = container->dirents[path_front];
+	pp_const_dirent_ptr de = container->dirents()[path_front];
 
 	/* did we find the field? */
 	if (path.empty() && de->dirent_type() == PP_DIRENT_FIELD) {
@@ -59,8 +59,8 @@ get_field(const pp_container_ptr container, pp_path path)
  * A function to search the tree and return a pointer to
  * the field in question.
  */
-pp_register_ptr
-get_register(const pp_container_ptr container, pp_path path)
+pp_const_register_ptr
+get_register(pp_const_container_ptr container, pp_path path)
 {
 	pp_register_ptr null_ptr;
 
@@ -74,7 +74,7 @@ get_register(const pp_container_ptr container, pp_path path)
 	string path_front = path.pop_front();
 
 	/* look up the dirent of the next element */
-	pp_dirent_ptr de = container->dirents[path_front];
+	pp_const_dirent_ptr de = container->dirents()[path_front];
 
 	/* did we find the field? */
 	if (path.empty() && de->dirent_type() == PP_DIRENT_REGISTER) {

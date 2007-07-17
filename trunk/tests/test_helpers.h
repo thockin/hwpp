@@ -24,6 +24,6 @@ pp_platform_ptr generate_random_platform();
  * Given an input tree, display it neatly on the screen using tabs as
  * a means of indicating ownership/tree structure.
  */
-void display_tree(pp_container_ptr container);
+void display_tree(pp_const_container_ptr container);
 
 #endif /* PP_TESTS_TEST_HELPERS_H__ */

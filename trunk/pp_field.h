@@ -19,7 +19,7 @@
 class pp_field: public pp_dirent
 {
     public:
-	explicit pp_field(const pp_const_datatype_ptr &datatype)
+	explicit pp_field(pp_const_datatype_ptr datatype)
 	    : pp_dirent(PP_DIRENT_FIELD), m_datatype(datatype) {}
 	virtual ~pp_field() {}
 
@@ -77,14 +77,15 @@ class pp_field: public pp_dirent
 	pp_const_datatype_ptr m_datatype;
 };
 typedef boost::shared_ptr<pp_field> pp_field_ptr;
+typedef boost::shared_ptr<const pp_field> pp_const_field_ptr;
 
-inline pp_field_ptr
-pp_field_from_dirent(pp_dirent_ptr dirent)
+inline pp_const_field_ptr
+pp_field_from_dirent(pp_const_dirent_ptr dirent)
 {
 	if (dirent->dirent_type() != PP_DIRENT_FIELD) {
 		throw std::runtime_error("non-field dirent used as field");
 	}
-	return boost::static_pointer_cast<pp_field>(dirent);
+	return boost::static_pointer_cast<const pp_field>(dirent);
 }
 
 #endif // PP_PP_FIELD_H__

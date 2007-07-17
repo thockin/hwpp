@@ -48,7 +48,7 @@ class pp_container: public boost::enable_shared_from_this<pp_container>
 	 * Set the parent container of this object.
 	 */
 	void
-	set_parent(const pp_container_ptr &parent)
+	set_parent(pp_const_container_ptr parent)
 	{
 		m_parent = parent;
 	}
@@ -84,7 +84,7 @@ class pp_container: public boost::enable_shared_from_this<pp_container>
 	 * Add a named datatype to this container.
 	 */
 	void
-	add_datatype(const string &name, const pp_const_datatype_ptr &datatype)
+	add_datatype(const string &name, pp_const_datatype_ptr datatype)
 	{
 		m_datatypes.insert(name, datatype);
 	}
@@ -109,11 +109,20 @@ class pp_container: public boost::enable_shared_from_this<pp_container>
 		return pp_const_datatype_ptr();
 	}
 
-	//FIXME: access methods for the raw vectors to be read-only?
-	keyed_vector<string, pp_dirent_ptr> dirents;
+	/*
+	 * pp_container::dirents()
+	 *
+	 * Provide raw access to the datatypes vector.
+	 */
+	const keyed_vector<string, pp_const_dirent_ptr> &
+	dirents() const
+	{
+		return m_dirents;
+	}
 
     protected:
-	pp_container_ptr m_parent;
+	pp_const_container_ptr m_parent;
+	keyed_vector<string, pp_const_dirent_ptr> m_dirents;
 	keyed_vector<string, pp_const_datatype_ptr> m_datatypes;
 };
 
