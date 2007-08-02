@@ -8,7 +8,10 @@
 #include "pci_driver.h"
 #include "pci_io.h"
 #include "pci_binding.h"
+#include "utils.h"
 
+static pp_register_ptr ones = new_pp_register(new_ones_binding(), 0x0, BITS64);
+static pp_register_ptr zeros = new_pp_register(new_zeros_binding(), 0x0, BITS64);
 void
 init_crap(pp_platform_ptr platform)
 {
@@ -26,6 +29,9 @@ init_crap(pp_platform_ptr platform)
 	platform->add_datatype("hex8_t", new_pp_hex(BITS8));
 	platform->add_datatype("hex16_t", new_pp_hex(BITS16));
 	platform->add_datatype("hex32_t", new_pp_hex(BITS32));
+	platform->add_datatype("addr16_t", new_pp_hex(BITS16));
+	platform->add_datatype("addr32_t", new_pp_hex(BITS32));
+	platform->add_datatype("addr64_t", new_pp_hex(BITS64));
 
 	e = new_pp_enum();
 	e->add_value("yes", 1);
@@ -50,7 +56,7 @@ init_crap(pp_platform_ptr platform)
 	e->add_value("intelligent I/O controller", 0x0e);
 	e->add_value("satellite communication controller", 0x0f);
 	e->add_value("encryption/decryption controller", 0x10);
-	e->add_value("data acquisitiona / signal processing controller", 0x11);
+	e->add_value("data acquisition / signal processing controller", 0x11);
 	//TODO: incomplete list
 	e->set_default("unknown class");
 	platform->add_datatype("pci_class_t", e);
@@ -68,8 +74,212 @@ regfield(string name, pp_scope_ptr scope, pp_binding_ptr binding,
 	scope->add_field(name, *pfield);
 }
 
+//All BARs look like this.
+//macro BAR(name, offset) {
+void base_address_register(char *name, pp_space_ptr space,
+	pp_binding_ptr binding, pp_regaddr location, pp_platform_ptr platform )
+{
+	//width variable
+	pp_value width;
+	pp_direct_field_ptr width_field;
+	pp_direct_field_ptr pfield;
+	pp_direct_field_ptr bar_type;
+	pp_register_ptr preg;
+	pp_register_ptr lower;
+	pp_enum_ptr anon_enum;
+
+	//scope name {
+	pp_scope_ptr scope = new_pp_scope();
+
+	//reg32 lower(offset, preserve);
+	lower = new_pp_register(binding, location, BITS32);
+	scope->add_register("%lower", lower);
+
+	anon_enum = new_pp_enum();
+	anon_enum->add_value("mem", 0);
+	anon_enum->add_value("io", 1);
+
+	//field type(lower[0], enum() {
+	//	MEM = 0
+	//	IO = 1
+	//});
+	bar_type = new_pp_direct_field(anon_enum);
+	bar_type->add_regbits(lower, 0, PP_MASK(1), 0);
+	scope->add_field("type", bar_type);
+
+	//if (type == MEM) {
+	pp_value value_type = bar_type->read();
+	if (value_type == bar_type->lookup("mem")) {
+		//field width(lower[2:1], enum() {
+		//	BITS32 = 0,
+		//	BITS20 = 1,
+		//	BITS64 = 2,
+		//});
+		anon_enum = new_pp_enum();
+		anon_enum->add_value("bits32", 0);
+		anon_enum->add_value("bits20", 1);
+		anon_enum->add_value("bits64", 2);
+		width_field = new_pp_direct_field(anon_enum);
+		width_field->add_regbits(lower, 1, PP_MASK(2), 0);
+		scope->add_field("width", width_field);
+		width = width_field->read();
+
+		//field prefetch(lower[3], yes_no);
+		pfield = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
+		pfield->add_regbits(lower, 3, PP_MASK(1), 0);
+		scope->add_field("prefetch", pfield);
+	}
+
+	//if (type == IO) {
+	if (value_type == bar_type->lookup("io")) {
+		//field addr((lower[15:2],zero[1:0]), ADDR16);
+		pfield = new_pp_direct_field(platform->resolve_datatype("addr16_t"));
+		pfield->add_regbits(zeros, 0, PP_MASK(2), 0);
+		pfield->add_regbits(lower, 2, PP_MASK(14), 2);
+		scope->add_field("addr", pfield);
+	}
+	//} else if (width == BITS32 || width == BITS20) {
+	else if (width == width_field->lookup("bits32") ||
+		 width == width_field->lookup("bits20")) {
+		//field addr((lower[31:4],zero[3:0]), ADDR32);
+		pfield = new_pp_direct_field(platform->resolve_datatype("addr32_t"));
+		pfield->add_regbits(zeros, 0, PP_MASK(4), 0);
+		pfield->add_regbits(lower, 4, PP_MASK(28), 4);
+		scope->add_field("addr", pfield);
+	} else {
+	//} else {
+		//reg32 upper(offset+4, preserve);
+		preg = new_pp_register(binding, location + 0x4, BITS64);
+		scope->add_register("%upper", preg);
+		//field addr((upper[31:0],lower[31:4],zero[3:0]),
+		//	ADDR64);
+		pfield = new_pp_direct_field(platform->resolve_datatype("addr64_t"));
+		pfield->add_regbits(zeros, 0, PP_MASK(4), 0);
+		pfield->add_regbits(lower, 4, PP_MASK(28), 4);
+		pfield->add_regbits(preg, 0, PP_MASK(32), 32);
+		scope->add_field("addr", pfield);
+	//}
+	}
+	space->add_scope(name, scope);
+}
+
+// DEVICE MACRO
+void create_device (pp_space_ptr space, pp_binding_ptr binding,
+	pp_platform_ptr platform, pp_const_field_ptr base_type,
+	pp_const_field_ptr base_width)
+{
+	pp_value type;
+	pp_value width;
+	pp_direct_field_ptr field;
+	pp_field_ptr cap_field;
+	pp_register_ptr reg;
+
+	// Figure out the next BAR definition:
+	//   if bar1 is not defined, bar0 must be 64 bit, bar2 is ok.
+	//   if bar1.type is not 64 bit memory, bar2 is ok.
+	//if (!defined(bar1) ||
+	//    !(bar1.type == MEM && bar1.width == BITS64)) {
+	//	BAR(bar2, 0x18)
+	type = base_type->read();
+	width = base_width->read();
+	if (!get_register(space, pp_path("bar1")) || !(type == base_type->lookup("mem") && width == base_width->lookup("bits64"))) {
+		base_address_register("bar2", space, binding, 0x18, platform);
+		base_type = get_field(space, pp_path("bar2/type"));
+		base_width = get_field(space, pp_path("bar2/width"));
+		type = base_type->read();
+		width = base_width->read();
+		//}
+	}
+
+	//if (!defined(bar2) ||
+	//    !(bar2.type == MEM && bar2.width == BITS64)) {
+	//	BAR(bar3, 0x1c)
+	if (!get_register(space, pp_path("bar2")) || !(type == base_type->lookup("mem") && width == base_width->lookup("bits64"))) {
+		base_address_register("bar3", space, binding, 0x1c, platform);
+		base_type = get_field(space, pp_path("bar3/type"));
+		base_width = get_field(space, pp_path("bar3/width"));
+		type = base_type->read();
+		width = base_width->read();
+		//}
+	}
+
+	//if (!defined(bar3) ||
+	//    !(bar3.type == MEM && bar3.width == BITS64)) {
+	//	BAR(bar4, 0x20)
+	if (!get_register(space, pp_path("bar3")) || !(type == base_type->lookup("mem") && width == base_width->lookup("bits64"))) {
+		base_address_register("bar4", space, binding, 0x20, platform);
+		base_type = get_field(space, pp_path("bar4/type"));
+		base_width = get_field(space, pp_path("bar4/width"));
+		type = base_type->read();
+		width = base_width->read();
+		//}
+	}
+
+	//if (!defined(bar4) ||
+	//    !(bar4.type == MEM && bar4.width == BITS64)) {
+	//	BAR(bar5, 0x24)
+	if (!get_register(space, pp_path("bar4")) || !(type == base_type->lookup("mem") && width == base_width->lookup("bits64"))) {
+		base_address_register("bar5", space, binding, 0x24, platform);
+		base_type = get_field(space, pp_path("bar5/type"));
+		base_width = get_field(space, pp_path("bar5/width"));
+		type = base_type->read();
+		width = base_width->read();
+		//}
+	}
+	//regfield32 cisptr(0x28, ADDR32);
+	regfield("cisptr", space, binding, 0x28, BITS32,
+	    platform->resolve_datatype("addr32_t"), &reg, &field);
+
+	//regfield16 subvendor(0x2c, PCI_VENDOR);
+	regfield("subvendor", space, binding, 0x2c, BITS16,
+	    platform->resolve_datatype("pci_vendor_t"), &reg, &field);
+
+	//regfield16 subdevice(0x2e, HEX16);
+	regfield("subdevice", space, binding, 0x2e, BITS16,
+	    platform->resolve_datatype("hex16_t"), &reg, &field);
+
+	// Handle the PCI capabilities linked-list.
+	//FIXME: using $ here really helps.  Maybe when you read a
+	//field/var/method you use $?
+	//if (status.caps) {
+/*	cap_field = get_field(space, pp_path("status/caps"));
+	pp_value value = field->read();
+
+	if (value == field->lookup("yes")) {
+	//	regfield8 capptr(0x34, HEX8);
+		regfield("capptr", space, binding, 0x34, BITS8,
+			platform->resolve_datatype("hex8_t"), &reg, &field);
+
+	//	var $ptr = capptr;
+	//	var $i = 0;
+		int i = 0;
+		int ptr = (int)value;
+
+	//	while ($ptr != 0) {
+		while (ptr != 0) {
+	//		//FIXME: don't use [] here - it's for bits
+	//		scope capability[$i] {
+	//			regfield8 id($ptr, HEX8);
+	//			regfield8 next($ptr+1, HEX8);
+	//		//rest of caps fields
+	//		}
+	//		$ptr = capability[$i].next;
+	//		$i = $i+1;
+	//	}
+	//}
+	//reg32 rombase(0x30, preserve);
+	//scope rombase {
+	//	field en(rombase[0], yes_no);
+	//	field addr(rombase[31:11], HEX32);
+	//}
+	//regfield8 mingnt(0x3e, INT("1/4 usec"));
+	//regfield8 maxlat(0x3f, INT("1/4 usec"));
+	//
+	*/
+}
+
 pp_space_ptr
-pci_generic_space(pp_binding_ptr binding)
+pci_generic_space(pp_binding_ptr binding, pp_platform_ptr platform)
 {
 	pp_space_ptr space = new_pp_space(binding);
 	pp_register_ptr reg;
@@ -78,6 +288,8 @@ pci_generic_space(pp_binding_ptr binding)
 	pp_int_ptr anon_int;
 	pp_bitmask_ptr anon_bitmask;
 	pp_scope_ptr scope;
+	pp_value hdrtype;
+	pp_direct_field_ptr hdrfield;
 
 	// regrange32 PCI(0, 4096, 4, PRESERVE);
 	for (int i = 0; i < 4096; i += 4) {
@@ -88,11 +300,11 @@ pci_generic_space(pp_binding_ptr binding)
 
 	// regfield16 vendor(0x00, PCI_VENDOR);
 	regfield("vendor", space, binding, 0x00, BITS16,
-	    space->resolve_datatype("pci_vendor_t"), &reg, &field);
+	    platform->resolve_datatype("pci_vendor_t"), &reg, &field);
 
 	// regfield16 device(0x02, HEX16);
 	regfield("device", space, binding, 0x02, BITS16,
-	    space->resolve_datatype("hex16_t"), &reg, &field);
+	    platform->resolve_datatype("hex16_t"), &reg, &field);
 
 	// reg16 command(0x04, preserve);
 	reg = new_pp_register(binding, 0x04, BITS16);
@@ -101,47 +313,47 @@ pci_generic_space(pp_binding_ptr binding)
 	// scope command {
 	scope = new_pp_scope();
 	//	field io(command[0], yes_no);
-	field = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
 	field->add_regbits(reg, 0, PP_MASK(1), 0);
 	scope->add_field("io", field);
 	//	field mem(command[1], yes_no);
-	field = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
 	field->add_regbits(reg, 1, PP_MASK(1), 0);
 	scope->add_field("mem", field);
 	//	field bm(command[2], yes_no);
-	field = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
 	field->add_regbits(reg, 2, PP_MASK(1), 0);
 	scope->add_field("bm", field);
 	//	field special(command[3], yes_no);
-	field = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
 	field->add_regbits(reg, 3, PP_MASK(1), 0);
 	scope->add_field("special", field);
 	//	field mwinv(command[4], yes_no);
-	field = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
 	field->add_regbits(reg, 4, PP_MASK(1), 0);
 	scope->add_field("mwinv", field);
 	//	field vgasnoop(command[5], yes_no);
-	field = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
 	field->add_regbits(reg, 5, PP_MASK(1), 0);
 	scope->add_field("vgasnoop", field);
 	//	field perr(command[6], yes_no);
-	field = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
 	field->add_regbits(reg, 6, PP_MASK(1), 0);
 	scope->add_field("perr", field);
 	//	field step(command[7], yes_no);
-	field = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
 	field->add_regbits(reg, 7, PP_MASK(1), 0);
 	scope->add_field("step", field);
 	//	field serr(command[8], yes_no);
-	field = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
 	field->add_regbits(reg, 8, PP_MASK(1), 0);
 	scope->add_field("serr", field);
 	//	field fbb(command[9], yes_no);
-	field = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
 	field->add_regbits(reg, 9, PP_MASK(1), 0);
 	scope->add_field("fbb", field);
 	//	field intr(command[10], yes_no);
-	field = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
 	field->add_regbits(reg, 10, PP_MASK(1), 0);
 	scope->add_field("intr", field);
 	//}
@@ -154,23 +366,23 @@ pci_generic_space(pp_binding_ptr binding)
 	// scope status {
 	scope = new_pp_scope();
 	//	field intr(status[3], yes_no);
-	field = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
 	field->add_regbits(reg, 3, PP_MASK(1), 0);
 	scope->add_field("intr", field);
 	//	field caps(status[4], yes_no);
-	field = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
 	field->add_regbits(reg, 4, PP_MASK(1), 0);
 	scope->add_field("caps", field);
 	//	field cap66(status[5], yes_no);
-	field = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
 	field->add_regbits(reg, 5, PP_MASK(1), 0);
 	scope->add_field("cap66", field);
 	//	field fbb(status[7], yes_no);
-	field = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
 	field->add_regbits(reg, 7, PP_MASK(1), 0);
 	scope->add_field("fbb", field);
 	//	field mdperr(status[8], yes_no);
-	field = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
 	field->add_regbits(reg, 8, PP_MASK(1), 0);
 	scope->add_field("mdperr", field);
 	//	field devsel(status[10:9], enum() {
@@ -186,23 +398,23 @@ pci_generic_space(pp_binding_ptr binding)
 	field->add_regbits(reg, 9, PP_MASK(2), 0);
 	scope->add_field("devsel", field);
 	//	field sigtabort(status[11], yes_no);
-	field = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
 	field->add_regbits(reg, 11, PP_MASK(1), 0);
 	scope->add_field("sigtabort", field);
 	//	field rcvtabort(status[12], yes_no);
-	field = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
 	field->add_regbits(reg, 12, PP_MASK(1), 0);
 	scope->add_field("rcvtabort", field);
 	//	field rcvmabort(status[13], yes_no);
-	field = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
 	field->add_regbits(reg, 13, PP_MASK(1), 0);
 	scope->add_field("rcvmabort", field);
 	//	field serr(status[14], yes_no);
-	field = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
 	field->add_regbits(reg, 14, PP_MASK(1), 0);
 	scope->add_field("serr", field);
 	//	field perr(status[15], yes_no);
-	field = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
 	field->add_regbits(reg, 15, PP_MASK(1), 0);
 	scope->add_field("perr", field);
 	//}
@@ -210,7 +422,7 @@ pci_generic_space(pp_binding_ptr binding)
 
 	//regfield8 class(0x0b, PCI_CLASS);
 	regfield("class", space, binding, 0x0b, BITS8,
-	    space->resolve_datatype("pci_class_t"), &reg, &field);
+	    platform->resolve_datatype("pci_class_t"), &reg, &field);
 
 	//regfield8 subclass(0x0a, ...); // per-class subclasses
 	pp_enum_ptr subclass_type = new_pp_enum();
@@ -267,13 +479,13 @@ pci_generic_space(pp_binding_ptr binding)
 	//regfield8 progintf(0x09, HEX8);
 	reg = new_pp_register(binding, 0x09, BITS8);
 	space->add_register("%progintf", reg);
-	field = new_pp_direct_field(space->resolve_datatype("hex8_t"));
+	field = new_pp_direct_field(platform->resolve_datatype("hex8_t"));
 	field->add_regbits(reg, 0, PP_MASK(BITS8), 0);
 	space->add_field("progintf", field);
 
 	//regfield8 revision(0x08, HEX8);
 	regfield("revision", space, binding, 0x08, BITS8,
-	    space->resolve_datatype("hex8_t"), &reg, &field);
+	    platform->resolve_datatype("hex8_t"), &reg, &field);
 
 	//regfield8 cacheline(0x0c, int("dwords"));
 	anon_int = new_pp_int("DWORDs");
@@ -301,125 +513,92 @@ pci_generic_space(pp_binding_ptr binding)
 	anon_enum->add_value("device", 0);
 	anon_enum->add_value("PCI bridge", 1);
 	anon_enum->add_value("CardBus bridge", 2);
-	field = new_pp_direct_field(anon_enum);
-	field->add_regbits(reg, 0, PP_MASK(7), 0);
-	scope->add_field("type", field);
+	hdrfield = new_pp_direct_field(anon_enum);
+	hdrfield->add_regbits(reg, 0, PP_MASK(7), 0);
+	scope->add_field("type", hdrfield);
 	//	field multi_function(hdrtype[7], yes_no);
-	field = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
 	field->add_regbits(reg, 7, PP_MASK(1), 0);
 	scope->add_field("multi_function", field);
 	//}
 	space->add_scope("hdrtype", scope);
+	hdrtype = hdrfield->read();
+
+	//reg8 bist(0x0f, preserve);
+	reg = new_pp_register(binding, 0x0f, BITS8);
+	space->add_register("%bist", reg);
+
+	//scope bist {
+	scope = new_pp_scope();
+	//	field capable(bist[7], yes_no);
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
+	field->add_regbits(reg, 7, PP_MASK(1), 0);
+	scope->add_field("bist_capable", field);
+	//	field start(bist[6], yes_no);
+	field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
+	field->add_regbits(reg, 6, PP_MASK(1), 0);
+	scope->add_field("start_bist", field);
+	//	field code(bist[3:0], hex8);
+	field = new_pp_direct_field(platform->resolve_datatype("hex8_t"));
+	field->add_regbits(reg, 0, PP_MASK(4), 0);
+	scope->add_field("completion_code", field);
+	//}
+
+	//regfield8 intline(0x3c, int);
+	anon_int = new_pp_int();
+	regfield("intline", space, binding, 0x3c, BITS8, anon_int,
+		&reg, &field);
+
+	//regfield8 intpin(0x3c, enum() {
+	//	NONE = 0
+	//	INTA = 1
+	//	INTB = 2
+	//	INTC = 3
+	//	INTD = 4
+	//   });
+	anon_enum = new_pp_enum();
+	anon_enum->add_value("NONE", 0);
+	anon_enum->add_value("INTA", 1);
+	anon_enum->add_value("INTB", 2);
+	anon_enum->add_value("INTC", 3);
+	anon_enum->add_value("INTD", 4);
+	regfield("intpin", space, binding, 0x3c, BITS8, anon_enum,
+		&reg, &field);
+
+	// Base Address Registers
+	// All devices have at least 2 BARs.
+	//BAR(bar0, 0x10) {
+	base_address_register("bar0", space, binding, 0x10, platform);
+	pp_const_field_ptr bar_type = get_field(space, pp_path("bar0/type"));
+	pp_const_field_ptr bar_width = get_field(space, pp_path("bar0/width"));
+	pp_value type_value = bar_type->read();
+	pp_value width = bar_width->read();
+
+	//if (!(bar0.type == MEM && bar0.width == BITS64)) {
+	//	BAR(bar1, 0x14)
+	//}
+	if (!(type_value == bar_type->lookup("mem") && width == bar_width->lookup("bits64"))) {
+		base_address_register("bar1", space, binding, 0x14, platform);
+		bar_type = get_field(space, pp_path("bar1/type"));
+		bar_width = get_field(space, pp_path("bar1/width"));
+		type_value = bar_type->read();
+		width = bar_width->read();
+	}
+
+	// if (hdrtype == DEVICE) {
+	if (hdrtype == hdrfield->lookup("device"))
+	{
+		create_device(space, binding, platform, bar_type, bar_width);
+	}
+	else if (hdrtype == hdrfield->lookup("pci_bridge"))
+	{}
+	else if (hdrtype == hdrfield->lookup("card_bridge"))
+	{}
 
 	return space;
 }
 
 #if 0
-	reg8 bist(0x0f, preserve);
-	scope bist {
-		field capable(bist[7], yes_no);
-		field start(bist[6], yes_no);
-		field code(bist[3:0], hex8);
-	}
-
-	regfield8 intline(0x3c, int);
-	regfield8 intpin(0x3c, enum() {
-		NONE = 0
-		INTA = 1
-		INTB = 2
-		INTC = 3
-		INTD = 4
-	    });
-
-	// All BARs look like this.
-	macro BAR(name, offset) {
-	    scope name {
-		//FIXME: unless regs have a hierarchy, we had a dup name
-		//       maybe name the reg $name - then what is "upper" ?
-		reg32 lower(offset, preserve);
-		field type(lower[0], enum() {
-			MEM = 0
-			IO = 1
-		    });
-		if (type == MEM) {
-			field width(lower[2:1], enum() {
-				BITS32 = 0,
-				BITS20 = 1,
-				BITS64 = 2,
-			});
-			field prefetch(lower[3], yes_no);
-		}
-
-		if (type == IO) {
-			field addr((lower[15:2],zero[1:0]), ADDR16);
-		} else if (width == BITS32 || width == BITS20) {
-			field addr((lower[31:4],zero[3:0]), ADDR32);
-		} else {
-			reg32 upper(offset+4, preserve);
-			field addr((upper[31:0],lower[31:4],zero[3:0]),
-				ADDR64);
-		}
-	    }
-	}
-
-	// All devices have at least 2 BARs.
-	BAR(bar0, 0x10) {
-	if (!(bar0.type == MEM && bar0.width == BITS64)) {
-		BAR(bar1, 0x14)
-	}
-	if (hdrtype == DEVICE) {
-		// Figure out the next BAR definition:
-		//   if bar1 is not defined, bar0 must be 64 bit, bar2 is ok.
-		//   if bar1.type is not 64 bit memory, bar2 is ok.
-		if (!defined(bar1) ||
-		    !(bar1.type == MEM && bar1.width == BITS64)) {
-			BAR(bar2, 0x18)
-		}
-		if (!defined(bar2) ||
-		    !(bar2.type == MEM && bar2.width == BITS64)) {
-			BAR(bar3, 0x1c)
-		}
-		if (!defined(bar3) ||
-		    !(bar3.type == MEM && bar3.width == BITS64)) {
-			BAR(bar4, 0x20)
-		}
-		if (!defined(bar4) ||
-		    !(bar4.type == MEM && bar4.width == BITS64)) {
-			BAR(bar5, 0x24)
-		}
-
-		regfield32 cisptr(0x28, ADDR32);
-
-		regfield16 subvendor(0x2c, PCI_VENDOR);
-		regfield16 subdevice(0x2e, HEX16);
-
-		// Handle the PCI capabilities linked-list.
-		//FIXME: using $ here really helps.  Maybe when you read a
-		//field/var/method you use $?
-		if (status.caps) {
-			regfield8 capptr(0x34, HEX8);
-			var $ptr = capptr;
-			var $i = 0;
-			while ($ptr != 0) {
-				//FIXME: don't use [] here - it's for bits
-				scope capability[$i] {
-					regfield8 id($ptr, HEX8);
-					regfield8 next($ptr+1, HEX8);
-					//rest of caps fields
-				}
-				$ptr = capability[$i].next;
-				$i = $i+1;
-			}
-		}
-
-		reg32 rombase(0x30, preserve);
-		scope rombase {
-			field en(rombase[0], yes_no);
-			field addr(rombase[31:11], HEX32);
-		}
-
-		regfield8 mingnt(0x3e, INT("1/4 usec"));
-		regfield8 maxlat(0x3f, INT("1/4 usec"));
 	} else if (hdrtype == PCI_BRIDGE) {
 		regfield8 pri_bus(0x18, INT());
 		regfield8 sec_bus(0x19, INT());
@@ -566,7 +745,7 @@ main()
 	dump_platform(platform);
 
 	pp_binding_ptr binding = new_pci_binding(pci_address(0,0,0));
-	pp_space_ptr space = pci_generic_space(binding);
+	pp_space_ptr space = pci_generic_space(binding, platform);
 	dump_scope(space);
 	return 0;
 }
