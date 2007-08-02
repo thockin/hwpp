@@ -4,7 +4,7 @@ INCLUDES = -I../.. -I../../test
 
 all:  pci_device
 
-pci_device: pci_device.cpp
+pci_device: pci_device.cpp ../../libpp.a
 	$(CXX) -g -Wall -Werror $(INCLUDES) -o $@ $^
 
 test:
