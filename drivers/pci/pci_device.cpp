@@ -1,4 +1,6 @@
 #include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "pp.h"
 #include "pp_space.h"
@@ -25,6 +27,8 @@ init_crap(pp_platform_ptr platform)
 	e->add_value("Silicon Image", 0x1095);
 	e->set_default("Unknown");
 	platform->add_datatype("pci_vendor_t", e);
+
+	platform->add_datatype("int8_t", new_pp_hex(BITS8));
 
 	platform->add_datatype("hex8_t", new_pp_hex(BITS8));
 	platform->add_datatype("hex16_t", new_pp_hex(BITS16));
@@ -163,6 +167,80 @@ void base_address_register(char *name, pp_space_ptr space,
 	space->add_scope(name, scope);
 }
 
+/*
+// PCI BRIDGE MACRO
+void create_pci_bridge (pp_space_ptr space, pp_binding_ptr binding,
+	pp_platform_ptr platform, pp_const_field_ptr base_type,
+	pp_const_field_ptr base_width)
+{
+	pp_register_ptr reg;
+	pp_direct_field_ptr field;
+
+	//	regfield8 pri_bus(0x18, INT());
+	regfield("pri_bus", space, binding, 0x18, BITS8,
+		platform->resolve_datatype("int8_t"), &reg, &field);
+	//	regfield8 sec_bus(0x19, INT());
+	regfield("sec_bus", space, binding, 0x19, BITS8,
+		platform->resolve_datatype("int8_t"), &reg, &field);
+	//	regfield8 sub_bus(0x1a, INT());
+	regfield("sub_bus", space, binding, 0x1a, BITS8,
+		platform->resolve_datatype("int8_t"), &reg, &field);
+	//	regfield8 sec_latency(0x1b, INT("clocks"));
+	regfield("sec_latency", space, binding, 0x1b, BITS8,
+		platform->resolve_datatype("int8_t"), &reg, &field);
+
+	//	scope io_window {
+	pp_scope_ptr scope = new_pp_scope();
+	//		reg8 base_lo(1c, preserve);
+		pp_register_ptr base_lo = new_pp_register(binding, 0x1c, BITS8);
+		scope->add_register("base_lo", base_lo);
+
+	//		reg8 limit_lo(0x1d, preserve);
+		pp_register_ptr limit_lo = new_pp_register(binding, 0x1d, BITS8);
+		scope->add_register("limit_lo", limit_lo);
+
+	//		reg16 base_hi(0x30, preserve);
+		pp_register_ptr base_hi = new_pp_register(binding, 0x30, BITS8);
+		scope->add_register("base_hi", base_hi);
+
+	//		reg16 limit_hi(0x32, preserve);
+		pp_register_ptr limit_hi = new_pp_register(binding, 0x32, BITS8);
+		scope->add_register("limit_hi", limit_hi);
+
+	//		field width(base_lo[3:0], enum() {
+	//			BITS16 = 0;
+	//			BITS32 = 1;
+	//		    });
+		pp_enum_ptr anon_enum = new_pp_enum();
+		anon_enum->add_value("bits16", 0);
+		anon_enum->add_value("bits32", 1);
+		pp_direct_field_ptr width = new_pp_direct_field(anon_enum);
+
+		pp_value value = width->read();
+	//		if (width == BITS16) {
+		if (value == width->lookup("bits16"))
+		{
+	//			field base((base_lo[7:4],zero[11:0]},
+	//				ADDR16));
+			field = new_field_ptr(platform->resolve_datatype("addr16_t"));
+			field->add_regbits(zeros, 0, PP_MASK(12), 0);
+			field->add_regbits(base_lo, 
+	//			field limit((limit_lo[7:4],one[11:0]},
+	//				ADDR16));
+		}
+	//		} else if (width == BITS32) {
+	//			field base(
+	//				(base_hi[],base_lo[7:4],zero[11:0]),
+	//				ADDR32);
+	//			field limit(
+	//				(limit_hi[],limit_lo[15:12],one[11:0]),
+	//				ADDR32);
+	//		}
+	//	}
+	//	//FIXME: left off here
+
+}
+*/
 // DEVICE MACRO
 void create_device (pp_space_ptr space, pp_binding_ptr binding,
 	pp_platform_ptr platform, pp_const_field_ptr base_type,
@@ -171,8 +249,9 @@ void create_device (pp_space_ptr space, pp_binding_ptr binding,
 	pp_value type;
 	pp_value width;
 	pp_direct_field_ptr field;
-	pp_field_ptr cap_field;
+	pp_const_field_ptr cap_field;
 	pp_register_ptr reg;
+	pp_scope_ptr scope;
 
 	// Figure out the next BAR definition:
 	//   if bar1 is not defined, bar0 must be 64 bit, bar2 is ok.
@@ -242,40 +321,69 @@ void create_device (pp_space_ptr space, pp_binding_ptr binding,
 	//FIXME: using $ here really helps.  Maybe when you read a
 	//field/var/method you use $?
 	//if (status.caps) {
-/*	cap_field = get_field(space, pp_path("status/caps"));
-	pp_value value = field->read();
+	cap_field = get_field(space, pp_path("status/caps"));
+	pp_value value = cap_field->read();
 
-	if (value == field->lookup("yes")) {
+	if (value) {
 	//	regfield8 capptr(0x34, HEX8);
 		regfield("capptr", space, binding, 0x34, BITS8,
 			platform->resolve_datatype("hex8_t"), &reg, &field);
 
+		cap_field = get_field(space, pp_path("capptr"));
 	//	var $ptr = capptr;
+		value = cap_field->read();
+
 	//	var $i = 0;
 		int i = 0;
-		int ptr = (int)value;
-
+		std::string temp_string;
 	//	while ($ptr != 0) {
-		while (ptr != 0) {
+		while (value != 0 && value != 0xff) {
 	//		//FIXME: don't use [] here - it's for bits
 	//		scope capability[$i] {
+			scope = new_pp_scope();
 	//			regfield8 id($ptr, HEX8);
+				regfield("id", scope, binding, value, BITS8,
+					platform->resolve_datatype("hex8_t"), &reg, &field);
 	//			regfield8 next($ptr+1, HEX8);
+				regfield("next", scope, binding, value+1, BITS8,
+					platform->resolve_datatype("hex8_t"), &reg, &field);
 	//		//rest of caps fields
 	//		}
+			temp_string = "capability" + to_string(i);
+			space->add_scope(temp_string, scope);
 	//		$ptr = capability[$i].next;
+			temp_string = temp_string + "/next";
+			cap_field = get_field(space, pp_path(temp_string));
+			value = cap_field->read();
 	//		$i = $i+1;
+			i++;
 	//	}
+		}
 	//}
+	}
 	//reg32 rombase(0x30, preserve);
+	reg = new_pp_register(binding, 0x30, BITS32);
+	space->add_register("rombase", reg);
 	//scope rombase {
+	scope = new_pp_scope();
 	//	field en(rombase[0], yes_no);
+		field = new_pp_direct_field(platform->resolve_datatype("yesno_t"));
+		field->add_regbits(reg, 0, PP_MASK(1), 0);
+		scope->add_field("en", field);
+
 	//	field addr(rombase[31:11], HEX32);
+		field = new_pp_direct_field(platform->resolve_datatype("hex32_t"));
+		field->add_regbits(reg, 1, PP_MASK(31), 1);
+		scope->add_field("addr",field);
 	//}
+	space->add_scope("rombase", scope);
+
 	//regfield8 mingnt(0x3e, INT("1/4 usec"));
+	regfield("mingnt", space, binding, 0x3e, BITS8,
+		platform->resolve_datatype("int8_t"), &reg, &field);
 	//regfield8 maxlat(0x3f, INT("1/4 usec"));
-	//
-	*/
+	regfield("maxlat", space, binding, 0x3f, BITS8,
+		platform->resolve_datatype("int8_t"), &reg, &field);
 }
 
 pp_space_ptr
