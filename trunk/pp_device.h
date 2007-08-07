@@ -51,8 +51,7 @@ class pp_device: public pp_dirent, public pp_container
 	void
 	add_device(const string &name, pp_device_ptr device)
 	{
-		pp_container_ptr tmp = shared_from_this();
-		device->set_parent(tmp);
+		device->set_parent(this);
 		m_dirents.insert(name, device);
 	}
 
@@ -64,19 +63,18 @@ class pp_device: public pp_dirent, public pp_container
 	void
 	add_space(const string &name, pp_space_ptr space)
 	{
-		pp_container_ptr tmp = shared_from_this();
-		space->set_parent(tmp);
+		space->set_parent(this);
 		m_dirents.insert(name, space);
 	}
 };
 
-inline pp_const_device_ptr
+inline const pp_device *
 pp_device_from_dirent(pp_const_dirent_ptr dirent)
 {
 	if (dirent->dirent_type() != PP_DIRENT_DEVICE) {
 		throw std::runtime_error("non-device dirent used as device");
 	}
-	return boost::static_pointer_cast<const pp_device>(dirent);
+	return static_cast<const pp_device *>(dirent.get());
 }
 
 #define new_pp_device(...) pp_device_ptr(new pp_device(__VA_ARGS__))

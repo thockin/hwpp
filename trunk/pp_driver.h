@@ -61,7 +61,7 @@ class pp_driver
 	 * platform.
 	 */
 	virtual int
-	enumerate(pp_platform_ptr platform) const = 0;
+	enumerate(pp_platform *platform) const = 0;
 };
 typedef boost::shared_ptr<pp_driver> pp_driver_ptr;
 

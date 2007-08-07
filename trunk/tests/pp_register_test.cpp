@@ -10,16 +10,16 @@ test_pp_register()
 	int ret = 0;
 
 	/* test the binding constructor */
-	pp_binding_ptr ts = new_test_binding();
+	pp_binding_ptr bind = new_test_binding();
 
 	/* test the reg constructor */
-	pp_register r0(ts, 1, BITS8);
+	pp_register r0(bind.get(), 1, BITS8);
 
 	/* set up test registers */
-	pp_register r1(ts, 1, BITS8);
-	pp_register r2(ts, 2, BITS16);
-	pp_register r3(ts, 3, BITS32);
-	pp_register r4(ts, 4, BITS64);
+	pp_register r1(bind.get(), 1, BITS8);
+	pp_register r2(bind.get(), 2, BITS16);
+	pp_register r3(bind.get(), 3, BITS32);
+	pp_register r4(bind.get(), 4, BITS64);
 
 	/* test the read() method */
 	if (r1.read() != 0xff) {

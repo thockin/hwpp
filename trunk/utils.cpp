@@ -6,6 +6,13 @@
  */
 
 #include "utils.h"
+#include "pp_field.h"
+#include "pp_fields.h"
+#include "pp_container.h"
+#include "pp_path.h"
+#include "pp_dirent.h"
+#include "pp_register.h"
+#include <stdexcept>
 using namespace std;
 
 /*
@@ -14,21 +21,21 @@ using namespace std;
  * A function to search the tree and return a pointer to
  * the field in question.
  */
-pp_const_field_ptr
-get_field(pp_const_container_ptr container, pp_path path)
+const pp_field *
+get_field(const pp_container *container, pp_path path)
 {
-	pp_field_ptr null_ptr;
-
 	/* error case */
 	if (path.empty()) {
-		//FIXME: should this just throw?
-		return null_ptr;
+		throw std::out_of_range("path not found");
 	}
 
 	/* grab first element of path */
 	string path_front = path.pop_front();
 
-	/* look up the dirent of the next element */
+	/*
+	 * Look up the dirent of the next element.  This can throw
+	 * std::out_of_range if the dirent does not exist.
+	 */
 	pp_const_dirent_ptr de = container->dirents()[path_front];
 
 	/* did we find the field? */
@@ -49,8 +56,7 @@ get_field(pp_const_container_ptr container, pp_path path)
 	}
 
 	/* default error case */
-	//FIXME: should this just throw?
-	return null_ptr;
+	throw std::out_of_range("path is not a field");
 }
 
 /*
@@ -59,21 +65,21 @@ get_field(pp_const_container_ptr container, pp_path path)
  * A function to search the tree and return a pointer to
  * the field in question.
  */
-pp_const_register_ptr
-get_register(pp_const_container_ptr container, pp_path path)
+const pp_register *
+get_register(const pp_container *container, pp_path path)
 {
-	pp_register_ptr null_ptr;
-
 	/* error case */
 	if (path.empty()) {
-		//FIXME: should this just throw?
-		return null_ptr;
+		throw std::out_of_range("path not found");
 	}
 
 	/* grab first element of path */
 	string path_front = path.pop_front();
 
-	/* look up the dirent of the next element */
+	/*
+	 * Look up the dirent of the next element.  This can throw
+	 * std::out_of_range if the dirent does not exist.
+	 */
 	pp_const_dirent_ptr de = container->dirents()[path_front];
 
 	/* did we find the field? */
@@ -94,6 +100,83 @@ get_register(pp_const_container_ptr container, pp_path path)
 	}
 
 	/* default error case */
-	//FIXME: should this just throw?
-	return null_ptr;
+	throw std::out_of_range("path is not a register");
+}
+
+/*
+ * get_dirent()
+ *
+ * A function to search the tree and return a pointer to
+ * the dirent in question.
+ */
+const pp_dirent *
+get_dirent(const pp_container *container, pp_path path)
+{
+	/* error case */
+	if (path.empty()) {
+		throw std::out_of_range("path not found");
+	}
+
+	/* grab first element of path */
+	string path_front = path.pop_front();
+
+	/*
+	 * Look up the dirent of the next element.  This can throw
+	 * std::out_of_range if the dirent does not exist.
+	 */
+	pp_const_dirent_ptr de = container->dirents()[path_front];
+
+	/* did we find the field? */
+	if (path.empty()) {
+		return de.get();
+	}
+
+	/* recursive case */
+	switch (de->dirent_type()) {
+	case PP_DIRENT_SCOPE:
+		return get_dirent(pp_scope_from_dirent(de), path);
+	case PP_DIRENT_SPACE:
+		return get_dirent(pp_space_from_dirent(de), path);
+	case PP_DIRENT_DEVICE:
+		return get_dirent(pp_device_from_dirent(de), path);
+	default:
+		break;
+	}
+
+	/* default error case */
+	throw std::out_of_range("path is not a known dirent_type");
+}
+
+/*
+ * dirent_defined()
+ *
+ * Tests whether the pp_path resolves to a defined dirent.
+ */
+bool
+dirent_defined(const pp_container *container, pp_path path)
+{
+	const pp_dirent *d = NULL;
+	try {
+		d = get_dirent(container, path);
+	} catch (std::out_of_range e) {
+	}
+
+	return (d != NULL);
+}
+
+/*
+ * regfield()
+ *
+ * Create a register and a field which consumes that register.
+ */
+void
+regfield(const string &name, pp_scope *scope, const pp_binding *binding,
+    pp_regaddr address, pp_bitwidth width, pp_const_datatype_ptr type)
+{
+	pp_register_ptr reg = new_pp_register(binding, address, width);
+	pp_direct_field_ptr field = new_pp_direct_field(type);
+
+	field->add_regbits(reg.get(), 0, PP_MASK(width), 0);
+	scope->add_register("%" + name, reg);
+	scope->add_field(name, field);
 }

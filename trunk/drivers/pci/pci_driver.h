@@ -18,7 +18,8 @@
 class pci_driver: public pp_driver
 {
     public:
-	explicit pci_driver() {}
+    	//FIXME: should be pp_global or pp_environ or something
+	explicit pci_driver(pp_platform *platform) {}
 	virtual ~pci_driver() {}
 
 	/*
@@ -69,7 +70,7 @@ class pci_driver: public pp_driver
 	 * platform.
 	 */
 	virtual int
-	enumerate(pp_platform_ptr platform) const
+	enumerate(pp_platform *platform) const
 	{
 		int ndevs = 0;
 		std::vector<pci_address> addresses;

@@ -51,38 +51,4 @@ typedef boost::shared_ptr<pci_binding> pci_binding_ptr;
 
 #define new_pci_binding(...) pci_binding_ptr(new pci_binding(__VA_ARGS__))
 
-class zeros_binding: public pp_binding
-{
-    public:
-	explicit zeros_binding() {};
-	virtual ~zeros_binding() {};
-	pp_value read(const pp_regaddr address, const pp_bitwidth width) const
-	{
-		return 0;
-	};
-
-	void write(const pp_regaddr address, const pp_bitwidth width,
-		const pp_value value) const {};
-};
-
-class ones_binding: public pp_binding
-{
-    public:
-	explicit ones_binding() {};
-	virtual ~ones_binding() {};
-	virtual pp_value read(const pp_regaddr address, const pp_bitwidth width) const
-	{
-		return 0xffffffff;
-	};
-
-	virtual void write(const pp_regaddr address, const pp_bitwidth width,
-		const pp_value value) const {};
-};
-
-typedef boost::shared_ptr<zeros_binding> zeros_binding_ptr;
-typedef boost::shared_ptr<ones_binding> ones_binding_ptr;
-
-#define new_zeros_binding(...) zeros_binding_ptr(new zeros_binding(__VA_ARGS__))
-#define new_ones_binding(...) ones_binding_ptr(new ones_binding(__VA_ARGS__))
-
 #endif // PP_PCI_BINDING_H__

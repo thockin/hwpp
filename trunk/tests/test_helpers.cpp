@@ -88,7 +88,7 @@ generate_scope(pp_scope_ptr root)
 			field_count++;
 		} else if (choice == REGISTER && register_count < MAX_REGISTERS) {
 			/* Add a Register */
-			pp_register_ptr reg = new_pp_register(binding, 1, BITS16);
+			pp_register_ptr reg = new_pp_register(binding.get(), 1, BITS16);
 			root->add_register("R"+to_string(register_count),reg);
 			register_count++;
 		}
@@ -120,7 +120,7 @@ generate_space(pp_space_ptr root)
 			field_count++;
 		} else if (choice == REGISTER && register_count < MAX_REGISTERS) {
 			/* Add a Register */
-			pp_register_ptr reg = new_pp_register(binding, 1, BITS16);
+			pp_register_ptr reg = new_pp_register(binding.get(), 1, BITS16);
 			root->add_register("R"+to_string(register_count),reg);
 			register_count++;
 		}
@@ -213,17 +213,17 @@ indent(int tab_count)
 }
 
 static void
-display_field(pp_const_field_ptr field, int depth)
+display_field(const pp_field *field, int depth)
 {
 }
 
 static void
-display_reg(pp_const_register_ptr reg, int depth)
+display_reg(const pp_register *reg, int depth)
 {
 }
 
 static void
-display_tree(pp_const_container_ptr ctr, int depth)
+display_tree(const pp_container *ctr, int depth)
 {
 	depth++;
 
@@ -270,7 +270,7 @@ display_tree(pp_const_container_ptr ctr, int depth)
 
 /* this is the externally visible interface */
 void
-display_tree(pp_const_container_ptr ctr)
+display_tree(const pp_container *ctr)
 {
 	cout << "root" << endl;
 	display_tree(ctr, 0);
