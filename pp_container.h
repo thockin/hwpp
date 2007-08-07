@@ -6,7 +6,6 @@
 #include "keyed_vector.h"
 #include "pp_datatype.h"
 #include "pp_dirent.h"
-#include <boost/enable_shared_from_this.hpp>
 
 /*
  * pp_container - base class for all things that contain things.
@@ -20,7 +19,7 @@ class pp_container;
 typedef boost::shared_ptr<pp_container> pp_container_ptr;
 typedef boost::shared_ptr<const pp_container> pp_const_container_ptr;
 
-class pp_container: public boost::enable_shared_from_this<pp_container>
+class pp_container
 {
     public:
 	explicit pp_container() {}
@@ -33,11 +32,11 @@ class pp_container: public boost::enable_shared_from_this<pp_container>
 	 * container is the top of the hierarchy, this method returns a
 	 * pointer to this object.
 	 */
-	pp_const_container_ptr
+	const pp_container *
 	parent() const
 	{
 		if (is_root()) {
-			return shared_from_this();
+			return this;
 		}
 		return m_parent;
 	}
@@ -48,7 +47,7 @@ class pp_container: public boost::enable_shared_from_this<pp_container>
 	 * Set the parent container of this object.
 	 */
 	void
-	set_parent(pp_const_container_ptr parent)
+	set_parent(const pp_container *parent)
 	{
 		m_parent = parent;
 	}
@@ -64,7 +63,7 @@ class pp_container: public boost::enable_shared_from_this<pp_container>
 	bool
 	is_root() const
 	{
-		return (m_parent.get() == NULL);
+		return (m_parent == NULL);
 	}
 
 	/*
@@ -121,7 +120,7 @@ class pp_container: public boost::enable_shared_from_this<pp_container>
 	}
 
     protected:
-	pp_const_container_ptr m_parent;
+	const pp_container *m_parent;
 	keyed_vector<string, pp_const_dirent_ptr> m_dirents;
 	keyed_vector<string, pp_const_datatype_ptr> m_datatypes;
 };

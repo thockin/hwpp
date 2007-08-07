@@ -14,7 +14,8 @@ TESTS = keyed_vector_test \
 	pp_device_test \
 	pp_dirent_test \
 	pp_path_test \
-	utils_test
+	utils_test \
+	magic_regs_test
 TESTS_SRCS = $(TESTS:=.cpp)
 
 libpptest_SRCS = test_helpers.cpp

@@ -1,7 +1,7 @@
 INCLUDES =
 CXXFLAGS = -Wall -Werror $(INCLUDES) -g -DBUILD_TESTS
 
-libpp_SRCS = utils.cpp
+libpp_SRCS = utils.cpp magic_regs.cpp
 libpp_OBJS = $(libpp_SRCS:.cpp=.o)
 
 TEST_DIRS = tests drivers

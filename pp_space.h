@@ -28,10 +28,10 @@ class pp_space: public pp_scope
 	 *
 	 * Get the binding of this space.
 	 */
-	pp_const_binding_ptr
+	const pp_binding *
 	binding() const
 	{
-		return m_binding;
+		return m_binding.get();
 	}
 
     private:
@@ -40,13 +40,13 @@ class pp_space: public pp_scope
 typedef boost::shared_ptr<pp_space> pp_space_ptr;
 typedef boost::shared_ptr<const pp_space> pp_const_space_ptr;
 
-inline pp_const_space_ptr
+inline const pp_space *
 pp_space_from_dirent(pp_const_dirent_ptr dirent)
 {
 	if (dirent->dirent_type() != PP_DIRENT_SPACE) {
 		throw std::runtime_error("non-space dirent used as space");
 	}
-	return boost::static_pointer_cast<const pp_space>(dirent);
+	return static_cast<const pp_space *>(dirent.get());
 }
 
 #define new_pp_space(...) pp_space_ptr(new pp_space(__VA_ARGS__))

@@ -11,7 +11,7 @@ test_pp_container()
 
 	/* test the basic constructor */
 	pp_container_ptr proot = new_pp_container();
-	if (proot->parent() != proot) {
+	if (proot->parent() != proot.get()) {
 		PP_TEST_ERROR("pp_container::pp_container()");
 		ret++;
 	}
@@ -38,8 +38,8 @@ test_pp_container()
 
 	/* test the set_parent() method */
 	pp_container_ptr psub = new_pp_container();
-	psub->set_parent(proot);
-	if (psub->parent() != proot) {
+	psub->set_parent(proot.get());
+	if (psub->parent() != proot.get()) {
 		PP_TEST_ERROR("pp_container::set_parent()");
 		ret++;
 	}

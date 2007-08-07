@@ -62,19 +62,18 @@ class pp_scope: public pp_dirent, public pp_container
 	void
 	add_scope(const string &name, pp_scope_ptr scope)
 	{
-		pp_container_ptr tmp = shared_from_this();
-		scope->set_parent(tmp);
+		scope->set_parent(this);
 		m_dirents.insert(name, scope);
 	}
 };
 
-inline pp_const_scope_ptr
+inline const pp_scope *
 pp_scope_from_dirent(pp_const_dirent_ptr dirent)
 {
 	if (dirent->dirent_type() != PP_DIRENT_SCOPE) {
 		throw std::runtime_error("non-scope dirent used as scope");
 	}
-	return boost::static_pointer_cast<const pp_scope>(dirent);
+	return static_cast<const pp_scope *>(dirent.get());
 }
 
 #define new_pp_scope(...) pp_scope_ptr(new pp_scope(__VA_ARGS__))

@@ -20,7 +20,7 @@
 class regbits
 {
     public:
-	explicit regbits(pp_const_register_ptr reg, const int shift,
+	explicit regbits(const pp_register *reg, const int shift,
 	    const pp_value mask, const int position)
 	    : m_reg(reg), m_regshift(shift), m_mask(mask),
 	      m_position(position) {}
@@ -66,11 +66,17 @@ class regbits
 	}
 
     private:
-	pp_const_register_ptr m_reg;
+	const pp_register *m_reg;
 	int m_regshift;
 	pp_value m_mask;
 	int m_position;
 };
+
+/*
+ * magic registers - used for filling hardcoded regbits
+ */
+extern pp_register *magic_zeros;
+extern pp_register *magic_ones;
 
 //FIXME: better name
 /*
@@ -121,14 +127,14 @@ class pp_direct_field: public pp_field
 	}
 
 	/*
-	 * pp_direct_field::add_regbits(pp_register_ptr reg,
+	 * pp_direct_field::add_regbits(const pp_register *reg,
 	 * 	const int shift, const pp_value mask, const int position)
 	 *
 	 * Add register bits to this field.
 	 */
 	 //FIXME: just pass a vector to ctor?
 	void
-	add_regbits(pp_register_ptr reg,
+	add_regbits(const pp_register *reg,
 	    const int shift, const pp_value mask, const int position)
 	{
 		m_regbits.push_back(regbits(reg, shift, mask, position));
