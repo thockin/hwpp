@@ -24,7 +24,7 @@ test_pp_container()
 	/* test add_datatype() */
 	pp_datatype_ptr type1 = new_pp_int();
 	proot->add_datatype("type1", type1);
-	if (proot->datatypes()[0] != type1) {
+	if (proot->datatype(0) != type1) {
 		PP_TEST_ERROR("pp_scope::add_datatype()");
 		ret++;
 	}

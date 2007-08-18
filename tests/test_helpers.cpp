@@ -227,41 +227,41 @@ display_tree(const pp_container *ctr, int depth)
 {
 	depth++;
 
-	for (size_t i = 0; i < ctr->datatypes().size(); i++) {
+	for (size_t i = 0; i < ctr->n_datatypes(); i++) {
 		indent(depth);
 		cout << "datatype: "
-		     << ctr->datatypes().key_at(i)
+		     << ctr->datatype_name(i)
 		     << endl;
 	}
 
-	for (size_t i = 0; i < ctr->dirents().size(); i++) {
-		pp_const_dirent_ptr dirent = ctr->dirents()[i];
+	for (size_t i = 0; i < ctr->n_dirents(); i++) {
+		pp_const_dirent_ptr dirent = ctr->dirent(i);
 
 		indent(depth);
 
 		if (dirent->is_scope()) {
 			cout << "scope: "
-			     << ctr->dirents().key_at(i)
+			     << ctr->dirent_name(i)
 			     << endl;
 			display_tree(pp_scope_from_dirent(dirent), depth);
 		} else if (dirent->is_space()) {
 			cout << "space: "
-			     << ctr->dirents().key_at(i)
+			     << ctr->dirent_name(i)
 			     << endl;
 			display_tree(pp_space_from_dirent(dirent), depth);
 		} else if (dirent->is_device()) {
 			cout << "device: "
-			     << ctr->dirents().key_at(i)
+			     << ctr->dirent_name(i)
 			     << endl;
 			display_tree(pp_device_from_dirent(dirent), depth);
 		} else if (dirent->is_field()) {
 			cout << "field: "
-			     << ctr->dirents().key_at(i)
+			     << ctr->dirent_name(i)
 			     << endl;
 			display_field(pp_field_from_dirent(dirent), depth);
 		} else if (dirent->is_register()) {
 			cout << "register: "
-			     << ctr->dirents().key_at(i)
+			     << ctr->dirent_name(i)
 			     << endl;
 			display_reg(pp_register_from_dirent(dirent), depth);
 		}

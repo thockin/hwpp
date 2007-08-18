@@ -20,12 +20,12 @@ test_pp_scope()
 	/* define a datatype */
 	pp_datatype_ptr type1 = new_pp_int();
 	scope1->add_datatype("type1", type1);
-	pp_const_datatype_ptr type2 = scope1->datatypes()["type1"];
+	pp_const_datatype_ptr type2 = scope1->datatype("type1");
 	if (type2 != type1) {
 		PP_TEST_ERROR("pp_scope::add_datatype()");
 		ret++;
 	}
-	pp_const_datatype_ptr type3 = scope1->datatypes()[0];
+	pp_const_datatype_ptr type3 = scope1->datatype(0);
 	if (type3 != type1) {
 		PP_TEST_ERROR("pp_scope::add_datatype()");
 		ret++;
@@ -35,7 +35,8 @@ test_pp_scope()
 	pp_binding_ptr bind1 = new_test_binding();
 	pp_register_ptr reg1 = new_pp_register(bind1.get(), 1, BITS16);
 	scope1->add_register("%reg1", reg1);
-	const pp_register *reg2 = pp_register_from_dirent(scope1->dirents()["%reg1"]);
+	const pp_register *reg2 =
+	    pp_register_from_dirent(scope1->dirent("%reg1"));
 	if (reg2 != reg1.get()) {
 		PP_TEST_ERROR("pp_scope::add_register()");
 		ret++;
@@ -45,7 +46,8 @@ test_pp_scope()
 	pp_direct_field_ptr field1 = new_pp_direct_field(type1);
 	field1->add_regbits(reg1.get(), 0, pp_value(0xffff), 0);
 	scope1->add_field("field1", field1);
-	const pp_field *field2 = pp_field_from_dirent(scope1->dirents()["field1"]);
+	const pp_field *field2 =
+	    pp_field_from_dirent(scope1->dirent("field1"));
 	if (field2 != field1.get()) {
 		PP_TEST_ERROR("pp_scope::add_field()");
 		ret++;

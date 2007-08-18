@@ -19,12 +19,12 @@ test_pp_device()
 	/* define a datatype */
 	pp_datatype_ptr type1 = new_pp_int();
 	dev->add_datatype("type1", type1); //FIXME: handle errors?
-	pp_const_datatype_ptr type2 = dev->datatypes()["type1"];
+	pp_const_datatype_ptr type2 = dev->datatype("type1");
 	if (type2 != type1) {
 		PP_TEST_ERROR("pp_device::add_datatype()");
 		ret++;
 	}
-	pp_const_datatype_ptr type3 = dev->datatypes()[0];
+	pp_const_datatype_ptr type3 = dev->datatype(0);
 	if (type3 != type1) {
 		PP_TEST_ERROR("pp_device::add_datatype()");
 		ret++;
@@ -37,7 +37,7 @@ test_pp_device()
 	pp_direct_field_ptr field1 = new_pp_direct_field(type1);
 	field1->add_regbits(reg1.get(), 0, pp_value(0xffff), 0);
 	dev->add_field("field1", field1);
-	const pp_field *field2 = pp_field_from_dirent(dev->dirents()["field1"]);
+	const pp_field *field2 = pp_field_from_dirent(dev->dirent("field1"));
 	if (field2 != field1.get()) {
 		PP_TEST_ERROR("pp_device::add_field()");
 		ret++;

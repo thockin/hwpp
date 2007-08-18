@@ -21,12 +21,12 @@ test_pp_space()
 	/* define a datatype */
 	pp_datatype_ptr type1 = new_pp_int();
 	space1->add_datatype("type1", type1); //FIXME: handle errors?
-	pp_const_datatype_ptr type2 = space1->datatypes()["type1"];
+	pp_const_datatype_ptr type2 = space1->datatype("type1");
 	if (type2 != type1) {
 		PP_TEST_ERROR("pp_space::add_datatype()");
 		ret++;
 	}
-	pp_const_datatype_ptr type3 = space1->datatypes()[0];
+	pp_const_datatype_ptr type3 = space1->datatype(0);
 	if (type3 != type1) {
 		PP_TEST_ERROR("pp_space::add_datatype()");
 		ret++;
@@ -37,7 +37,8 @@ test_pp_space()
 	pp_direct_field_ptr field1 = new_pp_direct_field(type1);
 	field1->add_regbits(reg1.get(), 0, pp_value(0xffff), 0);
 	space1->add_field("field1", field1);
-	const pp_field *field2 = pp_field_from_dirent(space1->dirents()["field1"]);
+	const pp_field *field2 =
+	    pp_field_from_dirent(space1->dirent("field1"));
 	if (field2 != field1.get()) {
 		PP_TEST_ERROR("pp_space::add_field()");
 		ret++;

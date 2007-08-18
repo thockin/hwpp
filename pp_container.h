@@ -67,17 +67,6 @@ class pp_container
 	}
 
 	/*
-	 * pp_container::datatypes()
-	 *
-	 * Provide raw access to the datatypes vector.
-	 */
-	const keyed_vector<string, pp_const_datatype_ptr> &
-	datatypes() const
-	{
-		return m_datatypes;
-	}
-
-	/*
 	 * pp_container::add_datatype(name, datatype)
 	 *
 	 * Add a named datatype to this container.
@@ -86,6 +75,44 @@ class pp_container
 	add_datatype(const string &name, pp_const_datatype_ptr datatype)
 	{
 		m_datatypes.insert(name, datatype);
+	}
+
+	/*
+	 * pp_container::n_datatypes()
+	 *
+	 * Return the number of datatypes in this container.
+	 */
+	size_t
+	n_datatypes() const
+	{
+		return m_datatypes.size();
+	}
+
+	/*
+	 * pp_container::datatype()
+	 *
+	 * Provide access to the datatypes vector.
+	 */
+	pp_const_datatype_ptr
+	datatype(int index) const
+	{
+		return m_datatypes[index];
+	}
+	pp_const_datatype_ptr
+	datatype(string index) const
+	{
+		return m_datatypes[index];
+	}
+
+	/*
+	 * pp_container::datatype_name(index)
+	 *
+	 * Return the name of the indexed datatype.
+	 */
+	string
+	datatype_name(int index) const
+	{
+		return m_datatypes.key_at(index);
 	}
 
 	/*
@@ -109,14 +136,41 @@ class pp_container
 	}
 
 	/*
-	 * pp_container::dirents()
+	 * pp_container::n_dirents()
 	 *
-	 * Provide raw access to the datatypes vector.
+	 * Return the number of dirents in this container.
 	 */
-	const keyed_vector<string, pp_const_dirent_ptr> &
-	dirents() const
+	size_t
+	n_dirents() const
 	{
-		return m_dirents;
+		return m_dirents.size();
+	}
+
+	/*
+	 * pp_container::dirent()
+	 *
+	 * Provide access to the dirents vector.
+	 */
+	pp_const_dirent_ptr
+	dirent(int index) const
+	{
+		return m_dirents[index];
+	}
+	pp_const_dirent_ptr
+	dirent(string index) const
+	{
+		return m_dirents[index];
+	}
+
+	/*
+	 * pp_container::dirent_name(index)
+	 *
+	 * Return the name of the indexed dirent.
+	 */
+	string
+	dirent_name(int index) const
+	{
+		return m_dirents.key_at(index);
 	}
 
     protected:
