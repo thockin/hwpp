@@ -43,6 +43,12 @@ class pci_binding: public pp_binding
 		return m_io->write(address, width, value);
 	}
 
+	const pci_address &
+	address()
+	{
+		return m_address;
+	}
+
     private:
 	pci_address m_address;
 	boost::shared_ptr<pci_io> m_io;

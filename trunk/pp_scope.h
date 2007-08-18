@@ -27,6 +27,7 @@ typedef boost::shared_ptr<const pp_scope> pp_const_scope_ptr;
 class pp_scope: public pp_dirent, public pp_container
 {
     protected:
+	/* this is used by subclasses that have a different dirent_type */
 	explicit pp_scope(pp_dirent_type detype): pp_dirent(detype) {}
     public:
 	explicit pp_scope(): pp_dirent(PP_DIRENT_SCOPE) {}

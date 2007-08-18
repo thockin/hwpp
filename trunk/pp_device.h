@@ -27,6 +27,7 @@ typedef boost::shared_ptr<const pp_device> pp_const_device_ptr;
 class pp_device: public pp_dirent, public pp_container
 {
     protected:
+	/* this is used by subclasses that have a different dirent_type */
 	explicit pp_device(pp_dirent_type detype): pp_dirent(detype) {}
     public:
 	explicit pp_device(): pp_dirent(PP_DIRENT_DEVICE) {}
