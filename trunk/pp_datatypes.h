@@ -295,8 +295,9 @@ typedef boost::shared_ptr<pp_uint> pp_uint_ptr;
 class pp_hex: public pp_int
 {
     public:
-	explicit pp_hex(const pp_bitwidth width, const string &units = "")
-	    : pp_int(units), m_width(width) {}
+	explicit pp_hex(const pp_bitwidth width = BITS0,
+			const string &units = "")
+			: pp_int(units), m_width(width) {}
 	virtual ~pp_hex() {}
 
 	/*
