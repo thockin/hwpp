@@ -6,6 +6,9 @@
 #include "test_binding.h"
 using namespace std;
 
+//FIXME: test lookup()
+//FIXME: test compare()
+
 int
 test_regbits()
 {

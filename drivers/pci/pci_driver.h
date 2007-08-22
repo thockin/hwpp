@@ -64,13 +64,13 @@ class pci_driver: public pp_driver
 	}
 
 	/*
-	 * pci_driver::enumerate(platform)
+	 * pci_driver::discover(platform)
 	 *
 	 * Enumerate devices owned by this driver, and add them to the
 	 * platform.
 	 */
 	virtual int
-	enumerate(pp_platform *platform) const
+	discover(pp_platform *platform) const
 	{
 		int ndevs = 0;
 		std::vector<pci_address> addresses;
@@ -104,6 +104,19 @@ class pci_driver: public pp_driver
 		}
 
 		return ndevs;
+	}
+
+	/*
+	 * pci_driver::register_discovery(args, function)
+	 *
+	 * Register a discover_callback which will be called when the
+	 * driver's discover() routine finds a device that matches args.
+	 * The contents af the args vector depends on the specific driver.
+	 */
+	virtual void
+	register_discovery(const std::vector<pp_regaddr> &args,
+			discover_callback function)
+	{
 	}
 };
 
