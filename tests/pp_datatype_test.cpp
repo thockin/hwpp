@@ -133,7 +133,7 @@ test_pp_hex()
 	int ret = 0;
 
 	/* test the basic constructor */
-	pp_hex h1(BITS0);
+	pp_hex h1;
 
 	/* test the evaluate() method */
 	if (h1.evaluate(1) != "0x1") {
