@@ -73,6 +73,25 @@ class pp_field: public pp_dirent
 		return m_datatype->lookup(value);
 	}
 
+	/*
+	 * pp_field::compare(str)
+	 * pp_field::compare(value)
+	 *
+	 * Compare the value of a field against a fixed value.
+	 *
+	 * This can throw pp_datatype_invalid_error.
+	 */
+	virtual bool
+	compare(const string &str) const
+	{
+		return (read() == lookup(str));
+	}
+	virtual bool
+	compare(const pp_value value) const
+	{
+		return (read() == lookup(value));
+	}
+
     private:
 	pp_const_datatype_ptr m_datatype;
 };
