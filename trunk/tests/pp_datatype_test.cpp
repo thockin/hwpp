@@ -3,6 +3,8 @@
 #include "pp_test.h"
 using namespace std;
 
+//FIXME: test lookup()
+
 int
 test_pp_enum()
 {
