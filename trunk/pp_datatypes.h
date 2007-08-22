@@ -57,7 +57,6 @@ class pp_enum: public pp_datatype
 		}
 		throw pp_datatype_invalid_error(str);
 	}
-	//FIXME: should probably have a lookup(pp_value), too
 
 	/*
 	 * pp_enum::add_value(name, value)
@@ -162,7 +161,6 @@ class pp_bitmask: public pp_datatype
 		}
 		throw pp_datatype_invalid_error(str);
 	}
-	//FIXME: should probably have a lookup(pp_value), too
 
 	/*
 	 * pp_bitmask::add_bit(name, value)
