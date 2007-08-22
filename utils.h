@@ -4,10 +4,6 @@
 /*
  * Copyright 2007 Google Inc. All Rights Reserved.
  * Author: lesleyn@google.com (Lesley Northam)
- *
- * utils.h
- * Two functions, one to get a named field from the tree, the
- * second to get a named register from the tree.
  */
 
 #include "pp.h"
