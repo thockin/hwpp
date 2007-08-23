@@ -89,6 +89,30 @@ typedef boost::shared_ptr<pp_enum> pp_enum_ptr;
 #define new_pp_enum(...) pp_enum_ptr(new pp_enum(__VA_ARGS__))
 
 /*
+ * pp_bool - datatype for boolean values.
+ *
+ * Constructors:
+ * 	(const string &true_str, const string &false_str)
+ *
+ * Notes:
+ */
+class pp_bool: public pp_enum
+{
+    public:
+	explicit
+	pp_bool(const string &true_str, const string &false_str)
+	{
+		add_value(true_str, 1);
+		add_value(false_str, 0);
+		set_default(true_str);
+	}
+	virtual ~pp_bool() {}
+};
+typedef boost::shared_ptr<pp_bool> pp_bool_ptr;
+
+#define new_pp_bool(...) pp_bool_ptr(new pp_bool(__VA_ARGS__))
+
+/*
  * pp_bitmask - datatype for bitmasks.
  * //FIXME: this is operating on bit numbers, not masks - should it?
  *
