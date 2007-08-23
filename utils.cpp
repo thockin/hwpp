@@ -205,6 +205,7 @@ void
 START_SPACE(pp_space *space)
 {
 	assert(scope_stack_.empty());
+	assert(space);
 	cur_scope_ = space;
 	cur_binding_ = space->binding();
 }
@@ -252,6 +253,7 @@ void
 SIMPLE_FIELD(const string &name, pp_const_datatype_ptr type,
 		const string &regname, int hi_bit, int lo_bit)
 {
+	assert(hi_bit >= lo_bit);
 	const pp_register *reg = get_register(cur_scope_, pp_path(regname));
 	pp_direct_field_ptr field_ptr = new_pp_direct_field(type);
 	field_ptr->add_regbits(reg, lo_bit,
