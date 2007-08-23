@@ -296,6 +296,7 @@ VA_COMPLEX_FIELD(const string &name, pp_const_datatype_ptr type, va_list args)
 
 	cur_scope_->add_field(name, field_ptr);
 }
+//FIXME: there has to be a better, type-safe way
 void
 COMPLEX_FIELD(const string &name, pp_const_datatype_ptr type, ...)
 {
@@ -313,6 +314,7 @@ COMPLEX_FIELD(const string &name, const string &type, ...)
 	va_end(args);
 }
 
+//FIXME: there has to be a better, type-safe way
 pp_bitmask_ptr
 BITMASK(const string &name, ...)
 {
@@ -337,10 +339,11 @@ BITMASK(const string &name, ...)
 	if (name != "") {
 		cur_scope_->add_datatype(name, bitmask_ptr);
 	}
-	return bitmask_ptr;
 
+	return bitmask_ptr;
 }
 
+//FIXME: there has to be a better, type-safe way
 pp_enum_ptr
 ENUM(const string &name, ...)
 {
@@ -365,6 +368,18 @@ ENUM(const string &name, ...)
 	if (name != "") {
 		cur_scope_->add_datatype(name, enum_ptr);
 	}
-	return enum_ptr;
 
+	return enum_ptr;
+}
+
+pp_bool_ptr
+BOOL(const string &name, const string &true_str, const string &false_str)
+{
+	pp_bool_ptr bool_ptr = new_pp_bool(true_str, false_str);
+
+	if (name != "") {
+		cur_scope_->add_datatype(name, bool_ptr);
+	}
+
+	return bool_ptr;
 }

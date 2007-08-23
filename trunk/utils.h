@@ -105,4 +105,8 @@ extern pp_enum_ptr
 ENUM(const string &name, ...);
 #define ANON_ENUM(...) ENUM("", __VA_ARGS__)
 
+extern pp_bool_ptr
+BOOL(const string &name, const string &true_str, const string &false_str);
+#define ANON_BOOL(true_str, false_str) BOOL("", true_str, false_str)
+
 #endif // PP_UTILS_H__
