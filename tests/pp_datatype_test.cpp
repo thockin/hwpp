@@ -30,6 +30,31 @@ test_pp_enum()
 }
 
 int
+test_pp_bool()
+{
+	int ret = 0;
+
+	/* test the basic constructor */
+	pp_bool b1("TRUE", "FALSE");
+
+	/* test the evaluate() method */
+	if (b1.evaluate(0) != "FALSE") {
+		PP_TEST_ERROR("pp_bool::evaluate()");
+		ret++;
+	}
+	if (b1.evaluate(1) != "TRUE") {
+		PP_TEST_ERROR("pp_bool::evaluate()");
+		ret++;
+	}
+	if (b1.evaluate(2) != "TRUE") {
+		PP_TEST_ERROR("pp_bool::evaluate()");
+		ret++;
+	}
+
+	return ret;
+}
+
+int
 test_pp_bitmask()
 {
 	int ret = 0;
