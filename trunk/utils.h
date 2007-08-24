@@ -99,7 +99,7 @@ COMPLEX_FIELD(const string &name, const string &type, ...);
 
 extern pp_bitmask_ptr
 BITMASK(const string &name, ...);
-#define ANON_BITMASK(...) BITMASK_("", __VA_ARGS__)
+#define ANON_BITMASK(...) BITMASK("", __VA_ARGS__)
 
 extern pp_enum_ptr
 ENUM(const string &name, ...);
