@@ -24,11 +24,6 @@ test_pp_platform()
 		PP_TEST_ERROR("pp_platform::add_datatype()");
 		ret++;
 	}
-	pp_const_datatype_ptr type3 = platform->datatype(0);
-	if (type3 != type1) {
-		PP_TEST_ERROR("pp_platform::add_datatype()");
-		ret++;
-	}
 
 	/* test adding a field */
 

@@ -6,6 +6,7 @@
 
 #include "pp.h"
 #include "pp_device.h"
+#include "device_init.h"
 
 /*
  * pp_platform - a platform with devices and spaces, etc.
@@ -17,8 +18,13 @@
 class pp_platform: public pp_device
 {
     public:
-	explicit pp_platform() {};
-	virtual ~pp_platform() {};
+	explicit pp_platform()
+	{
+		/* FIXME: take this out when we have a real language */
+		global_datatypes_init(this);
+		pci_datatypes_init(this);
+	}
+	virtual ~pp_platform() {}
 };
 typedef boost::shared_ptr<pp_platform> pp_platform_ptr;
 typedef boost::shared_ptr<const pp_platform> pp_const_platform_ptr;
@@ -26,4 +32,3 @@ typedef boost::shared_ptr<const pp_platform> pp_const_platform_ptr;
 #define new_pp_platform(...) pp_platform_ptr(new pp_platform(__VA_ARGS__))
 
 #endif // PP_PLATFORM_HPP__
-
