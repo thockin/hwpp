@@ -1,5 +1,5 @@
 INCLUDES = -I../.. -I../../test
-CXXFLAGS = -Wall -Werror $(INCLUDES) -g -DBUILD_TESTS
+CXXFLAGS = -Wall -Werror $(INCLUDES) -g
 
 lib_SRCS = pci_driver.cpp pci_device.cpp
 lib_OBJS = $(lib_SRCS:.cpp=.o)

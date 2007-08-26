@@ -1,12 +1,16 @@
 #include "pp.h"
+#include "drivers.h"
 #include "pp_datatypes.h"
 #include "pci_driver.h"
 #include "pci_io.h"
 #include "pci_binding.h"
 
-//FIXME: should be pp_global or pp_environ or something
-pci_driver::pci_driver(pp_platform *platform)
+int force_pci_driver_linkage;
+static const pci_driver the_pci_driver;
+
+pci_driver::pci_driver()
 {
+	register_driver(this);
 }
 
 pci_driver::~pci_driver()
