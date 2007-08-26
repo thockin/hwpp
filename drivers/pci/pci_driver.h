@@ -5,7 +5,6 @@
 #include "pp.h"
 #include "pp_driver.h"
 #include "pci_io.h"
-#include "pci_binding.h"
 
 /*
  * pci_driver - PCI driver plugin.
@@ -18,9 +17,8 @@
 class pci_driver: public pp_driver
 {
     public:
-    	//FIXME: should be pp_global or pp_environ or something
-	explicit pci_driver(pp_platform *platform) {}
-	virtual ~pci_driver() {}
+	explicit pci_driver(pp_platform *platform);
+	virtual ~pci_driver();
 
 	/*
 	 * pci_driver::name()
@@ -28,10 +26,7 @@ class pci_driver: public pp_driver
 	 * Get the name of this driver.
 	 */
 	virtual string
-	name() const
-	{
-		return "pci";
-	}
+	name() const;
 
 	/*
 	 * pci_driver::new_binding(args)
@@ -41,83 +36,42 @@ class pci_driver: public pp_driver
 	 * Throws: pp_driver_args_error
 	 */
 	virtual pp_binding_ptr
-	new_binding(const std::vector<pp_regaddr> &args) const
-	{
-		int seg, bus, dev, func;
-		int i = 0;
-
-		if (args.size() < 3 || args.size() > 4) {
-			throw pp_driver_args_error(
-			    "PCI binding: <seg?, bus, dev, func>");
-		}
-
-		if (args.size() == 3) {
-			seg = 0;
-		} else {
-			seg = args[i++];
-		}
-		bus = args[i++];
-		dev = args[i++];
-		func = args[i++];
-
-		return new_pci_binding(pci_address(seg, bus, dev, func));
-	}
+	new_binding(const std::vector<pp_regaddr> &args) const;
 
 	/*
 	 * pci_driver::discover(platform)
 	 *
-	 * Enumerate devices owned by this driver, and add them to the
+	 * Discover devices owned by this driver, and add them to the
 	 * platform.
 	 */
 	virtual int
-	discover(pp_platform *platform) const
-	{
-		int ndevs = 0;
-		std::vector<pci_address> addresses;
-		std::vector<pci_address>::iterator it;
-
-		/* find all PCI addresses */
-		addresses = pci_io::enumerate();
-
-		/* for each PCI device in the system */
-		it = addresses.begin();
-		while (it != addresses.end()) {
-			std::cout << it->segment << ":"
-			     << it->bus << ":"
-			     << it->device << "."
-			     << it->function << std::endl;
-			/* check if anyone registered for this vendor/device */
-			//FIXME:
-			//if (something) {
-				/* call the callback */
-			//} else {
-				/* create a generic PCI device */
-				pp_binding_ptr binding = new_pci_binding(*it);
-				//pp_space_ptr space = pci_generic_space(binding);
-				pp_space_ptr space = new_pp_space(binding);
-
-				/* add it to the platform */
-				platform->add_space(to_string(*it), space);
-			//}
-			it++;
-			ndevs++;
-		}
-
-		return ndevs;
-	}
+	discover(pp_platform *platform) const;
 
 	/*
 	 * pci_driver::register_discovery(args, function)
 	 *
-	 * Register a discover_callback which will be called when the
+	 * Register a discovery_callback which will be called when the
 	 * driver's discover() routine finds a device that matches args.
 	 * The contents af the args vector depends on the specific driver.
 	 */
 	virtual void
 	register_discovery(const std::vector<pp_regaddr> &args,
-			discover_callback function)
-	{
-	}
+			discovery_callback function);
+
+    private:
+	void
+	init_datatypes(pp_platform *platform);
+
+	struct discovery_request {
+		uint16_t vendor;
+		uint16_t device;
+		discovery_callback function;
+	};
+
+	const discovery_request *
+	find_discovery_request(const pci_address &addr) const;
+
+	std::vector<discovery_request> m_callbacks;
 };
 
 #define new_pci_driver(...) pp_driver_ptr(new pci_driver(__VA_ARGS__))
