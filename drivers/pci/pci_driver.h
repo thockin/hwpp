@@ -17,7 +17,7 @@
 class pci_driver: public pp_driver
 {
     public:
-	explicit pci_driver(pp_platform *platform);
+	explicit pci_driver();
 	virtual ~pci_driver();
 
 	/*

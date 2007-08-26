@@ -2,7 +2,7 @@ TESTS = pci_binding_test
 SRCS = $(TESTS:=.cpp)
 
 INCLUDES = -I.. -I../..
-CXXFLAGS = -Wall -Werror $(INCLUDES) -g -DBUILD_TESTS
+CXXFLAGS = -Wall -Werror $(INCLUDES) -g
 
 all: .depend $(TESTS)
 

@@ -1,5 +1,5 @@
 INCLUDES = -I..
-CXXFLAGS = -Wall -Werror $(INCLUDES) -g -DBUILD_TESTS
+CXXFLAGS = -Wall -Werror $(INCLUDES) -g
 LDFLAGS = -L. -lpptest -L.. -lpp
 
 TESTS = keyed_vector_test \

@@ -1,8 +1,10 @@
-INCLUDES =
-CXXFLAGS = -Wall -Werror $(INCLUDES) -g -DBUILD_TESTS
+TOPDIR = $(shell pwd)
+INCLUDES = -I$(TOPDIR)
+CXXFLAGS = -Wall -Werror $(INCLUDES) -g
 
 libpp_SRCS = utils.cpp \
 	magic_regs.cpp \
+	drivers.cpp \
 	devices/global.cpp \
 	devices/pci/pci.cpp
 libpp_OBJS = $(libpp_SRCS:.cpp=.o)
