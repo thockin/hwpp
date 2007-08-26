@@ -1,4 +1,4 @@
-#include "pci/pci_binding.h"
+#include "pci_binding.h"
 #include "pp.h"
 #include "pp_test.h"
 using namespace std;
@@ -7,7 +7,7 @@ class fake_pci_io: public pci_io
 {
     public:
     	//FIXME: pci_io should be abstract
-	explicit fake_pci_io(): m_data(0) {}
+	explicit fake_pci_io(): pci_io(0,0,0,0), m_data(0) {}
 	virtual ~fake_pci_io() {}
 
 	virtual pp_value
@@ -40,7 +40,7 @@ test_pci_binding()
 	int ret = 0;
 
 	/* test the read() method */
-	pp_binding_ptr binding = new_pci_binding(0, 0x18, 0,
+	pp_binding_ptr binding = new_pci_binding(pci_address(0, 0x18, 0),
 	    new fake_pci_io());
 	if (binding->read(0, BITS8) != 0x00) {
 		PP_TEST_ERROR("pp_binding::read()");
