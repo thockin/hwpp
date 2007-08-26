@@ -58,7 +58,7 @@ pci_driver::discover(pp_platform *platform) const
 	std::vector<pci_address>::iterator it;
 
 	/* find all PCI addresses */
-	addresses = pci_io::enumerate();
+	pci_io::enumerate(&addresses);
 
 	/* for each PCI device in the system */
 	it = addresses.begin();
