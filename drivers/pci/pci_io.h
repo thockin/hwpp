@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include <vector>
+#include <algorithm>
 
 #include "pp.h"
 #include "pp_binding.h"
@@ -48,6 +49,21 @@ struct pci_address
 	int device;
 	int function;
 };
+
+inline bool
+operator<(const pci_address &left, const pci_address &right)
+{
+	if (left.segment != right.segment) {
+		return (left.segment < right.segment);
+	}
+	if (left.bus != right.bus) {
+		return (left.bus < right.bus);
+	}
+	if (left.device != right.device) {
+		return (left.device < right.device);
+	}
+	return (left.function < right.function);
+}
 
 inline std::ostream &
 operator<<(std::ostream& out, const pci_address &addr)
@@ -119,18 +135,15 @@ class pci_io
 		throw pci_io_error("bad register width");
 	}
 
-	static std::vector<pci_address>
-	enumerate()
+	static void
+	enumerate(std::vector<pci_address> *addresses)
 	{
 		if (fs::direntry::is_dir(PCI_SYSFS_DIR)) {
-			return enumerate_sysfs();
+			enumerate_sysfs(addresses);
+		} else if (fs::direntry::is_dir(PCI_PROCFS_DIR)) {
+			enumerate_procfs(addresses);
 		}
-
-		if (fs::direntry::is_dir(PCI_PROCFS_DIR)) {
-			return enumerate_procfs();
-		}
-
-		return std::vector<pci_address>();
+		std::sort(addresses->begin(), addresses->end());
 	}
 
     private:
@@ -223,11 +236,9 @@ class pci_io
 		}
 	}
 
-	static std::vector<pci_address>
-	enumerate_sysfs()
+	static void
+	enumerate_sysfs(std::vector<pci_address> *addresses)
 	{
-		std::vector<pci_address> result;
-
 		fs::directory_ptr dir = fs::directory::open(PCI_SYSFS_DIR);
 
 		fs::direntry_ptr de;
@@ -249,17 +260,13 @@ class pci_io
 			    >> c
 			    >> addr.function;
 
-			result.push_back(addr);
+			addresses->push_back(addr);
 		}
-
-		return result;
 	}
 
-	static std::vector<pci_address>
-	enumerate_procfs()
+	static void
+	enumerate_procfs(std::vector<pci_address> *addresses)
 	{
-		std::vector<pci_address> result;
-
 		fs::directory_ptr dir = fs::directory::open(PCI_PROCFS_DIR);
 
 		fs::direntry_ptr de;
@@ -270,7 +277,7 @@ class pci_io
 
 			if (de->is_dir()) {
 				string name(string(PCI_PROCFS_DIR)
-				    + de->name());
+				    + "/" + de->name());
 
 				fs::directory_ptr subdir
 				    = fs::directory::open(name);
@@ -294,12 +301,10 @@ class pci_io
 					    >> c
 					    >> addr.function;
 
-					result.push_back(addr);
+					addresses->push_back(addr);
 				}
 			}
 		}
-
-		return result;
 	}
 };
 
