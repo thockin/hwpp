@@ -1,4 +1,4 @@
-#include "lang_stuff.h"
+#include "device_init.h"
 #include "utils.h"
 #include "pp_platform.h"
 #include "pp_datatypes.h"
