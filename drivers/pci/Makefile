@@ -1,13 +1,13 @@
 INCLUDES = -I../.. -I../../test
 CXXFLAGS = -Wall -Werror $(INCLUDES) -g
 
-lib_SRCS = pci_driver.cpp pci_device.cpp
-lib_OBJS = $(lib_SRCS:.cpp=.o)
+SRCS = pci_driver.cpp pci_device.cpp
+OBJS = $(SRCS:.cpp=.o)
 
-all: pci.a
+all: pci_driver_module.o
 
-pci.a: .depend $(lib_OBJS)
-	ar rcs $@ $^
+pci_driver_module.o: .depend $(OBJS)
+	$(LD) -r -o $@ $(OBJS)
 
 .PHONY: test
 test:
@@ -15,7 +15,7 @@ test:
 
 .PHONY: clean
 clean:
-	$(RM) *.o *.a
+	$(RM) *.o
 	$(MAKE) -C tests clean
 
 .PHONY: dep

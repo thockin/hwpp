@@ -9,29 +9,31 @@ libpp_SRCS = utils.cpp \
 	devices/pci/pci.cpp
 libpp_OBJS = $(libpp_SRCS:.cpp=.o)
 
-TEST_DIRS = tests drivers
 
 all: libpp.a
 
-libpp.a: .depend $(libpp_OBJS)
-	ar rcs $@ $^
+libpp.a: .depend $(libpp_OBJS) drivers
+	ar rcs $@ $(libpp_OBJS)
+	$(MAKE) -C drivers lib LIBNAME=$(TOPDIR)/$@
+
+.PHONY: drivers
+drivers:
+	$(MAKE) -C drivers
 
 .PHONY: test
 test:
-	@for d in $(TEST_DIRS); do \
-		$(MAKE) -C $$d test; \
-	done
+	$(MAKE) -C tests test
+	$(MAKE) -C drivers test
 
 .PHONY: clean
 clean:
 	$(RM) *.o *.a
-	@for d in $(TEST_DIRS); do \
-		$(MAKE) -C $$d clean; \
-	done
+	$(MAKE) -C tests clean
+	$(MAKE) -C drivers clean
 
 .PHONY: dep
-dep .depend: $(SRCS)
-	@for f in $(SRCS); do \
+dep .depend: $(libpp_SRCS)
+	@for f in $(libpp_SRCS); do \
 		$(CPP) $(INCLUDES) -MM $$f; \
 	done > .depend
 
