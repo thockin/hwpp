@@ -1,4 +1,4 @@
-/* Copyright (c) Tim Hockin, 2007 */
+/* Copyrioht (c) Tim Hockin, 2007 */
 #ifndef PP_PCI_IO_H__
 #define PP_PCI_IO_H__
 
@@ -12,18 +12,6 @@
 
 #define PCI_SYSFS_DIR	"/sys/bus/pci/devices"
 #define PCI_PROCFS_DIR	"/proc/bus/pci"
-
-class pci_io_error: public pp_binding_error
-{
-    public:
-	explicit pci_io_error(const string &arg): pp_binding_error(arg) {}
-};
-
-class pci_nodev_error: public pp_binding_error
-{
-    public:
-	explicit pci_nodev_error(const string &arg): pp_binding_error(arg) {}
-};
 
 /*
  * pci_address
@@ -84,13 +72,17 @@ class pci_io
 {
     public:
 	/* constructors */
-	explicit pci_io(int seg, int bus, int dev, int func)
+	explicit
+	pci_io(int seg, int bus, int dev, int func)
+	    : m_address(pci_address(seg, bus, dev, func))
 	{
-		open_device(seg, bus, dev, func);
+		open_device();
 	}
-	explicit pci_io(const pci_address &addr)
+	explicit
+	pci_io(const pci_address &address)
+	    : m_address(address)
 	{
-		open_device(addr.segment, addr.bus, addr.device, addr.function);
+		open_device();
 	}
 
 	/* destructor */
@@ -112,9 +104,9 @@ class pci_io
 		    default:
 			break;
 		}
-		//FIXME: width should have been validated already
-		//FIXME: format, more specific type
-		throw pci_io_error("bad register width");
+		throw do_io_error(to_string(
+		    boost::format("unsupported register width %d")
+		    %width));
 	}
 
 	void
@@ -131,8 +123,9 @@ class pci_io
 		    default:
 			break;
 		}
-		//FIXME: format, more specific type
-		throw pci_io_error("bad register width");
+		throw do_io_error(to_string(
+		    boost::format("unsupported register width %d")
+		    %width));
 	}
 
 	static void
@@ -147,17 +140,25 @@ class pci_io
 	}
 
     private:
+	pci_address m_address;
 	fs::file_ptr m_file;
 
+	pp_driver_io_error
+	do_io_error(const string &str) const
+	{
+		return pp_driver_io_error(to_string(m_address) + ": " + str);
+	}
+
 	void
-	open_device(int seg, int bus, int dev, int func)
+	open_device()
 	{
 		string filename;
 
 		/* try to open it through /sys */
 		filename = to_string(
 		    boost::format("%s/%04x:%02x:%02x.%d/config")
-		    %PCI_SYSFS_DIR %seg %bus %dev %func);
+		    %PCI_SYSFS_DIR %m_address.segment %m_address.bus
+		    %m_address.device %m_address.function);
 		try {
 			m_file = fs::file::open(filename, O_RDONLY);
 			return;
@@ -168,16 +169,14 @@ class pci_io
 		/* fall back on /proc */
 		filename = to_string(
 		    boost::format("%s/%02x/%02x.%x")
-		    %PCI_PROCFS_DIR %bus %dev %func);
+		    %PCI_PROCFS_DIR %m_address.bus %m_address.device
+		    %m_address.function);
 		try {
 			m_file = fs::file::open(filename, O_RDONLY);
 			return;
 		} catch (fs::not_found_error e) {
 			/* the device seems to not exist */
-			throw pci_nodev_error(to_string(
-			    boost::format(
-			    "device pci<%d,%d,%d,%d> does not exist")
-			    %seg %bus %dev %func));
+			throw do_io_error("device does not exist");
 		}
 	}
 
@@ -186,8 +185,9 @@ class pci_io
 	{
 		/* we only support 4KB config space */
 		if (address >= 4096) {
-			//FIXME: format, more specific type
-			throw pci_io_error("bad address");
+			throw do_io_error(to_string(
+			    boost::format("can't access register 0x%x")
+			    %address));
 		}
 
 		m_file->seek(address, SEEK_SET);
@@ -198,22 +198,11 @@ class pci_io
 	do_read(const pp_regaddr address) const
 	{
 		seek(address);
-
-		int r;
 		Tdata data;
-		r = m_file->read(&data, sizeof(data));
-		if (r != sizeof(data)) {
-			if (r == 0) {
-				/*
-				 * Work around /sys and /proc files which do
-				 * not return proper errors when you read past
-				 * the end of the "file".
-				 */
-				//FIXME: is this wrong?  throw EPERM?
-				return PP_MASK(sizeof(Tdata)*CHAR_BIT);
-			}
-			//FIXME: format, more specific type
-			throw pci_io_error("can't read value");
+		if (m_file->read(&data, sizeof(data)) != sizeof(data)) {
+			throw do_io_error(to_string(
+			    boost::format("can't read register 0x%x")
+			    %address));
 		}
 		return data;
 	}
@@ -229,10 +218,10 @@ class pci_io
 
 		seek(address);
 		Tdata data = value;
-		//FIXME: is this wrong?  throw EPERM? like read()
 		if (m_file->write(&data, sizeof(data)) != sizeof(data)) {
-			//FIXME: format, more specific type
-			throw pci_io_error("can't write value");
+			throw do_io_error(to_string(
+			    boost::format("can't write register 0x%x")
+			    %address));
 		}
 	}
 
