@@ -15,6 +15,13 @@ class pp_driver_error: public std::runtime_error
 	    : std::runtime_error(arg) {}
 };
 
+class pp_driver_io_error: public pp_driver_error
+{
+    public:
+	explicit pp_driver_io_error(const string &arg)
+	    : pp_driver_error(arg) {}
+};
+
 class pp_driver_args_error: public pp_driver_error
 {
     public:

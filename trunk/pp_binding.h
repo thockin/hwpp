@@ -5,17 +5,6 @@
 #include "pp.h"
 #include <stdexcept>
 
-//FIXME: too generic?
-/*
- * pp_binding_error - thrown when something goes awry with a binding.
- */
-class pp_binding_error: public std::runtime_error
-{
-    public:
-	explicit pp_binding_error(const string &arg)
-	    : std::runtime_error(arg) {}
-};
-
 /*
  * pp_binding - abstract base class for bound register spaces.
  *
@@ -35,7 +24,7 @@ class pp_binding
 	 *
 	 * Read from a register in this space.
 	 *
-	 * Throws: pp_binding_error
+	 * Throws: pp_driver_error
 	 */
 	virtual pp_value
 	read(const pp_regaddr address, const pp_bitwidth width) const = 0;
@@ -45,7 +34,7 @@ class pp_binding
 	 *
 	 * Write to a register in this space.
 	 *
-	 * Throws: pp_binding_error
+	 * Throws: pp_driver_error
 	 */
 	virtual void
 	write(const pp_regaddr address, const pp_bitwidth width,
