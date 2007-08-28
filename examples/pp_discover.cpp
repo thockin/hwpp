@@ -74,8 +74,7 @@ int
 main()
 {
 	pp_platform_ptr platform = new_pp_platform();
-	const pp_driver *driver = find_driver("pci");
-	driver->discover(platform.get());
+	do_discovery(platform.get());
 	dump_container(platform.get());
 	return 0;
 }

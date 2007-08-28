@@ -22,7 +22,7 @@ class pp_binding
 	/*
 	 * pp_binding::read(address, width)
 	 *
-	 * Read from a register in this space.
+	 * Read from a register in this binding.
 	 *
 	 * Throws: pp_driver_error
 	 */
@@ -32,13 +32,21 @@ class pp_binding
 	/*
 	 * pp_binding::write(address, width, value)
 	 *
-	 * Write to a register in this space.
+	 * Write to a register in this binding.
 	 *
 	 * Throws: pp_driver_error
 	 */
 	virtual void
 	write(const pp_regaddr address, const pp_bitwidth width,
 	    const pp_value value) const = 0;
+
+	/*
+	 * pp_binding::to_string()
+	 *
+	 * Return a string representing this binding.
+	 */
+	virtual string
+	to_string() const = 0;
 };
 typedef boost::shared_ptr<pp_binding> pp_binding_ptr;
 typedef boost::shared_ptr<const pp_binding> pp_const_binding_ptr;

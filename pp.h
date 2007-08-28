@@ -13,13 +13,12 @@ using std::string;
 #include <sstream>
 template <typename T>
 inline string
-convert_to_string(const T &val)
+to_string(const T &val)
 {
 	std::ostringstream oss;
 	oss << val;
 	return oss.str();
 }
-#define to_string(x) convert_to_string<typeof(x)>(x)
 
 /* enable simple string manipulations of boost::format */
 inline string &

@@ -22,7 +22,7 @@ class pci_binding: public pp_binding
 {
     public:
 	explicit pci_binding(pci_address address, pci_io *io = NULL)
-	    : m_address(address), m_io(io ? io : new pci_io(address))
+	    : m_address(address), m_io(io ? io : new linux_pci_io(address))
 	{
 	}
 
@@ -41,6 +41,12 @@ class pci_binding: public pp_binding
 	    const pp_value value) const
 	{
 		return m_io->write(address, width, value);
+	}
+
+	virtual string
+	to_string() const
+	{
+		return ::to_string(m_address);
 	}
 
 	const pci_address &
