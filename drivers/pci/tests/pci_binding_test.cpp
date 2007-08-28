@@ -6,25 +6,24 @@ using namespace std;
 class fake_pci_io: public pci_io
 {
     public:
-    	//FIXME: pci_io should be abstract
-	explicit fake_pci_io(): pci_io(0,0,0,0), m_data(0) {}
+	explicit fake_pci_io(): m_data(0) {}
 	virtual ~fake_pci_io() {}
 
 	virtual pp_value
 	read(const pp_regaddr address, const pp_bitwidth width) const
 	{
 		if (address != 0) {
-			throw pp_binding_error("bad register address");
+			throw pp_driver_io_error("bad register address");
 		}
 		return m_data & PP_MASK(width);
 	}
 
 	virtual void
 	write(const pp_regaddr address, const pp_bitwidth width,
-	    const pp_value value) const
+	    const pp_value value)
 	{
 		if (address != 0) {
-			throw pp_binding_error("bad register address");
+			throw pp_driver_io_error("bad register address");
 		}
 		m_data &= ~PP_MASK(width);
 		m_data |= (value & PP_MASK(width));

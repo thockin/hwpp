@@ -58,7 +58,7 @@ pci_driver::discover(pp_platform *platform) const
 	std::vector<pci_address>::iterator it;
 
 	/* find all PCI addresses */
-	pci_io::enumerate(&addresses);
+	linux_pci_io::enumerate(&addresses);
 
 	/* for each PCI device in the system */
 	it = addresses.begin();
@@ -108,7 +108,7 @@ pci_driver::register_discovery(const std::vector<pp_regaddr> &args,
 const pci_driver::discovery_request *
 pci_driver::find_discovery_request(const pci_address &addr) const
 {
-	pci_io dev(addr);
+	linux_pci_io dev(addr);
 	uint16_t vid = dev.read(0, BITS16);
 	uint16_t did = dev.read(2, BITS16);
 
