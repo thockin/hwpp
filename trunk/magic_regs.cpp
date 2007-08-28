@@ -30,6 +30,12 @@ class magic_binding: public pp_binding
 		/* do nothing */
 	}
 
+	virtual string
+	to_string() const
+	{
+		return ::to_string(boost::format("constant<0x%x>")%m_value);
+	}
+
     private:
 	pp_value m_value;
 };

@@ -3,6 +3,7 @@
 #define PP_TESTS_TEST_BINDING_H__
 
 #include "pp_binding.h"
+#include "pp_driver.h"
 #include "pp.h"
 
 /* define a test binding */
@@ -16,7 +17,7 @@ class test_binding: public pp_binding
 	read(const pp_regaddr address, const pp_bitwidth width) const
 	{
 		if (address == 0x12345678)
-			throw pp_binding_error("test binding read");
+			throw pp_driver_io_error("test binding read");
 		return (m_data & PP_MASK(width));
 	}
 
@@ -25,9 +26,15 @@ class test_binding: public pp_binding
 	    const pp_value value) const
 	{
 		if (address == 0x12345678)
-			throw pp_binding_error("test binding write");
+			throw pp_driver_io_error("test binding write");
 		m_data &= ~PP_MASK(width);
 		m_data |= value & PP_MASK(width);
+	}
+
+	virtual string
+	to_string() const
+	{
+		return "test";
 	}
 
     private:
