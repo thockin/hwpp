@@ -1,7 +1,7 @@
 TESTS = pci_binding_test
 SRCS = $(TESTS:=.cpp)
 
-INCLUDES = -I.. -I../..
+INCLUDES = -I.. -I../../.. -I ../../../tests
 CXXFLAGS = -Wall -Werror $(INCLUDES) -g
 
 all: .depend $(TESTS)

@@ -305,6 +305,7 @@ COMPLEX_FIELD(const string &name, pp_const_datatype_ptr type, ...)
 	VA_COMPLEX_FIELD(name, type, args);
 	va_end(args);
 }
+//FIXME: there has to be a better, type-safe way
 void
 COMPLEX_FIELD(const string &name, const string &type, ...)
 {
@@ -314,27 +315,15 @@ COMPLEX_FIELD(const string &name, const string &type, ...)
 	va_end(args);
 }
 
-//FIXME: there has to be a better, type-safe way
 pp_bitmask_ptr
-BITMASK(const string &name, ...)
+BITMASK_KV(const string &name, kvpair_ *value)
 {
-	va_list args;
 	pp_bitmask_ptr bitmask_ptr = new_pp_bitmask();
 
-	va_start(args, name);
-	while (1) {
-		const char *key;
-		pp_value value;
-
-		key = va_arg(args, const char *);
-		if (key == NULL) {
-			break;
-		}
-		value = va_arg(args, pp_value);
-
-		bitmask_ptr->add_bit(key, value);
+	while (value->key) {
+		bitmask_ptr->add_bit(value->key, value->value);
+		value++;
 	}
-	va_end(args);
 
 	if (name != "") {
 		cur_scope_->add_datatype(name, bitmask_ptr);
@@ -343,27 +332,15 @@ BITMASK(const string &name, ...)
 	return bitmask_ptr;
 }
 
-//FIXME: there has to be a better, type-safe way
 pp_enum_ptr
-ENUM(const string &name, ...)
+ENUM_KV(const string &name, kvpair_ *value)
 {
-	va_list args;
 	pp_enum_ptr enum_ptr = new_pp_enum();
 
-	va_start(args, name);
-	while (1) {
-		const char *key;
-		pp_value value;
-
-		key = va_arg(args, const char *);
-		if (key == NULL) {
-			break;
-		}
-		value = va_arg(args, pp_value);
-
-		enum_ptr->add_value(key, value);
+	while (value->key) {
+		enum_ptr->add_value(value->key, value->value);
+		value++;
 	}
-	va_end(args);
 
 	if (name != "") {
 		cur_scope_->add_datatype(name, enum_ptr);

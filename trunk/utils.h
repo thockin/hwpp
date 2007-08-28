@@ -67,6 +67,7 @@ regfield(const string &name, pp_scope *scope,
 		pp_bitwidth width, pp_const_datatype_ptr type);
 
 //FIXME: needs comments
+
 extern void
 START_SPACE(pp_space *space);
 
@@ -97,12 +98,20 @@ COMPLEX_FIELD(const string &name, pp_const_datatype_ptr type, ...);
 extern void
 COMPLEX_FIELD(const string &name, const string &type, ...);
 
+/* this is a helper for type-safety */
+struct kvpair_ {
+	const char *key;
+	pp_value value;
+};
+
 extern pp_bitmask_ptr
-BITMASK(const string &name, ...);
+BITMASK_KV(const string &name, kvpair_ *values);
+#define BITMASK(name, ...) BITMASK_KV(name, (kvpair_[]){__VA_ARGS__, {NULL}})
 #define ANON_BITMASK(...) BITMASK("", __VA_ARGS__)
 
 extern pp_enum_ptr
-ENUM(const string &name, ...);
+ENUM_KV(const string &name, kvpair_ *values);
+#define ENUM(name, ...) ENUM_KV(name, (kvpair_[]){__VA_ARGS__, {NULL}})
 #define ANON_ENUM(...) ENUM("", __VA_ARGS__)
 
 extern pp_bool_ptr
