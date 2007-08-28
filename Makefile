@@ -4,21 +4,23 @@ CXXFLAGS = -Wall -Werror $(INCLUDES) -g
 
 libpp_SRCS = utils.cpp \
 	magic_regs.cpp \
-	drivers.cpp \
-	devices/global.cpp \
-	devices/pci/pci.cpp
-libpp_OBJS = $(libpp_SRCS:.cpp=.o)
+	drivers.cpp
+libpp_OBJS = $(libpp_SRCS:.cpp=.o) devices/all_devices.o
 
 
 all: libpp.a
 
-libpp.a: .depend $(libpp_OBJS) drivers
+libpp.a: .depend $(libpp_OBJS) drivers devices
 	ar rcs $@ $(libpp_OBJS)
 	$(MAKE) -C drivers lib LIBNAME=$(TOPDIR)/$@
 
 .PHONY: drivers
 drivers:
 	$(MAKE) -C drivers
+
+.PHONY: devices
+devices:
+	$(MAKE) -C devices
 
 .PHONY: test
 test:
