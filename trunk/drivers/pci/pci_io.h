@@ -8,6 +8,7 @@
 
 #include "pp.h"
 #include "pp_binding.h"
+#include "pp_driver.h"
 #include "filesystem.h"
 
 #define PCI_SYSFS_DIR	"/sys/bus/pci/devices"
@@ -66,32 +67,51 @@ operator<<(std::ostream& out, const pci_address &addr)
 }
 
 /*
- * Linux-specific PCI IO
+ * Abstract PCI IO
  */
 class pci_io
 {
     public:
+	/* destructor */
+	virtual
+	~pci_io() {}
+
+	virtual pp_value
+	read(const pp_regaddr address, const pp_bitwidth width) const = 0;
+
+	virtual void
+	write(const pp_regaddr address, const pp_bitwidth width,
+	    const pp_value value) = 0;
+};
+
+/*
+ * Linux-specific PCI IO
+ */
+class linux_pci_io: public pci_io
+{
+    public:
 	/* constructors */
 	explicit
-	pci_io(int seg, int bus, int dev, int func)
+	linux_pci_io(int seg, int bus, int dev, int func)
 	    : m_address(pci_address(seg, bus, dev, func))
 	{
 		open_device();
 	}
 	explicit
-	pci_io(const pci_address &address)
+	linux_pci_io(const pci_address &address)
 	    : m_address(address)
 	{
 		open_device();
 	}
 
 	/* destructor */
-	~pci_io()
+	virtual
+	~linux_pci_io()
 	{
 		m_file->close();
 	}
 
-	pp_value
+	virtual pp_value
 	read(const pp_regaddr address, const pp_bitwidth width) const
 	{
 		switch (width) {
@@ -109,7 +129,7 @@ class pci_io
 		    %width));
 	}
 
-	void
+	virtual void
 	write(const pp_regaddr address, const pp_bitwidth width,
 	    const pp_value value)
 	{
