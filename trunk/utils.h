@@ -66,17 +66,39 @@ regfield(const string &name, pp_scope *scope,
 		const pp_binding *binding, pp_regaddr address,
 		pp_bitwidth width, pp_const_datatype_ptr type);
 
-//FIXME: needs comments
+
+/*
+ * START_SPACE
+ * Use this shortcut command to start a new space, pass a pointer to
+ * a space
+ */
 
 extern void
 START_SPACE(pp_space *space);
 
+/*
+ * OPEN_SCOPE
+ * Create a new scope with the input name.  This pair of open and close scope
+ * shortcut functions works like a matching bracket stack.  After you open a scope
+ * all subsequent operations (from these shortcut operations, eg ONE_BIT_FIELD)
+ * will be placed on this scope.
+ */
 extern void
 OPEN_SCOPE(const string &name);
 
+/*
+ * CLOSE_SCOPE
+ * Closes the most recent scope. (Similar to bracket matching algorithms).
+ */
 extern void
 CLOSE_SCOPE();
 
+/*
+ * REGN
+ * A set of shortcut functions for the creation of registers.  The created
+ * register will be added onto the present scope (opened by the
+ * OPEN_SCOPE function).
+ */
 extern void
 REGN(const string &name, pp_regaddr address, pp_bitwidth width);
 #define REG8(name, address)  REGN(name, address, BITS8)
@@ -84,6 +106,13 @@ REGN(const string &name, pp_regaddr address, pp_bitwidth width);
 #define REG32(name, address) REGN(name, address, BITS32)
 #define REG64(name, address) REGN(name, address, BITS64)
 
+/*
+ * SIMPLE_FIELD
+ * Create a simple field, give the name, type, register from which the
+ * bits will be taken from, the hi and lo bits.  This is a simplified
+ * macro function, and the field created will be added to the present
+ * scope (as created with OPEN_SCOPE).
+ */
 extern void
 SIMPLE_FIELD(const string &name, pp_const_datatype_ptr type,
 		const string &regname, int hi_bit, int lo_bit);
@@ -92,6 +121,17 @@ SIMPLE_FIELD(const string &name, const string &type,
 		const string &regname, int hi_bit, int lo_bit);
 #define ONE_BIT_FIELD(name, type, regname, bit) \
 		SIMPLE_FIELD(name, type, regname, bit, bit)
+
+
+/*
+ * COMPLEX_FIELD
+ * Create a complex field, give the name, type, registers from which the
+ * bits will be taken from, the hi and lo bits.  Note that this function is
+ * for handling fields with bits comming from multiple registers and can take
+ * and unlimited amount of arguments.  This is a simplified
+ * macro function, and the field created will be added to the present
+ * scope (as created with OPEN_SCOPE).
+ */
 
 extern void
 COMPLEX_FIELD(const string &name, pp_const_datatype_ptr type, ...);
@@ -104,16 +144,30 @@ struct kvpair_ {
 	pp_value value;
 };
 
+/*
+ * BITMASK
+ * A shortcut function for creating a bitmask
+ */
 extern pp_bitmask_ptr
 BITMASK_KV(const string &name, kvpair_ *values);
 #define BITMASK(name, ...) BITMASK_KV(name, (kvpair_[]){__VA_ARGS__, {NULL}})
 #define ANON_BITMASK(...) BITMASK("", __VA_ARGS__)
 
+/*
+ * ENUM
+ * A shortcut function for creating an enumeration.
+ * It can take an unlimted amount of arguments, in the form:
+ * enum_name, { "abc", 1 }, { "def", 2 }, ...
+ */
 extern pp_enum_ptr
 ENUM_KV(const string &name, kvpair_ *values);
 #define ENUM(name, ...) ENUM_KV(name, (kvpair_[]){__VA_ARGS__, {NULL}})
 #define ANON_ENUM(...) ENUM("", __VA_ARGS__)
 
+/*
+ * BOOL
+ * Shortcut to create a boolean.
+ */
 extern pp_bool_ptr
 BOOL(const string &name, const string &true_str, const string &false_str);
 #define ANON_BOOL(true_str, false_str) BOOL("", true_str, false_str)
