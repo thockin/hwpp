@@ -98,6 +98,665 @@ base_address_register(const string &name, pp_scope *scope,
 	scope->add_scope(name, bar_scope);
 }
 
+void hyper_transport_link_freq_err (pp_space *space, pp_scope *scope,
+	const pp_binding *binding, int address, const string &name)
+{
+
+	pp_scope_ptr scope_ptr = new_pp_scope();
+	pp_register_ptr reg_ptr;
+	pp_direct_field_ptr field_ptr;
+	pp_enum_ptr anon_enum;
+	anon_enum = new_pp_enum();
+	anon_enum->add_value("200mhz", 0);
+	anon_enum->add_value("300mhz", 1);
+	anon_enum->add_value("400mhz", 2);
+	anon_enum->add_value("500mhz", 3);
+	anon_enum->add_value("600mhz", 4);
+	anon_enum->add_value("800mhz", 5);
+	anon_enum->add_value("1000mhz", 6);
+	anon_enum->add_value("vendor_specific", 15);
+
+	reg_ptr = new_pp_register(binding, address + 0xd, BITS8);
+	scope->add_register("%" + name, reg_ptr);
+
+	scope_ptr = new_pp_scope();
+
+	// Link Freq 0
+	field_ptr = new_pp_direct_field(anon_enum);
+	field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(4), 0);
+	scope_ptr->add_field("link_freq0", field_ptr);
+
+	// Protocol Err
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 4, PP_MASK(1), 4);
+	scope_ptr->add_field("perr", field_ptr);
+
+	// Overflow Err
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 5, PP_MASK(1), 5);
+	scope_ptr->add_field("oerr", field_ptr);
+
+	// EOC Err
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 6, PP_MASK(1), 6);
+	scope_ptr->add_field("eerr", field_ptr);
+
+	// CTL Timeout
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 7, PP_MASK(1), 7);
+	scope_ptr->add_field("ctl_timeout", field_ptr);
+
+	scope->add_scope(name, scope_ptr);
+}
+
+void hyper_transport_link_config (pp_space *space, pp_scope *scope,
+	const pp_binding *binding, int address, const string &name)
+{
+
+	pp_scope_ptr scope_ptr = new_pp_scope();
+	pp_register_ptr reg_ptr;
+	pp_direct_field_ptr field_ptr;
+	pp_enum_ptr anon_enum;
+
+	reg_ptr = new_pp_register(binding, address + 16, BITS16);
+	scope->add_register( "%" + name, reg_ptr);
+	scope_ptr = new_pp_scope();
+
+	// Max Link Width In
+	anon_enum = new_pp_enum();
+	anon_enum->add_value("bits8", 0);
+	anon_enum->add_value("bits16", 1);
+	anon_enum->add_value("bits32", 3);
+	anon_enum->add_value("bits2", 4);
+	anon_enum->add_value("bits4", 5);
+	anon_enum->add_value("lnc", 7);
+
+	field_ptr = new_pp_direct_field(anon_enum);
+	field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(3), 0);
+	scope_ptr->add_field("mlwi", field_ptr);
+
+	// DW FC in
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 3, PP_MASK(1), 3);
+	scope_ptr->add_field("dwfci", field_ptr);
+
+	// Max Link Width Out
+	field_ptr = new_pp_direct_field(anon_enum);
+	field_ptr->add_regbits(reg_ptr.get(), 4, PP_MASK(3), 4);
+	scope_ptr->add_field("mlwo", field_ptr);
+
+	// DW FC out
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 7, PP_MASK(1), 7);
+	scope_ptr->add_field("dwfco", field_ptr);
+
+	// Link Width In
+	field_ptr = new_pp_direct_field(anon_enum);
+	field_ptr->add_regbits(reg_ptr.get(), 8, PP_MASK(3), 8);
+	scope_ptr->add_field("lwi", field_ptr);
+
+	// DW FC in EN
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 11, PP_MASK(1), 11);
+	scope_ptr->add_field("dwfci_en", field_ptr);
+
+	// Link Width Out
+	field_ptr = new_pp_direct_field(anon_enum);
+	field_ptr->add_regbits(reg_ptr.get(), 12, PP_MASK(3), 12);
+	scope_ptr->add_field("lwo", field_ptr);
+
+	// DW FC out EN
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 15, PP_MASK(1), 15);
+	scope_ptr->add_field("dwfco_en", field_ptr);
+
+	scope->add_scope(name, scope_ptr);
+}
+
+void hyper_transport_link_control (pp_space *space, pp_scope *scope,
+	const pp_binding *binding, int address, const string &name)
+{
+
+	pp_scope_ptr scope_ptr = new_pp_scope();
+	pp_register_ptr reg_ptr;
+	pp_direct_field_ptr field_ptr;
+
+	reg_ptr = new_pp_register(binding, address, BITS16);
+	scope->add_register("%" + name, reg_ptr);
+
+	// CFIE
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 1, PP_MASK(1), 1);
+	scope_ptr->add_field("cfie", field_ptr);
+
+	// CST
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 2, PP_MASK(1), 2);
+	scope_ptr->add_field("cst", field_ptr);
+
+	// CFE
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 3, PP_MASK(1), 3);
+	scope_ptr->add_field("cfe", field_ptr);
+
+	// LKFail
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 4, PP_MASK(1), 4);
+	scope_ptr->add_field("lkfail", field_ptr);
+
+	// init
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 5, PP_MASK(1), 5);
+	scope_ptr->add_field("init", field_ptr);
+
+	// EOC
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 6, PP_MASK(1), 6);
+	scope_ptr->add_field("eoc", field_ptr);
+
+	// TXO
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 7, PP_MASK(1), 7);
+	scope_ptr->add_field("init", field_ptr);
+
+	// CRC error
+	field_ptr = new_pp_direct_field(space->resolve_datatype("bits8_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 8, PP_MASK(4), 8);
+	scope_ptr->add_field("crc_err", field_ptr);
+
+	// IsoEn
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 12, PP_MASK(1), 12);
+	scope_ptr->add_field("isoen", field_ptr);
+
+	// LSEn
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 13, PP_MASK(1), 13);
+	scope_ptr->add_field("lsen", field_ptr);
+
+	// ExtCTL
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 14, PP_MASK(1), 14);
+	scope_ptr->add_field("ext_ctl", field_ptr);
+
+	scope->add_scope(name, scope_ptr);
+}
+
+void hyper_transport_link_freq_cap (pp_space *space, pp_scope *scope,
+	const pp_binding *binding, int address, const string &name)
+{
+
+	pp_scope_ptr scope_ptr = new_pp_scope();
+	pp_register_ptr reg_ptr;
+	pp_direct_field_ptr field_ptr;
+
+	reg_ptr = new_pp_register(binding, address + 0xd, BITS16);
+	scope->add_register("%" + name, reg_ptr);
+
+	scope_ptr = new_pp_scope();
+
+	// 200 mhz Supported
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(1), 0);
+	scope_ptr->add_field("200mhz", field_ptr);
+
+	// 300 mhz Supported
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 1, PP_MASK(1), 1);
+	scope_ptr->add_field("300mhz", field_ptr);
+
+	// 400 mhz Supported
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 2, PP_MASK(1), 2);
+	scope_ptr->add_field("400mhz", field_ptr);
+
+	// 500 mhz Supported
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 3, PP_MASK(1), 3);
+	scope_ptr->add_field("500mhz", field_ptr);
+
+	// 600 mhz Supported
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 4, PP_MASK(1), 4);
+	scope_ptr->add_field("600mhz", field_ptr);
+
+	// 800 mhz Supported
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 5, PP_MASK(1), 5);
+	scope_ptr->add_field("800mhz", field_ptr);
+
+	// 1000 mhz Supported
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 6, PP_MASK(1), 6);
+	scope_ptr->add_field("1ghz", field_ptr);
+
+	// Vendor Specific
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 15, PP_MASK(1), 15);
+	scope_ptr->add_field("vendor_specific", field_ptr);
+
+	scope->add_scope(name, scope_ptr);
+}
+
+void hyper_transport_error_handle(pp_space *space, pp_scope *scope,
+	const pp_binding *binding, int address)
+{
+	pp_scope_ptr scope_ptr = new_pp_scope();
+	pp_register_ptr reg_ptr;
+	pp_direct_field_ptr field_ptr;
+	scope_ptr = new_pp_scope();
+	reg_ptr = new_pp_register(binding, address, BITS16);
+	scope->add_register("%err", reg_ptr);
+
+	// Protocol Error Flood Enable
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(1), 0);
+	scope_ptr->add_field("pro_flood_err", field_ptr);
+
+	// Overflow error flood enable
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 1, PP_MASK(1), 1);
+	scope_ptr->add_field("overflow_flood_err", field_ptr);
+
+	// Protocol error fatal enable
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 2, PP_MASK(1), 2);
+	scope_ptr->add_field("pro_fatal_err", field_ptr);
+
+	// Overflow fatal error enable
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 3, PP_MASK(1), 3);
+	scope_ptr->add_field("overflow_fatal_err", field_ptr);
+
+	// End of chain error fatal enable
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 4, PP_MASK(1), 4);
+	scope_ptr->add_field("eoc_fatal_err", field_ptr);
+
+	// Response error fatal enable
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 5, PP_MASK(1), 5);
+	scope_ptr->add_field("resp_fatal_err", field_ptr);
+
+	// CRC Error fatal enable
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 6, PP_MASK(1), 6);
+	scope_ptr->add_field("crc_fatal_err", field_ptr);
+
+	// System error fatal enable
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 7, PP_MASK(1), 7);
+	scope_ptr->add_field("sys_fatal_err", field_ptr);
+
+	// Chain Fail
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 8, PP_MASK(1), 8);
+	scope_ptr->add_field("chain_fail", field_ptr);
+
+	// Response Error
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 9, PP_MASK(1), 9);
+	scope_ptr->add_field("resp_err", field_ptr);
+
+	// Protocol error nonfatal enable
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 10, PP_MASK(1), 10);
+	scope_ptr->add_field("proto_err", field_ptr);
+
+	// Overflow error nonfatal enable
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 11, PP_MASK(1), 11);
+	scope_ptr->add_field("overflow_err", field_ptr);
+
+	// End of chain error nonfatal enable
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 12, PP_MASK(1), 12);
+	scope_ptr->add_field("eoc_err", field_ptr);
+
+	// Response error nonfatal enable
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 13, PP_MASK(1), 13);
+	scope_ptr->add_field("resp_nonfatal_err", field_ptr);
+
+	// CRC error nonfatal enable
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 14, PP_MASK(1), 14);
+	scope_ptr->add_field("crc_nonfatal_err", field_ptr);
+
+	// System error nonfatal enable
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 15, PP_MASK(1), 15);
+	scope_ptr->add_field("sys_err", field_ptr);
+
+	scope->add_scope("error_handling", scope_ptr);
+}
+
+// HyperTransport Slave
+void hyper_transport_slave (pp_space *space, pp_scope *scope,
+	const pp_binding *binding, int address)
+{
+	pp_direct_field_ptr field_ptr;
+	pp_register_ptr reg_ptr;
+	pp_enum_ptr anon_enum;
+	pp_scope_ptr scope_ptr;
+
+	// HT Slave Command CSR
+	reg_ptr = new_pp_register(binding, address + 16, BITS16);
+	scope->add_register("%ht_slave_csr", reg_ptr);
+	scope_ptr = new_pp_scope();
+
+	// Base UnitID
+	field_ptr = new_pp_direct_field(space->resolve_datatype("int8_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(5), 0);
+	scope_ptr->add_field("base_uid", field_ptr);
+
+	// Unit Count
+	field_ptr = new_pp_direct_field(space->resolve_datatype("int4_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 5, PP_MASK(5), 0);
+	scope_ptr->add_field("count", field_ptr);
+
+	// Master Host
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 10, PP_MASK(1), 10);
+	scope_ptr->add_field("host", field_ptr);
+
+	// Default direction
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 11, PP_MASK(1), 11);
+	scope_ptr->add_field("dir", field_ptr);
+
+	// Drop On Un-Init
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 12, PP_MASK(1), 12);
+	scope_ptr->add_field("un_init", field_ptr);
+
+	// Capability Type
+	anon_enum = new_pp_enum();
+	anon_enum->add_value("slave_block", 0);
+	anon_enum->add_value("host_block", 1);
+	anon_enum->add_value("interrupt_discovery", 4);
+	anon_enum->add_value("address_mapping", 5);
+
+	field_ptr = new_pp_direct_field(anon_enum);
+	field_ptr->add_regbits(reg_ptr.get(), 13, PP_MASK(3), 13);
+	scope_ptr->add_field("cap_type", field_ptr);
+
+	// Finish Up
+	scope->add_scope("ht_slave_csr", scope_ptr);
+
+	// Link Control 0
+	hyper_transport_link_control(space, scope, binding, address + 0x04, "link_ctrl0");
+
+	// Link Control 1
+	hyper_transport_link_control(space, scope, binding, address + 0x08, "link_ctrl1");
+
+	// Link Config 0
+	hyper_transport_link_config (space, scope, binding, address + 0x06, "ling_config0");
+
+	// Link Config 1
+	hyper_transport_link_config (space, scope, binding, address + 0x010, "ling_config1");
+
+	// Revision ID
+	reg_ptr = new_pp_register(binding, address + 96, BITS8);
+	scope->add_register("%revision_id", reg_ptr);
+
+	scope_ptr = new_pp_scope();
+	field_ptr = new_pp_direct_field(space->resolve_datatype("int8_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(5), 0);
+	scope_ptr->add_field("minor_rev", field_ptr);
+
+	field_ptr = new_pp_direct_field(space->resolve_datatype("int8_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 5, PP_MASK(3), 5);
+	scope_ptr->add_field("major_rev", field_ptr);
+	scope->add_scope("revision_id", scope_ptr);
+
+	// Link Freq 0, Link Error 0
+	hyper_transport_link_freq_err(space, scope, binding, address + 0x0d, "link_freq_err0");
+
+	// Link Freq 0, Link Error 1
+	hyper_transport_link_freq_err(space, scope, binding, address + 0x11, "link_freq_err1");
+
+	// Link Freq Cap 0
+	hyper_transport_link_freq_cap(space, scope, binding, address + 0x0e, "link_freq_cap0");
+
+	// Link Freq Cap 1
+	hyper_transport_link_freq_cap(space, scope, binding, address + 0x0e, "link_freq_cap1");
+
+	// Feature
+	scope_ptr = new_pp_scope();
+	reg_ptr = new_pp_register(binding, address + 0x10, BITS16);
+	scope->add_register("%feature", reg_ptr);
+
+	// Isochronous Mode ISOC_FC
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(1), 0);
+	scope_ptr->add_field("isoc_fc", field_ptr);
+
+	// LDTSTOP Support
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 1, PP_MASK(1), 1);
+	scope_ptr->add_field("ldtstop", field_ptr);
+
+	// CRC Test
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 2, PP_MASK(1), 2);
+	scope_ptr->add_field("crc_test", field_ptr);
+
+	// XTND CTL
+	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 3, PP_MASK(1), 3);
+	scope_ptr->add_field("xtnd_ctl", field_ptr);
+
+	scope->add_scope("feature", scope_ptr);
+
+	// Enumeration Scratch Pad
+	regfield("enum_scratch", scope, binding, address + 0x14, BITS16,
+	    space->resolve_datatype("addr16_t"));
+
+	// Error Handling
+	hyper_transport_error_handle(space, scope, binding, address + 0x16);
+
+	// Enumeration Scratch Pad
+	regfield("mem_base_upper", scope, binding, address + 0x18, BITS16,
+	    space->resolve_datatype("addr16_t"));
+	// Enumeration Scratch Pad
+	regfield("mem_base_limit", scope, binding, address + 0x19, BITS16,
+	    space->resolve_datatype("addr16_t"));
+}
+
+void hyper_transport_host(pp_space *space, pp_scope *scope,
+	const pp_binding *binding, int address)
+{
+	pp_direct_field_ptr field_ptr;
+	pp_register_ptr reg_ptr;
+	pp_enum_ptr anon_enum;
+	pp_scope_ptr scope_ptr;
+
+	// HT Host
+	OPEN_SCOPE("ht_host");
+
+	// HT Host CSR
+	OPEN_SCOPE("ht_host_csr");
+
+	REG16("%ht_host_csr", address + 0x02);
+
+	// Fields for CSR
+	// Warm Reset
+	ONE_BIT_FIELD("warm_reset", space->resolve_datatype("yesno_t"), "%ht_host_csr", 0);
+
+	// Double Ended
+	ONE_BIT_FIELD("dbl_end", space->resolve_datatype("yesno_t"), "%ht_host_csr", 1);
+
+	// Device Number
+	SIMPLE_FIELD("dev_num", space->resolve_datatype("int8_t"), "%ht_host_csr", 6, 2);
+
+	// Chain Side
+	ONE_BIT_FIELD("chain_side", space->resolve_datatype("yesno_t"), "%ht_host_csr", 7);
+
+	// Host Hide
+	ONE_BIT_FIELD("host_hide", space->resolve_datatype("yesno_t"), "%ht_host_csr", 8);
+
+	// Act as Slave
+	ONE_BIT_FIELD("be_slave", space->resolve_datatype("yesno_t"), "%ht_host_csr", 10);
+
+	// Inbount EOC Err
+	ONE_BIT_FIELD("in_eoc_err", space->resolve_datatype("yesno_t"), "%ht_host_csr", 11);
+
+	// Drop on un init
+	ONE_BIT_FIELD("drop_on_un_init", space->resolve_datatype("yesno_t"), "%ht_host_csr", 12);
+
+	// Capability Type
+	anon_enum = new_pp_enum();
+	anon_enum->add_value("slave_block", 0x0000b);
+	anon_enum->add_value("host_block", 0x00100b);
+	anon_enum->add_value("interrupt_discovery", 0x01000b);
+	anon_enum->add_value("rev_id", 0x10001);
+	anon_enum->add_value("address_mapping", 0x10100b);
+	anon_enum->add_value("retry_mode", 0x11000b);
+
+	SIMPLE_FIELD("cap_type", anon_enum, "%ht_host_csr", 15, 13);
+
+	CLOSE_SCOPE();
+
+	// Link Control
+	hyper_transport_link_control(space, scope, binding, address + 0x04, "link_ctrl");
+
+	// Link Config
+	hyper_transport_link_config (space, scope, binding, address + 0x06, "ling_config");
+
+	// Revision ID
+	reg_ptr = new_pp_register(binding, address + 0x08, BITS8);
+	scope->add_register("%revision_id", reg_ptr);
+
+	scope_ptr = new_pp_scope();
+	field_ptr = new_pp_direct_field(space->resolve_datatype("int8_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(5), 0);
+	scope_ptr->add_field("minor_rev", field_ptr);
+
+	field_ptr = new_pp_direct_field(space->resolve_datatype("int8_t"));
+	field_ptr->add_regbits(reg_ptr.get(), 5, PP_MASK(3), 5);
+	scope_ptr->add_field("major_rev", field_ptr);
+	scope->add_scope("revision_id", scope_ptr);
+
+	// Link Freq/Err
+	hyper_transport_link_freq_err(space, scope, binding, address + 0x09, "link_freq_err");
+
+	// Link Freq Cap
+	hyper_transport_link_freq_cap(space, scope, binding, address + 0x10, "link_freq_cap");
+
+	// Feature
+	OPEN_SCOPE("feature");
+
+	REG16("%feature", address + 0x0c);
+
+	// Isochronus mode
+	ONE_BIT_FIELD("isoc_fc", space->resolve_datatype("yesno_t"), "%feature", 0);
+
+	// ldtstop
+	ONE_BIT_FIELD("ldtstop_supp", space->resolve_datatype("yesno_t"), "%feature", 1);
+
+	// CRC test
+	ONE_BIT_FIELD("crc_stop", space->resolve_datatype("yesno_t"), "%feature", 2);
+
+	// Extended CTL Time Required
+	ONE_BIT_FIELD("ext_ctl_time", space->resolve_datatype("yesno_t"), "%feature", 3);
+
+	// Extended Register Scratch
+	ONE_BIT_FIELD("ext_reg_scratch", space->resolve_datatype("yesno_t"), "%feature", 8);
+
+	CLOSE_SCOPE();
+
+	// Enumeration Scratch Pad
+	regfield("enum_scratch", scope, binding, address + 0x14, BITS16,
+	    space->resolve_datatype("addr16_t"));
+
+	// Error Handling
+	hyper_transport_error_handle(space, scope, binding, address + 0x16);
+
+	// Mem Base Upper
+	regfield("mem_base_upper", scope, binding, address + 0x18, BITS16,
+	    space->resolve_datatype("addr16_t"));
+
+	// Mem Base Limit
+	regfield("mem_base_limit", scope, binding, address + 0x19, BITS16,
+	    space->resolve_datatype("addr16_t"));
+
+	CLOSE_SCOPE();
+}
+
+void hyper_transport_address_remap(pp_space *space, pp_scope *scope,
+	const pp_binding *binding, int address)
+{
+	pp_direct_field_ptr field_ptr;
+	pp_register_ptr reg_ptr;
+	pp_enum_ptr anon_enum;
+	pp_scope_ptr scope_ptr;
+
+	// HT Host
+	OPEN_SCOPE("ht_addr_remap");
+
+	// HT Host CSR
+	OPEN_SCOPE("ht_addr_csr");
+
+	REG16("%ht_addr_csr", address + 0x02);
+
+	// Fields for CSR
+	// Number of DMA Mappings
+	SIMPLE_FIELD("num_dma", space->resolve_datatype("int8_t"), "%ht_addr_csr", 3, 0);
+
+	// I/O Size
+	SIMPLE_FIELD("io_size", space->resolve_datatype("int8_t"), "%ht_addr_csr", 8, 4);
+
+	// Map Type
+	SIMPLE_FIELD("map_type", space->resolve_datatype("int8_t"), "%ht_addr_csr", 12, 9);
+
+	// Cap Type
+	SIMPLE_FIELD("cap_type", space->resolve_datatype("int8_t"), "%ht_addr_csr", 15, 13);
+
+	CLOSE_SCOPE();
+
+	// Secondary Bus Non-Prefetchable Window Base
+	OPEN_SCOPE("ht_sec_no_pre_base");
+	REG32("%ht_sec_no_pre_base", address + 0x04);
+	SIMPLE_FIELD("sec_no_pre_base", space->resolve_datatype("addr32_t"), "%ht_sec_no_pre_base", 19, 0);
+	CLOSE_SCOPE();
+
+	// Secondary Bus Prefetchable Window Base
+	OPEN_SCOPE("ht_sec_pre_base");
+	REG32("%ht_sec_pre_base", address + 0x08);
+	SIMPLE_FIELD("sec_pre_base", space->resolve_datatype("addr32_t"), "%ht_sec_pre_base", 19, 0);
+	CLOSE_SCOPE();
+
+	// Read value in Number of DMA Mappings
+	pp_value value;
+	value = (get_field(scope, pp_path("ht_addr_remap/ht_addr_csr/num_dma")))->read();
+	int dma = 0x0c;
+	for (unsigned int i = 0; i < value; i++) {
+		// DMA Primary Base N
+		regfield("dma_pri_base", scope, binding, address + dma, BITS16,
+		    space->resolve_datatype("addr16_t"));
+		dma += 0x04;
+		// DMA Secondary Limit N
+		regfield("dma_sec_limit", scope, binding, address + dma, BITS16,
+		    space->resolve_datatype("addr16_t"));
+		dma += 0x02;
+		// DMA Secondary Base N
+		regfield("dma_sec_base", scope, binding, address + dma, BITS16,
+		    space->resolve_datatype("addr16_t"));
+		dma += 0x02;
+	}
+	CLOSE_SCOPE();
+}
+
+
+void hyper_transport_interupt(pp_space *space, pp_scope *scope,
+	const pp_binding *binding, int address)
+{
+}
+
+
+//void message_capability_structure (pp_space *space, pp_scope *scope,
+//	const pp_binding *binding, int address)
 void
 slot_id_capability(pp_scope *scope, const pp_binding *binding, int address)
 {
@@ -214,6 +873,8 @@ explore_capabilities(pp_space *space)
 	const pp_field *field;
 	pp_value value;
 	pp_scope_ptr scope_ptr;
+	pp_register_ptr reg_ptr;
+	pp_direct_field_ptr field_ptr;
 	const pp_binding *binding = space->binding();
 
 	// an enum for the know capabilities
@@ -278,6 +939,51 @@ explore_capabilities(pp_space *space)
 				msi_capability(scope_ptr.get(), binding, ptr);
 			} else if (value == field->lookup("hot_swap")) {
 			} else if (value == field->lookup("ht")) {
+				// Grab the last two bits -- if they are zero then we have either a slave/primary interface
+				// or a host/secondary interface, thus we need 3 bits to determine our type of hyper transport.
+				// If the last two bits are non-zero, then we have some other kind of hyper transport and thus
+				// we require 5 bits to determine which type.
+				reg_ptr = new_pp_register(binding, ptr + 0x02, BITS16);
+				anon_enum = new_pp_enum();
+				anon_enum->add_value("interface", 0);
+				field_ptr = new_pp_direct_field(anon_enum);
+				field_ptr->add_regbits(reg_ptr.get(), 14, PP_MASK(2), 14);
+				value = field_ptr->read();
+				if (value == field_ptr->lookup("interface"))
+				{
+					// Interface, 3 bit field
+					anon_enum = new_pp_enum();
+					anon_enum->add_value("slave", 0);
+					anon_enum->add_value("host", 1);
+					field_ptr = new_pp_direct_field(anon_enum);
+					field_ptr->add_regbits(reg_ptr.get(), 13, PP_MASK(3), 13);
+
+					value = field_ptr->read();
+
+					// Slave Interface
+					if (value == field_ptr->lookup("slave")) {
+						hyper_transport_slave(space, scope_ptr.get(), binding, ptr);
+
+					// Host interface
+					} else if (value == field_ptr->lookup("host")) {
+						hyper_transport_host(space, scope_ptr.get(), binding, ptr);
+					}
+				} else {
+					// Non-Interface, 5 bit field
+					anon_enum = new_pp_enum();
+					anon_enum->add_value("interrupt_discover", 16);
+					anon_enum->add_value("revision_id", 17);
+					anon_enum->add_value("address_remap", 24);
+					field_ptr = new_pp_direct_field(anon_enum);
+					field_ptr->add_regbits(reg_ptr.get(), 11, PP_MASK(5), 11);
+
+					value = field_ptr->read();
+					if (value == field_ptr->lookup("interrupt_discover")) {
+					} else if (value == field_ptr->lookup("revision_id")) {
+					} else if (value == field_ptr->lookup("address_remap")) {
+						hyper_transport_address_remap(space, scope_ptr.get(), binding, ptr);
+					}
+				}
 				// nvidia specs!
 				// has sub-types! 15h = msi_map
 			} else if (value == field->lookup("usb2_debug_port")) {
@@ -988,3 +1694,12 @@ pci_generic_space(pp_const_binding_ptr binding_ptr, const pp_platform *platform)
 
 	return space_ptr;
 }
+
+#if 0
+		//FIXME: left off here
+	} else if (hdrtype.type == CARD_BRIDGE) {
+		//FIXME:
+	}
+}
+<---- pci.pp
+#endif
