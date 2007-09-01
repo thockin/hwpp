@@ -29,6 +29,13 @@ class pp_driver_args_error: public pp_driver_error
 	    : pp_driver_error(arg) {}
 };
 
+class pp_driver_not_supported_error: public pp_driver_error
+{
+    public:
+	explicit pp_driver_not_supported_error(const string &arg)
+	    : pp_driver_error(arg) {}
+};
+
 /*
  * pp_driver - abstract base class for driver plugins.
  *
@@ -67,8 +74,11 @@ class pp_driver
 	 * Enumerate devices owned by this driver, and add them to the
 	 * platform.
 	 */
-	virtual int
-	discover(pp_platform *platform) const = 0;
+	virtual void
+	discover(pp_platform *platform) const
+	{
+		// do nothing by default
+	}
 
 	/*
 	 * pp_driver::discovery_callback
@@ -91,7 +101,11 @@ class pp_driver
 	 */
 	virtual void
 	register_discovery(const std::vector<pp_regaddr> &args,
-			discovery_callback function) = 0;
+			discovery_callback function)
+	{
+		throw pp_driver_not_supported_error(this->name() + ": " +
+				"discovery not supported for this driver");
+	}
 };
 typedef boost::shared_ptr<pp_driver> pp_driver_ptr;
 
