@@ -1,6 +1,6 @@
 /* Copyrioht (c) Tim Hockin, 2007 */
-#ifndef PP_PCI_IO_H__
-#define PP_PCI_IO_H__
+#ifndef PP_DRIVERS_PCI_LINUX_PCI_IO_H__
+#define PP_DRIVERS_PCI_LINUX_PCI_IO_H__
 
 #include <stdint.h>
 #include <vector>
@@ -13,76 +13,6 @@
 
 #define PCI_SYSFS_DIR	"/sys/bus/pci/devices"
 #define PCI_PROCFS_DIR	"/proc/bus/pci"
-
-/*
- * pci_address
- */
-struct pci_address
-{
-	/* constructors */
-	pci_address()
-	    : segment(-1), bus(-1), device(-1), function(-1)
-	{
-	}
-	pci_address(int s, int b, int d, int f)
-	    : segment(s), bus(b), device(d), function(f)
-	{
-	}
-	pci_address(int b, int d, int f)
-	    : segment(0), bus(b), device(d), function(f)
-	{
-	}
-
-	int segment;
-	int bus;
-	int device;
-	int function;
-};
-
-inline bool
-operator<(const pci_address &left, const pci_address &right)
-{
-	if (left.segment != right.segment) {
-		return (left.segment < right.segment);
-	}
-	if (left.bus != right.bus) {
-		return (left.bus < right.bus);
-	}
-	if (left.device != right.device) {
-		return (left.device < right.device);
-	}
-	return (left.function < right.function);
-}
-
-inline std::ostream &
-operator<<(std::ostream& out, const pci_address &addr)
-{
-	out << "pci<"
-	  << addr.segment << ","
-	  << addr.bus << ","
-	  << addr.device << ","
-	  << addr.function << ">";
-
-	return out;
-}
-
-/*
- * Abstract PCI IO
- */
-class pci_io
-{
-    public:
-	/* destructor */
-	virtual
-	~pci_io() {}
-
-	virtual pp_value
-	read(const pp_regaddr address, const pp_bitwidth width) const = 0;
-
-	virtual void
-	write(const pp_regaddr address, const pp_bitwidth width,
-	    const pp_value value) = 0;
-};
 
 /*
  * Linux-specific PCI IO
@@ -201,47 +131,47 @@ class linux_pci_io: public pci_io
 	}
 
 	void
-	seek(const pp_regaddr address) const
+	seek(const pp_regaddr offset) const
 	{
 		/* we only support 4KB config space */
-		if (address >= 4096) {
+		if (offset >= 4096) {
 			throw do_io_error(to_string(
 			    boost::format("can't access register 0x%x")
-			    %address));
+			    %offset));
 		}
 
-		m_file->seek(address, SEEK_SET);
+		m_file->seek(offset, SEEK_SET);
 	}
 
 	template<typename Tdata>
 	pp_value
-	do_read(const pp_regaddr address) const
+	do_read(const pp_regaddr offset) const
 	{
-		seek(address);
+		seek(offset);
 		Tdata data;
 		if (m_file->read(&data, sizeof(data)) != sizeof(data)) {
 			throw do_io_error(to_string(
 			    boost::format("can't read register 0x%x")
-			    %address));
+			    %offset));
 		}
 		return data;
 	}
 
 	template<typename Tdata>
 	void
-	do_write(const pp_regaddr address, const pp_value value)
+	do_write(const pp_regaddr offset, const pp_value value)
 	{
 		/* see if we are already open RW or can change to RW */
 		if (m_file->mode() == O_RDONLY) {
 			m_file->reopen(O_RDWR);
 		}
 
-		seek(address);
+		seek(offset);
 		Tdata data = value;
 		if (m_file->write(&data, sizeof(data)) != sizeof(data)) {
 			throw do_io_error(to_string(
 			    boost::format("can't write register 0x%x")
-			    %address));
+			    %offset));
 		}
 	}
 
@@ -317,4 +247,4 @@ class linux_pci_io: public pci_io
 	}
 };
 
-#endif // PP_PCI_IO_H__
+#endif // PP_DRIVERS_PCI_LINUX_PCI_IO_H__

@@ -5,7 +5,6 @@
 #include "pp_datatypes.h"
 #include "pp_fields.h"
 #include "pci_driver.h"
-#include "pci_io.h"
 #include "pci_binding.h"
 #include "utils.h"
 

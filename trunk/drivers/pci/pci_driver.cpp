@@ -2,8 +2,8 @@
 #include "drivers.h"
 #include "pp_datatypes.h"
 #include "pci_driver.h"
-#include "pci_io.h"
 #include "pci_binding.h"
+#include "linux_pci_io.h"
 
 int force_pci_driver_linkage;
 static const pci_driver the_pci_driver;
@@ -26,12 +26,12 @@ pci_driver::name() const
 pp_binding_ptr
 pci_driver::new_binding(const std::vector<pp_regaddr> &args) const
 {
-	int seg, bus, dev, func;
+	pp_regaddr seg, bus, dev, func;
 	int i = 0;
 
 	if (args.size() < 3 || args.size() > 4) {
 		throw pp_driver_args_error(
-		    "PCI binding: <seg?, bus, dev, func>");
+		    "PCI binding: <seg=0, bus, dev, func>");
 	}
 
 	if (args.size() == 3) {
@@ -43,6 +43,18 @@ pci_driver::new_binding(const std::vector<pp_regaddr> &args) const
 	dev = args[i++];
 	func = args[i++];
 
+	if (seg > UINT32_MAX) {
+		throw pp_driver_args_error("PCI binding: invalid segment");
+	}
+	if (bus >= 256) {
+		throw pp_driver_args_error("PCI binding: invalid bus");
+	}
+	if (dev >= 32) {
+		throw pp_driver_args_error("PCI binding: invalid device");
+	}
+	if (bus >= 8) {
+		throw pp_driver_args_error("PCI binding: invalid function");
+	}
 	return new_pci_binding(pci_address(seg, bus, dev, func));
 }
 
@@ -50,10 +62,9 @@ pci_driver::new_binding(const std::vector<pp_regaddr> &args) const
 extern pp_space_ptr pci_generic_space(pp_const_binding_ptr binding_ptr,
     const pp_platform *platform);
 
-int
+void
 pci_driver::discover(pp_platform *platform) const
 {
-	int ndevs = 0;
 	std::vector<pci_address> addresses;
 	std::vector<pci_address>::iterator it;
 
@@ -83,10 +94,7 @@ pci_driver::discover(pp_platform *platform) const
 			platform->add_space(to_string(*it), space);
 		}
 		it++;
-		ndevs++;
 	}
-
-	return ndevs;
 }
 
 void
