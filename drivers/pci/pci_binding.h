@@ -1,6 +1,6 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_PCI_BINDING_H__
-#define PP_PCI_BINDING_H__
+#ifndef PP_DRIVERS_PCI_PCI_BINDING_H__
+#define PP_DRIVERS_PCI_PCI_BINDING_H__
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -8,7 +8,8 @@
 #include <errno.h>
 
 #include "pp_binding.h"
-#include "pci_io.h"
+#include "pci_driver.h"
+#include "linux_pci_io.h"
 
 /*
  * pci_binding - PCI binding for register spaces
@@ -63,4 +64,4 @@ typedef boost::shared_ptr<pci_binding> pci_binding_ptr;
 
 #define new_pci_binding(...) pci_binding_ptr(new pci_binding(__VA_ARGS__))
 
-#endif // PP_PCI_BINDING_H__
+#endif // PP_DRIVERS_PCI_PCI_BINDING_H__

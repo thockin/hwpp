@@ -1,14 +1,14 @@
-#include "pci_driver.h"
-#include "pci_binding.h"
+#include "io_driver.h"
+#include "io_binding.h"
 #include "pp.h"
 #include "pp_test.h"
 using namespace std;
 
-class fake_pci_io: public pci_io
+class fake_io_io: public io_io
 {
     public:
-	explicit fake_pci_io(): m_data(0) {}
-	virtual ~fake_pci_io() {}
+	explicit fake_io_io(): m_data(0) {}
+	virtual ~fake_io_io() {}
 
 	virtual pp_value
 	read(const pp_regaddr address, const pp_bitwidth width) const
@@ -35,22 +35,22 @@ class fake_pci_io: public pci_io
 };
 
 int
-test_pci_binding()
+test_io_binding()
 {
 	int ret = 0;
 
 	/* test the read() method */
-	pp_binding_ptr binding = new_pci_binding(pci_address(0, 0x18, 0),
-	    new fake_pci_io());
+	pp_binding_ptr binding = new_io_binding(io_address(0x1234, 0x5678),
+	    new fake_io_io());
 	if (binding->read(0, BITS8) != 0x00) {
-		PP_TEST_ERROR("pci_binding::read()");
+		PP_TEST_ERROR("io_binding::read()");
 		ret++;
 	}
 
 	/* test the write() method */
 	binding->write(0, BITS8, 0x5a);
 	if (binding->read(0, BITS8) != 0x5a) {
-		PP_TEST_ERROR("pci_binding::write()");
+		PP_TEST_ERROR("io_binding::write()");
 		ret++;
 	}
 
@@ -62,7 +62,7 @@ main()
 {
 	int r;
 
-	r = test_pci_binding();
+	r = test_io_binding();
 	if (r) return EXIT_FAILURE;
 
 	return EXIT_SUCCESS;
