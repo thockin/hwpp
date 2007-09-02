@@ -2,8 +2,7 @@ INCLUDES = -I..
 CXXFLAGS = -Wall -Werror $(INCLUDES) -g
 
 SRCS = global.cpp \
-	pci/pci.cpp \
-	amd/opteron/k10.cpp
+	pci/pci.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 
