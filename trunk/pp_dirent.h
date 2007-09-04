@@ -11,12 +11,10 @@ typedef enum {
 	PP_DIRENT_REGISTER,
 	PP_DIRENT_FIELD,
 	PP_DIRENT_SCOPE,
-	PP_DIRENT_SPACE,
-	PP_DIRENT_DEVICE,
 } pp_dirent_type;
 
 /*
- * pp_dirent - a directory entry in a container
+ * pp_dirent - a directory entry in a scope
  *
  * Constructors:
  * 	(const pp_dirent_type type)
@@ -58,16 +56,6 @@ class pp_dirent {
 	is_scope() const
 	{
 		return m_type == PP_DIRENT_SCOPE;
-	}
-	bool
-	is_space() const
-	{
-		return m_type == PP_DIRENT_SPACE;
-	}
-	bool
-	is_device() const
-	{
-		return m_type == PP_DIRENT_DEVICE;
 	}
 
     private:

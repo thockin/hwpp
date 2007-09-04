@@ -7,7 +7,6 @@
 
 #include "pp.h"
 #include "pp_driver.h"
-#include "pp_platform.h"
 
 typedef std::map<string, pp_driver *> driver_map;
 
@@ -36,6 +35,8 @@ find_driver(const string &name)
 void
 init_drivers()
 {
+	extern int force_io_driver_linkage;
+	force_io_driver_linkage = 1;
 	extern int force_pci_driver_linkage;
 	force_pci_driver_linkage = 1;
 	extern int force_devices_linkage;
@@ -80,7 +81,7 @@ register_discovery(const string &driver_name,
 }
 
 void
-do_discovery(pp_platform *platform)
+do_discovery(pp_scope *platform)
 {
 	/* first finish any discovery registrations */
 	discovery_vector::iterator discovery_iter = discovery_list().begin();

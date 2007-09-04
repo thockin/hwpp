@@ -9,15 +9,12 @@
 #include "utils.h"
 #include "pp_field.h"
 #include "pp_fields.h"
-#include "pp_container.h"
 #include "pp_path.h"
 #include "pp_dirent.h"
 #include "pp_register.h"
-#include "pp_device.h"
-#include "pp_space.h"
 #include "pp_scope.h"
 #include "pp_datatypes.h"
-#include "pp_platform.h"
+#include "device_init.h"
 
 #include <stdexcept>
 using namespace std;
@@ -29,7 +26,7 @@ using namespace std;
  * the field in question.
  */
 const pp_field *
-get_field(const pp_container *container, pp_path path)
+get_field(const pp_scope *scope, pp_path path)
 {
 	/* error case */
 	if (path.empty()) {
@@ -43,7 +40,7 @@ get_field(const pp_container *container, pp_path path)
 	 * Look up the dirent of the next element.  This can throw
 	 * std::out_of_range if the dirent does not exist.
 	 */
-	pp_const_dirent_ptr de = container->dirent(path_front);
+	pp_const_dirent_ptr de = scope->dirent(path_front);
 
 	/* did we find the field? */
 	if (path.empty() && de->dirent_type() == PP_DIRENT_FIELD) {
@@ -51,15 +48,8 @@ get_field(const pp_container *container, pp_path path)
 	}
 
 	/* recursive case */
-	switch (de->dirent_type()) {
-	case PP_DIRENT_SCOPE:
+	if (de->dirent_type() == PP_DIRENT_SCOPE) {
 		return get_field(pp_scope_from_dirent(de), path);
-	case PP_DIRENT_SPACE:
-		return get_field(pp_space_from_dirent(de), path);
-	case PP_DIRENT_DEVICE:
-		return get_field(pp_device_from_dirent(de), path);
-	default:
-		break;
 	}
 
 	/* default error case */
@@ -73,7 +63,7 @@ get_field(const pp_container *container, pp_path path)
  * the field in question.
  */
 const pp_register *
-get_register(const pp_container *container, pp_path path)
+get_register(const pp_scope *scope, pp_path path)
 {
 	/* error case */
 	if (path.empty()) {
@@ -87,7 +77,7 @@ get_register(const pp_container *container, pp_path path)
 	 * Look up the dirent of the next element.  This can throw
 	 * std::out_of_range if the dirent does not exist.
 	 */
-	pp_const_dirent_ptr de = container->dirent(path_front);
+	pp_const_dirent_ptr de = scope->dirent(path_front);
 
 	/* did we find the field? */
 	if (path.empty() && de->dirent_type() == PP_DIRENT_REGISTER) {
@@ -95,15 +85,8 @@ get_register(const pp_container *container, pp_path path)
 	}
 
 	/* recursive case */
-	switch (de->dirent_type()) {
-	case PP_DIRENT_SCOPE:
+	if (de->dirent_type() == PP_DIRENT_SCOPE) {
 		return get_register(pp_scope_from_dirent(de), path);
-	case PP_DIRENT_SPACE:
-		return get_register(pp_space_from_dirent(de), path);
-	case PP_DIRENT_DEVICE:
-		return get_register(pp_device_from_dirent(de), path);
-	default:
-		break;
 	}
 
 	/* default error case */
@@ -117,7 +100,7 @@ get_register(const pp_container *container, pp_path path)
  * the dirent in question.
  */
 const pp_dirent *
-get_dirent(const pp_container *container, pp_path path)
+get_dirent(const pp_scope *scope, pp_path path)
 {
 	/* error case */
 	if (path.empty()) {
@@ -131,23 +114,15 @@ get_dirent(const pp_container *container, pp_path path)
 	 * Look up the dirent of the next element.  This can throw
 	 * std::out_of_range if the dirent does not exist.
 	 */
-	pp_const_dirent_ptr de = container->dirent(path_front);
+	pp_const_dirent_ptr de = scope->dirent(path_front);
 
 	/* did we find the field? */
 	if (path.empty()) {
 		return de.get();
 	}
 
-	/* recursive case */
-	switch (de->dirent_type()) {
-	case PP_DIRENT_SCOPE:
+	if (de->dirent_type() == PP_DIRENT_SCOPE) {
 		return get_dirent(pp_scope_from_dirent(de), path);
-	case PP_DIRENT_SPACE:
-		return get_dirent(pp_space_from_dirent(de), path);
-	case PP_DIRENT_DEVICE:
-		return get_dirent(pp_device_from_dirent(de), path);
-	default:
-		break;
 	}
 
 	/* default error case */
@@ -160,11 +135,11 @@ get_dirent(const pp_container *container, pp_path path)
  * Tests whether the pp_path resolves to a defined dirent.
  */
 bool
-dirent_defined(const pp_container *container, pp_path path)
+dirent_defined(const pp_scope *scope, pp_path path)
 {
 	const pp_dirent *d = NULL;
 	try {
-		d = get_dirent(container, path);
+		d = get_dirent(scope, path);
 	} catch (std::out_of_range e) {
 	}
 
@@ -184,8 +159,8 @@ regfield(const string &name, pp_scope *scope, const pp_binding *binding,
 	pp_direct_field_ptr field = new_pp_direct_field(type);
 
 	field->add_regbits(reg.get(), 0, PP_MASK(width), 0);
-	scope->add_register("%" + name, reg);
-	scope->add_field(name, field);
+	scope->add_dirent("%" + name, reg);
+	scope->add_dirent(name, field);
 }
 
 //FIXME: need comments
@@ -193,60 +168,74 @@ regfield(const string &name, pp_scope *scope, const pp_binding *binding,
 #include <assert.h>
 #include <stdarg.h>
 
-static const pp_binding *cur_binding_;
-static pp_scope *cur_scope_;
-static string cur_scope_name_;
-static std::vector<pp_scope*> scope_stack_;
-static std::vector<string> scope_name_stack_;
-static std::vector<pp_scope_ptr> scope_ptr_stack_;
-static pp_scope_ptr cur_scope_ptr_;
+static pp_scope_ptr cur_scope;
+static std::vector<pp_scope_ptr> scope_stack;
 
-void
-START_SPACE(pp_space *space)
+static string cur_scope_name;
+static std::vector<string> scope_name_stack;
+
+static pp_const_binding_ptr cur_binding;
+static std::vector<pp_const_binding_ptr> binding_stack;
+
+pp_scope_ptr
+NEW_PLATFORM()
 {
-	assert(scope_stack_.empty());
-	assert(space);
-	cur_scope_ = space;
-	cur_binding_ = space->binding();
+	assert(cur_scope.get() == NULL);
+	assert(scope_stack.empty());
+
+	OPEN_SCOPE("");
+
+	/* FIXME: take these out when we have a real language */
+	global_datatypes_init(cur_scope.get());
+	pci_datatypes_init(cur_scope.get());
+
+	return cur_scope;
 }
 
 void
-OPEN_SCOPE(const string &name)
+OPEN_SCOPE(const string &name, pp_const_binding_ptr binding)
 {
-	pp_scope_ptr tmp_scope_ = new_pp_scope();
-	tmp_scope_->set_parent(cur_scope_);
+	pp_scope_ptr tmp_scope_ = new_pp_scope(binding);
 
-	scope_ptr_stack_.push_back(cur_scope_ptr_);
-	scope_stack_.push_back(cur_scope_);
-	scope_name_stack_.push_back(cur_scope_name_);
+	if (cur_scope) {
+		tmp_scope_->set_parent(cur_scope.get());
+		scope_stack.push_back(cur_scope);
+		scope_name_stack.push_back(cur_scope_name);
+	}
+	cur_scope = tmp_scope_;
+	cur_scope_name = name;
 
-	cur_scope_ptr_ = tmp_scope_;
-	cur_scope_ = cur_scope_ptr_.get();
-	cur_scope_name_ = name;
+	if (cur_binding) {
+		binding_stack.push_back(cur_binding);
+	}
+	cur_binding = binding;
 }
 
 void
 CLOSE_SCOPE()
 {
-	pp_scope *parent = scope_stack_.back();
-	parent->add_scope(cur_scope_name_, cur_scope_ptr_);
+	pp_scope_ptr parent = scope_stack.back();
+	parent->add_dirent(cur_scope_name, cur_scope);
 
-	cur_scope_ptr_ = scope_ptr_stack_.back();
-	scope_ptr_stack_.pop_back();
+	if (cur_scope->binding()) {
+		cur_binding = binding_stack.back();
+		binding_stack.pop_back();
+	}
 
-	cur_scope_ = scope_stack_.back();
-	scope_stack_.pop_back();
+	cur_scope = scope_stack.back();
+	scope_stack.pop_back();
 
-	cur_scope_name_ = scope_name_stack_.back();
-	scope_name_stack_.pop_back();
+	cur_scope_name = scope_name_stack.back();
+	scope_name_stack.pop_back();
+
 }
 
 void
 REGN(const string &name, pp_regaddr address, pp_bitwidth width)
 {
 	pp_register_ptr reg_ptr = new_pp_register(
-			cur_binding_, address, width);
-	cur_scope_->add_register(name, reg_ptr);
+			cur_binding.get(), address, width);
+	cur_scope->add_dirent(name, reg_ptr);
 }
 
 void
@@ -254,18 +243,20 @@ SIMPLE_FIELD(const string &name, pp_const_datatype_ptr type,
 		const string &regname, int hi_bit, int lo_bit)
 {
 	assert(hi_bit >= lo_bit);
-	const pp_register *reg = get_register(cur_scope_, pp_path(regname));
+	const pp_register *reg;
+
+	reg = get_register(cur_scope.get(), pp_path(regname));
 	pp_direct_field_ptr field_ptr = new_pp_direct_field(type);
 	field_ptr->add_regbits(reg, lo_bit,
 			PP_MASK((hi_bit - lo_bit) + 1), 0);
-	cur_scope_->add_field(name, field_ptr);
+	cur_scope->add_dirent(name, field_ptr);
 }
 void
-SIMPLE_FIELD(const string &name, const string &type,
+SIMPLE_FIELD(const string &name, const string &type_str,
 		const string &regname, int hi_bit, int lo_bit)
 {
-	pp_const_datatype_ptr type_ptr = cur_scope_->resolve_datatype(type);
-	SIMPLE_FIELD(name, type_ptr, regname, hi_bit, lo_bit);
+	pp_const_datatype_ptr type = cur_scope->resolve_datatype(type_str);
+	SIMPLE_FIELD(name, type, regname, hi_bit, lo_bit);
 }
 
 static void
@@ -286,15 +277,14 @@ VA_COMPLEX_FIELD(const string &name, pp_const_datatype_ptr type, va_list args)
 		hi_bit = va_arg(args, int);
 		lo_bit = va_arg(args, int);
 
-		//FIXME: should be resolve_register()
 		const pp_register *reg;
-		reg = get_register(cur_scope_, pp_path(regname));
+		reg = get_register(cur_scope.get(), pp_path(regname));
 		field_ptr->add_regbits(reg, lo_bit,
 			PP_MASK((hi_bit - lo_bit) + 1), nbits);
 		nbits += (hi_bit - lo_bit) + 1;
 	}
 
-	cur_scope_->add_field(name, field_ptr);
+	cur_scope->add_dirent(name, field_ptr);
 }
 //FIXME: there has to be a better, type-safe way
 void
@@ -311,7 +301,7 @@ COMPLEX_FIELD(const string &name, const string &type, ...)
 {
 	va_list args;
 	va_start(args, type);
-	VA_COMPLEX_FIELD(name, cur_scope_->resolve_datatype(type), args);
+	VA_COMPLEX_FIELD(name, cur_scope->resolve_datatype(type), args);
 	va_end(args);
 }
 
@@ -326,7 +316,7 @@ BITMASK_KV(const string &name, kvpair_ *value)
 	}
 
 	if (name != "") {
-		cur_scope_->add_datatype(name, bitmask_ptr);
+		cur_scope->add_datatype(name, bitmask_ptr);
 	}
 
 	return bitmask_ptr;
@@ -343,7 +333,7 @@ ENUM_KV(const string &name, kvpair_ *value)
 	}
 
 	if (name != "") {
-		cur_scope_->add_datatype(name, enum_ptr);
+		cur_scope->add_datatype(name, enum_ptr);
 	}
 
 	return enum_ptr;
@@ -355,7 +345,7 @@ BOOL(const string &name, const string &true_str, const string &false_str)
 	pp_bool_ptr bool_ptr = new_pp_bool(true_str, false_str);
 
 	if (name != "") {
-		cur_scope_->add_datatype(name, bool_ptr);
+		cur_scope->add_datatype(name, bool_ptr);
 	}
 
 	return bool_ptr;

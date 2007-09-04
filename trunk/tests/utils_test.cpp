@@ -17,7 +17,7 @@
 using namespace std;
 
 int
-get_field_test(const pp_device *tree)
+get_field_test(const pp_scope *tree)
 {
 	int return_value = 0;
 
@@ -57,7 +57,7 @@ get_field_test(const pp_device *tree)
 }
 
 int
-get_register_test(const pp_device *tree)
+get_register_test(const pp_scope *tree)
 {
 	int return_value = 0;
 
@@ -97,7 +97,7 @@ get_register_test(const pp_device *tree)
 }
 
 int
-get_dirent_test(const pp_device *tree)
+get_dirent_test(const pp_scope *tree)
 {
 	int return_value = 0;
 
@@ -137,7 +137,7 @@ get_dirent_test(const pp_device *tree)
 }
 
 int
-dirent_defined_test(const pp_device *tree)
+dirent_defined_test(const pp_scope *tree)
 {
 	int return_value = 0;
 
@@ -173,25 +173,25 @@ main()
 {
 	int return_value = 0;
 
-	pp_device_ptr root_device = new_pp_device();
+	pp_scope_ptr root_device = new_pp_scope();
 	pp_datatype_ptr my_datatype = new_pp_int();
 
 	/* create a space and add it to the device */
 	pp_binding_ptr bind1 = new_test_binding();
-	pp_space_ptr space = new_pp_space(bind1);
-	root_device->add_space("space", space);
+	pp_scope_ptr space = new_pp_scope(bind1);
+	root_device->add_dirent("space", space);
 
 	/* create a field and add it to the space */
 	pp_direct_field_ptr field1 = new_pp_direct_field(my_datatype);
-	space->add_field("field", field1);
+	space->add_dirent("field", field1);
 
 	/* create a register and add it to the space */
 	pp_register_ptr reg1 = new_pp_register(bind1.get(), 1, BITS16);
-	space->add_register("register", reg1);
+	space->add_dirent("register", reg1);
 
 	/* create a scope and add it to the space */
 	pp_scope_ptr scope1 = new_pp_scope();
-	space->add_scope("scope", scope1);
+	space->add_dirent("scope", scope1);
 
 	/* test the search tool */
 	return_value += get_field_test(root_device.get());

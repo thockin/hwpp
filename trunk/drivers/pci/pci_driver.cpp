@@ -58,12 +58,8 @@ pci_driver::new_binding(const std::vector<pp_regaddr> &args) const
 	return new_pci_binding(pci_address(seg, bus, dev, func));
 }
 
-//FIXME: move this out of drivers/pci to devices/pci
-extern pp_space_ptr pci_generic_space(pp_const_binding_ptr binding_ptr,
-    const pp_platform *platform);
-
 void
-pci_driver::discover(pp_platform *platform) const
+pci_driver::discover(pp_scope *platform) const
 {
 	std::vector<pci_address> addresses;
 	std::vector<pci_address>::iterator it;
@@ -76,22 +72,17 @@ pci_driver::discover(pp_platform *platform) const
 	while (it != addresses.end()) {
 		/* check if anyone registered for this vendor/device */
 		const discovery_request *dr = find_discovery_request(*it);
+		std::vector<pp_regaddr> args;
+		args.push_back(it->segment);
+		args.push_back(it->bus);
+		args.push_back(it->device);
+		args.push_back(it->function);
 		if (dr) {
 			/* call the callback */
-			std::vector<pp_regaddr> args;
-			args.push_back(it->segment);
-			args.push_back(it->bus);
-			args.push_back(it->device);
-			args.push_back(it->function);
 			dr->function(platform, this, args);
-		} else {
-			/* create a generic PCI device */
-			pp_binding_ptr binding = new_pci_binding(*it);
-			pp_space_ptr space = pci_generic_space(
-			    binding, platform);
-
-			/* add it to the platform */
-			platform->add_space(to_string(*it), space);
+		} else if (m_catchall) {
+			/* call the catchall */
+			m_catchall(platform, this, args);
 		}
 		it++;
 	}
@@ -101,6 +92,15 @@ void
 pci_driver::register_discovery(const std::vector<pp_regaddr> &args,
     discovery_callback function)
 {
+	if (args.size() == 0) {
+		if (m_catchall) {
+			throw pp_driver_args_error(
+			    "PCI discovery: catchall already defined");
+		}
+		m_catchall = function;
+		return;
+	}
+
 	if (args.size() != 2) {
 		throw pp_driver_args_error(
 		    "PCI discovery: <vendor, device>");

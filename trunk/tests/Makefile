@@ -5,14 +5,10 @@ LDFLAGS = -L. -lpptest -L.. -lpp
 TESTS = keyed_vector_test \
 	filesystem_test \
 	pp_datatype_test \
-	pp_container_test \
 	pp_binding_test \
 	pp_field_test \
 	pp_register_test \
 	pp_scope_test \
-	pp_space_test \
-	pp_device_test \
-	pp_platform_test \
 	pp_dirent_test \
 	pp_path_test \
 	utils_test \
