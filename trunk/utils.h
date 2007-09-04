@@ -115,6 +115,13 @@ SIMPLE_FIELD(const string &name, const string &type,
 		SIMPLE_FIELD(name, type, regname, bit, bit)
 
 
+/* this is a helper for type-safety */
+struct bitrange_ {
+	const char *regname;
+	int hi_bit;
+	int lo_bit;
+};
+
 /*
  * COMPLEX_FIELD
  * Create a complex field, give the name, type, registers from which the
@@ -126,9 +133,14 @@ SIMPLE_FIELD(const string &name, const string &type,
  */
 
 extern void
-COMPLEX_FIELD(const string &name, pp_const_datatype_ptr type, ...);
+COMPLEX_FIELD_(const string &name, pp_const_datatype_ptr type,
+		bitrange_ *bits);
 extern void
-COMPLEX_FIELD(const string &name, const string &type, ...);
+COMPLEX_FIELD_(const string &name, const string type, bitrange_ *bits);
+#define COMPLEX_FIELD(name, type, ...) \
+	COMPLEX_FIELD_(name, type, (bitrange_[]){__VA_ARGS__, {NULL}})
+
+//FIXME: REGFIELDN
 
 /* this is a helper for type-safety */
 struct kvpair_ {
@@ -141,8 +153,8 @@ struct kvpair_ {
  * A shortcut function for creating a bitmask
  */
 extern pp_bitmask_ptr
-BITMASK_KV(const string &name, kvpair_ *values);
-#define BITMASK(name, ...) BITMASK_KV(name, (kvpair_[]){__VA_ARGS__, {NULL}})
+BITMASK_(const string &name, kvpair_ *values);
+#define BITMASK(name, ...) BITMASK_(name, (kvpair_[]){__VA_ARGS__, {NULL}})
 #define ANON_BITMASK(...) BITMASK("", __VA_ARGS__)
 
 /*
@@ -152,8 +164,8 @@ BITMASK_KV(const string &name, kvpair_ *values);
  * enum_name, { "abc", 1 }, { "def", 2 }, ...
  */
 extern pp_enum_ptr
-ENUM_KV(const string &name, kvpair_ *values);
-#define ENUM(name, ...) ENUM_KV(name, (kvpair_[]){__VA_ARGS__, {NULL}})
+ENUM_(const string &name, kvpair_ *values);
+#define ENUM(name, ...) ENUM_(name, (kvpair_[]){__VA_ARGS__, {NULL}})
 #define ANON_ENUM(...) ENUM("", __VA_ARGS__)
 
 /*

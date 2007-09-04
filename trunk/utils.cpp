@@ -259,54 +259,35 @@ SIMPLE_FIELD(const string &name, const string &type_str,
 	SIMPLE_FIELD(name, type, regname, hi_bit, lo_bit);
 }
 
-static void
-VA_COMPLEX_FIELD(const string &name, pp_const_datatype_ptr type, va_list args)
+//assumption: bit rangess are added sequentially from lowest to highest.
+void
+COMPLEX_FIELD_(const string &name, pp_const_datatype_ptr type, bitrange_ *bit)
 {
 	pp_direct_field_ptr field_ptr = new_pp_direct_field(type);
 
-	int nbits = 0;
-	while (1) {
-		const char *regname;
-		int hi_bit;
-		int lo_bit;
-
-		regname = va_arg(args, const char *);
-		if (regname == NULL) {
-			break;
-		}
-		hi_bit = va_arg(args, int);
-		lo_bit = va_arg(args, int);
-
+	int ttl_bits = 0;
+	while (bit->regname) {
 		const pp_register *reg;
-		reg = get_register(cur_scope.get(), pp_path(regname));
-		field_ptr->add_regbits(reg, lo_bit,
-			PP_MASK((hi_bit - lo_bit) + 1), nbits);
-		nbits += (hi_bit - lo_bit) + 1;
+		int nbits = (bit->hi_bit - bit->lo_bit) + 1;
+
+		reg = get_register(cur_scope.get(), pp_path(bit->regname));
+		field_ptr->add_regbits(reg, bit->lo_bit, PP_MASK(nbits),
+				ttl_bits);
+		ttl_bits += nbits;
+
+		bit++;
 	}
 
 	cur_scope->add_dirent(name, field_ptr);
 }
-//FIXME: there has to be a better, type-safe way
 void
-COMPLEX_FIELD(const string &name, pp_const_datatype_ptr type, ...)
+COMPLEX_FIELD_(const string &name, const string &type, bitrange_ *bit)
 {
-	va_list args;
-	va_start(args, type);
-	VA_COMPLEX_FIELD(name, type, args);
-	va_end(args);
-}
-//FIXME: there has to be a better, type-safe way
-void
-COMPLEX_FIELD(const string &name, const string &type, ...)
-{
-	va_list args;
-	va_start(args, type);
-	VA_COMPLEX_FIELD(name, cur_scope->resolve_datatype(type), args);
-	va_end(args);
+	COMPLEX_FIELD_(name, cur_scope->resolve_datatype(type), bit);
 }
 
 pp_bitmask_ptr
-BITMASK_KV(const string &name, kvpair_ *value)
+BITMASK_(const string &name, kvpair_ *value)
 {
 	pp_bitmask_ptr bitmask_ptr = new_pp_bitmask();
 
@@ -323,7 +304,7 @@ BITMASK_KV(const string &name, kvpair_ *value)
 }
 
 pp_enum_ptr
-ENUM_KV(const string &name, kvpair_ *value)
+ENUM_(const string &name, kvpair_ *value)
 {
 	pp_enum_ptr enum_ptr = new_pp_enum();
 
