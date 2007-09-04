@@ -3,7 +3,8 @@
 #define PP_PP_DRIVER_H__
 
 #include "pp.h"
-#include "pp_platform.h"
+#include "pp_binding.h"
+#include "pp_scope.h"
 
 /*
  * pp_driver_error - thrown when something goes awry with a driver.
@@ -75,7 +76,7 @@ class pp_driver
 	 * platform.
 	 */
 	virtual void
-	discover(pp_platform *platform) const
+	discover(pp_scope *platform) const
 	{
 		// do nothing by default
 	}
@@ -88,7 +89,7 @@ class pp_driver
 	 * registered device (via register_discovery()), the
 	 * discovery_callback is called.
 	 */
-	typedef void (*discovery_callback)(pp_platform *platform,
+	typedef void (*discovery_callback)(pp_scope *platform,
 			const pp_driver *driver,
 			const std::vector<pp_regaddr> &args);
 

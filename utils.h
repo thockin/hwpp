@@ -7,10 +7,7 @@
  */
 
 #include "pp.h"
-#include "pp_platform.h"
 #include "pp_dirent.h"
-#include "pp_device.h"
-#include "pp_space.h"
 #include "pp_scope.h"
 #include "pp_field.h"
 #include "pp_datatype.h"
@@ -27,7 +24,7 @@
  * function will throw std::out_of_range.
  */
 extern const pp_field *
-get_field(const pp_container *container, pp_path path);
+get_field(const pp_scope *scope, pp_path path);
 
 /*
  * get_register()
@@ -37,7 +34,7 @@ get_field(const pp_container *container, pp_path path);
  * this function will throw std::out_of_range.
  */
 extern const pp_register *
-get_register(const pp_container *container, pp_path path);
+get_register(const pp_scope *scope, pp_path path);
 
 /*
  * get_dirent()
@@ -46,7 +43,7 @@ get_register(const pp_container *container, pp_path path);
  * If the dirent does not exist, this function will throw std::out_of_range.
  */
 extern const pp_dirent *
-get_dirent(const pp_container *container, pp_path path);
+get_dirent(const pp_scope *scope, pp_path path);
 
 /*
  * dirent_defined()
@@ -54,7 +51,7 @@ get_dirent(const pp_container *container, pp_path path);
  * Tests whether the pp_path resolves to a defined dirent.
  */
 extern bool
-dirent_defined(const pp_container *container, pp_path path);
+dirent_defined(const pp_scope *scope, pp_path path);
 
 /*
  * regfield()
@@ -67,14 +64,9 @@ regfield(const string &name, pp_scope *scope,
 		pp_bitwidth width, pp_const_datatype_ptr type);
 
 
-/*
- * START_SPACE
- * Use this shortcut command to start a new space, pass a pointer to
- * a space
- */
-
-extern void
-START_SPACE(pp_space *space);
+//FIXME:
+extern pp_scope_ptr
+NEW_PLATFORM();
 
 /*
  * OPEN_SCOPE
@@ -84,7 +76,7 @@ START_SPACE(pp_space *space);
  * will be placed on this scope.
  */
 extern void
-OPEN_SCOPE(const string &name);
+OPEN_SCOPE(const string &name, pp_const_binding_ptr binding = pp_binding_ptr());
 
 /*
  * CLOSE_SCOPE

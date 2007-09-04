@@ -114,7 +114,7 @@ class pci_driver: public pp_driver
 	 * platform.
 	 */
 	virtual void
-	discover(pp_platform *platform) const;
+	discover(pp_scope *platform) const;
 
 	/*
 	 * pci_driver::register_discovery(args, function)
@@ -128,9 +128,6 @@ class pci_driver: public pp_driver
 			discovery_callback function);
 
     private:
-	void
-	init_datatypes(pp_platform *platform);
-
 	struct discovery_request {
 		uint16_t vendor;
 		uint16_t device;
@@ -141,6 +138,7 @@ class pci_driver: public pp_driver
 	find_discovery_request(const pci_address &addr) const;
 
 	std::vector<discovery_request> m_callbacks;
+	discovery_callback m_catchall;
 };
 
 #define new_pci_driver(...) pp_driver_ptr(new pci_driver(__VA_ARGS__))

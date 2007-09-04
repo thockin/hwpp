@@ -1,6 +1,6 @@
 //FIXME: move this to devices/pci
 #include "pp.h"
-#include "pp_space.h"
+#include "pp_scope.h"
 #include "pp_register.h"
 #include "pp_datatypes.h"
 #include "pp_fields.h"
@@ -24,7 +24,7 @@ base_address_register(const string &name, pp_scope *scope,
 
 	//reg32 lower(offset, preserve);
 	lower = new_pp_register(binding, address, BITS32);
-	bar_scope->add_register("%lower", lower);
+	bar_scope->add_dirent("%lower", lower);
 
 	pp_direct_field_ptr width_field;
 	pp_direct_field_ptr type_field;
@@ -38,7 +38,7 @@ base_address_register(const string &name, pp_scope *scope,
 	anon_enum->add_value("io", 1);
 	type_field = new_pp_direct_field(anon_enum);
 	type_field->add_regbits(lower.get(), 0, PP_MASK(1), 0);
-	bar_scope->add_field("type", type_field);
+	bar_scope->add_dirent("type", type_field);
 
 	//if (type == MEM) {
 	if (type_field->compare("mem")) {
@@ -53,13 +53,13 @@ base_address_register(const string &name, pp_scope *scope,
 		anon_enum->add_value("bits64", 2);
 		width_field = new_pp_direct_field(anon_enum);
 		width_field->add_regbits(lower.get(), 1, PP_MASK(2), 0);
-		bar_scope->add_field("width", width_field);
+		bar_scope->add_dirent("width", width_field);
 
 		//field prefetch(lower[3], yes_no);
 		field_ptr = new_pp_direct_field(
 		    scope->resolve_datatype("yesno_t"));
 		field_ptr->add_regbits(lower.get(), 3, PP_MASK(1), 0);
-		bar_scope->add_field("prefetch", field_ptr);
+		bar_scope->add_dirent("prefetch", field_ptr);
 	}
 
 	//if (type == IO) {
@@ -69,7 +69,7 @@ base_address_register(const string &name, pp_scope *scope,
 		    scope->resolve_datatype("addr16_t"));
 		field_ptr->add_regbits(magic_zeros, 0, PP_MASK(2), 0);
 		field_ptr->add_regbits(lower.get(), 2, PP_MASK(14), 2);
-		bar_scope->add_field("addr", field_ptr);
+		bar_scope->add_dirent("addr", field_ptr);
 	} else if (width_field->compare("bits32")
 	    || width_field->compare("bits20")) {
 		//} else if (width == BITS32 || width == BITS20) {
@@ -78,12 +78,12 @@ base_address_register(const string &name, pp_scope *scope,
 		    scope->resolve_datatype("addr32_t"));
 		field_ptr->add_regbits(magic_zeros, 0, PP_MASK(4), 0);
 		field_ptr->add_regbits(lower.get(), 4, PP_MASK(28), 4);
-		bar_scope->add_field("addr", field_ptr);
+		bar_scope->add_dirent("addr", field_ptr);
 	} else {
 		//} else {
 		//	reg32 upper(offset+4, preserve);
 		reg_ptr = new_pp_register(binding, address+4, BITS32);
-		bar_scope->add_register("%upper", reg_ptr);
+		bar_scope->add_dirent("%upper", reg_ptr);
 		//	field addr((upper[31:0],lower[31:4],zero[3:0]),
 		//		ADDR64);
 		field_ptr = new_pp_direct_field(
@@ -91,13 +91,13 @@ base_address_register(const string &name, pp_scope *scope,
 		field_ptr->add_regbits(magic_zeros, 0, PP_MASK(4), 0);
 		field_ptr->add_regbits(lower.get(), 4, PP_MASK(28), 4);
 		field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(32), 32);
-		bar_scope->add_field("addr", field_ptr);
+		bar_scope->add_dirent("addr", field_ptr);
 		//}
 	}
-	scope->add_scope(name, bar_scope);
+	scope->add_dirent(name, bar_scope);
 }
 
-void hyper_transport_link_freq_err (pp_space *space, pp_scope *scope,
+void hyper_transport_link_freq_err (pp_scope *space, pp_scope *scope,
 	const pp_binding *binding, int address, const string &name)
 {
 
@@ -116,39 +116,39 @@ void hyper_transport_link_freq_err (pp_space *space, pp_scope *scope,
 	anon_enum->add_value("vendor_specific", 15);
 
 	reg_ptr = new_pp_register(binding, address + 0xd, BITS8);
-	scope->add_register("%" + name, reg_ptr);
+	scope->add_dirent("%" + name, reg_ptr);
 
 	scope_ptr = new_pp_scope();
 
 	// Link Freq 0
 	field_ptr = new_pp_direct_field(anon_enum);
 	field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(4), 0);
-	scope_ptr->add_field("link_freq0", field_ptr);
+	scope_ptr->add_dirent("link_freq0", field_ptr);
 
 	// Protocol Err
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 4, PP_MASK(1), 4);
-	scope_ptr->add_field("perr", field_ptr);
+	scope_ptr->add_dirent("perr", field_ptr);
 
 	// Overflow Err
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 5, PP_MASK(1), 5);
-	scope_ptr->add_field("oerr", field_ptr);
+	scope_ptr->add_dirent("oerr", field_ptr);
 
 	// EOC Err
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 6, PP_MASK(1), 6);
-	scope_ptr->add_field("eerr", field_ptr);
+	scope_ptr->add_dirent("eerr", field_ptr);
 
 	// CTL Timeout
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 7, PP_MASK(1), 7);
-	scope_ptr->add_field("ctl_timeout", field_ptr);
+	scope_ptr->add_dirent("ctl_timeout", field_ptr);
 
-	scope->add_scope(name, scope_ptr);
+	scope->add_dirent(name, scope_ptr);
 }
 
-void hyper_transport_link_config (pp_space *space, pp_scope *scope,
+void hyper_transport_link_config (pp_scope *space, pp_scope *scope,
 	const pp_binding *binding, int address, const string &name)
 {
 
@@ -158,7 +158,7 @@ void hyper_transport_link_config (pp_space *space, pp_scope *scope,
 	pp_enum_ptr anon_enum;
 
 	reg_ptr = new_pp_register(binding, address + 16, BITS16);
-	scope->add_register( "%" + name, reg_ptr);
+	scope->add_dirent( "%" + name, reg_ptr);
 	scope_ptr = new_pp_scope();
 
 	// Max Link Width In
@@ -172,47 +172,47 @@ void hyper_transport_link_config (pp_space *space, pp_scope *scope,
 
 	field_ptr = new_pp_direct_field(anon_enum);
 	field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(3), 0);
-	scope_ptr->add_field("mlwi", field_ptr);
+	scope_ptr->add_dirent("mlwi", field_ptr);
 
 	// DW FC in
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 3, PP_MASK(1), 3);
-	scope_ptr->add_field("dwfci", field_ptr);
+	scope_ptr->add_dirent("dwfci", field_ptr);
 
 	// Max Link Width Out
 	field_ptr = new_pp_direct_field(anon_enum);
 	field_ptr->add_regbits(reg_ptr.get(), 4, PP_MASK(3), 4);
-	scope_ptr->add_field("mlwo", field_ptr);
+	scope_ptr->add_dirent("mlwo", field_ptr);
 
 	// DW FC out
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 7, PP_MASK(1), 7);
-	scope_ptr->add_field("dwfco", field_ptr);
+	scope_ptr->add_dirent("dwfco", field_ptr);
 
 	// Link Width In
 	field_ptr = new_pp_direct_field(anon_enum);
 	field_ptr->add_regbits(reg_ptr.get(), 8, PP_MASK(3), 8);
-	scope_ptr->add_field("lwi", field_ptr);
+	scope_ptr->add_dirent("lwi", field_ptr);
 
 	// DW FC in EN
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 11, PP_MASK(1), 11);
-	scope_ptr->add_field("dwfci_en", field_ptr);
+	scope_ptr->add_dirent("dwfci_en", field_ptr);
 
 	// Link Width Out
 	field_ptr = new_pp_direct_field(anon_enum);
 	field_ptr->add_regbits(reg_ptr.get(), 12, PP_MASK(3), 12);
-	scope_ptr->add_field("lwo", field_ptr);
+	scope_ptr->add_dirent("lwo", field_ptr);
 
 	// DW FC out EN
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 15, PP_MASK(1), 15);
-	scope_ptr->add_field("dwfco_en", field_ptr);
+	scope_ptr->add_dirent("dwfco_en", field_ptr);
 
-	scope->add_scope(name, scope_ptr);
+	scope->add_dirent(name, scope_ptr);
 }
 
-void hyper_transport_link_control (pp_space *space, pp_scope *scope,
+void hyper_transport_link_control (pp_scope *space, pp_scope *scope,
 	const pp_binding *binding, int address, const string &name)
 {
 
@@ -221,67 +221,67 @@ void hyper_transport_link_control (pp_space *space, pp_scope *scope,
 	pp_direct_field_ptr field_ptr;
 
 	reg_ptr = new_pp_register(binding, address, BITS16);
-	scope->add_register("%" + name, reg_ptr);
+	scope->add_dirent("%" + name, reg_ptr);
 
 	// CFIE
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 1, PP_MASK(1), 1);
-	scope_ptr->add_field("cfie", field_ptr);
+	scope_ptr->add_dirent("cfie", field_ptr);
 
 	// CST
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 2, PP_MASK(1), 2);
-	scope_ptr->add_field("cst", field_ptr);
+	scope_ptr->add_dirent("cst", field_ptr);
 
 	// CFE
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 3, PP_MASK(1), 3);
-	scope_ptr->add_field("cfe", field_ptr);
+	scope_ptr->add_dirent("cfe", field_ptr);
 
 	// LKFail
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 4, PP_MASK(1), 4);
-	scope_ptr->add_field("lkfail", field_ptr);
+	scope_ptr->add_dirent("lkfail", field_ptr);
 
 	// init
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 5, PP_MASK(1), 5);
-	scope_ptr->add_field("init", field_ptr);
+	scope_ptr->add_dirent("init", field_ptr);
 
 	// EOC
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 6, PP_MASK(1), 6);
-	scope_ptr->add_field("eoc", field_ptr);
+	scope_ptr->add_dirent("eoc", field_ptr);
 
 	// TXO
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 7, PP_MASK(1), 7);
-	scope_ptr->add_field("init", field_ptr);
+	scope_ptr->add_dirent("init", field_ptr);
 
 	// CRC error
 	field_ptr = new_pp_direct_field(space->resolve_datatype("bits8_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 8, PP_MASK(4), 8);
-	scope_ptr->add_field("crc_err", field_ptr);
+	scope_ptr->add_dirent("crc_err", field_ptr);
 
 	// IsoEn
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 12, PP_MASK(1), 12);
-	scope_ptr->add_field("isoen", field_ptr);
+	scope_ptr->add_dirent("isoen", field_ptr);
 
 	// LSEn
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 13, PP_MASK(1), 13);
-	scope_ptr->add_field("lsen", field_ptr);
+	scope_ptr->add_dirent("lsen", field_ptr);
 
 	// ExtCTL
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 14, PP_MASK(1), 14);
-	scope_ptr->add_field("ext_ctl", field_ptr);
+	scope_ptr->add_dirent("ext_ctl", field_ptr);
 
-	scope->add_scope(name, scope_ptr);
+	scope->add_dirent(name, scope_ptr);
 }
 
-void hyper_transport_link_freq_cap (pp_space *space, pp_scope *scope,
+void hyper_transport_link_freq_cap (pp_scope *space, pp_scope *scope,
 	const pp_binding *binding, int address, const string &name)
 {
 
@@ -290,54 +290,54 @@ void hyper_transport_link_freq_cap (pp_space *space, pp_scope *scope,
 	pp_direct_field_ptr field_ptr;
 
 	reg_ptr = new_pp_register(binding, address + 0xd, BITS16);
-	scope->add_register("%" + name, reg_ptr);
+	scope->add_dirent("%" + name, reg_ptr);
 
 	scope_ptr = new_pp_scope();
 
 	// 200 mhz Supported
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(1), 0);
-	scope_ptr->add_field("200mhz", field_ptr);
+	scope_ptr->add_dirent("200mhz", field_ptr);
 
 	// 300 mhz Supported
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 1, PP_MASK(1), 1);
-	scope_ptr->add_field("300mhz", field_ptr);
+	scope_ptr->add_dirent("300mhz", field_ptr);
 
 	// 400 mhz Supported
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 2, PP_MASK(1), 2);
-	scope_ptr->add_field("400mhz", field_ptr);
+	scope_ptr->add_dirent("400mhz", field_ptr);
 
 	// 500 mhz Supported
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 3, PP_MASK(1), 3);
-	scope_ptr->add_field("500mhz", field_ptr);
+	scope_ptr->add_dirent("500mhz", field_ptr);
 
 	// 600 mhz Supported
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 4, PP_MASK(1), 4);
-	scope_ptr->add_field("600mhz", field_ptr);
+	scope_ptr->add_dirent("600mhz", field_ptr);
 
 	// 800 mhz Supported
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 5, PP_MASK(1), 5);
-	scope_ptr->add_field("800mhz", field_ptr);
+	scope_ptr->add_dirent("800mhz", field_ptr);
 
 	// 1000 mhz Supported
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 6, PP_MASK(1), 6);
-	scope_ptr->add_field("1ghz", field_ptr);
+	scope_ptr->add_dirent("1ghz", field_ptr);
 
 	// Vendor Specific
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 15, PP_MASK(1), 15);
-	scope_ptr->add_field("vendor_specific", field_ptr);
+	scope_ptr->add_dirent("vendor_specific", field_ptr);
 
-	scope->add_scope(name, scope_ptr);
+	scope->add_dirent(name, scope_ptr);
 }
 
-void hyper_transport_error_handle(pp_space *space, pp_scope *scope,
+void hyper_transport_error_handle(pp_scope *space, pp_scope *scope,
 	const pp_binding *binding, int address)
 {
 	pp_scope_ptr scope_ptr = new_pp_scope();
@@ -345,93 +345,93 @@ void hyper_transport_error_handle(pp_space *space, pp_scope *scope,
 	pp_direct_field_ptr field_ptr;
 	scope_ptr = new_pp_scope();
 	reg_ptr = new_pp_register(binding, address, BITS16);
-	scope->add_register("%err", reg_ptr);
+	scope->add_dirent("%err", reg_ptr);
 
 	// Protocol Error Flood Enable
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(1), 0);
-	scope_ptr->add_field("pro_flood_err", field_ptr);
+	scope_ptr->add_dirent("pro_flood_err", field_ptr);
 
 	// Overflow error flood enable
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 1, PP_MASK(1), 1);
-	scope_ptr->add_field("overflow_flood_err", field_ptr);
+	scope_ptr->add_dirent("overflow_flood_err", field_ptr);
 
 	// Protocol error fatal enable
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 2, PP_MASK(1), 2);
-	scope_ptr->add_field("pro_fatal_err", field_ptr);
+	scope_ptr->add_dirent("pro_fatal_err", field_ptr);
 
 	// Overflow fatal error enable
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 3, PP_MASK(1), 3);
-	scope_ptr->add_field("overflow_fatal_err", field_ptr);
+	scope_ptr->add_dirent("overflow_fatal_err", field_ptr);
 
 	// End of chain error fatal enable
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 4, PP_MASK(1), 4);
-	scope_ptr->add_field("eoc_fatal_err", field_ptr);
+	scope_ptr->add_dirent("eoc_fatal_err", field_ptr);
 
 	// Response error fatal enable
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 5, PP_MASK(1), 5);
-	scope_ptr->add_field("resp_fatal_err", field_ptr);
+	scope_ptr->add_dirent("resp_fatal_err", field_ptr);
 
 	// CRC Error fatal enable
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 6, PP_MASK(1), 6);
-	scope_ptr->add_field("crc_fatal_err", field_ptr);
+	scope_ptr->add_dirent("crc_fatal_err", field_ptr);
 
 	// System error fatal enable
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 7, PP_MASK(1), 7);
-	scope_ptr->add_field("sys_fatal_err", field_ptr);
+	scope_ptr->add_dirent("sys_fatal_err", field_ptr);
 
 	// Chain Fail
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 8, PP_MASK(1), 8);
-	scope_ptr->add_field("chain_fail", field_ptr);
+	scope_ptr->add_dirent("chain_fail", field_ptr);
 
 	// Response Error
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 9, PP_MASK(1), 9);
-	scope_ptr->add_field("resp_err", field_ptr);
+	scope_ptr->add_dirent("resp_err", field_ptr);
 
 	// Protocol error nonfatal enable
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 10, PP_MASK(1), 10);
-	scope_ptr->add_field("proto_err", field_ptr);
+	scope_ptr->add_dirent("proto_err", field_ptr);
 
 	// Overflow error nonfatal enable
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 11, PP_MASK(1), 11);
-	scope_ptr->add_field("overflow_err", field_ptr);
+	scope_ptr->add_dirent("overflow_err", field_ptr);
 
 	// End of chain error nonfatal enable
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 12, PP_MASK(1), 12);
-	scope_ptr->add_field("eoc_err", field_ptr);
+	scope_ptr->add_dirent("eoc_err", field_ptr);
 
 	// Response error nonfatal enable
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 13, PP_MASK(1), 13);
-	scope_ptr->add_field("resp_nonfatal_err", field_ptr);
+	scope_ptr->add_dirent("resp_nonfatal_err", field_ptr);
 
 	// CRC error nonfatal enable
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 14, PP_MASK(1), 14);
-	scope_ptr->add_field("crc_nonfatal_err", field_ptr);
+	scope_ptr->add_dirent("crc_nonfatal_err", field_ptr);
 
 	// System error nonfatal enable
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 15, PP_MASK(1), 15);
-	scope_ptr->add_field("sys_err", field_ptr);
+	scope_ptr->add_dirent("sys_err", field_ptr);
 
-	scope->add_scope("error_handling", scope_ptr);
+	scope->add_dirent("error_handling", scope_ptr);
 }
 
 // HyperTransport Slave
-void hyper_transport_slave (pp_space *space, pp_scope *scope,
+void hyper_transport_slave (pp_scope *space, pp_scope *scope,
 	const pp_binding *binding, int address)
 {
 	pp_direct_field_ptr field_ptr;
@@ -441,33 +441,33 @@ void hyper_transport_slave (pp_space *space, pp_scope *scope,
 
 	// HT Slave Command CSR
 	reg_ptr = new_pp_register(binding, address + 16, BITS16);
-	scope->add_register("%ht_slave_csr", reg_ptr);
+	scope->add_dirent("%ht_slave_csr", reg_ptr);
 	scope_ptr = new_pp_scope();
 
 	// Base UnitID
 	field_ptr = new_pp_direct_field(space->resolve_datatype("int8_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(5), 0);
-	scope_ptr->add_field("base_uid", field_ptr);
+	scope_ptr->add_dirent("base_uid", field_ptr);
 
 	// Unit Count
 	field_ptr = new_pp_direct_field(space->resolve_datatype("int4_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 5, PP_MASK(5), 0);
-	scope_ptr->add_field("count", field_ptr);
+	scope_ptr->add_dirent("count", field_ptr);
 
 	// Master Host
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 10, PP_MASK(1), 10);
-	scope_ptr->add_field("host", field_ptr);
+	scope_ptr->add_dirent("host", field_ptr);
 
 	// Default direction
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 11, PP_MASK(1), 11);
-	scope_ptr->add_field("dir", field_ptr);
+	scope_ptr->add_dirent("dir", field_ptr);
 
 	// Drop On Un-Init
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 12, PP_MASK(1), 12);
-	scope_ptr->add_field("un_init", field_ptr);
+	scope_ptr->add_dirent("un_init", field_ptr);
 
 	// Capability Type
 	anon_enum = new_pp_enum();
@@ -478,10 +478,10 @@ void hyper_transport_slave (pp_space *space, pp_scope *scope,
 
 	field_ptr = new_pp_direct_field(anon_enum);
 	field_ptr->add_regbits(reg_ptr.get(), 13, PP_MASK(3), 13);
-	scope_ptr->add_field("cap_type", field_ptr);
+	scope_ptr->add_dirent("cap_type", field_ptr);
 
 	// Finish Up
-	scope->add_scope("ht_slave_csr", scope_ptr);
+	scope->add_dirent("ht_slave_csr", scope_ptr);
 
 	// Link Control 0
 	hyper_transport_link_control(space, scope, binding, address + 0x04, "link_ctrl0");
@@ -497,17 +497,17 @@ void hyper_transport_slave (pp_space *space, pp_scope *scope,
 
 	// Revision ID
 	reg_ptr = new_pp_register(binding, address + 96, BITS8);
-	scope->add_register("%revision_id", reg_ptr);
+	scope->add_dirent("%revision_id", reg_ptr);
 
 	scope_ptr = new_pp_scope();
 	field_ptr = new_pp_direct_field(space->resolve_datatype("int8_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(5), 0);
-	scope_ptr->add_field("minor_rev", field_ptr);
+	scope_ptr->add_dirent("minor_rev", field_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("int8_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 5, PP_MASK(3), 5);
-	scope_ptr->add_field("major_rev", field_ptr);
-	scope->add_scope("revision_id", scope_ptr);
+	scope_ptr->add_dirent("major_rev", field_ptr);
+	scope->add_dirent("revision_id", scope_ptr);
 
 	// Link Freq 0, Link Error 0
 	hyper_transport_link_freq_err(space, scope, binding, address + 0x0d, "link_freq_err0");
@@ -524,29 +524,29 @@ void hyper_transport_slave (pp_space *space, pp_scope *scope,
 	// Feature
 	scope_ptr = new_pp_scope();
 	reg_ptr = new_pp_register(binding, address + 0x10, BITS16);
-	scope->add_register("%feature", reg_ptr);
+	scope->add_dirent("%feature", reg_ptr);
 
 	// Isochronous Mode ISOC_FC
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(1), 0);
-	scope_ptr->add_field("isoc_fc", field_ptr);
+	scope_ptr->add_dirent("isoc_fc", field_ptr);
 
 	// LDTSTOP Support
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 1, PP_MASK(1), 1);
-	scope_ptr->add_field("ldtstop", field_ptr);
+	scope_ptr->add_dirent("ldtstop", field_ptr);
 
 	// CRC Test
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 2, PP_MASK(1), 2);
-	scope_ptr->add_field("crc_test", field_ptr);
+	scope_ptr->add_dirent("crc_test", field_ptr);
 
 	// XTND CTL
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 3, PP_MASK(1), 3);
-	scope_ptr->add_field("xtnd_ctl", field_ptr);
+	scope_ptr->add_dirent("xtnd_ctl", field_ptr);
 
-	scope->add_scope("feature", scope_ptr);
+	scope->add_dirent("feature", scope_ptr);
 
 	// Enumeration Scratch Pad
 	regfield("enum_scratch", scope, binding, address + 0x14, BITS16,
@@ -563,7 +563,7 @@ void hyper_transport_slave (pp_space *space, pp_scope *scope,
 	    space->resolve_datatype("addr16_t"));
 }
 
-void hyper_transport_host(pp_space *space, pp_scope *scope,
+void hyper_transport_host(pp_scope *space, pp_scope *scope,
 	const pp_binding *binding, int address)
 {
 	pp_direct_field_ptr field_ptr;
@@ -625,17 +625,17 @@ void hyper_transport_host(pp_space *space, pp_scope *scope,
 
 	// Revision ID
 	reg_ptr = new_pp_register(binding, address + 0x08, BITS8);
-	scope->add_register("%revision_id", reg_ptr);
+	scope->add_dirent("%revision_id", reg_ptr);
 
 	scope_ptr = new_pp_scope();
 	field_ptr = new_pp_direct_field(space->resolve_datatype("int8_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(5), 0);
-	scope_ptr->add_field("minor_rev", field_ptr);
+	scope_ptr->add_dirent("minor_rev", field_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("int8_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 5, PP_MASK(3), 5);
-	scope_ptr->add_field("major_rev", field_ptr);
-	scope->add_scope("revision_id", scope_ptr);
+	scope_ptr->add_dirent("major_rev", field_ptr);
+	scope->add_dirent("revision_id", scope_ptr);
 
 	// Link Freq/Err
 	hyper_transport_link_freq_err(space, scope, binding, address + 0x09, "link_freq_err");
@@ -683,7 +683,7 @@ void hyper_transport_host(pp_space *space, pp_scope *scope,
 	CLOSE_SCOPE();
 }
 
-void hyper_transport_address_remap(pp_space *space, pp_scope *scope,
+void hyper_transport_address_remap(pp_scope *space, pp_scope *scope,
 	const pp_binding *binding, int address)
 {
 	pp_direct_field_ptr field_ptr;
@@ -748,13 +748,13 @@ void hyper_transport_address_remap(pp_space *space, pp_scope *scope,
 }
 
 
-void hyper_transport_interupt(pp_space *space, pp_scope *scope,
+void hyper_transport_interupt(pp_scope *space, pp_scope *scope,
 	const pp_binding *binding, int address)
 {
 }
 
 
-//void message_capability_structure (pp_space *space, pp_scope *scope,
+//void message_capability_structure (pp_scope *space, pp_scope *scope,
 //	const pp_binding *binding, int address)
 void
 slot_id_capability(pp_scope *scope, const pp_binding *binding, int address)
@@ -763,22 +763,22 @@ slot_id_capability(pp_scope *scope, const pp_binding *binding, int address)
 	pp_direct_field_ptr field_ptr;
 
 	reg_ptr = new_pp_register(binding, address+2, BITS8);
-	scope->add_register("%slot", reg_ptr);
+	scope->add_dirent("%slot", reg_ptr);
 
 	field_ptr = new_pp_direct_field(scope->resolve_datatype("int_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(5), 0);
-	scope->add_field("nslots", field_ptr);
+	scope->add_dirent("nslots", field_ptr);
 
 	field_ptr = new_pp_direct_field(scope->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 5, PP_MASK(1), 0);
-	scope->add_field("first", field_ptr);
+	scope->add_dirent("first", field_ptr);
 
 	reg_ptr = new_pp_register(binding, address+3, BITS8);
-	scope->add_register("%chassis", reg_ptr);
+	scope->add_dirent("%chassis", reg_ptr);
 
 	field_ptr = new_pp_direct_field(scope->resolve_datatype("int_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(8), 0);
-	scope->add_field("chassis", field_ptr);
+	scope->add_dirent("chassis", field_ptr);
 }
 
 void
@@ -790,11 +790,11 @@ msi_capability(pp_scope *scope, const pp_binding *binding, int address)
 
 	// Message Control
 	reg_ptr = new_pp_register(binding, address + 2, BITS16);
-	scope->add_register("%msg_control", reg_ptr);
+	scope->add_dirent("%msg_control", reg_ptr);
 
 	field_ptr = new_pp_direct_field(scope->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(1), 0);
-	scope->add_field("msi_enable", field_ptr);
+	scope->add_dirent("msi_enable", field_ptr);
 
 	anon_enum = new_pp_enum();
 	anon_enum->add_value("1", 0);
@@ -805,20 +805,20 @@ msi_capability(pp_scope *scope, const pp_binding *binding, int address)
 	anon_enum->add_value("32", 5);
 	field_ptr = new_pp_direct_field(anon_enum);
 	field_ptr->add_regbits(reg_ptr.get(), 1, PP_MASK(3), 0);
-	scope->add_field("multi_msg_cap", field_ptr);
+	scope->add_dirent("multi_msg_cap", field_ptr);
 
 	field_ptr = new_pp_direct_field(anon_enum);
 	field_ptr->add_regbits(reg_ptr.get(), 4, PP_MASK(3), 0);
-	scope->add_field("multi_msg_en", field_ptr);
+	scope->add_dirent("multi_msg_en", field_ptr);
 
 	pp_direct_field_ptr cap64_ptr = new_pp_direct_field(
 		scope->resolve_datatype("yesno_t"));
 	cap64_ptr->add_regbits(reg_ptr.get(), 7, PP_MASK(1), 0);
-	scope->add_field("cap64", cap64_ptr);
+	scope->add_dirent("cap64", cap64_ptr);
 
 	// Message Address
 	reg_ptr = new_pp_register(binding, address + 4, BITS32);
-	scope->add_register("%msg_addr_lo", reg_ptr);
+	scope->add_dirent("%msg_addr_lo", reg_ptr);
 
 	// is this is a 64 bit MSI capability?
 	if (cap64_ptr->compare("no")) {
@@ -838,16 +838,16 @@ msi_capability(pp_scope *scope, const pp_binding *binding, int address)
 
 		// add the high half
 		reg_ptr = new_pp_register(binding, address + 8, BITS32);
-		scope->add_register("%msg_addr_hi", reg_ptr);
+		scope->add_dirent("%msg_addr_hi", reg_ptr);
 		field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(32), 32);
 
 		// define the data register
 		reg_ptr = new_pp_register(binding, address + 12, BITS16);
 	}
-	scope->add_field("msg_addr", field_ptr);
+	scope->add_dirent("msg_addr", field_ptr);
 
 	// Message Data
-	scope->add_register("%msg_data",  reg_ptr);
+	scope->add_dirent("%msg_data",  reg_ptr);
 	field_ptr = new_pp_direct_field(scope->resolve_datatype("hex16_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(16), 0);
 }
@@ -866,7 +866,7 @@ ssid_capability(pp_scope *scope, const pp_binding *binding, int address)
 }
 
 void
-explore_capabilities(pp_space *space)
+explore_capabilities(pp_scope *space)
 {
 	// Handle the PCI capabilities linked-list.
 	const pp_field *field;
@@ -995,7 +995,7 @@ explore_capabilities(pp_space *space)
 			}
 
 			temp_string = "capability[" + to_string(i) + "]";
-			space->add_scope(temp_string, scope_ptr);
+			space->add_dirent(temp_string, scope_ptr);
 			temp_string = temp_string + "/next";
 			field = get_field(space, pp_path(temp_string));
 			ptr = field->read();
@@ -1007,7 +1007,7 @@ explore_capabilities(pp_space *space)
 }
 
 // PCI BRIDGE MACRO
-void create_pci_bridge(pp_space *space)
+void create_pci_bridge(pp_scope *space)
 {
 	pp_register_ptr reg_ptr;
 	pp_direct_field_ptr field_ptr;
@@ -1028,19 +1028,19 @@ void create_pci_bridge(pp_space *space)
 	scope_ptr = new_pp_scope();
 
 	reg_ptr = new_pp_register(binding, 0x1e, BITS16);
-	scope_ptr->add_register("%sec_status", reg_ptr);
+	scope_ptr->add_dirent("%sec_status", reg_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 5, PP_MASK(1), 0);
-	scope_ptr->add_field("mhz66", field_ptr);
+	scope_ptr->add_dirent("mhz66", field_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 7, PP_MASK(1), 0);
-	scope_ptr->add_field("fbb", field_ptr);
+	scope_ptr->add_dirent("fbb", field_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 8, PP_MASK(1), 0);
-	scope_ptr->add_field("mdperr", field_ptr);
+	scope_ptr->add_dirent("mdperr", field_ptr);
 
 	anon_enum = new_pp_enum();
 	anon_enum->add_value("fast", 0);
@@ -1048,51 +1048,51 @@ void create_pci_bridge(pp_space *space)
 	anon_enum->add_value("slow", 2);
 	field_ptr = new_pp_direct_field(anon_enum);
 	field_ptr->add_regbits(reg_ptr.get(), 9, PP_MASK(2), 0);
-	scope_ptr->add_field("devsel", field_ptr);
+	scope_ptr->add_dirent("devsel", field_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 11, PP_MASK(1), 0);
-	scope_ptr->add_field("sig_tabort", field_ptr);
+	scope_ptr->add_dirent("sig_tabort", field_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 12, PP_MASK(1), 0);
-	scope_ptr->add_field("rcv_tabort", field_ptr);
+	scope_ptr->add_dirent("rcv_tabort", field_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 13, PP_MASK(1), 0);
-	scope_ptr->add_field("rcv_mabort", field_ptr);
+	scope_ptr->add_dirent("rcv_mabort", field_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 14, PP_MASK(1), 0);
-	scope_ptr->add_field("rcv_serr", field_ptr);
+	scope_ptr->add_dirent("rcv_serr", field_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 15, PP_MASK(1), 0);
-	scope_ptr->add_field("perr", field_ptr);
+	scope_ptr->add_dirent("perr", field_ptr);
 
-	space->add_scope("sec_status", scope_ptr);
+	space->add_dirent("sec_status", scope_ptr);
 
 	// scope io_window {
 	scope_ptr = new_pp_scope();
 
 	pp_register_ptr base_lo = new_pp_register(binding, 0x1c, BITS8);
-	scope_ptr->add_register("%base_lo", base_lo);
+	scope_ptr->add_dirent("%base_lo", base_lo);
 
 	pp_register_ptr limit_lo = new_pp_register(binding, 0x1d, BITS8);
-	scope_ptr->add_register("%limit_lo", limit_lo);
+	scope_ptr->add_dirent("%limit_lo", limit_lo);
 
 	pp_register_ptr base_hi = new_pp_register(binding, 0x30, BITS16);
-	scope_ptr->add_register("%base_hi", base_hi);
+	scope_ptr->add_dirent("%base_hi", base_hi);
 
 	pp_register_ptr limit_hi = new_pp_register(binding, 0x32, BITS16);
-	scope_ptr->add_register("%limit_hi", limit_hi);
+	scope_ptr->add_dirent("%limit_hi", limit_hi);
 
 	anon_enum = new_pp_enum();
 	anon_enum->add_value("bits16", 0);
 	anon_enum->add_value("bits32", 1);
 	pp_direct_field_ptr width = new_pp_direct_field(anon_enum);
 	width->add_regbits(base_lo.get(), 0, PP_MASK(4), 0);
-	scope_ptr->add_field("width", width);
+	scope_ptr->add_dirent("width", width);
 
 	// IO base/limit pair
 	pp_value value = width->read();
@@ -1101,72 +1101,72 @@ void create_pci_bridge(pp_space *space)
 				space->resolve_datatype("addr16_t"));
 		field_ptr->add_regbits(magic_zeros, 0, PP_MASK(12), 0);
 		field_ptr->add_regbits(base_lo.get(), 4, PP_MASK(4), 12);
-		scope_ptr->add_field("base", field_ptr);
+		scope_ptr->add_dirent("base", field_ptr);
 
 		field_ptr = new_pp_direct_field(
 				space->resolve_datatype("addr16_t"));
 		field_ptr->add_regbits(magic_ones, 0, PP_MASK(12), 0);
 		field_ptr->add_regbits(limit_lo.get(), 4, PP_MASK(4), 12);
-		scope_ptr->add_field("limit", field_ptr);
+		scope_ptr->add_dirent("limit", field_ptr);
 	} else if (value == width->lookup("bits32")) {
 		field_ptr = new_pp_direct_field(
 				space->resolve_datatype("addr32_t"));
 		field_ptr->add_regbits(magic_zeros, 0, PP_MASK(12), 0);
 		field_ptr->add_regbits(base_lo.get(), 4, PP_MASK(4), 12);
 		field_ptr->add_regbits(base_hi.get(), 0, PP_MASK(16), 16);
-		scope_ptr->add_field("base", field_ptr);
+		scope_ptr->add_dirent("base", field_ptr);
 
 		field_ptr = new_pp_direct_field(
 				space->resolve_datatype("addr32_t"));
 		field_ptr->add_regbits(magic_ones, 0, PP_MASK(12), 0);
 		field_ptr->add_regbits(limit_lo.get(), 4, PP_MASK(4), 12);
 		field_ptr->add_regbits(limit_hi.get(), 0, PP_MASK(16), 16);
-		scope_ptr->add_field("limit", field_ptr);
+		scope_ptr->add_dirent("limit", field_ptr);
 	}
-	space->add_scope("io_window", scope_ptr);
+	space->add_dirent("io_window", scope_ptr);
 
 	// scope mem_window {
 	scope_ptr = new_pp_scope();
 
 	reg_ptr = new_pp_register(binding, 0x20, BITS16);
-	scope_ptr->add_register("%base", reg_ptr);
+	scope_ptr->add_dirent("%base", reg_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("addr32_t"));
 	field_ptr->add_regbits(magic_zeros, 0, PP_MASK(20), 0);
 	field_ptr->add_regbits(reg_ptr.get(), 4, PP_MASK(12), 20);
-	scope_ptr->add_field("base", field_ptr);
+	scope_ptr->add_dirent("base", field_ptr);
 
 	reg_ptr = new_pp_register(binding, 0x22, BITS16);
-	scope_ptr->add_register("%limit", reg_ptr);
+	scope_ptr->add_dirent("%limit", reg_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("addr32_t"));
 	field_ptr->add_regbits(magic_ones, 0, PP_MASK(20), 0);
 	field_ptr->add_regbits(reg_ptr.get(), 4, PP_MASK(12), 20);
-	scope_ptr->add_field("limit", field_ptr);
+	scope_ptr->add_dirent("limit", field_ptr);
 
-	space->add_scope("mem_window", scope_ptr);
+	space->add_dirent("mem_window", scope_ptr);
 
 	// scope prefetch_window {
 	scope_ptr = new_pp_scope();
 
 	base_lo = new_pp_register(binding, 0x24, BITS16);
-	scope_ptr->add_register("%base_lo", base_lo);
+	scope_ptr->add_dirent("%base_lo", base_lo);
 
 	limit_lo = new_pp_register(binding, 0x26, BITS16);
-	scope_ptr->add_register("%limit_lo", limit_lo);
+	scope_ptr->add_dirent("%limit_lo", limit_lo);
 
 	base_hi = new_pp_register(binding, 0x28, BITS32);
-	scope_ptr->add_register("%base_hi", base_hi);
+	scope_ptr->add_dirent("%base_hi", base_hi);
 
 	limit_hi = new_pp_register(binding, 0x2c, BITS32);
-	scope_ptr->add_register("%limit_hi", limit_hi);
+	scope_ptr->add_dirent("%limit_hi", limit_hi);
 
 	anon_enum = new_pp_enum();
 	anon_enum->add_value("bits32", 0);
 	anon_enum->add_value("bits64", 1);
 	width = new_pp_direct_field(anon_enum);
 	width->add_regbits(base_lo.get(), 0, PP_MASK(4), 0);
-	scope_ptr->add_field("width", width);
+	scope_ptr->add_dirent("width", width);
 
 	// prefetch base/limit pair
 	value = width->read();
@@ -1175,29 +1175,29 @@ void create_pci_bridge(pp_space *space)
 				space->resolve_datatype("addr32_t"));
 		field_ptr->add_regbits(magic_zeros, 0, PP_MASK(20), 0);
 		field_ptr->add_regbits(base_lo.get(), 4, PP_MASK(12), 20);
-		scope_ptr->add_field("base", field_ptr);
+		scope_ptr->add_dirent("base", field_ptr);
 
 		field_ptr = new_pp_direct_field(
 				space->resolve_datatype("addr32_t"));
 		field_ptr->add_regbits(magic_ones, 0, PP_MASK(20), 0);
 		field_ptr->add_regbits(limit_lo.get(), 4, PP_MASK(12), 20);
-		scope_ptr->add_field("limit", field_ptr);
+		scope_ptr->add_dirent("limit", field_ptr);
 	} else if (value == width->lookup("bits64")) {
 		field_ptr = new_pp_direct_field(
 				space->resolve_datatype("addr64_t"));
 		field_ptr->add_regbits(magic_zeros, 0, PP_MASK(20), 0);
 		field_ptr->add_regbits(base_lo.get(), 4, PP_MASK(12), 20);
 		field_ptr->add_regbits(base_hi.get(), 0, PP_MASK(32), 32);
-		scope_ptr->add_field("base", field_ptr);
+		scope_ptr->add_dirent("base", field_ptr);
 
 		field_ptr = new_pp_direct_field(
 				space->resolve_datatype("addr64_t"));
 		field_ptr->add_regbits(magic_ones, 0, PP_MASK(20), 0);
 		field_ptr->add_regbits(limit_lo.get(), 4, PP_MASK(12), 20);
 		field_ptr->add_regbits(limit_hi.get(), 0, PP_MASK(32), 32);
-		scope_ptr->add_field("limit", field_ptr);
+		scope_ptr->add_dirent("limit", field_ptr);
 	}
-	space->add_scope("prefetch_window", scope_ptr);
+	space->add_dirent("prefetch_window", scope_ptr);
 
 	// Capabilities
 	explore_capabilities(space);
@@ -1205,78 +1205,78 @@ void create_pci_bridge(pp_space *space)
 	// Expansion ROM Base Address
 
 	reg_ptr = new_pp_register(binding, 0x38, BITS32);
-	space->add_register("%rombase", reg_ptr);
+	space->add_dirent("%rombase", reg_ptr);
 	scope_ptr = new_pp_scope();
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(1), 0);
-	scope_ptr->add_field("en", field_ptr);
+	scope_ptr->add_dirent("en", field_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("hex32_t"));
 	field_ptr->add_regbits(magic_zeros, 0, PP_MASK(11), 0);
 	field_ptr->add_regbits(reg_ptr.get(), 11, PP_MASK(21), 11);
-	scope_ptr->add_field("addr", field_ptr);
-	space->add_scope("rombase", scope_ptr);
+	scope_ptr->add_dirent("addr", field_ptr);
+	space->add_dirent("rombase", scope_ptr);
 
 	// Bridge Control
 	reg_ptr = new_pp_register(binding, 0x3e, BITS16);
-	space->add_register("%bridge_ctrl", reg_ptr);
+	space->add_dirent("%bridge_ctrl", reg_ptr);
 
 	scope_ptr = new_pp_scope();
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(1), 0);
-	scope_ptr->add_field("perr", field_ptr);
+	scope_ptr->add_dirent("perr", field_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 1, PP_MASK(1), 0);
-	scope_ptr->add_field("serr", field_ptr);
+	scope_ptr->add_dirent("serr", field_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 2, PP_MASK(1), 0);
-	scope_ptr->add_field("isa", field_ptr);
+	scope_ptr->add_dirent("isa", field_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 3, PP_MASK(1), 0);
-	scope_ptr->add_field("vga", field_ptr);
+	scope_ptr->add_dirent("vga", field_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 4, PP_MASK(1), 0);
-	scope_ptr->add_field("vga16", field_ptr);
+	scope_ptr->add_dirent("vga16", field_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 5, PP_MASK(1), 0);
-	scope_ptr->add_field("mabort", field_ptr);
+	scope_ptr->add_dirent("mabort", field_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 6, PP_MASK(1), 0);
-	scope_ptr->add_field("sec_reset", field_ptr);
+	scope_ptr->add_dirent("sec_reset", field_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 7, PP_MASK(1), 0);
-	scope_ptr->add_field("fbb", field_ptr);
+	scope_ptr->add_dirent("fbb", field_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 8, PP_MASK(1), 0);
-	scope_ptr->add_field("pri_discard", field_ptr);
+	scope_ptr->add_dirent("pri_discard", field_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 9, PP_MASK(1), 0);
-	scope_ptr->add_field("sec_discard", field_ptr);
+	scope_ptr->add_dirent("sec_discard", field_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 10, PP_MASK(1), 0);
-	scope_ptr->add_field("discard_status", field_ptr);
+	scope_ptr->add_dirent("discard_status", field_ptr);
 
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 11, PP_MASK(1), 0);
-	scope_ptr->add_field("discard_serr", field_ptr);
+	scope_ptr->add_dirent("discard_serr", field_ptr);
 
-	space->add_scope("bridge_ctrl", scope_ptr);
+	space->add_dirent("bridge_ctrl", scope_ptr);
 }
 
 // DEVICE MACRO
 static void
-create_device(pp_space *space)
+create_device(pp_scope *space)
 {
 	pp_direct_field_ptr field_ptr;
 	pp_register_ptr reg_ptr;
@@ -1350,21 +1350,21 @@ create_device(pp_space *space)
 
 	//reg32 rombase(0x30, preserve);
 	reg_ptr = new_pp_register(binding, 0x30, BITS32);
-	space->add_register("%rombase", reg_ptr);
+	space->add_dirent("%rombase", reg_ptr);
 	//scope rombase {
 	scope_ptr = new_pp_scope();
 	//	field en(rombase[0], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg_ptr.get(), 0, PP_MASK(1), 0);
-	scope_ptr->add_field("en", field_ptr);
+	scope_ptr->add_dirent("en", field_ptr);
 
 	//	field addr({rombase[31:11],zero[10:0]}, HEX32);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("hex32_t"));
 	field_ptr->add_regbits(magic_zeros, 0, PP_MASK(11), 0);
 	field_ptr->add_regbits(reg_ptr.get(), 11, PP_MASK(21), 11);
-	scope_ptr->add_field("addr", field_ptr);
+	scope_ptr->add_dirent("addr", field_ptr);
 	//}
-	space->add_scope("rombase", scope_ptr);
+	space->add_dirent("rombase", scope_ptr);
 
 	//regfield8 mingnt(0x3e, INT("1/4 usec"));
 	regfield("mingnt", space, binding, 0x3e, BITS8,
@@ -1374,12 +1374,13 @@ create_device(pp_space *space)
 	    space->resolve_datatype("int_t"));
 }
 
-pp_space_ptr
-pci_generic_space(pp_const_binding_ptr binding_ptr, const pp_platform *platform)
+pp_scope_ptr
+pci_generic_space(pp_const_binding_ptr binding_ptr, const pp_scope *platform)
 {
+	//FIXME: convert - this has to return a scope.  globals == bad
 	const pp_binding *binding = binding_ptr.get();
-	pp_space_ptr space_ptr = new_pp_space(binding_ptr);
-	pp_space *space = space_ptr.get();
+	pp_scope_ptr space_ptr = new_pp_scope(binding_ptr);
+	pp_scope *space = space_ptr.get();
 	pp_register_ptr reg_ptr;
 	const pp_register *reg;
 	pp_direct_field_ptr field_ptr;
@@ -1395,7 +1396,7 @@ pci_generic_space(pp_const_binding_ptr binding_ptr, const pp_platform *platform)
 	// regrange32 PCI(0, 4096, 4, PRESERVE);
 	for (int i = 0; i < 4096; i += 4) {
 		reg_ptr = new_pp_register(binding, i, BITS32);
-		space->add_register(to_string(
+		space->add_dirent(to_string(
 		    boost::format("%%PCI[%04x]") %i), reg_ptr);
 	}
 
@@ -1410,84 +1411,84 @@ pci_generic_space(pp_const_binding_ptr binding_ptr, const pp_platform *platform)
 	// reg16 command(0x04, preserve);
 	reg_ptr = new_pp_register(binding, 0x04, BITS16);
 	reg = reg_ptr.get();
-	space->add_register("%command", reg_ptr);
+	space->add_dirent("%command", reg_ptr);
 
 	// scope command {
 	scope = new_pp_scope();
 	//	field io(command[0], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 0, PP_MASK(1), 0);
-	scope->add_field("io", field_ptr);
+	scope->add_dirent("io", field_ptr);
 	//	field mem(command[1], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 1, PP_MASK(1), 0);
-	scope->add_field("mem", field_ptr);
+	scope->add_dirent("mem", field_ptr);
 	//	field bm(command[2], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 2, PP_MASK(1), 0);
-	scope->add_field("bm", field_ptr);
+	scope->add_dirent("bm", field_ptr);
 	//	field special(command[3], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 3, PP_MASK(1), 0);
-	scope->add_field("special", field_ptr);
+	scope->add_dirent("special", field_ptr);
 	//	field mwinv(command[4], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 4, PP_MASK(1), 0);
-	scope->add_field("mwinv", field_ptr);
+	scope->add_dirent("mwinv", field_ptr);
 	//	field vgasnoop(command[5], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 5, PP_MASK(1), 0);
-	scope->add_field("vgasnoop", field_ptr);
+	scope->add_dirent("vgasnoop", field_ptr);
 	//	field perr(command[6], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 6, PP_MASK(1), 0);
-	scope->add_field("perr", field_ptr);
+	scope->add_dirent("perr", field_ptr);
 	//	field step(command[7], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 7, PP_MASK(1), 0);
-	scope->add_field("step", field_ptr);
+	scope->add_dirent("step", field_ptr);
 	//	field serr(command[8], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 8, PP_MASK(1), 0);
-	scope->add_field("serr", field_ptr);
+	scope->add_dirent("serr", field_ptr);
 	//	field fbb(command[9], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 9, PP_MASK(1), 0);
-	scope->add_field("fbb", field_ptr);
+	scope->add_dirent("fbb", field_ptr);
 	//	field intr(command[10], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 10, PP_MASK(1), 0);
-	scope->add_field("intr", field_ptr);
+	scope->add_dirent("intr", field_ptr);
 	//}
-	space->add_scope("command", scope);
+	space->add_dirent("command", scope);
 
 	// reg16 status(0x06, preserve);
 	reg_ptr = new_pp_register(binding, 0x06, BITS16);
 	reg = reg_ptr.get();
-	space->add_register("%status", reg_ptr);
+	space->add_dirent("%status", reg_ptr);
 
 	// scope status {
 	scope = new_pp_scope();
 	//	field intr(status[3], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 3, PP_MASK(1), 0);
-	scope->add_field("intr", field_ptr);
+	scope->add_dirent("intr", field_ptr);
 	//	field caps(status[4], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 4, PP_MASK(1), 0);
-	scope->add_field("caps", field_ptr);
+	scope->add_dirent("caps", field_ptr);
 	//	field cap66(status[5], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 5, PP_MASK(1), 0);
-	scope->add_field("mhz66", field_ptr);
+	scope->add_dirent("mhz66", field_ptr);
 	//	field fbb(status[7], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 7, PP_MASK(1), 0);
-	scope->add_field("fbb", field_ptr);
+	scope->add_dirent("fbb", field_ptr);
 	//	field mdperr(status[8], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 8, PP_MASK(1), 0);
-	scope->add_field("mdperr", field_ptr);
+	scope->add_dirent("mdperr", field_ptr);
 	//	field devsel(status[10:9], enum() {
 	//		FAST = 0
 	//		MEDIUM = 1
@@ -1499,29 +1500,29 @@ pci_generic_space(pp_const_binding_ptr binding_ptr, const pp_platform *platform)
 	anon_enum->add_value("slow", 2);
 	field_ptr = new_pp_direct_field(anon_enum);
 	field_ptr->add_regbits(reg, 9, PP_MASK(2), 0);
-	scope->add_field("devsel", field_ptr);
+	scope->add_dirent("devsel", field_ptr);
 	//	field sigtabort(status[11], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 11, PP_MASK(1), 0);
-	scope->add_field("sigtabort", field_ptr);
+	scope->add_dirent("sigtabort", field_ptr);
 	//	field rcvtabort(status[12], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 12, PP_MASK(1), 0);
-	scope->add_field("rcvtabort", field_ptr);
+	scope->add_dirent("rcvtabort", field_ptr);
 	//	field rcvmabort(status[13], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 13, PP_MASK(1), 0);
-	scope->add_field("rcvmabort", field_ptr);
+	scope->add_dirent("rcvmabort", field_ptr);
 	//	field serr(status[14], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 14, PP_MASK(1), 0);
-	scope->add_field("serr", field_ptr);
+	scope->add_dirent("serr", field_ptr);
 	//	field perr(status[15], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 15, PP_MASK(1), 0);
-	scope->add_field("perr", field_ptr);
+	scope->add_dirent("perr", field_ptr);
 	//}
-	space->add_scope("status", scope);
+	space->add_dirent("status", scope);
 
 	//regfield8 class(0x0b, PCI_CLASS);
 	regfield("class", space, binding, 0x0b, BITS8,
@@ -1585,10 +1586,10 @@ pci_generic_space(pp_const_binding_ptr binding_ptr, const pp_platform *platform)
 	//regfield8 progintf(0x09, HEX8);
 	reg_ptr = new_pp_register(binding, 0x09, BITS8);
 	reg = reg_ptr.get();
-	space->add_register("%progintf", reg_ptr);
+	space->add_dirent("%progintf", reg_ptr);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("hex8_t"));
 	field_ptr->add_regbits(reg, 0, PP_MASK(BITS8), 0);
-	space->add_field("progintf", field_ptr);
+	space->add_dirent("progintf", field_ptr);
 
 	//regfield8 revision(0x08, HEX8);
 	regfield("revision", space, binding, 0x08, BITS8,
@@ -1605,7 +1606,7 @@ pci_generic_space(pp_const_binding_ptr binding_ptr, const pp_platform *platform)
 	//reg8 hdrtype(0x0e, preserve);
 	reg_ptr = new_pp_register(binding, 0x0e, BITS8);
 	reg = reg_ptr.get();
-	space->add_register("%hdrtype", reg_ptr);
+	space->add_dirent("%hdrtype", reg_ptr);
 
 	//scope hdrtype {
 	scope = new_pp_scope();
@@ -1621,33 +1622,33 @@ pci_generic_space(pp_const_binding_ptr binding_ptr, const pp_platform *platform)
 	anon_enum->add_value("CardBus bridge", 2);
 	field_ptr = new_pp_direct_field(anon_enum);
 	field_ptr->add_regbits(reg, 0, PP_MASK(7), 0);
-	scope->add_field("type", field_ptr);
+	scope->add_dirent("type", field_ptr);
 	//	field multi_function(hdrtype[7], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 7, PP_MASK(1), 0);
-	scope->add_field("multi_function", field_ptr);
+	scope->add_dirent("multi_function", field_ptr);
 	//}
-	space->add_scope("hdrtype", scope);
+	space->add_dirent("hdrtype", scope);
 
 	//reg8 bist(0x0f, preserve);
 	reg_ptr = new_pp_register(binding, 0x0f, BITS8);
 	reg = reg_ptr.get();
-	space->add_register("%bist", reg_ptr);
+	space->add_dirent("%bist", reg_ptr);
 
 	//scope bist {
 	scope = new_pp_scope();
 	//	field capable(bist[7], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 7, PP_MASK(1), 0);
-	scope->add_field("bist_capable", field_ptr);
+	scope->add_dirent("bist_capable", field_ptr);
 	//	field start(bist[6], yes_no);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("yesno_t"));
 	field_ptr->add_regbits(reg, 6, PP_MASK(1), 0);
-	scope->add_field("start_bist", field_ptr);
+	scope->add_dirent("start_bist", field_ptr);
 	//	field code(bist[3:0], hex8);
 	field_ptr = new_pp_direct_field(space->resolve_datatype("hex8_t"));
 	field_ptr->add_regbits(reg, 0, PP_MASK(4), 0);
-	scope->add_field("completion_code", field_ptr);
+	scope->add_dirent("completion_code", field_ptr);
 	//}
 
 	//regfield8 intline(0x3c, int);
