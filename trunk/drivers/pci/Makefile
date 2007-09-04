@@ -1,7 +1,7 @@
 INCLUDES = -I../.. -I../../test
 CXXFLAGS = -Wall -Werror $(INCLUDES) -g
 
-SRCS = pci_driver.cpp pci_device.cpp
+SRCS = pci_driver.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 all: pci_driver_module.o
