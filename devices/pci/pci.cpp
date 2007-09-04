@@ -4,6 +4,7 @@
 #include "pp_scope.h"
 #include "pp_driver.h"
 #include "pp_datatypes.h"
+#include "generic_device.h"
 
 void
 pci_datatypes_init(pp_scope *platform)
@@ -48,22 +49,14 @@ pci_datatypes_init(pp_scope *platform)
 	platform->add_datatype("pci_class_t", e);
 }
 
-//FIXME: needs a header
-extern pp_scope_ptr
-pci_generic_space(pp_const_binding_ptr binding_ptr,
-		const pp_scope *platform);
-
 static void
 pci_discovered(pp_scope *platform, const pp_driver *driver,
 		const std::vector<pp_regaddr> &args)
 {
 	pp_const_binding_ptr bind_ptr;
-	pp_scope_ptr scope_ptr;
-
 	bind_ptr = driver->new_binding(args);
-	scope_ptr = pci_generic_space(bind_ptr, platform);
-	platform->add_dirent(string("PCI device @")+bind_ptr->to_string(),
-			scope_ptr);
+	OPEN_SCOPE(string("@")+bind_ptr->to_string());
+	pci_generic_device();
 }
 
 class pci_discovery {
