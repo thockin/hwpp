@@ -8,6 +8,7 @@
 #include <string>
 #include <stdexcept>
 #include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 
 #define _FILE_OFFSET_BITS 64
 #include <unistd.h>
@@ -16,6 +17,7 @@
 #include <string.h>
 #include <errno.h>
 #include <dirent.h>
+#include <sys/mman.h>
 
 namespace fs {
 
@@ -35,10 +37,131 @@ class io_error: public std::runtime_error
 	}
 };
 
-/* forward declare the smart-pointer typedef */
+/* a file */
 class file;
 typedef boost::shared_ptr<file> file_ptr;
+typedef boost::shared_ptr<const file> const_file_ptr;
+typedef boost::weak_ptr<file> weak_file_ptr;
 
+/* a memory-mapped area of a file */
+class file_mapping;
+typedef boost::shared_ptr<file_mapping> file_mapping_ptr;
+
+/* a directory */
+class directory;
+typedef boost::shared_ptr<directory> directory_ptr;
+
+/* a directory entry */
+class direntry;
+typedef boost::shared_ptr<direntry> direntry_ptr;
+
+
+/*
+ * file_mapping
+ *
+ * This class tracks an individual mmap() of a file.  When this class is
+ * destructed, the mapping is munmap()ed.
+ *
+ * Users can not create instances of this class.  To create a mapping call
+ * fs::file::mmap(), which returns a smart pointer to one of these.
+ */
+class file_mapping
+{
+	friend class file;
+
+    private:
+	/* constructors - private to prevent abuse, defined later */
+	file_mapping(const_file_ptr file, ::off_t offset, std::size_t length,
+			int prot = PROT_READ, int flags = MAP_SHARED);
+
+    public:
+	/* destructor */
+	~file_mapping()
+	{
+		unmap();
+	}
+
+	void
+	unmap()
+	{
+		if (!is_mapped()) {
+			return;
+		}
+
+		/*
+		 * If other references exist, this can be bad.  Better to
+		 * use the destructor whenever possible.
+		 */
+		int r = munmap(m_real_address, m_real_length);
+		if (r < 0) {
+			throw io_error(
+			    std::string("fs::file_mapping::unmap(): ")
+			    + strerror(errno));
+		}
+		m_address = m_real_address = NULL;
+		m_length = m_real_length = 0;
+	}
+
+	bool
+	is_mapped() const
+	{
+		return (m_address != NULL);
+	}
+
+	void *
+	address() const
+	{
+		return (void *)m_address;
+	}
+
+	::off_t
+	offset() const
+	{
+		return m_offset;
+	}
+
+	std::size_t
+	length() const
+	{
+		return m_length;
+	}
+
+	int
+	prot() const
+	{
+		return m_prot;
+	}
+
+	int
+	flags() const
+	{
+		return m_flags;
+	}
+
+    private:
+	const_file_ptr m_file;
+	/* these are the file offset and map length that were requested */
+	::off_t m_offset;
+	std::size_t m_length;
+	uint8_t *m_address;
+	/* these are the aligned file offset and map length */
+	::off_t m_real_offset;
+	std::size_t m_real_length;
+	uint8_t *m_real_address;
+	/* flags for the mapping */
+	int m_prot;
+	int m_flags;
+};
+
+/*
+ * file
+ *
+ * This class represents a single opened file.  When this class is
+ * destructed, the file descriptor is close()d.
+ *
+ * Users can not create instances of this class.  To open a file call
+ * fs::file::open(), which returns a smart pointer to one of these.
+ */
 class file
 {
     private:
@@ -73,6 +196,7 @@ class file
 	{
 		file_ptr f(new file());
 
+		f->m_this_ptr = f;
 		f->m_path = path;
 		f->m_mode = mode;
 		f->m_fd = ::open(path.c_str(), mode);
@@ -116,6 +240,10 @@ class file
 	void
 	close()
 	{
+		/*
+		 * If other references exist, this can be bad.  Better to
+		 * use the destructor whenever possible.
+		 */
 		if (::close(m_fd) < 0) {
 			throw io_error(
 			    std::string("fs::file::close(") + m_path + "): "
@@ -139,6 +267,8 @@ class file
 		return r;
 	}
 
+	//FIXME: create
+	//FIXME: remove
 	//FIXME: add full_read() / full_write() methods?
 
 	std::string
@@ -170,12 +300,31 @@ class file
 		return r;
 	}
 
+	file_mapping_ptr
+	mmap(::off_t offset, std::size_t length, int prot = -1,
+			int flags = MAP_SHARED) const
+	{
+		if (prot == -1) {
+			if (mode() == O_RDONLY) {
+				prot = PROT_READ;
+			} else if (mode() == O_WRONLY) {
+				prot = PROT_WRITE;
+			} else if (mode() == O_RDWR) {
+				prot = PROT_READ | PROT_WRITE;
+			}
+		}
+
+		return file_mapping_ptr(new file_mapping(
+				const_file_ptr(m_this_ptr),
+				offset, length, prot, flags));
+	}
+
 	::off_t
-	seek(std::size_t off, int whence) const
+	seek(::off_t offset, int whence) const
 	{
 		::off_t r;
 
-		r = ::lseek(m_fd, off, whence);
+		r = ::lseek(m_fd, offset, whence);
 		if (r < 0) {
 			throw io_error(
 			    std::string("fs::file::seek(") + m_path + "): "
@@ -191,6 +340,12 @@ class file
 		return seek(0, SEEK_CUR);
 	}
 
+	bool
+	is_open() const
+	{
+		return (m_fd >= 0);
+	}
+
 	std::string
 	path() const
 	{
@@ -203,39 +358,75 @@ class file
 		return m_mode & O_ACCMODE;
 	}
 
-	bool
-	is_open() const
+	int
+	fd() const
 	{
-		return (m_fd >= 0);
+		return m_fd;
 	}
 
     private:
+	weak_file_ptr m_this_ptr;
 	std::string m_path;
 	int m_mode;
 	int m_fd;
 };
 
-/* forward declare the smart-pointer typedef */
-class direntry;
-typedef boost::shared_ptr<direntry> direntry_ptr;
+inline
+file_mapping::file_mapping(const_file_ptr file,
+    ::off_t offset, std::size_t length, int prot, int flags)
+    : m_file(file),
+      m_offset(offset), m_length(length), m_address(NULL),
+      m_real_offset(0), m_real_length(0), m_real_address(NULL),
+      m_prot(prot), m_flags(flags)
+{
+	std::size_t pgsize;
+	std::size_t pgmask;
+	::off_t ptr_off;
 
+	/* maps need to be page aligned */
+	pgsize = getpagesize();
+	pgmask = pgsize - 1;
+	ptr_off = m_offset & pgmask;
+	m_real_offset = m_offset & ~((uint64_t)pgmask);
+	m_real_length = pgsize + ((m_length + pgmask) & ~pgmask);
+
+	m_real_address = (uint8_t *)mmap(NULL, m_real_length, prot,
+			flags, m_file->fd(), m_real_offset);
+	if (!m_real_address || m_real_address == MAP_FAILED) {
+		throw io_error(
+		    std::string("fs::file_mapping::file_mapping(): ")
+		    + strerror(errno));
+	}
+
+	m_address = m_real_address + ptr_off;
+}
+
+/*
+ * direntry
+ *
+ * This class represents a single directory entry.
+ *
+ * Users can not create instances of this class.  To access a direntry, use
+ * fs::directory::read(), which returns a smart pointer to one of these.
+ */
 class direntry
 {
-    private:
+    friend class directory;
 
-    public:
+    private:
 	/* constructor - implicit conversion from ::dirent */
 	direntry(struct ::dirent *de): m_dirent(de)
 	{
 	}
 
+    public:
 	/* destructor */
 	~direntry()
 	{
 	}
 
 	static bool
-	exists(const std::string &path)
+	exists(const std::string &path) const
 	{
 		struct ::stat st;
 		int r;
@@ -245,13 +436,13 @@ class direntry
 	}
 
 	std::string
-	name()
+	name() const
 	{
 		return m_dirent->d_name;
 	}
 
 	bool
-	is_file()
+	is_file() const
 	{
 		return m_dirent->d_type & DT_REG;
 	}
@@ -264,7 +455,7 @@ class direntry
 	}
 
 	bool
-	is_dir()
+	is_dir() const
 	{
 		return m_dirent->d_type & DT_DIR;
 	}
@@ -277,7 +468,7 @@ class direntry
 	}
 
 	bool
-	is_link()
+	is_link() const
 	{
 		return m_dirent->d_type & DT_LNK;
 	}
@@ -290,7 +481,7 @@ class direntry
 	}
 
 	bool
-	is_fifo()
+	is_fifo() const
 	{
 		return m_dirent->d_type & DT_FIFO;
 	}
@@ -303,7 +494,7 @@ class direntry
 	}
 
 	bool
-	is_socket()
+	is_socket() const
 	{
 		return m_dirent->d_type & DT_SOCK;
 	}
@@ -316,7 +507,7 @@ class direntry
 	}
 
 	bool
-	is_chrdev()
+	is_chrdev() const
 	{
 		return m_dirent->d_type & DT_CHR;
 	}
@@ -329,7 +520,7 @@ class direntry
 	}
 
 	bool
-	is_blkdev()
+	is_blkdev() const
 	{
 		return m_dirent->d_type & DT_BLK;
 	}
@@ -342,7 +533,7 @@ class direntry
 	}
 
 	bool
-	is_dev()
+	is_dev() const
 	{
 		return (m_dirent->d_type & DT_CHR)
 		    || (m_dirent->d_type & DT_BLK);
@@ -360,10 +551,15 @@ class direntry
 	struct ::dirent *m_dirent;
 };
 
-/* forward declare the smart-pointer typedef */
-class directory;
-typedef boost::shared_ptr<directory> directory_ptr;
-
+/*
+ * directory
+ *
+ * This class represents a single directory.  When this class is destructed,
+ * the directory is closedir()d.
+ *
+ * Users can not create instances of this class.  To access a direntry, use
+ * fs::directory::open(), which returns a smart pointer to one of these.
+ */
 class directory
 {
     private:
@@ -417,6 +613,9 @@ class directory
 		m_dir = NULL;
 	}
 
+	//FIXME: create
+	//FIXME: remove
+
 	direntry_ptr
 	read() const
 	{
@@ -433,15 +632,16 @@ class directory
 		::rewinddir(m_dir);
 	}
 
+	bool
+	is_open() const
+	{
+		return (m_dir != NULL);
+	}
+
 	const std::string &
 	path() const
 	{
 		return m_path;
-	}
-
-	bool is_open() const
-	{
-		return (m_dir != NULL);
 	}
 
     private:
