@@ -426,7 +426,7 @@ class direntry
 	}
 
 	static bool
-	exists(const std::string &path) const
+	exists(const std::string &path)
 	{
 		struct ::stat st;
 		int r;
