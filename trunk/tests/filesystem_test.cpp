@@ -40,6 +40,35 @@ test_file()
 }
 
 int
+test_file_mapping()
+{
+	int ret = 0;
+
+	system("rm -f file.exists");
+	system("echo -n exists > file.exists");
+
+	file_ptr f = file::open("file.exists", O_RDONLY);
+
+	char *p;
+
+	file_mapping_ptr map = f->mmap(1, 4, PROT_READ, MAP_SHARED);
+	p = (char *)map->address();
+	if (strncmp(p, "xist", 4)) {
+		PP_TEST_ERROR("fs::file::mmap()");
+		ret++;
+	}
+
+	map = f->mmap(2, 4);
+	p = (char *)map->address();
+	if (strncmp(p, "ists", 4)) {
+		PP_TEST_ERROR("fs::file::mmap()");
+		ret++;
+	}
+
+	return ret;
+}
+
+int
 test_dir()
 {
 	int ret = 0;
@@ -102,6 +131,7 @@ main(void)
 	int ret = 0;
 
 	ret += test_file();
+	ret += test_file_mapping();
 	ret += test_dir();
 
 	return ret;
