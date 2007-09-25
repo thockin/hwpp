@@ -1,4 +1,4 @@
-DRIVERS = io pci
+DRIVERS = io mem pci
 
 all:
 	for d in $(DRIVERS); do \

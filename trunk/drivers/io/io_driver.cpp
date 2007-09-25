@@ -32,17 +32,17 @@ io_driver::new_binding(const std::vector<pp_regaddr> &args) const
 
 	if (args.size() != 2) {
 		throw pp_driver_args_error(
-		    "IO binding: <base, size>");
+		    "io<>: <base, size>");
 	}
 
 	base = args[0];
 	size = args[1];
 
 	if (base >= IO_SPACE_SIZE) {
-		throw pp_driver_args_error("IO binding: invalid base");
+		throw pp_driver_args_error("io<>: invalid base");
 	}
 	if (base + size > IO_SPACE_SIZE) {
-		throw pp_driver_args_error("IO binding: invalid size");
+		throw pp_driver_args_error("io<>: invalid size");
 	}
 	return new_io_binding(io_address(base, size));
 }
