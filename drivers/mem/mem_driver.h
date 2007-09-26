@@ -27,7 +27,7 @@ operator<<(std::ostream& out, const mem_address &addr)
 }
 
 /*
- * Abstract port IO
+ * Abstract mem IO
  */
 class mem_io
 {
