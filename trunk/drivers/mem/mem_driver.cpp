@@ -5,8 +5,6 @@
 #include "mem_binding.h"
 #include "linux_mem_io.h"
 
-#define IO_SPACE_SIZE	0x10000
-
 int force_mem_driver_linkage;
 static const mem_driver the_mem_driver;
 
@@ -37,11 +35,5 @@ mem_driver::new_binding(const std::vector<pp_regaddr> &args) const
 	base = args[0];
 	size = args[1];
 
-	if (base >= IO_SPACE_SIZE) {
-		throw pp_driver_args_error("mem<>: invalid base");
-	}
-	if (base + size > IO_SPACE_SIZE) {
-		throw pp_driver_args_error("mem<>: invalid size");
-	}
 	return new_mem_binding(mem_address(base, size));
 }
