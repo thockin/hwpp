@@ -115,21 +115,26 @@ class pp_path
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 	/* default constructor */
-	explicit pp_path(const char delim = '/')
-	    : m_list(), m_absolute(false), m_delim(delim)
+	explicit pp_path()
+	    : m_list(), m_absolute(false)
 	{
 	}
 
 	/* copy constructor */
 	pp_path(const pp_path &that)
-	    : m_list(that.m_list), m_absolute(that.m_absolute),
-	      m_delim(that.m_delim)
+	    : m_list(that.m_list), m_absolute(that.m_absolute)
 	{
 	}
 
-	/* implicit conversion from string with a specified delimiter */
-	pp_path(const string &path, const char delim = '/')
-	    : m_list(), m_absolute(false), m_delim(delim)
+	/* implicit conversion from string */
+	pp_path(const string &path)
+	    : m_list(), m_absolute(false)
+	{
+		append(path);
+	}
+	/* implicit conversion from char* */
+	pp_path(const char *path)
+	    : m_list(), m_absolute(false)
 	{
 		append(path);
 	}
@@ -137,15 +142,6 @@ class pp_path
 	/* destructor */
 	~pp_path()
 	{
-	}
-
-	/* assignment from string */
-	pp_path &
-	operator=(const string &str)
-	{
-		clear();
-		append(str);
-		return *this;
 	}
 
 	/* iterator functionality */
@@ -247,11 +243,6 @@ class pp_path
 	}
 
 	void
-	push_back(const string &str)
-	{
-		append(str);
-	}
-	void
 	push_back(const pp_path &path)
 	{
 		const_iterator it = path.begin();
@@ -329,22 +320,9 @@ class pp_path
 		return true;
 	}
 
-	char
-	delim() const
-	{
-		return m_delim;
-	}
-
-	void
-	set_delim(const char delim)
-	{
-		m_delim = delim;
-	}
-
     private:
 	Tlist m_list;
 	bool m_absolute;
-	char m_delim;
 
 	void
 	append(const string &str)
@@ -356,14 +334,13 @@ class pp_path
 		std::vector<string> parts;
 
 		/*
-		 * Note: this function will self-correct excess delim()'s,
+		 * Note: this function will self-correct excess '/',
 		 * for example: given "/red/orange/yellow/", it does not
-		 * create an empty part after the final delim().  Given
+		 * create an empty part after the final '/'.  Given
 		 * the path "//red//orange", it will compact the duplicate
-		 * delim()s.
+		 * '/'.
 		 */
-		boost::split(parts, str,
-		    boost::is_any_of(to_string(m_delim)));
+		boost::split(parts, str, boost::is_any_of("/"));
 
 		/*
 		 * Determine if the path is relative or absolute by the first
@@ -387,7 +364,7 @@ inline std::ostream &
 operator<<(std::ostream& o, const pp_path &path)
 {
 	if (path.absolute()) {
-		o << path.delim();
+		o << "/";
 	}
 
 	pp_path::const_iterator it = path.begin();
@@ -395,7 +372,7 @@ operator<<(std::ostream& o, const pp_path &path)
 		o << *it;
 		it++;
 		if (it != path.end()) {
-			o << path.delim();
+			o << "/";
 		}
 	}
 	return o;
@@ -408,33 +385,9 @@ operator==(const pp_path &left, const pp_path &right)
 }
 
 inline bool
-operator==(const pp_path &path, const string &str)
-{
-	return path.equals(pp_path(str, path.delim()));
-}
-
-inline bool
-operator==(const string &str, const pp_path &path)
-{
-	return path.equals(pp_path(str, path.delim()));
-}
-
-inline bool
 operator!=(const pp_path &left, const pp_path &right)
 {
 	return !(left == right);
-}
-
-inline bool
-operator!=(const pp_path &path, const string &str)
-{
-	return !(path == str);
-}
-
-inline bool
-operator!=(const string &str, const pp_path &path)
-{
-	return !(path == str);
 }
 
 inline pp_path &
@@ -445,28 +398,12 @@ operator+=(pp_path &left, const pp_path &right)
 	return left;
 }
 
-inline pp_path &
-operator+=(pp_path &path, const string &str)
-{
-	/* return the original pp_path, the arg here is a reference */
-	path.push_back(str);
-	return path;
-}
-
 inline pp_path
 operator+(pp_path left, const pp_path &right)
 {
 	/* return a new pp_path, the arg here is a copy */
 	left.push_back(right);
 	return left;
-}
-
-inline pp_path
-operator+(pp_path path, const string &str)
-{
-	/* return a new pp_path, the arg here is a copy */
-	path.push_back(str);
-	return path;
 }
 
 #endif // PP_PATH_HPP__
