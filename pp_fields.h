@@ -15,7 +15,7 @@
  * 	 const pp_value mask, const int position)
  *
  * Notes:
- *	This class is a helper for pp_direct_field.
+ *	This class is a helper for pp_regbits_field.
  */
 class regbits
 {
@@ -78,24 +78,23 @@ class regbits
 extern pp_register *magic_zeros;
 extern pp_register *magic_ones;
 
-//FIXME: better name
 /*
- * pp_direct_field - a field that maps directly to register bits.
+ * pp_regbits_field - a field that maps directly to register bits.
  *
  * Constructors:
  * 	(const pp_const_datatype &datatype)
  *
  * Notes:
  */
-class pp_direct_field: public pp_field
+class pp_regbits_field: public pp_field
 {
     public:
-	explicit pp_direct_field(pp_const_datatype_ptr datatype)
+	explicit pp_regbits_field(pp_const_datatype_ptr datatype)
 	    : pp_field(datatype) {}
-	virtual ~pp_direct_field() {}
+	virtual ~pp_regbits_field() {}
 
 	/*
-	 * pp_direct_field::read()
+	 * pp_regbits_field::read()
 	 *
 	 * Read the current value of this field.
 	 *
@@ -112,7 +111,7 @@ class pp_direct_field: public pp_field
 	}
 
 	/*
-	 * pp_direct_field::write(value)
+	 * pp_regbits_field::write(value)
 	 *
 	 * Write a value to this field.
 	 *
@@ -127,7 +126,7 @@ class pp_direct_field: public pp_field
 	}
 
 	/*
-	 * pp_direct_field::add_regbits(const pp_register *reg,
+	 * pp_regbits_field::add_regbits(const pp_register *reg,
 	 * 	const int shift, const pp_value mask, const int position)
 	 *
 	 * Add register bits to this field.
@@ -143,10 +142,71 @@ class pp_direct_field: public pp_field
     private:
 	std::vector<regbits> m_regbits;
 };
-typedef boost::shared_ptr<pp_direct_field> pp_direct_field_ptr;
+typedef boost::shared_ptr<pp_regbits_field> pp_regbits_field_ptr;
 
-#define new_pp_direct_field(...) pp_direct_field_ptr(new pp_direct_field(__VA_ARGS__))
+#define new_pp_regbits_field(...) pp_regbits_field_ptr(new pp_regbits_field(__VA_ARGS__))
 
-//FIXME: method fields?
+class proc_field_accessor
+{
+    public:
+	virtual ~proc_field_accessor() {}
+	virtual pp_value read() = 0;
+	virtual void write(pp_value value) = 0;
+};
+typedef boost::shared_ptr<proc_field_accessor> proc_field_accessor_ptr;
+
+/*
+ * pp_proc_field - a field that is a procedure
+ *
+ * Constructors:
+ * 	(const pp_const_datatype &datatype, proc_field_accessor_ptr access)
+ *
+ * Notes:
+ */
+class pp_proc_field: public pp_field
+{
+    public:
+	explicit pp_proc_field(pp_const_datatype_ptr datatype,
+	    proc_field_accessor_ptr access)
+	    : pp_field(datatype), m_access(access)
+	{
+	}
+
+	virtual ~pp_proc_field()
+	{
+	}
+
+	/*
+	 * pp_proc_field::read()
+	 *
+	 * Read the current value of this field.
+	 *
+	 * Throws: pp_driver_error
+	 */
+	virtual pp_value
+	read() const
+	{
+		return m_access->read();
+	}
+
+	/*
+	 * pp_proc_field::write(value)
+	 *
+	 * Write a value to this field.
+	 *
+	 * Throws: pp_driver_error
+	 */
+	virtual void
+	write(const pp_value value) const
+	{
+		m_access->write(value);
+	}
+
+    private:
+	proc_field_accessor_ptr m_access;
+};
+typedef boost::shared_ptr<pp_proc_field> pp_proc_field_ptr;
+
+#define new_pp_proc_field(...) pp_proc_field_ptr(new pp_proc_field(__VA_ARGS__))
 
 #endif // PP_PP_FIELDS_H__

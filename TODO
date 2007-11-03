@@ -1,7 +1,19 @@
-do we need explicit "inline"s in .h files?
-make named constructors (with real ctors private) for smart ptrs
-privatize copy-ctor and operator= wherever possible
-instead of void foo.add_thing(thing); thing_ptr = foo.new_thing()?
-FIXMEs
-const everything possible
 preserve/set/clear flags for registers
+
+test lookup() methods
+capitalize PP_container_ptr for types?
+scope merge for anon scopes
+space::bind() method?
+don't pass bindings to registers - fixes the nasty .get() syntax
+pp_enum -> pp_enum_type, etc
+
+FIXMEs
+
+move more code to .cpp files
+
+fix the build!
+
+bindings of bindings
+pp_path "^" vs "/"
+remove the length arg of io/mem bindings? else report PCI BAR sizes
+

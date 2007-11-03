@@ -156,7 +156,7 @@ regfield(const string &name, pp_scope *scope, const pp_binding *binding,
     pp_regaddr address, pp_bitwidth width, pp_const_datatype_ptr type)
 {
 	pp_register_ptr reg = new_pp_register(binding, address, width);
-	pp_direct_field_ptr field = new_pp_direct_field(type);
+	pp_regbits_field_ptr field = new_pp_regbits_field(type);
 
 	field->add_regbits(reg.get(), 0, PP_MASK(width), 0);
 	scope->add_dirent("%" + name, reg);
@@ -246,7 +246,7 @@ SIMPLE_FIELD(const string &name, pp_const_datatype_ptr type,
 	const pp_register *reg;
 
 	reg = get_register(cur_scope.get(), pp_path(regname));
-	pp_direct_field_ptr field_ptr = new_pp_direct_field(type);
+	pp_regbits_field_ptr field_ptr = new_pp_regbits_field(type);
 	field_ptr->add_regbits(reg, lo_bit,
 			PP_MASK((hi_bit - lo_bit) + 1), 0);
 	cur_scope->add_dirent(name, field_ptr);
@@ -263,7 +263,7 @@ SIMPLE_FIELD(const string &name, const string &type_str,
 void
 COMPLEX_FIELD_(const string &name, pp_const_datatype_ptr type, bitrange_ *bit)
 {
-	pp_direct_field_ptr field_ptr = new_pp_direct_field(type);
+	pp_regbits_field_ptr field_ptr = new_pp_regbits_field(type);
 
 	int ttl_bits = 0;
 	while (bit->regname) {
