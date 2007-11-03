@@ -146,23 +146,6 @@ dirent_defined(const pp_scope *scope, pp_path path)
 	return (d != NULL);
 }
 
-/*
- * regfield()
- *
- * Create a register and a field which consumes that register.
- */
-void
-regfield(const string &name, pp_scope *scope, const pp_binding *binding,
-    pp_regaddr address, pp_bitwidth width, pp_const_datatype_ptr type)
-{
-	pp_register_ptr reg = new_pp_register(binding, address, width);
-	pp_regbits_field_ptr field = new_pp_regbits_field(type);
-
-	field->add_regbits(reg.get(), 0, PP_MASK(width), 0);
-	scope->add_dirent("%" + name, reg);
-	scope->add_dirent(name, field);
-}
-
 //FIXME: need comments
 //FIXME: need tests
 #include <assert.h>
@@ -176,6 +159,29 @@ static std::vector<string> scope_name_stack;
 
 static pp_const_binding_ptr cur_binding;
 static std::vector<pp_const_binding_ptr> binding_stack;
+
+const pp_field *
+GET_FIELD(const pp_path &path)
+{
+	return get_field(cur_scope.get(), path);
+}
+
+const pp_register *
+GET_REGISTER(const pp_path &path)
+{
+	if (path == "0")
+		return magic_zeros;
+	if (path == "1")
+		return magic_ones;
+
+	return get_register(cur_scope.get(), path);
+}
+
+bool
+DEFINED(const pp_path &path)
+{
+	return dirent_defined(cur_scope.get(), path);
+}
 
 pp_scope_ptr
 NEW_PLATFORM()
@@ -233,6 +239,9 @@ CLOSE_SCOPE()
 void
 REGN(const string &name, pp_regaddr address, pp_bitwidth width)
 {
+	//FIXME: DASSERT
+	assert(name[0] == '%');
+	//FIXME: DASSERT(!DEFINED(name))
 	pp_register_ptr reg_ptr = new_pp_register(
 			cur_binding.get(), address, width);
 	cur_scope->add_dirent(name, reg_ptr);
@@ -245,7 +254,10 @@ SIMPLE_FIELD(const string &name, pp_const_datatype_ptr type,
 	assert(hi_bit >= lo_bit);
 	const pp_register *reg;
 
-	reg = get_register(cur_scope.get(), pp_path(regname));
+	//FIXME: DASSERT(DEFINED(regname))
+	//FIXME: DASSERT(!DEFINED(name))
+	//FIXME: define in terms of COMPLEX_FIELD?
+	reg = GET_REGISTER(regname);
 	pp_regbits_field_ptr field_ptr = new_pp_regbits_field(type);
 	field_ptr->add_regbits(reg, lo_bit,
 			PP_MASK((hi_bit - lo_bit) + 1), 0);
@@ -259,14 +271,16 @@ SIMPLE_FIELD(const string &name, const string &type_str,
 	SIMPLE_FIELD(name, type, regname, hi_bit, lo_bit);
 }
 
-//assumption: bit rangess are added sequentially from lowest to highest.
+//assumption: bit ranges are added sequentially from lowest to highest.
 void
 COMPLEX_FIELD_(const string &name, pp_const_datatype_ptr type, bitrange_ *bit)
 {
+	//FIXME: DASSERT(!DEFINED(name))
 	pp_regbits_field_ptr field_ptr = new_pp_regbits_field(type);
 
 	int ttl_bits = 0;
 	while (bit->regname) {
+		//FIXME: DASSERT(DEFINED(bit->regname))
 		const pp_register *reg;
 		int nbits = (bit->hi_bit - bit->lo_bit) + 1;
 
@@ -284,6 +298,31 @@ void
 COMPLEX_FIELD_(const string &name, const string &type, bitrange_ *bit)
 {
 	COMPLEX_FIELD_(name, cur_scope->resolve_datatype(type), bit);
+}
+
+void
+REGFIELDN(const string &name, pp_regaddr address, pp_const_datatype_ptr type,
+		pp_bitwidth width)
+{
+	string regname = "%" + name;
+	REGN(regname, address, width);
+	SIMPLE_FIELD(name, type, regname, width-1, 0);
+}
+void
+REGFIELDN(const string &name, pp_regaddr address, const string &type,
+		pp_bitwidth width)
+{
+	REGFIELDN(name, address, cur_scope->resolve_datatype(type), width);
+}
+
+pp_int_ptr
+INT(const string &name, const string &units)
+{
+	pp_int_ptr int_ptr = new_pp_int(units);
+	if (name != "") {
+		cur_scope->add_datatype(name, int_ptr);
+	}
+	return int_ptr;
 }
 
 pp_bitmask_ptr
