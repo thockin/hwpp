@@ -182,7 +182,7 @@ main()
 	root_device->add_dirent("space", space);
 
 	/* create a field and add it to the space */
-	pp_direct_field_ptr field1 = new_pp_direct_field(my_datatype);
+	pp_regbits_field_ptr field1 = new_pp_regbits_field(my_datatype);
 	space->add_dirent("field", field1);
 
 	/* create a register and add it to the space */
