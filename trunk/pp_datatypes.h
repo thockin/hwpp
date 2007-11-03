@@ -350,7 +350,6 @@ class pp_hex: public pp_int
 	virtual pp_value
 	lookup(const pp_value value) const
 	{
-		//FIXME: could do bounds checking here
 		return value;
 	}
 
