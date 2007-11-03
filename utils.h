@@ -53,18 +53,19 @@ get_dirent(const pp_scope *scope, pp_path path);
 extern bool
 dirent_defined(const pp_scope *scope, pp_path path);
 
-/*
- * regfield()
- *
- * Create a register and a field which consumes that register.
- */
-extern void
-regfield(const string &name, pp_scope *scope,
-		const pp_binding *binding, pp_regaddr address,
-		pp_bitwidth width, pp_const_datatype_ptr type);
 
+//FIXME: comment
+extern const pp_field *
+GET_FIELD(const pp_path &path);
+//FIXME: need a string ctor for path?
 
-//FIXME:
+extern const pp_register *
+GET_REGISTER(const pp_path &path);
+
+extern bool
+DEFINED(const pp_path &path);
+
+//FIXME: comment
 extern pp_scope_ptr
 NEW_PLATFORM();
 
@@ -105,6 +106,7 @@ REGN(const string &name, pp_regaddr address, pp_bitwidth width);
  * macro function, and the field created will be added to the present
  * scope (as created with OPEN_SCOPE).
  */
+//FIXME: drop this in favor of simply "FIELD" ?
 extern void
 SIMPLE_FIELD(const string &name, pp_const_datatype_ptr type,
 		const string &regname, int hi_bit, int lo_bit);
@@ -140,13 +142,27 @@ COMPLEX_FIELD_(const string &name, const string type, bitrange_ *bits);
 #define COMPLEX_FIELD(name, type, ...) \
 	COMPLEX_FIELD_(name, type, (bitrange_[]){__VA_ARGS__, {NULL}})
 
-//FIXME: REGFIELDN
+//FIXME: comment
+extern void
+REGFIELDN(const string &name, pp_regaddr address, pp_const_datatype_ptr type,
+		pp_bitwidth width);
+extern void
+REGFIELDN(const string &name, pp_regaddr address, const string &type,
+		pp_bitwidth width);
+#define REGFIELD8(name, address, type)  REGFIELDN(name, address, type, BITS8)
+#define REGFIELD16(name, address, type) REGFIELDN(name, address, type, BITS16)
+#define REGFIELD32(name, address, type) REGFIELDN(name, address, type, BITS32)
+#define REGFIELD64(name, address, type) REGFIELDN(name, address, type, BITS64)
 
 /* this is a helper for type-safety */
 struct kvpair_ {
 	const char *key;
 	pp_value value;
 };
+
+extern pp_int_ptr
+INT(const string &name, const string &units="");
+#define ANON_INT(units) INT("", units)
 
 /*
  * BITMASK

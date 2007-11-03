@@ -25,23 +25,14 @@ global_datatypes_init(pp_scope *platform)
 	platform->add_datatype("addr32_t", new_pp_hex(BITS32));
 	platform->add_datatype("addr64_t", new_pp_hex(BITS64));
 
-	//FIXME: for now these will do.  a global add_datatype() template
-	//function would be better.
-
 	/* various booleans */
-	pp_bool_ptr b;
-	b = ANON_BOOL("yes", "no");
-	platform->add_datatype("yesno_t", b);
-	b = ANON_BOOL("true", "false");
-	platform->add_datatype("truefalse_t", b);
-	b = ANON_BOOL("on", "off");
-	platform->add_datatype("onoff_t", b);
-	b = ANON_BOOL("enabled", "disabled");
-	platform->add_datatype("enabledisable_t", b);
+	BOOL("yesno_t", "yes", "no");
+	BOOL("truefalse_t", "true", "false");
+	BOOL("onoff_t", "on", "off");
+	BOOL("enabledisable_t", "enabled", "disabled");
 
 	/* generic bitmask */
-	pp_bitmask_ptr bm;
-	bm = ANON_BITMASK(
+	BITMASK("bitmask_t",
 			{"bit0",  0},  {"bit1",  1},
 			{"bit2",  2},  {"bit3",  3},
 			{"bit4",  4},  {"bit5",  5},
@@ -75,5 +66,4 @@ global_datatypes_init(pp_scope *platform)
 			{"bit60", 60}, {"bit61", 61},
 			{"bit62", 62}, {"bit63", 63}
 		);
-	platform->add_datatype("bitmask_t", bm);
 }
