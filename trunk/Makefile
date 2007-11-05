@@ -1,46 +1,37 @@
 TOPDIR = $(shell pwd)
-INCLUDES = -I$(TOPDIR)
-CXXFLAGS = -Wall -Werror $(INCLUDES) -g
+include rules.mk
 
-libpp_SRCS = utils.cpp \
+SRCS = utils.cpp \
 	magic_regs.cpp \
 	drivers.cpp
-libpp_OBJS = $(libpp_SRCS:.cpp=.o)
+OBJS = $(SRCS:.cpp=.o)
 
 
 all: libpp.a
 
-libpp.a: .depend $(libpp_OBJS) drivers devices
-	ar rcs $@ $(libpp_OBJS) devices/all_devices.o
-	$(MAKE) -C drivers lib LIBNAME=$(TOPDIR)/$@
+libpp.a: $(OBJS) devices/all_devices.o
+	ar rcs $@ $^
+	$(MAKE) -C drivers all lib LIBNAME=$(TOPDIR)/$@ || $(RM) $@
 
-.PHONY: drivers
-drivers:
-	$(MAKE) -C drivers
+devices/all_devices.o:
+	@$(MAKE) -C devices
 
-.PHONY: devices
-devices:
-	$(MAKE) -C devices
+.PHONY: drivers devices examples
+drivers devices examples:
+	@$(MAKE) -C $@
 
 .PHONY: test
 test:
-	$(MAKE) -C tests test
-	$(MAKE) -C drivers test
-	$(MAKE) -C devices test
+	@$(MAKE) -C tests test
+	@$(MAKE) -C drivers test
+	@$(MAKE) -C devices test
 
 .PHONY: clean
 clean:
-	$(RM) *.o *.a
-	$(MAKE) -C tests clean
-	$(MAKE) -C drivers clean
-	$(MAKE) -C devices clean
+	@$(RM) *.o *.a .depend
+	@$(MAKE) -C tests clean
+	@$(MAKE) -C drivers clean
+	@$(MAKE) -C devices clean
+	@$(MAKE) -C examples clean
 
-.PHONY: dep
-dep .depend: $(libpp_SRCS)
-	@for f in $(libpp_SRCS); do \
-		$(CPP) $(INCLUDES) -MM $$f; \
-	done > .depend
-
-ifeq (.depend,$(wildcard .depend))
-include .depend
-endif
+.depend: $(SRCS)

@@ -1,31 +1,22 @@
-INCLUDES = -I..
-CXXFLAGS = -Wall -Werror $(INCLUDES) -g
+TOPDIR = ..
+include $(TOPDIR)/rules.mk
 
 SRCS = global.cpp \
 	pci/pci.cpp \
 	pci/generic_device.cpp
-
 OBJS = $(SRCS:.cpp=.o)
 
 
 all: all_devices.o
 
-all_devices.o: .depend $(OBJS)
-	$(LD) -r -o $@ $(OBJS)
+all_devices.o: $(OBJS)
+	$(LD) -r -o $@ $^
 
 .PHONY: test
 test:
 
 .PHONY: clean
 clean:
-	$(RM) *.o $(OBJS)
+	@$(RM) *.o *.a .depend $(OBJS)
 
-.PHONY: dep
-dep .depend: $(SRCS)
-	@for f in $(SRCS); do \
-		$(CPP) $(INCLUDES) -MM $$f; \
-	done > .depend
-
-ifeq (.depend,$(wildcard .depend))
-include .depend
-endif
+.depend: $(SRCS)

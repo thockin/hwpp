@@ -1,30 +1,23 @@
+TOPDIR = ../../..
+include $(TOPDIR)/rules.mk
+
+LIBS += -L$(TOPDIR)/tests -lpptest -L$(TOPDIR) -lpp
+INCLUDES += -I.. -I$(TOPDIR)/tests
+
 TESTS = io_binding_test
-SRCS = $(TESTS:=.cpp)
+TESTS_SRCS = $(TESTS:=.cpp)
 
-INCLUDES = -I.. -I../../.. -I ../../../tests
-CXXFLAGS = -Wall -Werror $(INCLUDES) -g
 
-all: .depend $(TESTS)
-
-test: .depend $(TESTS)
-	@for f in $(TESTS); do \
-		echo -ne "Running $$f: "; \
-		./$$f; \
-		if [ $$? == 0 ]; then echo PASS; else echo FAIL; fi; \
-	done
+all: $(TESTS)
 
 $(TESTS): %: %.o
-	$(CXX) -o $@ $^
 
+.PHONY: test
+test: all
+	@$(MAKE) run_tests RUN_TESTS="$(TESTS)"
+
+.PHONY: clean
 clean:
-	$(RM) *.o $(TESTS)
+	@$(RM) *.o *.a .depend $(TESTS)
 
-.PHONY: dep
-dep .depend: $(SRCS)
-	@for f in $(SRCS); do \
-		$(CPP) $(INCLUDES) -MM $$f; \
-	done > .depend
-
-ifeq (.depend,$(wildcard .depend))
-include .depend
-endif
+.depend: $(SRCS) $(TESTS_SRCS)
