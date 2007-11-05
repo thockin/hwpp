@@ -11,9 +11,6 @@ FIXMEs
 
 move more code to .cpp files
 
-fix the build!
-
-bindings of bindings
 pp_path "^" vs "/"
 remove the length arg of io/mem bindings? else report PCI BAR sizes
 
