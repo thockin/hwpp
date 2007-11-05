@@ -1,29 +1,22 @@
-INCLUDES = -I../.. -I../../test
-CXXFLAGS = -Wall -Werror $(INCLUDES) -g
+TOPDIR = ../..
+include $(TOPDIR)/rules.mk
 
 SRCS = pci_driver.cpp
 OBJS = $(SRCS:.cpp=.o)
 
+
 all: pci_driver_module.o
 
-pci_driver_module.o: .depend $(OBJS)
+pci_driver_module.o: $(OBJS)
 	$(LD) -r -o $@ $(OBJS)
 
 .PHONY: test
 test:
-	$(MAKE) -C tests test
+	@$(MAKE) -C tests test
 
 .PHONY: clean
 clean:
-	$(RM) *.o
-	$(MAKE) -C tests clean
+	@$(RM) *.o *.a .depend
+	@$(MAKE) -C tests clean
 
-.PHONY: dep
-dep .depend: $(SRCS)
-	@for f in $(SRCS); do \
-		$(CPP) $(INCLUDES) -MM $$f; \
-	done > .depend
-
-ifeq (.depend,$(wildcard .depend))
-include .depend
-endif
+.depend: $(SRCS)

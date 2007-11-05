@@ -1,6 +1,10 @@
-INCLUDES = -I..
-CXXFLAGS = -Wall -Werror $(INCLUDES) -g
-LDFLAGS = -L. -lpptest -L.. -lpp
+TOPDIR = ..
+include $(TOPDIR)/rules.mk
+
+LIBS += -L$(TOPDIR)/tests -lpptest -L$(TOPDIR) -lpp
+
+SRCS = test_helpers.cpp
+OBJS = $(SRCS:.cpp=.o)
 
 TESTS = keyed_vector_test \
 	filesystem_test \
@@ -15,34 +19,20 @@ TESTS = keyed_vector_test \
 	magic_regs_test
 TESTS_SRCS = $(TESTS:=.cpp)
 
-libpptest_SRCS = test_helpers.cpp
-libpptest_OBJS = $(libpptest_SRCS:.cpp=.o)
-
 
 all: libpptest.a $(TESTS)
 
-libpptest.a: .depend $(libpptest_OBJS)
+libpptest.a: $(OBJS)
 	ar rcs $@ $^
 
-test: all
-	@for f in $(TESTS); do \
-		echo -n "Running $$f: "; \
-		./$$f; \
-		if [ "$$?" -eq "0" ]; then echo PASS; else echo FAIL; fi; \
-	done
-
 $(TESTS): %: %.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
 
+.PHONY: test
+test: all
+	@$(MAKE) run_tests RUN_TESTS="$(TESTS)"
+
+.PHONY: clean
 clean:
-	$(RM) *.o *.a $(TESTS)
+	@$(RM) *.o *.a .depend $(TESTS)
 
-.PHONY: dep
-dep .depend: $(TESTS_SRCS)
-	@for f in $^; do \
-		$(CPP) $(INCLUDES) -MM $$f; \
-	done > .depend
-
-ifeq (.depend,$(wildcard .depend))
-include .depend
-endif
+.depend: $(SRCS) $(TESTS_SRCS)
