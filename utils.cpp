@@ -24,6 +24,8 @@ using namespace std;
  *
  * A function to search the tree and return a pointer to
  * the field in question.
+ *
+ * NOTE: this takes a copy of the path, since it will be modified.
  */
 const pp_field *
 get_field(const pp_scope *scope, pp_path path)
@@ -61,6 +63,8 @@ get_field(const pp_scope *scope, pp_path path)
  *
  * A function to search the tree and return a pointer to
  * the field in question.
+ *
+ * NOTE: this takes a copy of the path, since it will be modified.
  */
 const pp_register *
 get_register(const pp_scope *scope, pp_path path)
@@ -98,6 +102,8 @@ get_register(const pp_scope *scope, pp_path path)
  *
  * A function to search the tree and return a pointer to
  * the dirent in question.
+ *
+ * NOTE: this takes a copy of the path, since it will be modified.
  */
 const pp_dirent *
 get_dirent(const pp_scope *scope, pp_path path)
@@ -135,7 +141,7 @@ get_dirent(const pp_scope *scope, pp_path path)
  * Tests whether the pp_path resolves to a defined dirent.
  */
 bool
-dirent_defined(const pp_scope *scope, pp_path path)
+dirent_defined(const pp_scope *scope, const pp_path &path)
 {
 	const pp_dirent *d = NULL;
 	try {

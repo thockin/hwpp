@@ -51,7 +51,7 @@ get_dirent(const pp_scope *scope, pp_path path);
  * Tests whether the pp_path resolves to a defined dirent.
  */
 extern bool
-dirent_defined(const pp_scope *scope, pp_path path);
+dirent_defined(const pp_scope *scope, const pp_path &path);
 
 
 //FIXME: comment
@@ -138,7 +138,7 @@ extern void
 COMPLEX_FIELD_(const string &name, pp_const_datatype_ptr type,
 		bitrange_ *bits);
 extern void
-COMPLEX_FIELD_(const string &name, const string type, bitrange_ *bits);
+COMPLEX_FIELD_(const string &name, const string &type, bitrange_ *bits);
 #define COMPLEX_FIELD(name, type, ...) \
 	COMPLEX_FIELD_(name, type, (bitrange_[]){__VA_ARGS__, {NULL}})
 
