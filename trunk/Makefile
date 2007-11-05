@@ -13,7 +13,7 @@ libpp.a: $(OBJS) devices/all_devices.o
 	ar rcs $@ $^
 	$(MAKE) -C drivers all lib LIBNAME=$(TOPDIR)/$@ || $(RM) $@
 
-devices/all_devices.o:
+devices/all_devices.o: FORCE
 	@$(MAKE) -C devices
 
 .PHONY: drivers devices examples
