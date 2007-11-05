@@ -53,6 +53,9 @@ Makefile: .depend
 	@touch $@
 endif
 
+# a generic empty target to force some rules
+FORCE:
+
 run_tests:
 	@for f in $(RUN_TESTS); do \
 		echo -n "Running $$f: "; \
