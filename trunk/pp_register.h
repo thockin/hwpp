@@ -83,13 +83,13 @@ typedef boost::shared_ptr<pp_register> pp_register_ptr;
 typedef boost::shared_ptr<const pp_register> pp_const_register_ptr;
 
 inline const pp_register *
-pp_register_from_dirent(pp_const_dirent_ptr dirent)
+pp_register_from_dirent(const pp_dirent *dirent)
 {
 	if (dirent->dirent_type() != PP_DIRENT_REGISTER) {
 		throw std::runtime_error(
 		    "non-register dirent used as register");
 	}
-	return static_cast<const pp_register *>(dirent.get());
+	return static_cast<const pp_register *>(dirent);
 }
 
 #define new_pp_register(...) pp_register_ptr(new pp_register(__VA_ARGS__))

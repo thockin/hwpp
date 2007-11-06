@@ -11,7 +11,7 @@
  * regbits - a bit range from a register.
  *
  * Constructors:
- * 	(pp_register_ptr reg, const int shift,
+ * 	(const pp_register *reg, const int shift,
  * 	 const pp_value mask, const int position)
  *
  * Notes:
@@ -89,7 +89,7 @@ extern pp_register *magic_ones;
 class pp_regbits_field: public pp_field
 {
     public:
-	explicit pp_regbits_field(pp_const_datatype_ptr datatype)
+	explicit pp_regbits_field(const pp_datatype *datatype)
 	    : pp_field(datatype) {}
 	virtual ~pp_regbits_field() {}
 
@@ -166,7 +166,7 @@ typedef boost::shared_ptr<proc_field_accessor> proc_field_accessor_ptr;
 class pp_proc_field: public pp_field
 {
     public:
-	explicit pp_proc_field(pp_const_datatype_ptr datatype,
+	explicit pp_proc_field(const pp_datatype *datatype,
 	    proc_field_accessor_ptr access)
 	    : pp_field(datatype), m_access(access)
 	{

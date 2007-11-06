@@ -87,18 +87,23 @@ class pp_scope: public pp_dirent
 	/*
 	 * pp_scope::add_datatype(name, datatype)
 	 *
-	 * Add a named datatype to this scope.
+	 * Add a named or unnamed datatype to this scope.
 	 */
 	void
 	add_datatype(const string &name, pp_const_datatype_ptr datatype)
 	{
 		m_datatypes.insert(name, datatype);
 	}
+	void
+	add_datatype(pp_const_datatype_ptr datatype)
+	{
+		m_anon_datatypes.push_back(datatype);
+	}
 
 	/*
 	 * pp_scope::n_datatypes()
 	 *
-	 * Return the number of datatypes in this scope.
+	 * Return the number of named datatypes in this scope.
 	 */
 	size_t
 	n_datatypes() const
@@ -111,15 +116,15 @@ class pp_scope: public pp_dirent
 	 *
 	 * Provide access to the datatypes vector.
 	 */
-	pp_const_datatype_ptr
+	const pp_datatype *
 	datatype(int index) const
 	{
-		return m_datatypes[index];
+		return m_datatypes[index].get();
 	}
-	pp_const_datatype_ptr
+	const pp_datatype *
 	datatype(string index) const
 	{
-		return m_datatypes[index];
+		return m_datatypes[index].get();
 	}
 
 	/*
@@ -138,11 +143,11 @@ class pp_scope: public pp_dirent
 	 *
 	 * Look up a datatype by name.
 	 */
-	pp_const_datatype_ptr
+	const pp_datatype *
 	resolve_datatype(const string &name) const
 	{
 		try {
-			return m_datatypes[name];
+			return m_datatypes[name].get();
 		} catch (std::out_of_range) {
 		}
 
@@ -150,7 +155,7 @@ class pp_scope: public pp_dirent
 			return m_parent->resolve_datatype(name);
 		}
 
-		return pp_const_datatype_ptr();
+		return NULL;
 	}
 
 	/*
@@ -184,15 +189,15 @@ class pp_scope: public pp_dirent
 	 *
 	 * Provide access to the dirents vector.
 	 */
-	pp_const_dirent_ptr
+	const pp_dirent *
 	dirent(int index) const
 	{
-		return m_dirents[index];
+		return m_dirents[index].get();
 	}
-	pp_const_dirent_ptr
+	const pp_dirent *
 	dirent(string index) const
 	{
-		return m_dirents[index];
+		return m_dirents[index].get();
 	}
 
 	/*
@@ -211,6 +216,7 @@ class pp_scope: public pp_dirent
 	pp_const_binding_ptr m_binding;
 	keyed_vector<string, pp_const_dirent_ptr> m_dirents;
 	keyed_vector<string, pp_const_datatype_ptr> m_datatypes;
+	std::vector<pp_const_datatype_ptr> m_anon_datatypes;
 };
 typedef boost::shared_ptr<pp_scope> pp_scope_ptr;
 typedef boost::shared_ptr<const pp_scope> pp_const_scope_ptr;
@@ -218,12 +224,12 @@ typedef boost::shared_ptr<const pp_scope> pp_const_scope_ptr;
 #define new_pp_scope(...) pp_scope_ptr(new pp_scope(__VA_ARGS__))
 
 inline const pp_scope *
-pp_scope_from_dirent(pp_const_dirent_ptr dirent)
+pp_scope_from_dirent(const pp_dirent *dirent)
 {
 	if (dirent->dirent_type() != PP_DIRENT_SCOPE) {
 		throw std::runtime_error("non-scope dirent used as scope");
 	}
-	return static_cast<const pp_scope *>(dirent.get());
+	return static_cast<const pp_scope *>(dirent);
 }
 
 #endif // PP_PP_SCOPE_H__

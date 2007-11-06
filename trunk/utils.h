@@ -106,16 +106,15 @@ REGN(const string &name, pp_regaddr address, pp_bitwidth width);
  * macro function, and the field created will be added to the present
  * scope (as created with OPEN_SCOPE).
  */
-//FIXME: drop this in favor of simply "FIELD" ?
+//FIXME: drop this in favor of simply an overloaded "FIELD()" function?
 extern void
-SIMPLE_FIELD(const string &name, pp_const_datatype_ptr type,
+SIMPLE_FIELD(const string &name, const pp_datatype *type,
 		const string &regname, int hi_bit, int lo_bit);
 extern void
 SIMPLE_FIELD(const string &name, const string &type,
 		const string &regname, int hi_bit, int lo_bit);
 #define ONE_BIT_FIELD(name, type, regname, bit) \
 		SIMPLE_FIELD(name, type, regname, bit, bit)
-
 
 /* this is a helper for type-safety */
 struct bitrange_ {
@@ -133,18 +132,22 @@ struct bitrange_ {
  * macro function, and the field created will be added to the present
  * scope (as created with OPEN_SCOPE).
  */
-
 extern void
-COMPLEX_FIELD_(const string &name, pp_const_datatype_ptr type,
-		bitrange_ *bits);
+COMPLEX_FIELD_(const string &name, const pp_datatype *type,
+		const bitrange_ *bits);
 extern void
-COMPLEX_FIELD_(const string &name, const string &type, bitrange_ *bits);
-#define COMPLEX_FIELD(name, type, ...) \
-	COMPLEX_FIELD_(name, type, (bitrange_[]){__VA_ARGS__, {NULL}})
+COMPLEX_FIELD_(const string &name, const string &type, const bitrange_ *bits);
+#define COMPLEX_FIELD(name, type, ...) do { \
+	bitrange_ ranges_[] = { \
+		__VA_ARGS__, \
+		{NULL} \
+	}; \
+	COMPLEX_FIELD_(name, type, ranges_); \
+} while (0)
 
 //FIXME: comment
 extern void
-REGFIELDN(const string &name, pp_regaddr address, pp_const_datatype_ptr type,
+REGFIELDN(const string &name, pp_regaddr address, const pp_datatype *type,
 		pp_bitwidth width);
 extern void
 REGFIELDN(const string &name, pp_regaddr address, const string &type,
@@ -160,15 +163,23 @@ struct kvpair_ {
 	pp_value value;
 };
 
-extern pp_int_ptr
+extern pp_int *
 INT(const string &name, const string &units="");
 #define ANON_INT(units) INT("", units)
 
 /*
  * BITMASK
- * A shortcut function for creating a bitmask
+ * A shortcut function for creating a bitmask.
+ * It can take an unlimted amount of arguments, in the form:
+ * 	BITMASK("name", {"abc", 1}, {"def", 2})
+ *
+ * NOTE: this works for callers that use literals, but as soon as you use a
+ * variable in the kvpairs, it becomes a non-lvalue array, and can not be
+ * used anymore.  When we get there we will have the real language, so we
+ * can dump all literal call-sites anyway, and switch this to take a vector
+ * or something.
  */
-extern pp_bitmask_ptr
+extern pp_bitmask *
 BITMASK_(const string &name, kvpair_ *values);
 #define BITMASK(name, ...) BITMASK_(name, (kvpair_[]){__VA_ARGS__, {NULL}})
 #define ANON_BITMASK(...) BITMASK("", __VA_ARGS__)
@@ -177,9 +188,15 @@ BITMASK_(const string &name, kvpair_ *values);
  * ENUM
  * A shortcut function for creating an enumeration.
  * It can take an unlimted amount of arguments, in the form:
- * enum_name, { "abc", 1 }, { "def", 2 }, ...
+ * 	ENUM("name", {"abc", 1}, {"def", 2})
+ *
+ * NOTE: this works for callers that use literals, but as soon as you use a
+ * variable in the kvpairs, it becomes a non-lvalue array, and can not be
+ * used anymore.  When we get there we will have the real language, so we
+ * can dump all literal call-sites anyway, and switch this to take a vector
+ * or something.
  */
-extern pp_enum_ptr
+extern pp_enum *
 ENUM_(const string &name, kvpair_ *values);
 #define ENUM(name, ...) ENUM_(name, (kvpair_[]){__VA_ARGS__, {NULL}})
 #define ANON_ENUM(...) ENUM("", __VA_ARGS__)
@@ -188,7 +205,7 @@ ENUM_(const string &name, kvpair_ *values);
  * BOOL
  * Shortcut to create a boolean.
  */
-extern pp_bool_ptr
+extern pp_bool *
 BOOL(const string &name, const string &true_str, const string &false_str);
 #define ANON_BOOL(true_str, false_str) BOOL("", true_str, false_str)
 

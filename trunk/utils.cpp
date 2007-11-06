@@ -42,7 +42,12 @@ get_field(const pp_scope *scope, pp_path path)
 	 * Look up the dirent of the next element.  This can throw
 	 * std::out_of_range if the dirent does not exist.
 	 */
-	pp_const_dirent_ptr de = scope->dirent(path_front);
+	const pp_dirent *de;
+	if (path_front == "..") {
+		de = scope->parent();
+	} else {
+		de = scope->dirent(path_front);
+	}
 
 	/* did we find the field? */
 	if (path.empty() && de->dirent_type() == PP_DIRENT_FIELD) {
@@ -81,7 +86,12 @@ get_register(const pp_scope *scope, pp_path path)
 	 * Look up the dirent of the next element.  This can throw
 	 * std::out_of_range if the dirent does not exist.
 	 */
-	pp_const_dirent_ptr de = scope->dirent(path_front);
+	const pp_dirent *de;
+	if (path_front == "..") {
+		de = scope->parent();
+	} else {
+		de = scope->dirent(path_front);
+	}
 
 	/* did we find the field? */
 	if (path.empty() && de->dirent_type() == PP_DIRENT_REGISTER) {
@@ -120,11 +130,16 @@ get_dirent(const pp_scope *scope, pp_path path)
 	 * Look up the dirent of the next element.  This can throw
 	 * std::out_of_range if the dirent does not exist.
 	 */
-	pp_const_dirent_ptr de = scope->dirent(path_front);
+	const pp_dirent *de;
+	if (path_front == "..") {
+		de = scope->parent();
+	} else {
+		de = scope->dirent(path_front);
+	}
 
 	/* did we find the field? */
 	if (path.empty()) {
-		return de.get();
+		return de;
 	}
 
 	if (de->dirent_type() == PP_DIRENT_SCOPE) {
@@ -154,9 +169,6 @@ dirent_defined(const pp_scope *scope, const pp_path &path)
 
 //FIXME: need comments
 //FIXME: need tests
-#include <assert.h>
-#include <stdarg.h>
-
 static pp_scope_ptr cur_scope;
 static std::vector<pp_scope_ptr> scope_stack;
 
@@ -166,12 +178,22 @@ static std::vector<string> scope_name_stack;
 static pp_const_binding_ptr cur_binding;
 static std::vector<pp_const_binding_ptr> binding_stack;
 
+/*
+ * Resolve a path to a field, relative to the current scope.  If the specified
+ * path does not exist or is not a field, throw std::out_of_range.
+ */
 const pp_field *
 GET_FIELD(const pp_path &path)
 {
+	DASSERT(cur_scope.get() != NULL);
 	return get_field(cur_scope.get(), path);
 }
 
+/*
+ * Resolve a path to a register, relative to the current scope.  If the
+ * specified path does not exist or is not a register, throw
+ * std::out_of_range.
+ */
 const pp_register *
 GET_REGISTER(const pp_path &path)
 {
@@ -180,134 +202,181 @@ GET_REGISTER(const pp_path &path)
 	if (path == "1")
 		return magic_ones;
 
+	DASSERT(cur_scope.get() != NULL);
 	return get_register(cur_scope.get(), path);
 }
 
+/*
+ * Check whether a path resolves successfully.
+ */
 bool
 DEFINED(const pp_path &path)
 {
+	DASSERT(cur_scope.get() != NULL);
 	return dirent_defined(cur_scope.get(), path);
 }
 
+/*
+ * Start a new platform scope.  A pltform scope is the top-level scope in the
+ * hierarchy.
+ */
 pp_scope_ptr
 NEW_PLATFORM()
 {
-	assert(cur_scope.get() == NULL);
-	assert(scope_stack.empty());
+	// platform is the top level, cur_scope must not exist
+	DASSERT(cur_scope.get() == NULL);
+	DASSERT(scope_stack.empty());
 
 	OPEN_SCOPE("");
 
-	/* FIXME: take these out when we have a real language */
+	// FIXME: take these out when we have a real language
 	global_datatypes_init(cur_scope.get());
 	pci_datatypes_init(cur_scope.get());
 
+	DASSERT(cur_scope.get() != NULL);
 	return cur_scope;
 }
 
+/*
+ * Start a new scope.
+ */
 void
 OPEN_SCOPE(const string &name, pp_const_binding_ptr binding)
 {
 	pp_scope_ptr tmp_scope_ = new_pp_scope(binding);
 
+	// if we are not opening a top-level scope, save the current scope
 	if (cur_scope) {
 		tmp_scope_->set_parent(cur_scope.get());
 		scope_stack.push_back(cur_scope);
 		scope_name_stack.push_back(cur_scope_name);
 	}
+	// set cur_scope to the new scope
 	cur_scope = tmp_scope_;
 	cur_scope_name = name;
 
-	if (cur_binding) {
+	// if we are starting a new binding, save the old binding
+	if (cur_binding && binding) {
 		binding_stack.push_back(cur_binding);
+		cur_binding = binding;
 	}
-	cur_binding = binding;
 }
 
+/*
+ * Close the current scope.
+ */
 void
 CLOSE_SCOPE()
 {
+	// there had better be a current scope and a parent scope
+	DASSERT(cur_scope);
+	DASSERT(scope_stack.back());
+
+	// add the current scope to the parent
 	pp_scope_ptr parent = scope_stack.back();
 	parent->add_dirent(cur_scope_name, cur_scope);
 
+	// if the current scope is bound, restore the previous binding
 	if (cur_scope->binding()) {
 		cur_binding = binding_stack.back();
 		binding_stack.pop_back();
 	}
 
+	// restore the parent scope and scope_name
 	cur_scope = scope_stack.back();
 	scope_stack.pop_back();
-
 	cur_scope_name = scope_name_stack.back();
 	scope_name_stack.pop_back();
-
 }
 
+/*
+ * Define a register.
+ */
 void
 REGN(const string &name, pp_regaddr address, pp_bitwidth width)
 {
-	//FIXME: DASSERT
-	assert(name[0] == '%');
-	//FIXME: DASSERT(!DEFINED(name))
+	// enforce that registers start with '%'
+	DASSERT(name[0] == '%');
+	// enforce unique register names
+	DASSERT(!DEFINED(name));
+
 	pp_register_ptr reg_ptr = new_pp_register(
 			cur_binding.get(), address, width);
 	cur_scope->add_dirent(name, reg_ptr);
 }
 
+/*
+ * Define a simple regbits_field from a single range of bits from a single
+ * register.
+ *
+ * NOTE: this can not simply be a macro, because COMPLEX_FIELD takes a
+ * "char *" rather than a "string".
+ */
 void
-SIMPLE_FIELD(const string &name, pp_const_datatype_ptr type,
+SIMPLE_FIELD(const string &name, const pp_datatype *type,
 		const string &regname, int hi_bit, int lo_bit)
 {
-	assert(hi_bit >= lo_bit);
-	const pp_register *reg;
-
-	//FIXME: DASSERT(DEFINED(regname))
-	//FIXME: DASSERT(!DEFINED(name))
-	//FIXME: define in terms of COMPLEX_FIELD?
-	reg = GET_REGISTER(regname);
-	pp_regbits_field_ptr field_ptr = new_pp_regbits_field(type);
-	field_ptr->add_regbits(reg, lo_bit,
-			PP_MASK((hi_bit - lo_bit) + 1), 0);
-	cur_scope->add_dirent(name, field_ptr);
+	COMPLEX_FIELD(name, type, {regname.c_str(), hi_bit, lo_bit});
 }
 void
 SIMPLE_FIELD(const string &name, const string &type_str,
 		const string &regname, int hi_bit, int lo_bit)
 {
-	pp_const_datatype_ptr type = cur_scope->resolve_datatype(type_str);
+	const pp_datatype *type = cur_scope->resolve_datatype(type_str);
 	SIMPLE_FIELD(name, type, regname, hi_bit, lo_bit);
 }
 
-//assumption: bit ranges are added sequentially from lowest to highest.
+/*
+ * Define a regbits_field from an array of bitranges.
+ *
+ * ASSUMPTION: bit ranges are added sequentially from lowest to highest.
+ */
 void
-COMPLEX_FIELD_(const string &name, pp_const_datatype_ptr type, bitrange_ *bit)
+COMPLEX_FIELD_(const string &name, const pp_datatype *type,
+		const bitrange_ *bitrange)
 {
-	//FIXME: DASSERT(!DEFINED(name))
+	// sanity
+	DASSERT(type);
+	DASSERT(bitrange);
+	// enforce unique field names
+	DASSERT(!DEFINED(name));
+
+	// create a temporary field and add each bitrange
 	pp_regbits_field_ptr field_ptr = new_pp_regbits_field(type);
-
 	int ttl_bits = 0;
-	while (bit->regname) {
-		//FIXME: DASSERT(DEFINED(bit->regname))
-		const pp_register *reg;
-		int nbits = (bit->hi_bit - bit->lo_bit) + 1;
+	while (bitrange->regname) {
+		// the register must be defined
+		DASSERT(DEFINED(bitrange->regname));
+		// the hi_bit # can not be less than the lo_bit #
+		DASSERT(bitrange->hi_bit >= bitrange->lo_bit);
 
-		reg = get_register(cur_scope.get(), pp_path(bit->regname));
-		field_ptr->add_regbits(reg, bit->lo_bit, PP_MASK(nbits),
+		const pp_register *reg = GET_REGISTER(bitrange->regname);
+		int nbits = (bitrange->hi_bit - bitrange->lo_bit) + 1;
+		DASSERT(nbits <= reg->width());
+
+		// add the current bitrange at the next free bit number
+		field_ptr->add_regbits(reg, bitrange->lo_bit, PP_MASK(nbits),
 				ttl_bits);
 		ttl_bits += nbits;
 
-		bit++;
+		// next bitrange
+		bitrange++;
 	}
 
 	cur_scope->add_dirent(name, field_ptr);
 }
 void
-COMPLEX_FIELD_(const string &name, const string &type, bitrange_ *bit)
+COMPLEX_FIELD_(const string &name, const string &type,
+		const bitrange_ *bitrange)
 {
-	COMPLEX_FIELD_(name, cur_scope->resolve_datatype(type), bit);
+	COMPLEX_FIELD_(name, cur_scope->resolve_datatype(type), bitrange);
 }
 
+/*
+ * Define a register and a field that consumes that register.
+ */
 void
-REGFIELDN(const string &name, pp_regaddr address, pp_const_datatype_ptr type,
+REGFIELDN(const string &name, pp_regaddr address, const pp_datatype *type,
 		pp_bitwidth width)
 {
 	string regname = "%" + name;
@@ -321,58 +390,80 @@ REGFIELDN(const string &name, pp_regaddr address, const string &type,
 	REGFIELDN(name, address, cur_scope->resolve_datatype(type), width);
 }
 
-pp_int_ptr
+/*
+ * Define a pp_int datatype.
+ */
+pp_int *
 INT(const string &name, const string &units)
 {
+	// sanity
+	DASSERT(cur_scope);
+
 	pp_int_ptr int_ptr = new_pp_int(units);
-	if (name != "") {
+	if (name == "") {
+		cur_scope->add_datatype(int_ptr);
+	} else {
 		cur_scope->add_datatype(name, int_ptr);
 	}
-	return int_ptr;
+	return int_ptr.get();
 }
 
-pp_bitmask_ptr
+pp_bitmask *
 BITMASK_(const string &name, kvpair_ *value)
 {
-	pp_bitmask_ptr bitmask_ptr = new_pp_bitmask();
+	// sanity
+	DASSERT(cur_scope);
+	DASSERT(value);
 
+	pp_bitmask_ptr bitmask_ptr = new_pp_bitmask();
 	while (value->key) {
 		bitmask_ptr->add_bit(value->key, value->value);
 		value++;
 	}
 
-	if (name != "") {
+	if (name == "") {
+		cur_scope->add_datatype(bitmask_ptr);
+	} else {
 		cur_scope->add_datatype(name, bitmask_ptr);
 	}
 
-	return bitmask_ptr;
+	return bitmask_ptr.get();
 }
 
-pp_enum_ptr
+pp_enum *
 ENUM_(const string &name, kvpair_ *value)
 {
-	pp_enum_ptr enum_ptr = new_pp_enum();
+	// sanity
+	DASSERT(cur_scope);
+	DASSERT(value);
 
+	pp_enum_ptr enum_ptr = new_pp_enum();
 	while (value->key) {
 		enum_ptr->add_value(value->key, value->value);
 		value++;
 	}
 
-	if (name != "") {
+	if (name == "") {
+		cur_scope->add_datatype(enum_ptr);
+	} else {
 		cur_scope->add_datatype(name, enum_ptr);
 	}
 
-	return enum_ptr;
+	return enum_ptr.get();
 }
 
-pp_bool_ptr
+pp_bool *
 BOOL(const string &name, const string &true_str, const string &false_str)
 {
-	pp_bool_ptr bool_ptr = new_pp_bool(true_str, false_str);
+	// sanity
+	DASSERT(cur_scope);
 
-	if (name != "") {
+	pp_bool_ptr bool_ptr = new_pp_bool(true_str, false_str);
+	if (name == "") {
+		cur_scope->add_datatype(bool_ptr);
+	} else {
 		cur_scope->add_datatype(name, bool_ptr);
 	}
 
-	return bool_ptr;
+	return bool_ptr.get();
 }

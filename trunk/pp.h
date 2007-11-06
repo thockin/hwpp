@@ -8,6 +8,7 @@
 using std::string;
 #include <boost/format.hpp>
 #include <boost/smart_ptr.hpp>
+#include "debug.h"
 
 /* convert any stream-ready object to a string */
 #include <sstream>
