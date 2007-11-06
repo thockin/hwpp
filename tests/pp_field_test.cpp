@@ -315,7 +315,7 @@ test_proc_field()
 {
 	int ret = 0;
 
-	pp_datatype_ptr hex = new_pp_hex();
+	pp_datatype *hex = new pp_hex();
 	proc_field_accessor_ptr accessor(new test_proc_field_accessor);
 	pp_proc_field f(hex, accessor);
 	f.write(0x12345678);

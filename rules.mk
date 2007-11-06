@@ -58,7 +58,7 @@ FORCE:
 
 run_tests:
 	@for f in $(RUN_TESTS); do \
-		echo -n "Running $$f: "; \
+		echo -n "TEST $$f: "; \
 		./$$f > $$f.err 2>&1; \
 		if [ "$$?" -eq "0" ]; then \
 			echo PASS; \

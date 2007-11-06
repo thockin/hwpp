@@ -40,7 +40,7 @@ test_mem_binding()
 	int ret = 0;
 
 	/* test the read() method */
-	pp_binding_ptr binding = new_mem_binding(mem_address(0x123456789, 0x1234),
+	pp_binding_ptr binding = new_mem_binding(mem_address(0x123456789ULL, 0x1234),
 	    new fake_mem_io());
 	if (binding->read(0, BITS8) != 0x00) {
 		PP_TEST_ERROR("mem_binding::read()");

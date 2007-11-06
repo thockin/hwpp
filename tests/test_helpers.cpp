@@ -40,7 +40,7 @@ static int scope_count = 0;
 static int register_count = 0;
 
 /* Global Datatypes */
-static pp_datatype_ptr integer = new_pp_int();
+static pp_datatype *integer = new pp_int();
 
 /* Global Bindings */
 static pp_binding_ptr binding = new_test_binding();
@@ -136,7 +136,7 @@ display_tree(const pp_scope *scope, int depth)
 	}
 
 	for (size_t i = 0; i < scope->n_dirents(); i++) {
-		pp_const_dirent_ptr dirent = scope->dirent(i);
+		const pp_dirent *dirent = scope->dirent(i);
 
 		indent(depth);
 

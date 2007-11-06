@@ -65,6 +65,7 @@ test_file_mapping()
 		ret++;
 	}
 
+	system("rm -f file.exists");
 	return ret;
 }
 

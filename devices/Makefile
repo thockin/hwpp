@@ -14,6 +14,7 @@ all_devices.o: $(OBJS)
 
 .PHONY: test
 test:
+	@true
 
 .PHONY: clean
 clean:
