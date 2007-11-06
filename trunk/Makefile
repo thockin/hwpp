@@ -21,7 +21,7 @@ drivers devices examples:
 	@$(MAKE) -C $@
 
 .PHONY: test
-test:
+test: all
 	@$(MAKE) -C tests test
 	@$(MAKE) -C drivers test
 	@$(MAKE) -C devices test

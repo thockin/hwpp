@@ -14,6 +14,7 @@ $(BINS): %: %.o
 
 .PHONY: test
 test: all
+	@true
 
 .PHONY: clean
 clean:
