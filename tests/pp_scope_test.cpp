@@ -82,11 +82,11 @@ test_datatypes()
 	/* test add_datatype() and datatype() */
 	pp_datatype_ptr type = new_pp_int();
 	scope->add_datatype("type", type);
-	if (scope->datatype(0) != type) {
+	if (scope->datatype(0) != type.get()) {
 		PP_TEST_ERROR("pp_scope::add_datatype()");
 		ret++;
 	}
-	if (scope->datatype("type") != type) {
+	if (scope->datatype("type") != type.get()) {
 		PP_TEST_ERROR("pp_scope::add_datatype()");
 		ret++;
 	}
@@ -104,8 +104,8 @@ test_datatypes()
 	}
 
 	/* test resolve_datatype() */
-	pp_const_datatype_ptr type2 = scope->resolve_datatype("type");
-	if (type2 != type) {
+	const pp_datatype *type2 = scope->resolve_datatype("type");
+	if (type2 != type.get()) {
 		PP_TEST_ERROR("pp_scope::resolve_datatype()");
 		ret++;
 	}
@@ -114,7 +114,7 @@ test_datatypes()
 	pp_scope_ptr psub = new_pp_scope();
 	psub->set_parent(scope.get());
 	type2 = psub->resolve_datatype("type");
-	if (type2 != type) {
+	if (type2 != type.get()) {
 		PP_TEST_ERROR("pp_scope::resolve_datatype()");
 		ret++;
 	}

@@ -53,6 +53,14 @@ get_field_test(const pp_scope *tree)
 	} catch (exception e) {
 	}
 
+	/* search for an item through a path with ".." */
+	try {
+		get_field(tree, pp_path("space/scope/../field"));
+	} catch (exception e) {
+		PP_TEST_ERROR("get_field()");
+		return_value++;
+	}
+
 	return return_value;
 }
 
@@ -91,6 +99,14 @@ get_register_test(const pp_scope *tree)
 		PP_TEST_ERROR("get_register()");
 		return_value++;
 	} catch (exception e) {
+	}
+
+	/* search for an item through a path with ".." */
+	try {
+		get_register(tree, pp_path("space/scope/../register"));
+	} catch (exception e) {
+		PP_TEST_ERROR("get_register()");
+		return_value++;
 	}
 
 	return return_value;
@@ -133,6 +149,14 @@ get_dirent_test(const pp_scope *tree)
 	} catch (exception e) {
 	}
 
+	/* search for an item through a path with ".." */
+	try {
+		get_dirent(tree, pp_path("space/scope/../register"));
+	} catch (exception e) {
+		PP_TEST_ERROR("get_dirent()");
+		return_value++;
+	}
+
 	return return_value;
 }
 
@@ -165,6 +189,14 @@ dirent_defined_test(const pp_scope *tree)
 		return_value++;
 	}
 
+	/* search for an item through a path with ".." */
+	try {
+		dirent_defined(tree, pp_path("space/scope/../register"));
+	} catch (exception e) {
+		PP_TEST_ERROR("dirent_defined()");
+		return_value++;
+	}
+
 	return return_value;
 }
 
@@ -182,7 +214,7 @@ main()
 	root_device->add_dirent("space", space);
 
 	/* create a field and add it to the space */
-	pp_regbits_field_ptr field1 = new_pp_regbits_field(my_datatype);
+	pp_regbits_field_ptr field1 = new_pp_regbits_field(my_datatype.get());
 	space->add_dirent("field", field1);
 
 	/* create a register and add it to the space */

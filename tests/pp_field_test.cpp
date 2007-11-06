@@ -58,7 +58,7 @@ test_int_field()
 	pp_register_ptr r2 = new_pp_register(bind2.get(), 1, BITS16);
 
 	pp_datatype_ptr integer = new_pp_int();
-	pp_regbits_field f1(integer);
+	pp_regbits_field f1(integer.get());
 	f1.add_regbits(r1.get(), 0, 0xff, 0);
 	f1.add_regbits(r2.get(), 0, 0xff, 8);
 
@@ -104,7 +104,7 @@ test_uint_field()
 	pp_register_ptr r2 = new_pp_register(bind2.get(), 1, BITS16);
 
 	pp_datatype_ptr uinteger = new_pp_uint();
-	pp_regbits_field f1(uinteger);
+	pp_regbits_field f1(uinteger.get());
 	f1.add_regbits(r1.get(), 0, 0xff, 0);
 	f1.add_regbits(r2.get(), 0, 0xff, 8);
 
@@ -151,7 +151,7 @@ test_hex_field()
 
 	/* test a hex16 field */
 	pp_datatype_ptr hex16 = new_pp_hex(BITS16);
-	pp_regbits_field f1(hex16);
+	pp_regbits_field f1(hex16.get());
 	f1.add_regbits(r1.get(), 0, 0xff, 0);
 	f1.add_regbits(r2.get(), 0, 0xff, 8);
 
@@ -202,7 +202,7 @@ test_enum_field()
 	e1->add_value("two", 2);
 	e1->add_value("three", 3);
 	e1->add_value("correct", 0x2211);
-	pp_regbits_field_ptr f1 = new_pp_regbits_field(e1);
+	pp_regbits_field_ptr f1 = new_pp_regbits_field(e1.get());
 	f1->add_regbits(r1.get(), 0, 0xff, 0);
 	f1->add_regbits(r2.get(), 0, 0xff, 8);
 
@@ -257,7 +257,7 @@ test_bitmask_field()
 	b1->add_bit("four", 4);
 	b1->add_bit("nine", 9);
 	b1->add_bit("thirteen", 13);
-	pp_regbits_field_ptr f1 = new_pp_regbits_field(b1);
+	pp_regbits_field_ptr f1 = new_pp_regbits_field(b1.get());
 	f1->add_regbits(r1.get(), 0, 0xff, 0);
 	f1->add_regbits(r2.get(), 0, 0xff, 8);
 
