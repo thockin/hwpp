@@ -24,7 +24,7 @@
  * function will throw std::out_of_range.
  */
 extern const pp_field *
-get_field(const pp_scope *scope, pp_path path);
+get_field(const pp_scope *scope, const pp_path &path);
 
 /*
  * get_register()
@@ -34,13 +34,15 @@ get_field(const pp_scope *scope, pp_path path);
  * this function will throw std::out_of_range.
  */
 extern const pp_register *
-get_register(const pp_scope *scope, pp_path path);
+get_register(const pp_scope *scope, const pp_path &path);
 
 /*
  * get_dirent()
  *
  * Returns a pointer to the dirent specified by pp_path.
  * If the dirent does not exist, this function will throw std::out_of_range.
+ *
+ * NOTE: this does not take path as a reference because it may modify it.
  */
 extern const pp_dirent *
 get_dirent(const pp_scope *scope, pp_path path);
@@ -109,18 +111,18 @@ REGN(const string &name, pp_regaddr address, pp_bitwidth width);
 //FIXME: drop this in favor of simply an overloaded "FIELD()" function?
 extern void
 SIMPLE_FIELD(const string &name, const pp_datatype *type,
-		const string &regname, int hi_bit, int lo_bit);
+		const string &regname, unsigned hi_bit, unsigned lo_bit);
 extern void
 SIMPLE_FIELD(const string &name, const string &type,
-		const string &regname, int hi_bit, int lo_bit);
+		const string &regname, unsigned hi_bit, unsigned lo_bit);
 #define ONE_BIT_FIELD(name, type, regname, bit) \
 		SIMPLE_FIELD(name, type, regname, bit, bit)
 
 /* this is a helper for type-safety */
 struct bitrange_ {
 	const char *regname;
-	int hi_bit;
-	int lo_bit;
+	unsigned hi_bit;
+	unsigned lo_bit;
 };
 
 /*

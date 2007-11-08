@@ -11,6 +11,7 @@ pci_datatypes_init(pp_scope *platform)
 {
 	/* pci_vendor_t */
 	ENUM("pci_vendor_t",
+		{"unknown", 0},
 		{"Intel", 0x8086},
 		{"AMD", 0x1022},
 		{"NVidia", 0x10de},
@@ -33,7 +34,7 @@ pci_datatypes_init(pp_scope *platform)
 		{"input", 0x09},
 		{"docking", 0x0a},
 		{"processor", 0x0b},
-		{"serial bus", 0x0c},
+		{"serial", 0x0c},
 		{"wireless", 0x0d},
 		{"intelligent_io", 0x0e},
 		{"satellite", 0x0f},
@@ -91,10 +92,11 @@ pci_datatypes_init(pp_scope *platform)
 			{"CardBus bridge", 0x07},
 			{"RACEway bridge", 0x08},
 			{"other", 0x80});
-			//TODO: classes 0x07-0x11
+	//FIXME: classes 0x07-0x11
 
 	// pci_capability_t
 	ENUM("pci_capability_t",
+			{"unknown", 0},
 			{"power_mgmt", 0x01},
 			{"agp", 0x02},
 			{"vpd", 0x03},

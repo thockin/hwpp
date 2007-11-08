@@ -24,43 +24,17 @@ using namespace std;
  *
  * A function to search the tree and return a pointer to
  * the field in question.
- *
- * NOTE: this takes a copy of the path, since it will be modified.
  */
 const pp_field *
-get_field(const pp_scope *scope, pp_path path)
+get_field(const pp_scope *scope, const pp_path &path)
 {
-	/* error case */
-	if (path.empty()) {
-		throw std::out_of_range("path not found");
-	}
-
-	/* grab first element of path */
-	string path_front = path.pop_front();
-
-	/*
-	 * Look up the dirent of the next element.  This can throw
-	 * std::out_of_range if the dirent does not exist.
-	 */
-	const pp_dirent *de;
-	if (path_front == "..") {
-		de = scope->parent();
-	} else {
-		de = scope->dirent(path_front);
-	}
-
-	/* did we find the field? */
-	if (path.empty() && de->dirent_type() == PP_DIRENT_FIELD) {
+	const pp_dirent *de = get_dirent(scope, path);
+	if (de->dirent_type() == PP_DIRENT_FIELD) {
 		return pp_field_from_dirent(de);
 	}
-
-	/* recursive case */
-	if (de->dirent_type() == PP_DIRENT_SCOPE) {
-		return get_field(pp_scope_from_dirent(de), path);
-	}
-
 	/* default error case */
-	throw std::out_of_range("path is not a field");
+	throw std::out_of_range("path is not a field: "
+			+ to_string(path));
 }
 
 /*
@@ -68,43 +42,17 @@ get_field(const pp_scope *scope, pp_path path)
  *
  * A function to search the tree and return a pointer to
  * the field in question.
- *
- * NOTE: this takes a copy of the path, since it will be modified.
  */
 const pp_register *
-get_register(const pp_scope *scope, pp_path path)
+get_register(const pp_scope *scope, const pp_path &path)
 {
-	/* error case */
-	if (path.empty()) {
-		throw std::out_of_range("path not found");
-	}
-
-	/* grab first element of path */
-	string path_front = path.pop_front();
-
-	/*
-	 * Look up the dirent of the next element.  This can throw
-	 * std::out_of_range if the dirent does not exist.
-	 */
-	const pp_dirent *de;
-	if (path_front == "..") {
-		de = scope->parent();
-	} else {
-		de = scope->dirent(path_front);
-	}
-
-	/* did we find the field? */
-	if (path.empty() && de->dirent_type() == PP_DIRENT_REGISTER) {
+	const pp_dirent *de = get_dirent(scope, path);
+	if (de->dirent_type() == PP_DIRENT_REGISTER) {
 		return pp_register_from_dirent(de);
 	}
-
-	/* recursive case */
-	if (de->dirent_type() == PP_DIRENT_SCOPE) {
-		return get_register(pp_scope_from_dirent(de), path);
-	}
-
 	/* default error case */
-	throw std::out_of_range("path is not a register");
+	throw std::out_of_range("path is not a register: "
+			+ to_string(path));
 }
 
 /*
@@ -113,14 +61,15 @@ get_register(const pp_scope *scope, pp_path path)
  * A function to search the tree and return a pointer to
  * the dirent in question.
  *
- * NOTE: this takes a copy of the path, since it will be modified.
+ * NOTE: this takes path as a non-const reference, and may modify it.
  */
-const pp_dirent *
-get_dirent(const pp_scope *scope, pp_path path)
+static const pp_dirent *
+get_dirent_internal(const pp_scope *scope, pp_path &path)
 {
 	/* error case */
 	if (path.empty()) {
-		throw std::out_of_range("path not found");
+		throw std::out_of_range("path not found: "
+			+ to_string(path));
 	}
 
 	/* grab first element of path */
@@ -137,17 +86,34 @@ get_dirent(const pp_scope *scope, pp_path path)
 		de = scope->dirent(path_front);
 	}
 
-	/* did we find the field? */
+	/* did we find the dirent? */
 	if (path.empty()) {
 		return de;
 	}
 
+	/* keep looking */
 	if (de->dirent_type() == PP_DIRENT_SCOPE) {
 		return get_dirent(pp_scope_from_dirent(de), path);
 	}
 
 	/* default error case */
-	throw std::out_of_range("path is not a known dirent_type");
+	throw std::out_of_range("path is not a known dirent_type: "
+			+ to_string(path)
+			+ "(" + to_string(de->dirent_type()) + ")");
+}
+/*
+ * NOTE: this takes a copy of the path, since it will be modified.
+ */
+const pp_dirent *
+get_dirent(const pp_scope *scope, pp_path path)
+{
+	if (path.front() == "^") {
+		while (!scope->is_root() && !scope->binding()) {
+			scope = scope->parent();
+		}
+		path.pop_front();
+	}
+	return get_dirent_internal(scope, path);
 }
 
 /*
@@ -167,8 +133,8 @@ dirent_defined(const pp_scope *scope, const pp_path &path)
 	return (d != NULL);
 }
 
-//FIXME: need comments
 //FIXME: need tests
+
 static pp_scope_ptr cur_scope;
 static std::vector<pp_scope_ptr> scope_stack;
 
@@ -185,7 +151,7 @@ static std::vector<pp_const_binding_ptr> binding_stack;
 const pp_field *
 GET_FIELD(const pp_path &path)
 {
-	DASSERT(cur_scope.get() != NULL);
+	DASSERT_MSG(cur_scope, "found NULL cur_scope");
 	return get_field(cur_scope.get(), path);
 }
 
@@ -202,7 +168,7 @@ GET_REGISTER(const pp_path &path)
 	if (path == "1")
 		return magic_ones;
 
-	DASSERT(cur_scope.get() != NULL);
+	DASSERT_MSG(cur_scope, "found NULL cur_scope");
 	return get_register(cur_scope.get(), path);
 }
 
@@ -212,7 +178,7 @@ GET_REGISTER(const pp_path &path)
 bool
 DEFINED(const pp_path &path)
 {
-	DASSERT(cur_scope.get() != NULL);
+	DASSERT_MSG(cur_scope, "found NULL cur_scope");
 	return dirent_defined(cur_scope.get(), path);
 }
 
@@ -224,8 +190,8 @@ pp_scope_ptr
 NEW_PLATFORM()
 {
 	// platform is the top level, cur_scope must not exist
-	DASSERT(cur_scope.get() == NULL);
-	DASSERT(scope_stack.empty());
+	DASSERT_MSG(!cur_scope, "found non-NULL cur_scope");
+	DASSERT_MSG(scope_stack.empty(), "scope_stack must be empty");
 
 	OPEN_SCOPE("");
 
@@ -233,7 +199,7 @@ NEW_PLATFORM()
 	global_datatypes_init(cur_scope.get());
 	pci_datatypes_init(cur_scope.get());
 
-	DASSERT(cur_scope.get() != NULL);
+	DASSERT_MSG(cur_scope, "found NULL cur_scope");
 	return cur_scope;
 }
 
@@ -243,6 +209,7 @@ NEW_PLATFORM()
 void
 OPEN_SCOPE(const string &name, pp_const_binding_ptr binding)
 {
+	DTRACE(TRACE_SCOPES, "scope: " + cur_scope_name);
 	pp_scope_ptr tmp_scope_ = new_pp_scope(binding);
 
 	// if we are not opening a top-level scope, save the current scope
@@ -256,7 +223,7 @@ OPEN_SCOPE(const string &name, pp_const_binding_ptr binding)
 	cur_scope_name = name;
 
 	// if we are starting a new binding, save the old binding
-	if (cur_binding && binding) {
+	if (binding) {
 		binding_stack.push_back(cur_binding);
 		cur_binding = binding;
 	}
@@ -268,9 +235,10 @@ OPEN_SCOPE(const string &name, pp_const_binding_ptr binding)
 void
 CLOSE_SCOPE()
 {
+	DTRACE(TRACE_SCOPES, "end scope: " + cur_scope_name);
 	// there had better be a current scope and a parent scope
-	DASSERT(cur_scope);
-	DASSERT(scope_stack.back());
+	DASSERT_MSG(cur_scope, "found NULL cur_scope");
+	DASSERT_MSG(scope_stack.back(), "no parent scope");
 
 	// add the current scope to the parent
 	pp_scope_ptr parent = scope_stack.back();
@@ -295,10 +263,13 @@ CLOSE_SCOPE()
 void
 REGN(const string &name, pp_regaddr address, pp_bitwidth width)
 {
+	DTRACE(TRACE_REGS, "reg: " + name);
+	// check that we have a current binding
+	DASSERT_MSG(cur_binding, "no binding for register " + name);
 	// enforce that registers start with '%'
-	DASSERT(name[0] == '%');
+	DASSERT_MSG(name[0] == '%', "register must start with %: " + name);
 	// enforce unique register names
-	DASSERT(!DEFINED(name));
+	DASSERT_MSG(!DEFINED(name), "register name collision: " + name);
 
 	pp_register_ptr reg_ptr = new_pp_register(
 			cur_binding.get(), address, width);
@@ -314,13 +285,13 @@ REGN(const string &name, pp_regaddr address, pp_bitwidth width)
  */
 void
 SIMPLE_FIELD(const string &name, const pp_datatype *type,
-		const string &regname, int hi_bit, int lo_bit)
+		const string &regname, unsigned hi_bit, unsigned lo_bit)
 {
 	COMPLEX_FIELD(name, type, {regname.c_str(), hi_bit, lo_bit});
 }
 void
 SIMPLE_FIELD(const string &name, const string &type_str,
-		const string &regname, int hi_bit, int lo_bit)
+		const string &regname, unsigned hi_bit, unsigned lo_bit)
 {
 	const pp_datatype *type = cur_scope->resolve_datatype(type_str);
 	SIMPLE_FIELD(name, type, regname, hi_bit, lo_bit);
@@ -335,24 +306,35 @@ void
 COMPLEX_FIELD_(const string &name, const pp_datatype *type,
 		const bitrange_ *bitrange)
 {
+	DTRACE(TRACE_FIELDS, "field: " + name);
 	// sanity
-	DASSERT(type);
-	DASSERT(bitrange);
+	DASSERT_MSG(type, "found NULL pp_datatype for field " + name);
+	DASSERT_MSG(bitrange, "found NULL bitrange[] for field " + name);
 	// enforce unique field names
-	DASSERT(!DEFINED(name));
+	DASSERT_MSG(!DEFINED(name), "field name collision: " + name);
 
 	// create a temporary field and add each bitrange
 	pp_regbits_field_ptr field_ptr = new_pp_regbits_field(type);
 	int ttl_bits = 0;
 	while (bitrange->regname) {
-		// the register must be defined
-		DASSERT(DEFINED(bitrange->regname));
+		DTRACE(TRACE_FIELDS && TRACE_FIELD_BITS, string("  ")
+				+ bitrange->regname + "["
+				+ to_string(bitrange->hi_bit) + ","
+				+ to_string(bitrange->lo_bit) + "]");
 		// the hi_bit # can not be less than the lo_bit #
-		DASSERT(bitrange->hi_bit >= bitrange->lo_bit);
+		DASSERT_MSG(bitrange->hi_bit >= bitrange->lo_bit,
+				"hi_bit must be >= lo_bit: "
+					+ to_string(bitrange->hi_bit)
+					+ string(" < ")
+					+ to_string(bitrange->lo_bit));
 
 		const pp_register *reg = GET_REGISTER(bitrange->regname);
 		int nbits = (bitrange->hi_bit - bitrange->lo_bit) + 1;
-		DASSERT(nbits <= reg->width());
+		DASSERT_MSG(bitrange->hi_bit < (unsigned)reg->width(),
+				"bitrange is too large for register size: "
+					+ to_string(bitrange->hi_bit)
+					+ string(" >= ")
+					+ to_string(reg->width()));
 
 		// add the current bitrange at the next free bit number
 		field_ptr->add_regbits(reg, bitrange->lo_bit, PP_MASK(nbits),
@@ -396,8 +378,9 @@ REGFIELDN(const string &name, pp_regaddr address, const string &type,
 pp_int *
 INT(const string &name, const string &units)
 {
+	DTRACE(TRACE_TYPES, "int: " + name);
 	// sanity
-	DASSERT(cur_scope);
+	DASSERT_MSG(cur_scope, "found NULL cur_scope");
 
 	pp_int_ptr int_ptr = new_pp_int(units);
 	if (name == "") {
@@ -411,9 +394,10 @@ INT(const string &name, const string &units)
 pp_bitmask *
 BITMASK_(const string &name, kvpair_ *value)
 {
+	DTRACE(TRACE_TYPES, "bitmask: " + name);
 	// sanity
-	DASSERT(cur_scope);
-	DASSERT(value);
+	DASSERT_MSG(cur_scope, "found NULL cur_scope");
+	DASSERT_MSG(value, "found NULL kvpair[] for bitmask " + name);
 
 	pp_bitmask_ptr bitmask_ptr = new_pp_bitmask();
 	while (value->key) {
@@ -433,9 +417,10 @@ BITMASK_(const string &name, kvpair_ *value)
 pp_enum *
 ENUM_(const string &name, kvpair_ *value)
 {
+	DTRACE(TRACE_TYPES, "enum: " + name);
 	// sanity
-	DASSERT(cur_scope);
-	DASSERT(value);
+	DASSERT_MSG(cur_scope, "found NULL cur_scope");
+	DASSERT_MSG(value, "found NULL kvpair[] for enum " + name);
 
 	pp_enum_ptr enum_ptr = new_pp_enum();
 	while (value->key) {
@@ -455,8 +440,9 @@ ENUM_(const string &name, kvpair_ *value)
 pp_bool *
 BOOL(const string &name, const string &true_str, const string &false_str)
 {
+	DTRACE(TRACE_TYPES, "bool: " + name);
 	// sanity
-	DASSERT(cur_scope);
+	DASSERT_MSG(cur_scope, "found NULL cur_scope");
 
 	pp_bool_ptr bool_ptr = new_pp_bool(true_str, false_str);
 	if (name == "") {

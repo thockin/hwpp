@@ -74,6 +74,7 @@ typedef int64_t  pp_svalue;
  */
 typedef enum pp_bitwidth {
 	BITS0  = 0,
+	BITS4  = 4,
 	BITS8  = 8,
 	BITS16 = 16,
 	BITS32 = 32,

@@ -17,6 +17,7 @@ global_datatypes_init(pp_scope *platform)
 	/* primitives */
 	platform->add_datatype("int_t", new_pp_int());
 	platform->add_datatype("hex_t", new_pp_hex());
+	platform->add_datatype("hex4_t", new_pp_hex(BITS4));
 	platform->add_datatype("hex8_t", new_pp_hex(BITS8));
 	platform->add_datatype("hex16_t", new_pp_hex(BITS16));
 	platform->add_datatype("hex32_t", new_pp_hex(BITS32));

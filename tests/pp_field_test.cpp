@@ -295,13 +295,13 @@ test_proc_field_accessor: public proc_field_accessor
 {
     public:
 	virtual pp_value
-	read()
+	read() const
 	{
 		return m_data;
 	}
 
 	virtual void
-	write(pp_value value)
+	write(pp_value value) const
 	{
 		m_data = value;
 	}

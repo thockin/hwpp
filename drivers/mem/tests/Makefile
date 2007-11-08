@@ -1,7 +1,6 @@
 TOPDIR = ../../..
 include $(TOPDIR)/rules.mk
 
-LIBS += -L$(TOPDIR)/tests -lpptest -L$(TOPDIR) -lpp
 INCLUDES += -I.. -I$(TOPDIR)/tests
 
 TESTS = mem_binding_test
@@ -10,7 +9,7 @@ TESTS_SRCS = $(TESTS:=.cpp)
 
 all: $(TESTS)
 
-$(TESTS): %: %.o
+$(TESTS): %: %.o $(TOPDIR)/libpp.a $(TOPDIR)/tests/libpptest.a
 
 .PHONY: test
 test: all

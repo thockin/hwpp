@@ -150,8 +150,8 @@ class proc_field_accessor
 {
     public:
 	virtual ~proc_field_accessor() {}
-	virtual pp_value read() = 0;
-	virtual void write(pp_value value) = 0;
+	virtual pp_value read() const = 0;
+	virtual void write(pp_value value) const = 0;
 };
 typedef boost::shared_ptr<proc_field_accessor> proc_field_accessor_ptr;
 

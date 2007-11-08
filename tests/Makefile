@@ -1,8 +1,6 @@
 TOPDIR = ..
 include $(TOPDIR)/rules.mk
 
-LIBS += -L$(TOPDIR)/tests -lpptest -L$(TOPDIR) -lpp
-
 SRCS = test_helpers.cpp
 OBJS = $(SRCS:.cpp=.o)
 
@@ -25,7 +23,7 @@ all: libpptest.a $(TESTS)
 libpptest.a: $(OBJS)
 	ar rcs $@ $^
 
-$(TESTS): %: %.o
+$(TESTS): %: %.o $(TOPDIR)/libpp.a libpptest.a
 
 .PHONY: test
 test: all
