@@ -44,14 +44,23 @@ dep depend:
 		$(CPP) $(PP_INCLUDES) -MM $$f -MT $$OBJ; \
 	done > .depend
 
-ifeq (.depend,$(wildcard .depend))
-# if dependency info exists, read it in
-include .depend
-else
-# otherwise force make to reload this Makefile
-Makefile: .depend
-	@touch $@
-endif
+# NOTE: 'sinclude' is "silent-include".  This suppresses a warning if
+# .depend does not exist.  Since Makefile includes this file, and this
+# file includes .depend, .depend is itself "a makefile" and Makefile is
+# dependent on it.  Any makefile for which there is a rule (as above for
+# .depend) will be evaluated before anything else.  If the rule executes
+# and the makefile is updated, make will reload the original Makefile and
+# start over.
+#
+# This means that the .depend rule will always be checked first.  If
+# .depend gets rebuilt, then the dependencies we have already sincluded
+# must have been stale.  Make starts over, the old dependencies are
+# tossed, and the new dependencies are sincluded.
+#
+# So why use 'sinclude' instead of 'include'?  We want to ALWAYS make
+# Makefile depend on .depend, even if .depend doesn't exist yet.  But we
+# don't want that pesky warning.
+sinclude .depend
 
 # a generic empty target to force some rules
 FORCE:
