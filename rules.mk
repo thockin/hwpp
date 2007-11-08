@@ -2,6 +2,7 @@
 
 DEBUG = 1
 STATIC = 1
+PROFILE = 0
 
 # build tools
 
@@ -14,17 +15,27 @@ PP_CXXFLAGS = -O2 $(INCLUDES)
 PP_WARNS = -Wall -Werror $(WARNS)
 PP_DEFS = $(DEFS)
 PP_INCLUDES = -I$(TOPDIR) $(INCLUDES)
-ifneq ($(strip $(DEBUG)),)
+ifeq ($(strip $(DEBUG)),1)
 PP_DEBUG = -O0 -ggdb -DDEBUG
 endif
 
-PP_LIBS = $(LIBS)
-ifneq ($(strip $(STATIC)),)
+PP_LDLIBS = $(LIBS)
+ifeq ($(strip $(STATIC)),1)
 PP_STATIC = -static
 endif
 
+ifeq ($(strip $(PROFILE)),1)
+ifeq ($(strip $(DEBUG)),1)
+$(warning WARNING: PROFILE and DEBUG are both enabled)
+endif
+PP_CXXFLAGS += -pg
+PP_LDFLAGS += -pg
+PP_LDLIBS += -lgcov
+endif
+
 CXXFLAGS += $(PP_CXXFLAGS) $(PP_WARNS) $(PP_DEFS) $(PP_INCLUDES) $(PP_DEBUG)
-LDLIBS += $(PP_LIBS) $(PP_STATIC)
+LDFLAGS += $(PP_LDFLAGS)
+LDLIBS += $(PP_LDLIBS) $(PP_STATIC)
 
 MAKEFLAGS = --no-print-directory
 
