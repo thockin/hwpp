@@ -66,6 +66,9 @@ class pp_enum: public pp_datatype
 	void
 	add_value(const string &name, pp_value value)
 	{
+		DASSERT_MSG(m_values.find(name) == m_values.end(),
+				"adding duplicate enum key: "
+					+ name + " = " + to_string(value));
 		m_values.insert(name, value);
 	}
 
@@ -194,6 +197,9 @@ class pp_bitmask: public pp_datatype
 	void
 	add_bit(const string &name, const pp_value value)
 	{
+		DASSERT_MSG(m_bits.find(name) == m_bits.end(),
+				"adding duplicate bitmask key: "
+					+ name + " = " + to_string(value));
 		m_bits.insert(name, value);
 	}
 

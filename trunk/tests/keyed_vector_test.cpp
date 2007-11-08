@@ -22,25 +22,24 @@ test_keyed_vector_int() {
 	si_keyvec::iterator it;
 	si_keyvec empty_keyvec;
 
-	keyvec.push_back("three", 3);
-	keyvec.push_back("two", 2);
 	keyvec.push_back("one", 1);
-	keyvec.push_back("three", 33);
+	keyvec.push_back("two", 2);
+	keyvec.push_back("three", 3);
 
 	/* test simple iterator fetchers */
-	if (*keyvec.begin() != 3) {
+	if (*keyvec.begin() != 1) {
 		ERROR("keyed_vector::begin()");
 		ret++;
 	}
-	if (*const_keyvec.begin() != 3) {
+	if (*const_keyvec.begin() != 1) {
 		ERROR("keyed_vector::begin()");
 		ret++;
 	}
-	if (keyvec.end() != keyvec.begin()+4) {
+	if (keyvec.end() != keyvec.begin()+3) {
 		ERROR("keyed_vector::end()");
 		ret++;
 	}
-	if (const_keyvec.end() != const_keyvec.begin()+4) {
+	if (const_keyvec.end() != const_keyvec.begin()+3) {
 		ERROR("keyed_vector::end()");
 		ret++;
 	}
@@ -51,19 +50,19 @@ test_keyed_vector_int() {
 	//*cit = 1234;
 
 	/* test reverse iterator fetchers */
-	if (*keyvec.rbegin() != 33) {
+	if (*keyvec.rbegin() != 3) {
 		ERROR("keyed_vector::rbegin()");
 		ret++;
 	}
-	if (*const_keyvec.rbegin() != 33) {
+	if (*const_keyvec.rbegin() != 3) {
 		ERROR("keyed_vector::rbegin()");
 		ret++;
 	}
-	if (keyvec.rend() != keyvec.rbegin()+4) {
+	if (keyvec.rend() != keyvec.rbegin()+3) {
 		ERROR("keyed_vector::rend()");
 		ret++;
 	}
-	if (const_keyvec.rend() != const_keyvec.rbegin()+4) {
+	if (const_keyvec.rend() != const_keyvec.rbegin()+3) {
 		ERROR("keyed_vector::rend()");
 		ret++;
 	}
@@ -75,26 +74,18 @@ test_keyed_vector_int() {
 		count++;
 		it++;
 	}
-	if (count != 4) {
+	if (count != 3) {
 		ERROR("keyed_vector::iterator");
 		ret++;
 	}
 
 	/* test size() and friends */
-	if (keyvec.size() != 4) {
+	if (keyvec.size() != 3) {
 		ERROR("keyed_vector::size()");
 		ret++;
 	}
 	if (empty_keyvec.size() != 0) {
 		ERROR("keyed_vector::size()");
-		ret++;
-	}
-	if (keyvec.capacity() != 4) {
-		ERROR("keyed_vector::capacity()");
-		ret++;
-	}
-	if (empty_keyvec.capacity() != 0) {
-		ERROR("keyed_vector::capacity()");
 		ret++;
 	}
 
@@ -110,27 +101,27 @@ test_keyed_vector_int() {
 
 	/* test pair_at() */
 	const si_keyvec::pair_type &ckvpair = const_keyvec.pair_at(0);
-	if (ckvpair.first != "three" || ckvpair.second != 3) {
+	if (ckvpair.first != "one" || ckvpair.second != 1) {
 		ERROR("keyed_vector::pair_at()");
 		ret++;
 	}
-	//ckvpair.first = string("three");  // must fail
-	//ckvpair.second = 3;  // must fail
+	//ckvpair.first = string("one");  // must fail
+	//ckvpair.second = 1;  // must fail
 
 	/* test simple int indexing and at() */
-	if (keyvec[0] != 3) {
+	if (keyvec[0] != 1) {
 		ERROR("keyed_vector::operator[int]");
 		ret++;
 	}
-	if (const_keyvec[0] != 3) {
+	if (const_keyvec[0] != 1) {
 		ERROR("const keyed_vector::operator[int]");
 		ret++;
 	}
-	if (keyvec.at(0) != 3) {
+	if (keyvec.at(0) != 1) {
 		ERROR("keyed_vector::at(int)");
 		ret++;
 	}
-	if (const_keyvec.at(0) != 3) {
+	if (const_keyvec.at(0) != 1) {
 		ERROR("const keyed_vector::at(int)");
 		ret++;
 	}
@@ -155,12 +146,12 @@ test_keyed_vector_int() {
 
 	/* test offset Tkey at() */
 	it = keyvec.begin();
-	if (keyvec.at("three", it) != 3) {
+	if (keyvec.at("one", it) != 1) {
 		ERROR("const keyed_vector::at(string, iterator)");
 		ret++;
 	}
 	it++;
-	if (keyvec.at("three", it) != 33) {
+	if (keyvec.at("two", it) != 2) {
 		ERROR("const keyed_vector::at(string, iterator)");
 		ret++;
 	}
@@ -171,6 +162,21 @@ test_keyed_vector_int() {
 		ret++;
 	} catch (std::out_of_range) {
 		/* this is the expected path upon success */
+	}
+
+	/* test overwrites */
+	if (keyvec["two"] != 2) {
+		ERROR("keyed_vector::at()");
+		ret++;
+	}
+	keyvec.push_back("two", 22);
+	if (keyvec["two"] != 22) {
+		ERROR("keyed_vector::push_back()");
+		ret++;
+	}
+	if (const_keyvec["two"] != 22) {
+		ERROR("keyed_vector::push_back()");
+		ret++;
 	}
 
 	/* test the has_key() method */
@@ -209,16 +215,6 @@ test_keyed_vector_int() {
 		ret++;
 	}
 	it++;
-	if (!keyvec.has_key("three", it)) {
-		ERROR("keyed_vector::has_key()");
-		ret++;
-	}
-	it = keyvec.find("three", it);
-	if (*it != 33) {
-		ERROR("keyed_vector::find()");
-		ret++;
-	}
-	it++;
 	if (keyvec.has_key("three", it)) {
 		ERROR("keyed_vector::has_key()");
 		ret++;
@@ -230,7 +226,7 @@ test_keyed_vector_int() {
 	}
 
 	/* test the key_at() method */
-	if (keyvec.key_at(0) != "three") {
+	if (keyvec.key_at(0) != "one") {
 		ERROR("keyed_vector::key_at()");
 		ret++;
 	}
@@ -249,12 +245,12 @@ test_keyed_vector_int() {
 
 	/* test erase() */
 	keyvec.insert("four", 4);
-	if (keyvec.size() != 5) {
-		ERROR("keyed_vector::erase()");
+	if (keyvec.size() != 4) {
+		ERROR("keyed_vector::insert()");
 		ret++;
 	}
 	keyvec.erase(keyvec.begin());
-	if (keyvec.size() != 4) {
+	if (keyvec.size() != 3) {
 		ERROR("keyed_vector::erase()");
 		ret++;
 	}

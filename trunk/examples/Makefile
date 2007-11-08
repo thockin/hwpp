@@ -1,8 +1,6 @@
 TOPDIR = ..
 include $(TOPDIR)/rules.mk
 
-LIBS += -L$(TOPDIR) -lpp
-
 BINS = pp_discover \
 	pp_pci
 BINS_SRCS = $(BINS:=.cpp)
@@ -10,7 +8,7 @@ BINS_SRCS = $(BINS:=.cpp)
 
 all: $(BINS)
 
-$(BINS): %: %.o
+$(BINS): %: %.o $(TOPDIR)/libpp.a
 
 .PHONY: test
 test: all

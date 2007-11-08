@@ -1,17 +1,20 @@
+Fix and finish PCI subclass and progintf stuff
+
 preserve/set/clear flags for registers
 
 test lookup() methods
 capitalize PP_container_ptr for types?
 scope merge for anon scopes
 space::bind() method?
-don't pass bindings to registers - fixes the nasty .get() syntax
 pp_enum -> pp_enum_type, etc
 
 FIXMEs
 
 move more code to .cpp files
 
-pp_path "^" vs "/"
+pp_path "/"
 remove the length arg of io/mem bindings? else report PCI BAR sizes
 
 utils.cpp: don't allow nested bindings?  Simplifies a bit
+
+gprof

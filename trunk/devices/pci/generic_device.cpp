@@ -51,19 +51,19 @@ ht_link_control(pp_value address)
 	REG16("%control", address);
 	OPEN_SCOPE("control");
 
-	ONE_BIT_FIELD("SrcIdEn", "yesno_t", "%control", 0);
-	ONE_BIT_FIELD("CFIEn", "yesno_t", "%control", 1);
-	ONE_BIT_FIELD("CST", "yesno_t", "%control", 2);
-	ONE_BIT_FIELD("CFEr", "yesno_t", "%control", 3);
-	ONE_BIT_FIELD("LinkFail", "yesno_t", "%control", 4);
-	ONE_BIT_FIELD("InitCmp", "yesno_t", "%control", 5);
-	ONE_BIT_FIELD("EOC", "yesno_t", "%control", 6);
-	ONE_BIT_FIELD("TXOff", "yesno_t", "%control", 7);
-	SIMPLE_FIELD("CRCErr", "hex4_t", "%control", 11, 8);
-	ONE_BIT_FIELD("IsocEn", "yesno_t", "%control", 12);
-	ONE_BIT_FIELD("LSEn", "yesno_t", "%control", 13);
-	ONE_BIT_FIELD("ExtCTL", "yesno_t", "%control", 14);
-	ONE_BIT_FIELD("64bEn", "yesno_t", "%control", 15);
+	ONE_BIT_FIELD("SrcIdEn", "yesno_t", "../%control", 0);
+	ONE_BIT_FIELD("CFIEn", "yesno_t", "../%control", 1);
+	ONE_BIT_FIELD("CST", "yesno_t", "../%control", 2);
+	ONE_BIT_FIELD("CFEr", "yesno_t", "../%control", 3);
+	ONE_BIT_FIELD("LinkFail", "yesno_t", "../%control", 4);
+	ONE_BIT_FIELD("InitCmp", "yesno_t", "../%control", 5);
+	ONE_BIT_FIELD("EOC", "yesno_t", "../%control", 6);
+	ONE_BIT_FIELD("TXOff", "yesno_t", "../%control", 7);
+	SIMPLE_FIELD("CRCErr", "hex4_t", "../%control", 11, 8);
+	ONE_BIT_FIELD("IsocEn", "yesno_t", "../%control", 12);
+	ONE_BIT_FIELD("LSEn", "yesno_t", "../%control", 13);
+	ONE_BIT_FIELD("ExtCTL", "yesno_t", "../%control", 14);
+	ONE_BIT_FIELD("64bEn", "yesno_t", "../%control", 15);
 
 	CLOSE_SCOPE();
 }
@@ -82,15 +82,15 @@ ht_link_config(pp_value address)
 	REG16("%config", address);
 	OPEN_SCOPE("config");
 
-	SIMPLE_FIELD("MaxLinkWidthIn", "ht_link_width_t", "%config", 2, 0);
-	ONE_BIT_FIELD("DwFcIn", "yesno_t", "%config", 3);
-	SIMPLE_FIELD("MaxLinkWidthOut", "ht_link_width_t", "%config", 6, 4);
-	ONE_BIT_FIELD("DwFcOut", "yesno_t", "%config", 7);
+	SIMPLE_FIELD("MaxLinkWidthIn", "ht_link_width_t", "../%config", 2, 0);
+	ONE_BIT_FIELD("DwFcIn", "yesno_t", "../%config", 3);
+	SIMPLE_FIELD("MaxLinkWidthOut", "ht_link_width_t", "../%config", 6, 4);
+	ONE_BIT_FIELD("DwFcOut", "yesno_t", "../%config", 7);
 
-	SIMPLE_FIELD("LinkWidthIn", "ht_link_width_t", "%config", 10, 8);
-	ONE_BIT_FIELD("DwFcInEn", "yesno_t", "%config", 11);
-	SIMPLE_FIELD("LinkWidthOut", "ht_link_width_t", "%config", 14, 12);
-	ONE_BIT_FIELD("DwFcOutEn", "yesno_t", "%config", 15);
+	SIMPLE_FIELD("LinkWidthIn", "ht_link_width_t", "../%config", 10, 8);
+	ONE_BIT_FIELD("DwFcInEn", "yesno_t", "../%config", 11);
+	SIMPLE_FIELD("LinkWidthOut", "ht_link_width_t", "../%config", 14, 12);
+	ONE_BIT_FIELD("DwFcOutEn", "yesno_t", "../%config", 15);
 
 	CLOSE_SCOPE();
 }
@@ -151,24 +151,24 @@ static void
 ht_error_handling(pp_value address)
 {
 	REG16("%error", address);
-
 	OPEN_SCOPE("error");
-	ONE_BIT_FIELD("proto_flood", "yesno_t", "%err", 0);
-	ONE_BIT_FIELD("over_flood", "yesno_t", "%err", 1);
-	ONE_BIT_FIELD("proto_fatal", "yesno_t", "%err", 2);
-	ONE_BIT_FIELD("over_fatal", "yesno_t", "%err", 3);
-	ONE_BIT_FIELD("eoc_fatal", "yesno_t", "%err", 4);
-	ONE_BIT_FIELD("resp_fatal", "yesno_t", "%err", 5);
-	ONE_BIT_FIELD("crc_fatal", "yesno_t", "%err", 6);
-	ONE_BIT_FIELD("serr_fatal", "yesno_t", "%err", 7);
-	ONE_BIT_FIELD("chain_fail", "yesno_t", "%err", 8);
-	ONE_BIT_FIELD("resp_err", "yesno_t", "%err", 9);
-	ONE_BIT_FIELD("proto_nonfatal", "yesno_t", "%err", 10);
-	ONE_BIT_FIELD("over_nonfatal", "yesno_t", "%err", 11);
-	ONE_BIT_FIELD("eoc_nonfatal", "yesno_t", "%err", 12);
-	ONE_BIT_FIELD("resp_nonfatal", "yesno_t", "%err", 13);
-	ONE_BIT_FIELD("crc_nonfatal", "yesno_t", "%err", 14);
-	ONE_BIT_FIELD("serr_nonfatal", "yesno_t", "%err", 15);
+
+	ONE_BIT_FIELD("proto_flood", "yesno_t", "../%error", 0);
+	ONE_BIT_FIELD("over_flood", "yesno_t", "../%error", 1);
+	ONE_BIT_FIELD("proto_fatal", "yesno_t", "../%error", 2);
+	ONE_BIT_FIELD("over_fatal", "yesno_t", "../%error", 3);
+	ONE_BIT_FIELD("eoc_fatal", "yesno_t", "../%error", 4);
+	ONE_BIT_FIELD("resp_fatal", "yesno_t", "../%error", 5);
+	ONE_BIT_FIELD("crc_fatal", "yesno_t", "../%error", 6);
+	ONE_BIT_FIELD("serr_fatal", "yesno_t", "../%error", 7);
+	ONE_BIT_FIELD("chain_fail", "yesno_t", "../%error", 8);
+	ONE_BIT_FIELD("resp_err", "yesno_t", "../%error", 9);
+	ONE_BIT_FIELD("proto_nonfatal", "yesno_t", "../%error", 10);
+	ONE_BIT_FIELD("over_nonfatal", "yesno_t", "../%error", 11);
+	ONE_BIT_FIELD("eoc_nonfatal", "yesno_t", "../%error", 12);
+	ONE_BIT_FIELD("resp_nonfatal", "yesno_t", "../%error", 13);
+	ONE_BIT_FIELD("crc_nonfatal", "yesno_t", "../%error", 14);
+	ONE_BIT_FIELD("serr_nonfatal", "yesno_t", "../%error", 15);
 	CLOSE_SCOPE();
 }
 
@@ -204,13 +204,13 @@ ht_slave_capability(pp_value address)
 
 	REG8("%feature", address + 0x10);
 	OPEN_SCOPE("feature");
-	ONE_BIT_FIELD("iso_flow_ctrl", "yesno_t", "%feature", 0);
-	ONE_BIT_FIELD("ldtstop", "yesno_t", "%feature", 1);
-	ONE_BIT_FIELD("crc_test_mode", "yesno_t", "%feature", 2);
-	ONE_BIT_FIELD("extended_ctl_time", "yesno_t", "%feature", 3);
-	ONE_BIT_FIELD("64bit_addressing", "yesno_t", "%feature", 4);
-	ONE_BIT_FIELD("unit_id_reorder_dis", "yesno_t", "%feature", 5);
-	ONE_BIT_FIELD("source_id", "yesno_t", "%feature", 6);
+	ONE_BIT_FIELD("iso_flow_ctrl", "yesno_t", "../%feature", 0);
+	ONE_BIT_FIELD("ldtstop", "yesno_t", "../%feature", 1);
+	ONE_BIT_FIELD("crc_test_mode", "yesno_t", "../%feature", 2);
+	ONE_BIT_FIELD("extended_ctl_time", "yesno_t", "../%feature", 3);
+	ONE_BIT_FIELD("64bit_addressing", "yesno_t", "../%feature", 4);
+	ONE_BIT_FIELD("unit_id_reorder_dis", "yesno_t", "../%feature", 5);
+	ONE_BIT_FIELD("source_id", "yesno_t", "../%feature", 6);
 	CLOSE_SCOPE();
 
 	REGFIELD16("scratchpad", address + 0x14, "hex16_t");
@@ -254,15 +254,15 @@ ht_host_capability(pp_value address)
 
 	REG16("%feature", address + 0x0c);
 	OPEN_SCOPE("feature");
-	ONE_BIT_FIELD("iso_flow_ctrl", "yesno_t", "%feature", 0);
-	ONE_BIT_FIELD("ldtstop", "yesno_t", "%feature", 1);
-	ONE_BIT_FIELD("crc_test_mode", "yesno_t", "%feature", 2);
-	ONE_BIT_FIELD("extended_ctl_time", "yesno_t", "%feature", 3);
-	ONE_BIT_FIELD("64bit_addressing", "yesno_t", "%feature", 4);
-	ONE_BIT_FIELD("unit_id_reorder_dis", "yesno_t", "%feature", 5);
-	ONE_BIT_FIELD("source_id", "yesno_t", "%feature", 6);
-	ONE_BIT_FIELD("ext_regs", "yesno_t", "%feature", 8);
-	ONE_BIT_FIELD("upstream_cfg", "yesno_t", "%feature", 9);
+	ONE_BIT_FIELD("iso_flow_ctrl", "yesno_t", "../%feature", 0);
+	ONE_BIT_FIELD("ldtstop", "yesno_t", "../%feature", 1);
+	ONE_BIT_FIELD("crc_test_mode", "yesno_t", "../%feature", 2);
+	ONE_BIT_FIELD("extended_ctl_time", "yesno_t", "../%feature", 3);
+	ONE_BIT_FIELD("64bit_addressing", "yesno_t", "../%feature", 4);
+	ONE_BIT_FIELD("unit_id_reorder_dis", "yesno_t", "../%feature", 5);
+	ONE_BIT_FIELD("source_id", "yesno_t", "../%feature", 6);
+	ONE_BIT_FIELD("ext_regs", "yesno_t", "../%feature", 8);
+	ONE_BIT_FIELD("upstream_cfg", "yesno_t", "../%feature", 9);
 	CLOSE_SCOPE();
 
 	if (GET_FIELD("feature/ext_regs")->read()) {
@@ -312,25 +312,25 @@ ht_address_mapping_capability(pp_value address)
 	if (GET_FIELD("map_type")->compare("bits40")) {
 		REG32("%sec_non_prefetch", address + 0x04);
 		OPEN_SCOPE("sec_non_prefetch");
-		ONE_BIT_FIELD("enable", "yesno_t", "%sec_non_prefetch", 31);
-		ONE_BIT_FIELD("isoch", "yesno_t", "%sec_non_prefetch", 30);
+		ONE_BIT_FIELD("enable", "yesno_t", "../%sec_non_prefetch", 31);
+		ONE_BIT_FIELD("isoch", "yesno_t", "../%sec_non_prefetch", 30);
 		ONE_BIT_FIELD("noncoherent", "yesno_t",
-				"%sec_non_prefetch", 29);
-		ONE_BIT_FIELD("compat", "yesno_t", "%sec_non_prefetch", 28);
+				"../%sec_non_prefetch", 29);
+		ONE_BIT_FIELD("compat", "yesno_t", "../%sec_non_prefetch", 28);
 		COMPLEX_FIELD("base", "addr64_t",
 				{"0", 19, 0},
-				{"%sec_non_prefetch", 19, 0});
+				{"../%sec_non_prefetch", 19, 0});
 		CLOSE_SCOPE();
 
 		REG32("%sec_prefetch", address + 0x08);
 		OPEN_SCOPE("sec_prefetch");
-		ONE_BIT_FIELD("enable", "yesno_t", "%sec_prefetch", 31);
-		ONE_BIT_FIELD("isochronous", "yesno_t", "%sec_prefetch", 30);
-		ONE_BIT_FIELD("noncoherent", "yesno_t", "%sec_prefetch", 29);
-		ONE_BIT_FIELD("compat", "yesno_t", "%sec_prefetch", 28);
+		ONE_BIT_FIELD("enable", "yesno_t", "../%sec_prefetch", 31);
+		ONE_BIT_FIELD("isochronous", "yesno_t", "../%sec_prefetch", 30);
+		ONE_BIT_FIELD("noncoherent", "yesno_t", "../%sec_prefetch", 29);
+		ONE_BIT_FIELD("compat", "yesno_t", "../%sec_prefetch", 28);
 		COMPLEX_FIELD("base", "addr64_t",
 				{"0", 19, 0},
-				{"%sec_prefetch", 19, 0});
+				{"../%sec_prefetch", 19, 0});
 		CLOSE_SCOPE();
 
 		pp_value value = GET_FIELD("num_dma")->read();
@@ -471,18 +471,13 @@ ht_capability(pp_value address)
 	// block.  If they are non-zero, we have some other HT capability.
 	// This matters because they use different encodings of the
 	// capability type (3 bits vs 5 bits).
-	SIMPLE_FIELD("is_interface", ANON_ENUM(
-				{"yes", 0},
-				{"no", 1},
-				{"no", 2},
-				{"no", 3}),
-			"%sub_cap", 7, 6);
+	SIMPLE_FIELD("is_interface", ANON_BOOL("no", "yes"), "%subcap", 7, 6);
 	if (GET_FIELD("is_interface")->compare("yes")) {
 		// subtype is a 3 bit field
 		SIMPLE_FIELD("subtype", ANON_ENUM(
 					{"slave_primary", 0},
 					{"host_secondary", 1}),
-				"%subcap", 15, 13);
+				"%subcap", 7, 5);
 
 		if (GET_FIELD("subtype")->compare("slave_primary")) {
 			ht_slave_capability(address);
@@ -646,11 +641,11 @@ pcie_capability(pp_value address)
 	ONE_BIT_FIELD("aux_pm", "yesno_t", "%dev_control", 10);
 	ONE_BIT_FIELD("aux_pm_det", "yesno_t", "%dev_status", 4);
 	ONE_BIT_FIELD("en_no_snoop", "yesno_t", "%dev_control", 11);
-	if (!DEFINED("func_reset") && GET_FIELD("class")->compare("bridge")) {
+	if (!DEFINED("func_reset") && GET_FIELD("^/class")->compare("bridge")) {
 		ONE_BIT_FIELD("bridge_retry_en", "yesno_t", "%dev_control", 15);
 	}
 	ONE_BIT_FIELD("txn_pend", "yesno_t", "%dev_status", 5);
-	
+
 	//FIXME: left off here PCIe v2 pg 458
 }
 
@@ -738,27 +733,27 @@ create_pci_bridge()
 	// Secondary status
 	REG16("%sec_status", 0x1e);
 	OPEN_SCOPE("sec_status");
-		ONE_BIT_FIELD("cap66", "yesno_t", "%status", 5);
-		ONE_BIT_FIELD("fbb", "yesno_t", "%status", 7);
-		ONE_BIT_FIELD("mdperr", "yesno_t", "%status", 8);
+		ONE_BIT_FIELD("cap66", "yesno_t", "../%sec_status", 5);
+		ONE_BIT_FIELD("fbb", "yesno_t", "../%sec_status", 7);
+		ONE_BIT_FIELD("mdperr", "yesno_t", "../%sec_status", 8);
 		SIMPLE_FIELD("devsel", ANON_ENUM(
 					{"FAST", 0},
 					{"MEDIUM", 1},
 					{"SLOW", 2}),
-				"%status", 10, 9);
-		ONE_BIT_FIELD("sigtabort", "yesno_t", "%status", 11);
-		ONE_BIT_FIELD("rcvtabort", "yesno_t", "%status", 12);
-		ONE_BIT_FIELD("rcvmabort", "yesno_t", "%status", 13);
-		ONE_BIT_FIELD("rcvserr", "yesno_t", "%status", 14);
-		ONE_BIT_FIELD("perr", "yesno_t", "%status", 15);
+				"../%sec_status", 10, 9);
+		ONE_BIT_FIELD("sigtabort", "yesno_t", "../%sec_status", 11);
+		ONE_BIT_FIELD("rcvtabort", "yesno_t", "../%sec_status", 12);
+		ONE_BIT_FIELD("rcvmabort", "yesno_t", "../%sec_status", 13);
+		ONE_BIT_FIELD("rcvserr", "yesno_t", "../%sec_status", 14);
+		ONE_BIT_FIELD("perr", "yesno_t", "../%sec_status", 15);
 	CLOSE_SCOPE();
 
 	// IO decode window
 	OPEN_SCOPE("io_window");
 		REG8("%base_lo", 0x1c);
-		REG8("%base_hi", 0x30);
+		REG16("%base_hi", 0x30);
 		REG8("%limit_lo", 0x1d);
-		REG8("%limit_hi", 0x32);
+		REG16("%limit_hi", 0x32);
 
 		SIMPLE_FIELD("width", ANON_ENUM(
 					{"bits16", 0},
@@ -834,28 +829,27 @@ create_pci_bridge()
 	// Expansion ROM
 	REG32("%rombase", 0x38);
 	OPEN_SCOPE("rombase");
-		ONE_BIT_FIELD("enabled", "yesno_t", "%rombase", 0);
+		ONE_BIT_FIELD("enabled", "yesno_t", "../%rombase", 0);
 		COMPLEX_FIELD("address", "addr32_t",
 				{"0", 10, 0},
-				{"%rombase", 31, 11});
+				{"../%rombase", 31, 11});
 	CLOSE_SCOPE();
 
 	// Bridge control
 	REG16("%bridge_ctrl", 0x3e);
 	OPEN_SCOPE("bridge_ctrl");
-		ONE_BIT_FIELD("perr", "yesno_t", "%bridge_ctrl", 0);
-		ONE_BIT_FIELD("serr", "yesno_t", "%bridge_ctrl", 1);
-		ONE_BIT_FIELD("isa", "yesno_t", "%bridge_ctrl", 2);
-		ONE_BIT_FIELD("vga", "yesno_t", "%bridge_ctrl", 3);
-		ONE_BIT_FIELD("vga16", "yesno_t", "%bridge_ctrl", 4);
-		ONE_BIT_FIELD("vga16", "yesno_t", "%bridge_ctrl", 4);
-		ONE_BIT_FIELD("mst_abort", "yesno_t", "%bridge_ctrl", 5);
-		ONE_BIT_FIELD("sec_reset", "yesno_t", "%bridge_ctrl", 6);
-		ONE_BIT_FIELD("fbb", "yesno_t", "%bridge_ctrl", 7);
-		ONE_BIT_FIELD("pri_discard", "yesno_t", "%bridge_ctrl", 8);
-		ONE_BIT_FIELD("sec_discard", "yesno_t", "%bridge_ctrl", 9);
-		ONE_BIT_FIELD("discard_status", "yesno_t", "%bridge_ctrl", 10);
-		ONE_BIT_FIELD("discard_serr", "yesno_t", "%bridge_ctrl", 11);
+		ONE_BIT_FIELD("perr", "yesno_t", "../%bridge_ctrl", 0);
+		ONE_BIT_FIELD("serr", "yesno_t", "../%bridge_ctrl", 1);
+		ONE_BIT_FIELD("isa", "yesno_t", "../%bridge_ctrl", 2);
+		ONE_BIT_FIELD("vga", "yesno_t", "../%bridge_ctrl", 3);
+		ONE_BIT_FIELD("vga16", "yesno_t", "../%bridge_ctrl", 4);
+		ONE_BIT_FIELD("mst_abort", "yesno_t", "../%bridge_ctrl", 5);
+		ONE_BIT_FIELD("sec_reset", "yesno_t", "../%bridge_ctrl", 6);
+		ONE_BIT_FIELD("fbb", "yesno_t", "../%bridge_ctrl", 7);
+		ONE_BIT_FIELD("pri_discard", "yesno_t", "../%bridge_ctrl", 8);
+		ONE_BIT_FIELD("sec_discard", "yesno_t", "../%bridge_ctrl", 9);
+		ONE_BIT_FIELD("discard_status", "yesno_t", "../%bridge_ctrl", 10);
+		ONE_BIT_FIELD("discard_serr", "yesno_t", "../%bridge_ctrl", 11);
 	CLOSE_SCOPE();
 }
 
@@ -906,10 +900,10 @@ create_device()
 	// Expansion ROM
 	REG32("%rombase", 0x30);
 	OPEN_SCOPE("rombase");
-		ONE_BIT_FIELD("enabled", "yesno_t", "%rombase", 0);
+		ONE_BIT_FIELD("enabled", "yesno_t", "../%rombase", 0);
 		COMPLEX_FIELD("address", "addr32_t",
 				{"0", 10, 0},
-				{"%rombase", 31, 11});
+				{"../%rombase", 31, 11});
 	CLOSE_SCOPE();
 
 	REGFIELD8("mingnt", 0x3e, ANON_INT("1/4 usecs"));
@@ -929,37 +923,37 @@ pci_generic_device()
 
 	REG16("%command", 0x04);
 	OPEN_SCOPE("command");
-		ONE_BIT_FIELD("io", "yesno_t", "%command", 0);
-		ONE_BIT_FIELD("mem", "yesno_t", "%command", 1);
-		ONE_BIT_FIELD("bm", "yesno_t", "%command", 2);
-		ONE_BIT_FIELD("special", "yesno_t", "%command", 3);
-		ONE_BIT_FIELD("mwinv", "yesno_t", "%command", 4);
-		ONE_BIT_FIELD("vgasnoop", "yesno_t", "%command", 5);
-		ONE_BIT_FIELD("perr", "yesno_t", "%command", 6);
-		ONE_BIT_FIELD("step", "yesno_t", "%command", 7);
-		ONE_BIT_FIELD("serr", "yesno_t", "%command", 8);
-		ONE_BIT_FIELD("fbb", "yesno_t", "%command", 9);
-		ONE_BIT_FIELD("intr", "yesno_t", "%command", 10);
+		ONE_BIT_FIELD("io", "yesno_t", "../%command", 0);
+		ONE_BIT_FIELD("mem", "yesno_t", "../%command", 1);
+		ONE_BIT_FIELD("bm", "yesno_t", "../%command", 2);
+		ONE_BIT_FIELD("special", "yesno_t", "../%command", 3);
+		ONE_BIT_FIELD("mwinv", "yesno_t", "../%command", 4);
+		ONE_BIT_FIELD("vgasnoop", "yesno_t", "../%command", 5);
+		ONE_BIT_FIELD("perr", "yesno_t", "../%command", 6);
+		ONE_BIT_FIELD("step", "yesno_t", "../%command", 7);
+		ONE_BIT_FIELD("serr", "yesno_t", "../%command", 8);
+		ONE_BIT_FIELD("fbb", "yesno_t", "../%command", 9);
+		ONE_BIT_FIELD("intr", "yesno_t", "../%command", 10);
 	CLOSE_SCOPE();
 
 	REG16("%status", 0x06);
 	OPEN_SCOPE("status");
-		ONE_BIT_FIELD("intr", "yesno_t", "%status", 3);
-		ONE_BIT_FIELD("caps", "yesno_t", "%status", 4);
-		ONE_BIT_FIELD("cap66", "yesno_t", "%status", 5);
-		ONE_BIT_FIELD("user", "yesno_t", "%status", 6);
-		ONE_BIT_FIELD("fbb", "yesno_t", "%status", 7);
-		ONE_BIT_FIELD("mdperr", "yesno_t", "%status", 8);
+		ONE_BIT_FIELD("intr", "yesno_t", "../%status", 3);
+		ONE_BIT_FIELD("caps", "yesno_t", "../%status", 4);
+		ONE_BIT_FIELD("cap66", "yesno_t", "../%status", 5);
+		ONE_BIT_FIELD("user", "yesno_t", "../%status", 6);
+		ONE_BIT_FIELD("fbb", "yesno_t", "../%status", 7);
+		ONE_BIT_FIELD("mdperr", "yesno_t", "../%status", 8);
 		SIMPLE_FIELD("devsel", ANON_ENUM(
 					{"FAST", 0},
 					{"MEDIUM", 1},
 					{"SLOW", 2}),
-				"%status", 10, 9);
-		ONE_BIT_FIELD("sigtabort", "yesno_t", "%status", 11);
-		ONE_BIT_FIELD("rcvtabort", "yesno_t", "%status", 12);
-		ONE_BIT_FIELD("rcvmabort", "yesno_t", "%status", 13);
-		ONE_BIT_FIELD("sigserr", "yesno_t", "%status", 14);
-		ONE_BIT_FIELD("perr", "yesno_t", "%status", 15);
+				"../%status", 10, 9);
+		ONE_BIT_FIELD("sigtabort", "yesno_t", "../%status", 11);
+		ONE_BIT_FIELD("rcvtabort", "yesno_t", "../%status", 12);
+		ONE_BIT_FIELD("rcvmabort", "yesno_t", "../%status", 13);
+		ONE_BIT_FIELD("sigserr", "yesno_t", "../%status", 14);
+		ONE_BIT_FIELD("perr", "yesno_t", "../%status", 15);
 	CLOSE_SCOPE();
 
 	REGFIELD8("class", 0x0b, "pci_class_t");
@@ -989,18 +983,19 @@ pci_generic_device()
 		REGFIELD8("subclass", 0x0a, "pci_subclass_docking");
 	} else if (GET_FIELD("class")->compare("processor")) {
 		REGFIELD8("subclass", 0x0a, "pci_subclass_processor");
-	} else if (GET_FIELD("class")->compare("serial")) {
-		REGFIELD8("subclass", 0x0a, "pci_subclass_serial");
-	} else if (GET_FIELD("class")->compare("wireless")) {
-		REGFIELD8("subclass", 0x0a, "pci_subclass_wireless");
-	} else if (GET_FIELD("class")->compare("intelligent_io")) {
-		REGFIELD8("subclass", 0x0a, "pci_subclass_intelligent_io");
-	} else if (GET_FIELD("class")->compare("satellite")) {
-		REGFIELD8("subclass", 0x0a, "pci_subclass_satellite");
-	} else if (GET_FIELD("class")->compare("crypto")) {
-		REGFIELD8("subclass", 0x0a, "pci_subclass_crypto");
-	} else if (GET_FIELD("class")->compare("dsp")) {
-		REGFIELD8("subclass", 0x0a, "pci_subclass_dsp");
+	//FIXME: not implemented yet
+	//} else if (GET_FIELD("class")->compare("serial")) {
+		//REGFIELD8("subclass", 0x0a, "pci_subclass_serial");
+	//} else if (GET_FIELD("class")->compare("wireless")) {
+		//REGFIELD8("subclass", 0x0a, "pci_subclass_wireless");
+	//} else if (GET_FIELD("class")->compare("intelligent_io")) {
+		//REGFIELD8("subclass", 0x0a, "pci_subclass_intelligent_io");
+	//} else if (GET_FIELD("class")->compare("satellite")) {
+		//REGFIELD8("subclass", 0x0a, "pci_subclass_satellite");
+	//} else if (GET_FIELD("class")->compare("crypto")) {
+		//REGFIELD8("subclass", 0x0a, "pci_subclass_crypto");
+	//} else if (GET_FIELD("class")->compare("dsp")) {
+		//REGFIELD8("subclass", 0x0a, "pci_subclass_dsp");
 	} else {
 		REGFIELD8("subclass", 0x0a, "hex8_t");
 	}
@@ -1022,9 +1017,9 @@ pci_generic_device()
 
 	REG8("%bist", 0x0f);
 	OPEN_SCOPE("bist");
-		ONE_BIT_FIELD("capable", "yesno_t", "%bist", 7);
-		ONE_BIT_FIELD("start", "yesno_t", "%bist", 6);
-		COMPLEX_FIELD("code", "hex8_t", {"%bist", 3, 0});
+		ONE_BIT_FIELD("capable", "yesno_t", "../%bist", 7);
+		ONE_BIT_FIELD("start", "yesno_t", "../%bist", 6);
+		COMPLEX_FIELD("code", "hex8_t", {"../%bist", 3, 0});
 	CLOSE_SCOPE();
 
 	REGFIELD8("intline", 0x3c, "int_t");
@@ -1052,4 +1047,5 @@ pci_generic_device()
 	} else if (GET_FIELD("hdrtype")->compare("cardbus_bridge")) {
 		//TODO: need a spec
 	}
+	CLOSE_SCOPE();
 }

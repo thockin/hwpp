@@ -277,15 +277,14 @@ class pp_path
 
 	/* handle absolute vs relative paths */
 	bool
-	absolute() const
+	is_absolute() const
 	{
 		return m_absolute;
 	}
-
-	void
-	set_absolute(bool value)
+	bool
+	is_relative() const
 	{
-		m_absolute = value;
+		return !m_absolute;
 	}
 
 	/* test if two paths are equal */
@@ -297,7 +296,7 @@ class pp_path
 			return false;
 		}
 		/* if only one is absolute, they cannot be equal */
-		if (absolute() != that.absolute()) {
+		if (is_absolute() != that.is_absolute()) {
 			return false;
 		}
 
@@ -363,7 +362,7 @@ class pp_path
 inline std::ostream &
 operator<<(std::ostream& o, const pp_path &path)
 {
-	if (path.absolute()) {
+	if (path.is_absolute()) {
 		o << "/";
 	}
 

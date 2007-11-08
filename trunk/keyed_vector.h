@@ -13,6 +13,7 @@
 #include <map>
 #include <stdexcept>
 #include <boost/iterator_adaptors.hpp>
+#include "pp.h"
 
 /* forward declare */
 template<typename Tkey, typename Tval> class keyed_vector;
@@ -357,11 +358,12 @@ class keyed_vector
 		return p->find(key, from);
 	}
 
-	/* push a value onto the end */
+	/* add a unique key-value pair, or overwrite the value if the key
+	 * already exists */
 	void
 	push_back(const Tkey &key, const Tval &value)
 	{
-		m_vector.push_back(Tpair(key, value));
+		insert(key, value);
 	}
 
 	/* pop a value from the end */
@@ -422,7 +424,8 @@ class keyed_vector
 			it += index;
 			return it;
 		}
-		throw std::out_of_range("index out of range");
+		throw std::out_of_range("index out of range: "
+				+ to_string(index));
 	}
 
 	/* get the pair iterator at a Tkey index */
@@ -440,7 +443,8 @@ class keyed_vector
 			}
 			it++;
 		}
-		throw std::out_of_range("key not found");
+		throw std::out_of_range("key not found: "
+				+ to_string(index));
 	}
 };
 

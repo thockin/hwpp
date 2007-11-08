@@ -186,54 +186,54 @@ int test_ctors()
 
 	/* test construction from a string */
 	path = pp_path("a/b/c");
-	if (path != "a/b/c" || path.absolute()) {
+	if (path != "a/b/c" || path.is_absolute()) {
 		ERROR("pp_path::pp_path(string)");
 		return_value++;
 	}
 	path = pp_path("  a/b/c  ");
-	if (path != "  a/b/c  " || path.absolute()) {
+	if (path != "  a/b/c  " || path.is_absolute()) {
 		ERROR("pp_path::pp_path(string)");
 		return_value++;
 	}
 	path = pp_path("/a/b/c/");
-	if (path != "/a/b/c" || !path.absolute()) {
+	if (path != "/a/b/c" || !path.is_absolute()) {
 		ERROR("pp_path::pp_path(string)");
 		return_value++;
 	}
 	path = pp_path("////a////b////c////");
-	if (path != "/a/b/c" || !path.absolute()) {
+	if (path != "/a/b/c" || !path.is_absolute()) {
 		ERROR("pp_path::pp_path(string)");
 		return_value++;
 	}
 	path = pp_path("");
-	if (path != "" || path.absolute()) {
+	if (path != "" || path.is_absolute()) {
 		ERROR("pp_path::pp_path(string)");
 		return_value++;
 	}
 	path = pp_path("   ");
-	if (path != "   " || path.absolute()) {
+	if (path != "   " || path.is_absolute()) {
 		ERROR("pp_path::pp_path(string)");
 		return_value++;
 	}
 	path = pp_path("/");
-	if (path != "/" || !path.absolute()) {
+	if (path != "/" || !path.is_absolute()) {
 		ERROR("pp_path::pp_path(string)");
 		return_value++;
 	}
 	path = pp_path("   /");
-	if (path != "   " || path.absolute()) {
+	if (path != "   " || path.is_absolute()) {
 		ERROR("pp_path::pp_path(string)");
 		return_value++;
 	}
 	path = pp_path("////");
-	if (path != "/" || !path.absolute()) {
+	if (path != "/" || !path.is_absolute()) {
 		ERROR("pp_path::pp_path(string)");
 		return_value++;
 	}
 
 	/* test default constructor */
 	path = pp_path();
-	if (path != "" || path.absolute()) {
+	if (path != "" || path.is_absolute()) {
 		ERROR("pp_path::pp_path()");
 		return_value++;
 	}
@@ -241,7 +241,7 @@ int test_ctors()
 	/* test copy construction */
 	path = pp_path("a/b/c");
 	path = pp_path(path);
-	if (path != "a/b/c" || path.absolute()) {
+	if (path != "a/b/c" || path.is_absolute()) {
 		ERROR("pp_path::operator=(pp_path)");
 		return_value++;
 	}
