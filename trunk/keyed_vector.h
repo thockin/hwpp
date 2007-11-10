@@ -92,7 +92,7 @@ class keyvec_iter
 	Tval &
 	dereference() const
 	{
-		return m_it->second;
+		return *m_it;
 	}
 
     private:
@@ -111,51 +111,89 @@ class keyvec_iter
  * When indexing by integer or iterating the data is returned in insert
  * order.
  *
+ * This is a brief overview of how it works.  First, there is an STL
+ * vector of Tval which holds the data elements, in insert order.  Then,
+ * There is an STL map of Tkey->int.  This holds the key elements and the
+ * int index of the value in the value vector.  Lastly, there is a vector
+ * of map iterators, where the index in the vector is parallel to the
+ * value vector.  This allows you to access the data in order (via the
+ * vectors), or to access it randomly (by the map).
+ *
  * Notes:
  *   - The 'Tkey' type must have an == operator.
  *   - Because of the dual modes of indexing, the 'Tkey' type can not be an
  *     integral primitive.
- *   - This is currently a very naive O(n) implementation of key lookups.
- *     There is room for improvement.
- *   - Indexing by 'Tkey' returns the first match.  Use find() or at() to
- *     find additional matches.
+ *   - Keys must be unique.  Inserting a duplicate key will over-write the
+ *     original value.
  */
 template<typename Tkey, typename Tval>
 class keyed_vector
 {
-	typedef std::pair<Tkey, Tval> Tpair;
-	typedef std::vector<Tpair> Tvector;
-	typedef typename Tvector::iterator Titer;
+	typedef std::vector<Tval> Tval_vector;
+	typedef typename Tval_vector::iterator Tval_iter;
+	typedef std::map<Tkey, int> Tkey_map;
+	typedef typename Tkey_map::iterator Tkey_iter;
+	typedef std::vector<Tkey_iter> Tkeyptr_vector;
+	typedef typename Tkeyptr_vector::iterator Tkeyptr_iter;
+
+	/* the underlying data representation */
+	Tkey_map m_keys;
+	Tval_vector m_values;
+	Tkeyptr_vector m_keyptrs;
 
     public:
 	typedef Tval value_type;
 	typedef Tkey key_type;
-	typedef Tpair pair_type;
 	typedef value_type* pointer;
 	typedef const value_type* const_pointer;
 	typedef value_type& reference;
 	typedef const value_type& const_reference;
 	typedef std::size_t size_type;
 	typedef std::ptrdiff_t difference_type;
-	typedef keyvec_iter<Titer, Tval> iterator;
-	typedef keyvec_iter<Titer, const Tval> const_iterator;
+	typedef keyvec_iter<Tval_iter, Tval> iterator;
+	typedef keyvec_iter<Tval_iter, const Tval> const_iterator;
 	typedef std::reverse_iterator<iterator> reverse_iterator;
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-	explicit keyed_vector(): m_vector() {}
-	explicit keyed_vector(size_type n): m_vector(n) {};
-	~keyed_vector() {}
+	// default ctor
+	keyed_vector()
+	{
+	}
+	// copy ctor
+	keyed_vector(const keyed_vector &other)
+	    : m_keys(other.m_keys),
+	      m_values(other.m_values),
+	      m_keyptrs(other.m_keyptrs)
+	{
+	}
+	// assignment operator
+	keyed_vector &
+	operator=(const keyed_vector &other)
+	{
+		m_keys = other.m_keys;
+		m_values = other.m_values;
+		m_keyptrs = other.m_keyptrs;
+		return *this;
+	}
+	// swap data
+	void
+	swap(keyed_vector &other)
+	{
+		m_keys.swap(other.m_keys);
+		m_values.swap(other.m_values);
+		m_keyptrs.swap(other.m_keyptrs);
+	}
 
-	/* get an iterator */
+	// get a forward iterator
 	iterator
 	begin()
 	{
-		return m_vector.begin();
+		return m_values.begin();
 	}
 	iterator
 	end()
 	{
-		return m_vector.end();
+		return m_values.end();
 	}
 	const_iterator
 	begin() const
@@ -169,15 +207,16 @@ class keyed_vector
 		keyed_vector *p = const_cast<keyed_vector *>(this);
 		return p->end();
 	}
+	// get a reverse iterator
 	reverse_iterator
 	rbegin()
 	{
-		return m_vector.rbegin();
+		return m_values.rbegin();
 	}
 	reverse_iterator
 	rend()
 	{
-		return m_vector.rend();
+		return m_values.rend();
 	}
 	const_reverse_iterator
 	rbegin() const
@@ -192,38 +231,59 @@ class keyed_vector
 		return p->rend();
 	}
 
-	/* size related methods */
+	 // get meta-data
 	size_type
 	size() const
 	{
-		return m_vector.size();
+		return m_values.size();
 	}
 	size_type
 	max_size() const
 	{
-		return m_vector.max_size();
+		return min(m_keys.max_size(), m_values.max_size());
 	}
 	size_type
 	capacity() const
 	{
-		return m_vector.capacity();
+		return m_values.capacity();
 	}
 	bool
 	empty() const
 	{
-		return m_vector.empty();
-	}
-	void
-	reserve(size_type n)
-	{
-		m_vector.reserve(n);
+		return m_values.empty();
 	}
 
-	/* get the value at an int index - can throw std::out_of_range */
+	// get the first or last value
+	reference
+	front()
+	{
+		return m_values.front();
+	}
+	reference
+	back()
+	{
+		return m_values.back();
+	}
+	const_reference
+	front() const
+	{
+		return m_values.front();
+	}
+	const_reference
+	back() const
+	{
+		return m_values.back();
+	}
+
+	// get the value at an int index - can throw std::out_of_range
 	reference
 	at(size_type index)
 	{
-		return kviter_at(index)->second;
+		if (index < size()) {
+			return m_values[index];
+		}
+		throw std::out_of_range("index out of range: "
+			+ to_string(index));
 	}
 	reference
 	operator[](size_type index)
@@ -234,7 +294,7 @@ class keyed_vector
 	at(size_type index) const
 	{
 		keyed_vector *p = const_cast<keyed_vector *>(this);
-		return p->kviter_at(index)->second;
+		return p->at(index);
 	}
 	const_reference
 	operator[](size_type index) const
@@ -242,12 +302,16 @@ class keyed_vector
 		return at(index);
 	}
 
-	/* get the value at the first matching Tkey index - can throw
-	 * std::out_of_range */
+	// get the value at a Tkey index - can throw std::out_of_range
 	reference
 	at(const Tkey &index)
 	{
-		return kviter_at(index)->second;
+		iterator it = find(index);
+		if (it != end()) {
+			return *it;
+		}
+		throw std::out_of_range("key not found: "
+			+ to_string(index));
 	}
 	reference
 	operator[](const Tkey &index)
@@ -258,7 +322,7 @@ class keyed_vector
 	at(const Tkey &index) const
 	{
 		keyed_vector *p = const_cast<keyed_vector *>(this);
-		return p->kviter_at(index)->second;
+		return p->at(index);
 	}
 	const_reference
 	operator[](const Tkey &index) const
@@ -266,84 +330,29 @@ class keyed_vector
 		return at(index);
 	}
 
-	/* get the value at the next matching Tkey index - can throw
-	 * std::out_of_range */
-	reference
-	at(const Tkey &index, const iterator &from)
-	{
-		return kviter_at(index, from.get())->second;
-	}
-	const_reference
-	at(const Tkey &index, const iterator &from) const
-	{
-		keyed_vector *p = const_cast<keyed_vector *>(this);
-		return p->kviter_at(index, from.get())->second;
-	}
-
-	/* access the first/last values */
-	reference
-	front()
-	{
-		return m_vector.front().second;
-	}
-	reference
-	back()
-	{
-		return m_vector.back().second;
-	}
-	const_reference
-	front() const
-	{
-		return m_vector.front().second;
-	}
-	const_reference
-	back() const
-	{
-		return m_vector.back().second;
-	}
-
-	/* get the const key at an int index - can throw std::out_of_range */
+	// get the const key at an int index - can throw std::out_of_range
 	const Tkey &
 	key_at(size_type index) const
 	{
-		keyed_vector *p = const_cast<keyed_vector *>(this);
-		return p->kviter_at(index)->first;
+		return m_keyptrs[index]->first;
 	}
 
-	/* get the const pair at an int index - can throw std::out_of_range */
-	const Tpair &
-	pair_at(size_type index) const
-	{
-		keyed_vector *p = const_cast<keyed_vector *>(this);
-		return *p->kviter_at(index);
-	}
-
-	/* check for the existence of a key - does not throw */
+	// check for the existence of a key - does not throw
 	bool
 	has_key(const Tkey &key) const
 	{
 		return (find(key) != end());
 	}
-	bool
-	has_key(const Tkey &key, const iterator &from) const
-	{
-		return (find(key, from) != end());
-	}
 
-	/* look up a key, return end() if not found - does not throw */
+	// get the value for a key, or end() if not found - does not throw
 	iterator
 	find(const Tkey &key)
 	{
-		return find(key, m_vector.begin());
-	}
-	iterator
-	find(const Tkey &key, const iterator &from)
-	{
-		try {
-			return kviter_at(key, from.get());
-		} catch (std::out_of_range e) {
-			return m_vector.end();
+		Tkey_iter found = m_keys.find(key);
+		if (found == m_keys.end()) {
+			return end();
 		}
+		return iter_at(found->second);
 	}
 	const_iterator
 	find(const Tkey &key) const
@@ -351,100 +360,101 @@ class keyed_vector
 		keyed_vector *p = const_cast<keyed_vector *>(this);
 		return p->find(key);
 	}
-	const_iterator
-	find(const Tkey &key, const iterator &from) const
-	{
-		keyed_vector *p = const_cast<keyed_vector *>(this);
-		return p->find(key, from);
-	}
 
-	/* add a unique key-value pair, or overwrite the value if the key
-	 * already exists */
+	// add a unique key-value pair, or overwrite the value if the key
+	// already exists - same as insert()
 	void
 	push_back(const Tkey &key, const Tval &value)
 	{
 		insert(key, value);
 	}
 
-	/* pop a value from the end */
+	// remove the last item
 	void
 	pop_back()
 	{
-		m_vector.pop_back();
+		erase(m_keyptrs.back()->first);
 	}
 
-	/* add a unique key-value pair, or overwrite the value if the key
-	 * already exists */
+	// add a unique key-value pair, or overwrite the value if the key
+	// already exists
 	iterator
 	insert(const Tkey &key, const Tval &value)
 	{
-		try {
-			Titer it = kviter_at(key);
-			it->second = value;
-			return it;
-		} catch (std::out_of_range e) {
-			m_vector.push_back(Tpair(key, value));
-			return (m_vector.end() - 1);
+		std::pair<Tkey_iter, bool> ret;
+		typename Tkey_map::value_type key_val(key, -1);
+
+		// try to insert the key
+		ret = m_keys.insert(key_val);
+		if (ret.second) {
+			// the key was inserted into the map: add the
+			// value to the vectors, and to point to the key
+			m_values.push_back(value);
+			m_keyptrs.push_back(ret.first);
+			ret.first->second = size()-1;
+			return (m_values.end() - 1);
+		} else {
+			// the key already existed in the map: update the
+			// value, but leave the vectors alone
+			m_values[ret.first->second] = value;
+			return (iter_at(ret.first->second));
 		}
 	}
 
-	/* remove a value by key */
-	void
-	remove(const Tkey &key)
+	// remove a value by key
+	iterator
+	erase(const Tkey &key)
 	{
-		try {
-			Titer it = kviter_at(key);
-			m_vector.erase(it);
-		} catch (std::out_of_range e) {
+		iterator found = find(key);
+		if (found != end()) {
+			return erase(found);
 		}
+		return end();
 	}
-
-	/* remove a value or values by iterator */
+	// remove value(s) by iterator(s)
 	iterator
 	erase(iterator pos)
 	{
-		return m_vector.erase(pos.get());
+		size_type index = pos - begin();
+		iterator ret = pos+1;
+
+		m_keys.erase(m_keyptrs[index]);
+		m_keyptrs.erase(keyptr_iter_at(index));
+		m_values.erase(val_iter_at(index));
+
+		// shuffle the indices which are stored in the map
+		for (size_type i = index; i < size(); i++) {
+			m_keyptrs[i]->second--;
+		}
+
+		return ret;
 	}
 	iterator
 	erase(iterator first, iterator last)
 	{
-		return m_vector.erase(first.get(), last.get());
+		while (first < last) {
+			erase(first);
+			first++;
+		}
+		return first;
 	}
 
     private:
-	/* the underlying vector */
-	Tvector m_vector;
-
-	/* get the pair iterator at an int index */
-	Titer
-	kviter_at(size_type index)
+	// get various iterators by index
+	iterator
+	iter_at(size_type index)
 	{
-		if (index < m_vector.size()) {
-			Titer it = m_vector.begin();
-			it += index;
-			return it;
-		}
-		throw std::out_of_range("index out of range: "
-				+ to_string(index));
+		return val_iter_at(index);
 	}
-
-	/* get the pair iterator at a Tkey index */
-	Titer
-	kviter_at(const Tkey &index)
+	Tkeyptr_iter
+	keyptr_iter_at(size_type index)
 	{
-		return kviter_at(index, m_vector.begin());
+		return (m_keyptrs.begin() + index);
 	}
-	Titer
-	kviter_at(const Tkey &index, Titer it)
+	Tval_iter
+	val_iter_at(size_type index)
 	{
-		while (it != m_vector.end()) {
-			if (it->first == index) {
-				return it;
-			}
-			it++;
-		}
-		throw std::out_of_range("key not found: "
-				+ to_string(index));
+		return (m_values.begin() + index);
 	}
 };
 
