@@ -13,20 +13,41 @@ void dump_keyed_vector(const keyed_vector<Tkey, Tval> &kv, ostream &out) {
 }
 
 int
-test_keyed_vector_int() {
+test_keyed_vector_int()
+{
 	int ret = 0;
 
 	typedef keyed_vector<string, int> si_keyvec;
 	si_keyvec keyvec;
 	const si_keyvec &const_keyvec = keyvec;
 	si_keyvec::iterator it;
-	si_keyvec empty_keyvec;
 
+	// verify that it has the right size
+	if (keyvec.size() != 0) {
+		ERROR("keyed_vector::keyed_vector()");
+		ret++;
+	}
+	if (!keyvec.empty()) {
+		ERROR("keyed_vector::empty()");
+		ret++;
+	}
+
+	// add some items
 	keyvec.push_back("one", 1);
 	keyvec.push_back("two", 2);
 	keyvec.push_back("three", 3);
 
-	/* test simple iterator fetchers */
+	// verify that it has the right size
+	if (keyvec.size() != 3) {
+		ERROR("keyed_vector::push_back()");
+		ret++;
+	}
+	if (keyvec.empty()) {
+		ERROR("keyed_vector::empty()");
+		ret++;
+	}
+
+	// test simple iterator fetchers
 	if (*keyvec.begin() != 1) {
 		ERROR("keyed_vector::begin()");
 		ret++;
@@ -45,9 +66,8 @@ test_keyed_vector_int() {
 	}
 	si_keyvec::const_iterator cit = const_keyvec.begin();
 	cit = keyvec.begin();
-	// manual test: these should fail
-	//it = const_keyvec.begin();
-	//*cit = 1234;
+	//it = const_keyvec.begin(); // must fail
+	//*cit = 1234; // must fail
 
 	/* test reverse iterator fetchers */
 	if (*keyvec.rbegin() != 3) {
@@ -79,35 +99,6 @@ test_keyed_vector_int() {
 		ret++;
 	}
 
-	/* test size() and friends */
-	if (keyvec.size() != 3) {
-		ERROR("keyed_vector::size()");
-		ret++;
-	}
-	if (empty_keyvec.size() != 0) {
-		ERROR("keyed_vector::size()");
-		ret++;
-	}
-
-	/* test empty() */
-	if (keyvec.empty()) {
-		ERROR("keyed_vector::empty()");
-		ret++;
-	}
-	if (!empty_keyvec.empty()) {
-		ERROR("keyed_vector::empty()");
-		ret++;
-	}
-
-	/* test pair_at() */
-	const si_keyvec::pair_type &ckvpair = const_keyvec.pair_at(0);
-	if (ckvpair.first != "one" || ckvpair.second != 1) {
-		ERROR("keyed_vector::pair_at()");
-		ret++;
-	}
-	//ckvpair.first = string("one");  // must fail
-	//ckvpair.second = 1;  // must fail
-
 	/* test simple int indexing and at() */
 	if (keyvec[0] != 1) {
 		ERROR("keyed_vector::operator[int]");
@@ -128,45 +119,25 @@ test_keyed_vector_int() {
 
 	/* test simple Tkey indexing and at() */
 	if (keyvec["one"] != 1) {
-		ERROR("keyed_vector::operator[string]");
+		ERROR("keyed_vector::operator[Tkey]");
 		ret++;
 	}
 	if (const_keyvec["one"] != 1) {
-		ERROR("const keyed_vector::operator[string]");
+		ERROR("const keyed_vector::operator[Tkey]");
 		ret++;
 	}
 	if (keyvec.at("one") != 1) {
-		ERROR("keyed_vector::at(string)");
+		ERROR("keyed_vector::at(Tkey)");
 		ret++;
 	}
 	if (const_keyvec.at("one") != 1) {
-		ERROR("const keyed_vector::at(string)");
+		ERROR("const keyed_vector::at(Tkey)");
 		ret++;
-	}
-
-	/* test offset Tkey at() */
-	it = keyvec.begin();
-	if (keyvec.at("one", it) != 1) {
-		ERROR("const keyed_vector::at(string, iterator)");
-		ret++;
-	}
-	it++;
-	if (keyvec.at("two", it) != 2) {
-		ERROR("const keyed_vector::at(string, iterator)");
-		ret++;
-	}
-	it++;
-	try {
-		keyvec.at("three", keyvec.end());
-		ERROR("const keyed_vector::at(string, iterator)");
-		ret++;
-	} catch (std::out_of_range) {
-		/* this is the expected path upon success */
 	}
 
 	/* test overwrites */
 	if (keyvec["two"] != 2) {
-		ERROR("keyed_vector::at()");
+		ERROR("keyed_vector::at(Tkey)");
 		ret++;
 	}
 	keyvec.push_back("two", 22);
@@ -204,32 +175,13 @@ test_keyed_vector_int() {
 		ERROR("keyed_vector::find()");
 		ret++;
 	}
-	it = keyvec.begin();
-	if (!keyvec.has_key("three", it)) {
-		ERROR("keyed_vector::has_key()");
-		ret++;
-	}
-	it = keyvec.find("three", it);
-	if (*it != 3) {
-		ERROR("keyed_vector::find()");
-		ret++;
-	}
-	it++;
-	if (keyvec.has_key("three", it)) {
-		ERROR("keyed_vector::has_key()");
-		ret++;
-	}
-	it = keyvec.find("three", it);
-	if (it != keyvec.end()) {
-		ERROR("keyed_vector::find()");
-		ret++;
-	}
 
 	/* test the key_at() method */
 	if (keyvec.key_at(0) != "one") {
 		ERROR("keyed_vector::key_at()");
 		ret++;
 	}
+	// keyvec.key_at(0) = "four"; // must fail
 
 	/* test writes through a subscript */
 	keyvec[1] = 1234;
@@ -245,6 +197,11 @@ test_keyed_vector_int() {
 
 	/* test erase() */
 	keyvec.insert("four", 4);
+
+	if (keyvec.at(3) != 4 || keyvec.at("four") != 4) {
+		ERROR("keyed_vector::insert()");
+		ret++;
+	}
 	if (keyvec.size() != 4) {
 		ERROR("keyed_vector::insert()");
 		ret++;
@@ -255,39 +212,9 @@ test_keyed_vector_int() {
 		ret++;
 	}
 
-	return ret;
-}
-
-int
-test_keyed_vector_unique()
-{
-	int ret = 0;
-
-	keyed_vector<string, int> keyvec;
-	keyvec.insert("three", 3);
-	keyvec.insert("two", 2);
-	keyvec.insert("one", 1);
-
-	/* test insert() of a duplicate key */
-	keyvec.insert("two", 22);
-	if (keyvec["two"] != 22) {
-		ERROR("keyed_vector::insert()");
-		ret++;
-	}
-	if (keyvec[1] != 22) {
-		ERROR("keyed_vector::insert()");
-		ret++;
-	}
-
-	/* test the remove() method */
-	keyvec.insert("four", 4);
-	if (!keyvec.has_key("four")) {
-		ERROR("keyed_vector::insert()");
-		ret++;
-	}
-	keyvec.remove("four");
-	if (keyvec.has_key("four")) {
-		ERROR("keyed_vector::remove()");
+	/* erase should have adjusted everything */
+	if (keyvec.at(2) != 4 || keyvec.at("four") != 4) {
+		ERROR("keyed_vector::erase()");
 		ret++;
 	}
 
@@ -320,102 +247,80 @@ test_keyed_vector_xypair()
 {
 	int ret = 0;
 
-	keyed_vector<string, xypair> keyvec;
-	const keyed_vector<string, xypair> &const_keyvec = keyvec;
-	keyed_vector<string, xypair>::iterator it;
+	typedef keyed_vector<string, xypair> xy_keyvec;
+	xy_keyvec keyvec;
+	const xy_keyvec &const_keyvec = keyvec;
+	xy_keyvec::iterator it;
 
 	xypair zero(0,0);
-	keyvec.insert("zero,zero", zero);
 	xypair one(1, -1);
-	keyvec.insert("one,minusone", one);
 	xypair two(2, 4);
-	keyvec.insert("two,four", two);
+	xypair four(4, 20);
 
-	/* test int indexing */
-	if (keyvec[0] != zero) {
-		ERROR("keyed_vector::operator[int]");
+	// verify that it has the right size
+	if (keyvec.size() != 0) {
+		ERROR("keyed_vector::keyed_vector()");
 		ret++;
 	}
-	if (const_keyvec[0] != zero) {
-		ERROR("const keyed_vector::operator[int]");
-		ret++;
-	}
-
-	/* test string indexing */
-	if (keyvec["one,minusone"] != one) {
-		ERROR("keyed_vector::operator[string]");
-		ret++;
-	}
-	if (const_keyvec["one,minusone"] != one) {
-		ERROR("const keyed_vector::operator[string]");
+	if (!keyvec.empty()) {
+		ERROR("keyed_vector::empty()");
 		ret++;
 	}
 
-	/* test the has_key() method */
-	if (!keyvec.has_key("zero,zero")) {
-		ERROR("keyed_vector::has_key()");
-		ret++;
-	}
-	if (!const_keyvec.has_key("zero,zero")) {
-		ERROR("const keyed_vector::has_key()");
-		ret++;
-	}
-	if (keyvec.has_key("doesn't have")) {
-		ERROR("keyed_vector::has_key()");
-		ret++;
-	}
+	// add some items
+	keyvec.push_back("zero,zero", zero);
+	keyvec.push_back("one,minusone", one);
+	keyvec.push_back("two,four", two);
 
-	/* test the find() method */
-	it = keyvec.find("zero,zero");
-	if (it == keyvec.end() || *it != zero) {
-		ERROR("keyed_vector::find()");
-		ret++;
-	}
-	it = keyvec.find("doesn't have");
-	if (it != keyvec.end()) {
-		ERROR("keyed_vector::find()");
-		ret++;
-	}
-	/* test the key_at() method */
-	if (keyvec.key_at(0) != "zero,zero") {
-		ERROR("keyed_vector::key_at()");
-		ret++;
-	}
-	/* test insert() of a duplicate key */
-	keyvec.insert("two,four", xypair(4,2));
-	if (keyvec["two,four"] == two) {
-		ERROR("keyed_vector::insert()");
-		ret++;
-	}
-	if (keyvec[1] == two) {
-		ERROR("keyed_vector::insert()");
-		ret++;
-	}
-	/* test the remove() method */
-	xypair four(4,4);
-	keyvec.insert("four,four", four);
-	if (!keyvec.has_key("four,four")) {
-		ERROR("keyed_vector::insert()");
-		ret++;
-	}
-	keyvec.remove("four,four");
-	if (keyvec.has_key("four,four")) {
-		ERROR("keyed_vector::remove()");
-		ret++;
-	}
-	/* test erase */
-	keyvec.insert("four,four", four);
-	if (keyvec.size() != 4) {
-		ERROR("keyed_vector::erase()");
-		ret++;
-	}
-	keyvec.erase(keyvec.begin());
+	// verify that it has the right size
 	if (keyvec.size() != 3) {
-		ERROR("keyed_vector::erase()");
+		ERROR("keyed_vector::push_back()");
+		ret++;
+	}
+	if (keyvec.empty()) {
+		ERROR("keyed_vector::empty()");
 		ret++;
 	}
 
-	/* test the iterator */
+	// test simple iterator fetchers
+	if (*keyvec.begin() != zero) {
+		ERROR("keyed_vector::begin()");
+		ret++;
+	}
+	if (*const_keyvec.begin() != zero) {
+		ERROR("keyed_vector::begin()");
+		ret++;
+	}
+	if (keyvec.end() != keyvec.begin()+3) {
+		ERROR("keyed_vector::end()");
+		ret++;
+	}
+	if (const_keyvec.end() != const_keyvec.begin()+3) {
+		ERROR("keyed_vector::end()");
+		ret++;
+	}
+	xy_keyvec::const_iterator cit = const_keyvec.begin();
+	cit = keyvec.begin();
+
+	/* test reverse iterator fetchers */
+	if (*keyvec.rbegin() != two) {
+		ERROR("keyed_vector::rbegin()");
+		ret++;
+	}
+	if (*const_keyvec.rbegin() != two) {
+		ERROR("keyed_vector::rbegin()");
+		ret++;
+	}
+	if (keyvec.rend() != keyvec.rbegin()+3) {
+		ERROR("keyed_vector::rend()");
+		ret++;
+	}
+	if (const_keyvec.rend() != const_keyvec.rbegin()+3) {
+		ERROR("keyed_vector::rend()");
+		ret++;
+	}
+
+	/* test forward iterator */
 	int count = 0;
 	it = keyvec.begin();
 	while (it != keyvec.end()) {
@@ -426,16 +331,112 @@ test_keyed_vector_xypair()
 		ERROR("keyed_vector::iterator");
 		ret++;
 	}
-	if (keyvec.size() != 3) {
-		ERROR("keyed_vector::size()");
+
+	/* test simple int indexing and at() */
+	if (keyvec[0] != zero) {
+		ERROR("keyed_vector::operator[int]");
+		ret++;
+	}
+	if (const_keyvec[0] != zero) {
+		ERROR("const keyed_vector::operator[int]");
+		ret++;
+	}
+	if (keyvec.at(0) != zero) {
+		ERROR("keyed_vector::at(int)");
+		ret++;
+	}
+	if (const_keyvec.at(0) != zero) {
+		ERROR("const keyed_vector::at(int)");
 		ret++;
 	}
 
+	/* test simple Tkey indexing and at() */
+	if (keyvec["zero,zero"] != zero) {
+		ERROR("keyed_vector::operator[Tkey]");
+		ret++;
+	}
+	if (const_keyvec["zero,zero"] != zero) {
+		ERROR("const keyed_vector::operator[Tkey]");
+		ret++;
+	}
+	if (keyvec.at("zero,zero") != zero) {
+		ERROR("keyed_vector::at(Tkey)");
+		ret++;
+	}
+	if (const_keyvec.at("zero,zero") != zero) {
+		ERROR("const keyed_vector::at(Tkey)");
+		ret++;
+	}
+
+	/* test overwrites */
+	if (keyvec["two,four"] != two) {
+		ERROR("keyed_vector::at(Tkey)");
+		ret++;
+	}
+	keyvec.push_back("two,four", zero);
+	if (keyvec["two,four"] != zero) {
+		ERROR("keyed_vector::push_back()");
+		ret++;
+	}
+	if (const_keyvec["two,four"] != zero) {
+		ERROR("keyed_vector::push_back()");
+		ret++;
+	}
+
+	/* test the has_key() method */
+	if (!keyvec.has_key("one,minusone")) {
+		ERROR("keyed_vector::has_key()");
+		ret++;
+	}
+	if (!const_keyvec.has_key("one,minusone")) {
+		ERROR("const keyed_vector::has_key()");
+		ret++;
+	}
+	if (keyvec.has_key("four,score")) {
+		ERROR("keyed_vector::has_key()");
+		ret++;
+	}
+
+	/* test the find() method */
+	it = keyvec.find("one,minusone");
+	if (it == keyvec.end() || *it != one) {
+		ERROR("keyed_vector::find()");
+		ret++;
+	}
+	it = keyvec.find("four,score");
+	if (it != keyvec.end()) {
+		ERROR("keyed_vector::find()");
+		ret++;
+	}
+
+	/* test the key_at() method */
+	if (keyvec.key_at(0) != "zero,zero") {
+		ERROR("keyed_vector::key_at()");
+		ret++;
+	}
+	// keyvec.key_at(0) = "four,score"; // must fail
+
 	/* test writes through a subscript */
-	xypair five(5,10);
-	keyvec["one,minusone"] = five;
-	if (keyvec["one,minusone"] != five) {
-		ERROR("keyed_vector::operator[]");
+	keyvec[1] = two;
+	if (keyvec[1] != two) {
+		ERROR("keyed_vector::operator[int]");
+		ret++;
+	}
+	keyvec["two,four"] = zero;
+	if (keyvec["two,four"] != zero) {
+		ERROR("keyed_vector::operator[Tkey]");
+		ret++;
+	}
+
+	/* test erase() */
+	keyvec.insert("four,score", four);
+	if (keyvec.size() != 4) {
+		ERROR("keyed_vector::insert()");
+		ret++;
+	}
+	keyvec.erase(keyvec.begin());
+	if (keyvec.size() != 3) {
+		ERROR("keyed_vector::erase()");
 		ret++;
 	}
 
@@ -448,8 +449,6 @@ main()
 	int r;
 
 	r = test_keyed_vector_int();
-	if (r) return EXIT_FAILURE;
-	r = test_keyed_vector_unique();
 	if (r) return EXIT_FAILURE;
 	r = test_keyed_vector_xypair();
 	if (r) return EXIT_FAILURE;
