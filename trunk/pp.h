@@ -89,4 +89,11 @@ typedef enum pp_bitwidth {
  */
 typedef uint64_t pp_regaddr;
 
+/*
+ * WARN() - issue a runtime warning
+ */
+#define WARN(message) do { \
+	std::cerr << "WARN: " << message << std::endl; \
+} while (0)
+
 #endif // PP_PP_H__

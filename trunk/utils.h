@@ -59,7 +59,6 @@ dirent_defined(const pp_scope *scope, const pp_path &path);
 //FIXME: comment
 extern const pp_field *
 GET_FIELD(const pp_path &path);
-//FIXME: need a string ctor for path?
 
 extern const pp_register *
 GET_REGISTER(const pp_path &path);

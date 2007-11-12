@@ -6,6 +6,7 @@
 #include <exception>
 
 #include "pp.h"
+#include "debug.h"
 #include "pp_driver.h"
 
 typedef std::map<string, pp_driver *> driver_map;
@@ -21,6 +22,7 @@ driver_list()
 void
 register_driver(pp_driver *driver)
 {
+	DTRACE(TRACE_DRIVER_UTILS, "register driver " + driver->name());
 	driver_list()[driver->name()] = driver;
 }
 
@@ -29,6 +31,7 @@ register_driver(pp_driver *driver)
 pp_driver *
 find_driver(const string &name)
 {
+	DTRACE(TRACE_DRIVER_UTILS, "find driver " + name);
 	return driver_list()[name];
 }
 
@@ -39,6 +42,8 @@ init_drivers()
 	force_io_driver_linkage = 1;
 	extern int force_pci_driver_linkage;
 	force_pci_driver_linkage = 1;
+	extern int force_mem_driver_linkage;
+	force_mem_driver_linkage = 1;
 	extern int force_devices_linkage;
 	force_devices_linkage = 1;
 }

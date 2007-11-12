@@ -15,6 +15,4 @@ move more code to .cpp files
 pp_path "/"
 remove the length arg of io/mem bindings? else report PCI BAR sizes
 
-utils.cpp: don't allow nested bindings?  Simplifies a bit
-
-gprof
+write DEFS and other stuff to a dotfile and make that a makefile dependency

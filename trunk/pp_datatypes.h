@@ -164,6 +164,7 @@ class pp_bitmask: public pp_datatype
 				ret += boost::format("<!!bit%d!!>") %unknown;
 			}
 			myval >>= 1;
+			unknown++;
 		}
 		return ret;
 	}

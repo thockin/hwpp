@@ -4,6 +4,7 @@
 #include "pp_datatypes.h"
 #include "pp_fields.h"
 #include "utils.h"
+#include "drivers.h"
 
 // All standard BARs look like this.
 static void
@@ -144,7 +145,7 @@ ht_link_freq_cap(pp_value address)
 			{"mhz2600", 14});
 
 	REG16("%freq_cap", address);
-	SIMPLE_FIELD("FreqCap", "ht_link_freq_cap_t", "%freq_cap", 15, 0);
+	SIMPLE_FIELD("FreqCap", "ht_link_freq_cap_t", "%freq_cap", 14, 0);
 }
 
 static void
@@ -457,9 +458,91 @@ msi_capability(pp_value address)
 static void
 msix_capability(pp_value address)
 {
-	//FIXME:  This gets complicated.  The PCI registers refer to other
-	//registers that exist behind a BAR.  Maybe we need to allow
-	//nested bindings, so we can define this.
+	REG16("%msg_ctrl", address + 2);
+	ONE_BIT_FIELD("msix_enable", "yesno_t", "%msg_ctrl", 15);
+	//FIXME: procfield?  lambda?  should be +1
+	SIMPLE_FIELD("table_size", "int_t", "%msg_ctrl", 10, 0);
+	ONE_BIT_FIELD("func_mask", "yesno_t", "%msg_ctrl", 14);
+
+	// these will be used a bit later
+	string bar;
+	pp_regaddr base;
+	std::vector<pp_regaddr> args;
+	pp_const_binding_ptr bind;
+	pp_value table_size = GET_FIELD("table_size")->read() + 1;
+
+	// the table is memory mapped through a BAR
+	REG32("%table_ptr", address + 4);
+	SIMPLE_FIELD("table_bir", ANON_ENUM(
+				{"bar0", 0},
+				{"bar1", 1},
+				{"bar2", 2},
+				{"bar3", 3},
+				{"bar4", 4},
+				{"bar5", 5}),
+			"%table_ptr", 2, 0);
+	COMPLEX_FIELD("table_offset", "hex_t",
+			{"0", 2, 0},
+			{"%table_ptr", 31, 3});
+
+	bar = "^/" + GET_FIELD("table_bir")->evaluate() + "/address";
+	base = GET_FIELD(bar)->read() + GET_FIELD("table_offset")->read();
+	args.push_back(base);
+	args.push_back(table_size * 16);
+	bind = find_driver("mem")->new_binding(args);
+	OPEN_SCOPE("table", bind); {
+		for (pp_value i = 0; i < table_size; i++) {
+			OPEN_SCOPE("entry[" + to_string(i) + "]"); {
+				REG32("%msg_addr", i*16 + 0);
+				REG32("%msg_upper_addr", i*16 + 4);
+				COMPLEX_FIELD("address", "addr64_t",
+						{"0", 1, 0},
+						{"%msg_addr", 31, 2},
+						{"%msg_upper_addr", 31, 0});
+				REGFIELD32("msg_data", i*16 + 8, "hex_t");
+				REG32("%vector_ctrl", i*16 + 12);
+				ONE_BIT_FIELD("mask", "yesno_t",
+						"%vector_ctrl", 0);
+			} CLOSE_SCOPE();
+		}
+	} CLOSE_SCOPE();
+
+	// the pending bit array is memory mapped through a BAR
+	REG32("%pba_ptr", address + 8);
+	SIMPLE_FIELD("pba_bir", ANON_ENUM(
+				{"bar0", 0},
+				{"bar1", 1},
+				{"bar2", 2},
+				{"bar3", 3},
+				{"bar4", 4},
+				{"bar5", 5}),
+			"%pba_ptr", 2, 0);
+	COMPLEX_FIELD("pba_offset", "hex_t",
+			{"0", 2, 0},
+			{"%pba_ptr", 31, 3});
+
+	args.clear();
+	bar = "^/" + GET_FIELD("pba_bir")->evaluate() + "/address";
+	base = GET_FIELD(bar)->read() + GET_FIELD("table_offset")->read();
+	args.push_back(base);
+	args.push_back(((table_size+63)/64) * 8);
+	bind = find_driver("mem")->new_binding(args);
+	OPEN_SCOPE("pba", bind); {
+		pp_value tmp_size = table_size;
+		// loop for each PBA QWORD
+		for (pp_value i = 0; i < (table_size+63)/64; i++) {
+			string regname = "%pending[" + to_string(i) + "]";
+			REG64(regname, i);
+			for (size_t j = 0; j < 64; j++) {
+				if (j >= tmp_size)
+					break;
+				ONE_BIT_FIELD("pending" + to_string(i*64 + j),
+						"yesno_t", regname, j);
+			}
+			std::cout << tmp_size << " " << 64 << std::endl;
+			tmp_size -= 64;
+		}
+	} CLOSE_SCOPE();
 }
 
 static void
