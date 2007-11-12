@@ -82,6 +82,10 @@
 #ifndef TRACE_TYPES
 #  define TRACE_TYPES 0
 #endif
+// trace driver utils?
+#ifndef TRACE_DRIVER_UTILS
+#  define TRACE_DRIVER_UTILS 0
+#endif
 
 #else // !DEBUG
 

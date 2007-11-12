@@ -46,13 +46,17 @@ dump_scope(const pp_scope *scope, string indent = "")
 			     << endl;
 		}
 		if (scope->dirent(i)->is_scope()) {
-			cout << indent;
-			cout << scope->dirent_name(i)
-			     << " {"
-			     << endl;
 			const pp_scope *sub;
-
 			sub = pp_scope_from_dirent(scope->dirent(i));
+
+			cout << indent;
+			cout << scope->dirent_name(i);
+			if (sub->binding()) {
+				cout << " (@" << *sub->binding() << ")";
+			}
+			cout << " {"
+			     << endl;
+
 			dump_scope(sub, indent+"    ");
 			cout << indent;
 			cout << "}"

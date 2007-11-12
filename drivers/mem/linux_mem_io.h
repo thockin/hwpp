@@ -106,7 +106,7 @@ class linux_mem_io: public mem_io
 	fs::file_mapping_ptr
 	map(const pp_regaddr offset, std::size_t length) const
 	{
-		if ((offset+length) >= m_address.size) {
+		if ((offset+length) > m_address.size) {
 			throw do_io_error(to_string(
 			    boost::format("can't access register 0x%x")
 			    %offset));

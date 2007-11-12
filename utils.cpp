@@ -163,12 +163,11 @@ GET_FIELD(const pp_path &path)
 const pp_register *
 GET_REGISTER(const pp_path &path)
 {
+	DASSERT_MSG(cur_scope, "found NULL cur_scope");
 	if (path == "0")
 		return magic_zeros;
 	if (path == "1")
 		return magic_ones;
-
-	DASSERT_MSG(cur_scope, "found NULL cur_scope");
 	return get_register(cur_scope.get(), path);
 }
 
@@ -268,8 +267,11 @@ REGN(const string &name, pp_regaddr address, pp_bitwidth width)
 	DASSERT_MSG(cur_binding, "no binding for register " + name);
 	// enforce that registers start with '%'
 	DASSERT_MSG(name[0] == '%', "register must start with %: " + name);
-	// enforce unique register names
-	DASSERT_MSG(!DEFINED(name), "register name collision: " + name);
+
+	// note: this is not a debug-only test
+	if (DEFINED(name)) {
+		WARN("register name collision: " + name);
+	}
 
 	pp_register_ptr reg_ptr = new_pp_register(
 			cur_binding.get(), address, width);
@@ -310,8 +312,11 @@ COMPLEX_FIELD_(const string &name, const pp_datatype *type,
 	// sanity
 	DASSERT_MSG(type, "found NULL pp_datatype for field " + name);
 	DASSERT_MSG(bitrange, "found NULL bitrange[] for field " + name);
-	// enforce unique field names
-	DASSERT_MSG(!DEFINED(name), "field name collision: " + name);
+
+	// note: this is not a debug-only test
+	if (DEFINED(name)) {
+		WARN("field name collision: " + name);
+	}
 
 	// create a temporary field and add each bitrange
 	pp_regbits_field_ptr field_ptr = new_pp_regbits_field(type);
@@ -321,20 +326,19 @@ COMPLEX_FIELD_(const string &name, const pp_datatype *type,
 				+ bitrange->regname + "["
 				+ to_string(bitrange->hi_bit) + ","
 				+ to_string(bitrange->lo_bit) + "]");
-		// the hi_bit # can not be less than the lo_bit #
-		DASSERT_MSG(bitrange->hi_bit >= bitrange->lo_bit,
-				"hi_bit must be >= lo_bit: "
-					+ to_string(bitrange->hi_bit)
-					+ string(" < ")
-					+ to_string(bitrange->lo_bit));
 
 		const pp_register *reg = GET_REGISTER(bitrange->regname);
 		int nbits = (bitrange->hi_bit - bitrange->lo_bit) + 1;
-		DASSERT_MSG(bitrange->hi_bit < (unsigned)reg->width(),
-				"bitrange is too large for register size: "
-					+ to_string(bitrange->hi_bit)
-					+ string(" >= ")
-					+ to_string(reg->width()));
+
+		// sanity check the bit range
+		if (bitrange->hi_bit < bitrange->lo_bit
+		 || bitrange->hi_bit >= (unsigned)reg->width()) {
+			WARN("bad bit range: ["
+				+ to_string(bitrange->hi_bit)
+				+ string(":")
+				+ to_string(bitrange->lo_bit)
+				+ string("]"));
+		}
 
 		// add the current bitrange at the next free bit number
 		field_ptr->add_regbits(reg, bitrange->lo_bit, PP_MASK(nbits),

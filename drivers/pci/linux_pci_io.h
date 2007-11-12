@@ -51,6 +51,8 @@ class linux_pci_io: public pci_io
 			return do_read<uint16_t>(address);
 		    case BITS32:
 			return do_read<uint32_t>(address);
+		    case BITS64:
+			return do_read<uint64_t>(address);
 		    default:
 			break;
 		}
@@ -70,6 +72,8 @@ class linux_pci_io: public pci_io
 			return do_write<uint16_t>(address, value);
 		    case BITS32:
 			return do_write<uint32_t>(address, value);
+		    case BITS64:
+			return do_write<uint64_t>(address, value);
 		    default:
 			break;
 		}
@@ -151,7 +155,7 @@ class linux_pci_io: public pci_io
 		Tdata data;
 		if (m_file->read(&data, sizeof(data)) != sizeof(data)) {
 			throw do_io_error(to_string(
-			    boost::format("can't read register 0x%x")
+			    boost::format("error reading register 0x%x")
 			    %offset));
 		}
 		return data;
@@ -170,7 +174,7 @@ class linux_pci_io: public pci_io
 		Tdata data = value;
 		if (m_file->write(&data, sizeof(data)) != sizeof(data)) {
 			throw do_io_error(to_string(
-			    boost::format("can't write register 0x%x")
+			    boost::format("error writing register 0x%x")
 			    %offset));
 		}
 	}
