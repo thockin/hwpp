@@ -208,7 +208,7 @@ NEW_PLATFORM()
 void
 OPEN_SCOPE(const string &name, pp_const_binding_ptr binding)
 {
-	DTRACE(TRACE_SCOPES, "scope: " + cur_scope_name);
+	DTRACE(TRACE_SCOPES, "scope: " + name);
 	pp_scope_ptr tmp_scope_ = new_pp_scope(binding);
 
 	// if we are not opening a top-level scope, save the current scope
