@@ -17,6 +17,8 @@ PP_DEFS = $(DEFS)
 PP_INCLUDES = -I$(TOPDIR) $(INCLUDES)
 ifeq ($(strip $(DEBUG)),1)
 PP_DEBUG = -O0 -ggdb -DDEBUG
+else
+PP_DEBUG = -DNDEBUG
 endif
 
 PP_LDLIBS = $(LIBS)
