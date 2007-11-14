@@ -68,7 +68,7 @@ dump_scope(const pp_scope *scope, string indent = "")
 int
 main()
 {
-	pp_scope_ptr platform = new_pp_scope();
+	pp_scope_ptr platform = NEW_PLATFORM();
 	do_discovery(platform.get());
 	dump_scope(platform.get());
 	return 0;
