@@ -325,7 +325,7 @@ class file
 		::off_t r;
 
 		r = ::lseek(m_fd, offset, whence);
-		if (r < 0) {
+		if (r == (off_t)-1) {
 			throw io_error(
 			    std::string("fs::file::seek(") + m_path + "): "
 			    + strerror(errno));
