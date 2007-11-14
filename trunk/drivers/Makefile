@@ -1,4 +1,4 @@
-DRIVERS = io mem pci
+DRIVERS = io mem pci msr
 
 all test clean dep:
 	@for d in $(DRIVERS); do \

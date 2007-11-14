@@ -44,6 +44,9 @@ init_drivers()
 	force_pci_driver_linkage = 1;
 	extern int force_mem_driver_linkage;
 	force_mem_driver_linkage = 1;
+	extern int force_msr_driver_linkage;
+	force_msr_driver_linkage = 1;
+
 	extern int force_devices_linkage;
 	force_devices_linkage = 1;
 }
