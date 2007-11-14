@@ -14,6 +14,7 @@
 #include <stdexcept>
 #include <boost/iterator_adaptors.hpp>
 #include "pp.h"
+#include "debug.h"
 
 /* forward declare */
 template<typename Tkey, typename Tval> class keyed_vector;
@@ -118,6 +119,12 @@ class keyvec_iter
  * of map iterators, where the index in the vector is parallel to the
  * value vector.  This allows you to access the data in order (via the
  * vectors), or to access it randomly (by the map).
+ *
+ * STL guarantees that map iterators do not get invalidated unless the
+ * item pointed to is removed from the map.  We rely on this when we store
+ * iterators.  When an item is removed from any position except the back
+ * of the vectors, all subsequent entries must have their indices updated
+ * in the map.
  *
  * Notes:
  *   - The 'Tkey' type must have an == operator.
@@ -235,6 +242,7 @@ class keyed_vector
 	size_type
 	size() const
 	{
+		DASSERT(m_keys.size() == m_values.size());
 		return m_values.size();
 	}
 	size_type
