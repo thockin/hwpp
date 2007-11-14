@@ -121,8 +121,9 @@ pci_discovered(pp_scope *platform, const pp_driver *driver,
 		const std::vector<pp_regaddr> &args)
 {
 	pp_const_binding_ptr bind_ptr = driver->new_binding(args);
-	OPEN_SCOPE(string("@")+bind_ptr->to_string(), bind_ptr);
+	OPEN_SCOPE(bind_ptr->to_string(), bind_ptr);
 	pci_generic_device();
+	CLOSE_SCOPE();
 }
 
 class pci_discovery {
@@ -130,6 +131,7 @@ class pci_discovery {
 	explicit
 	pci_discovery()
 	{
+		// register a catch-all discovery rule
 		std::vector<pp_regaddr> args;
 		register_discovery("pci", args, pci_discovered);
 	}
