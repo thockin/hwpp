@@ -138,7 +138,7 @@ ht_link_freq_cap(pp_value address)
 			{"mhz1200", 7},
 			{"mhz1400", 8},
 			{"mhz1600", 9},
-			{"mhz1800", 1},
+			{"mhz1800", 10},
 			{"mhz2000", 11},
 			{"mhz2200", 12},
 			{"mhz2400", 13},
@@ -1130,5 +1130,4 @@ pci_generic_device()
 	} else if (GET_FIELD("hdrtype")->compare("cardbus_bridge")) {
 		//TODO: need a spec
 	}
-	CLOSE_SCOPE();
 }
