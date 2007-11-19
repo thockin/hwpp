@@ -93,7 +93,7 @@ class linux_io_io: public io_io
 		try {
 			m_file = fs::file::open(IO_DEVICE, O_RDONLY);
 			return;
-		} catch (fs::not_found_error e) {
+		} catch (fs::not_found_error &e) {
 			/* the device seems to not exist */
 			throw do_io_error("can't open " IO_DEVICE);
 		}

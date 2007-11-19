@@ -24,7 +24,7 @@ get_field_test(const pp_scope *tree)
 	/* search for a field */
 	try {
 		get_field(tree, pp_path("space/field"));
-	} catch (exception e) {
+	} catch (exception &e) {
 		PP_TEST_ERROR("get_field()");
 		return_value++;
 	}
@@ -34,7 +34,7 @@ get_field_test(const pp_scope *tree)
 		get_field(tree, pp_path("space/register"));
 		PP_TEST_ERROR("get_field()");
 		return_value++;
-	} catch (exception e) {
+	} catch (exception &e) {
 	}
 
 	/* search for an item that is not a leaf node */
@@ -42,7 +42,7 @@ get_field_test(const pp_scope *tree)
 		get_field(tree, pp_path("space/scope"));
 		PP_TEST_ERROR("get_field()");
 		return_value++;
-	} catch (exception e) {
+	} catch (exception &e) {
 	}
 
 	/* search for an item that does not exist */
@@ -50,13 +50,13 @@ get_field_test(const pp_scope *tree)
 		get_field(tree, pp_path("space/garbage"));
 		PP_TEST_ERROR("get_field()");
 		return_value++;
-	} catch (exception e) {
+	} catch (exception &e) {
 	}
 
 	/* search for an item through a path with ".." */
 	try {
 		get_field(tree, pp_path("space/scope/../field"));
-	} catch (exception e) {
+	} catch (exception &e) {
 		PP_TEST_ERROR("get_field()");
 		return_value++;
 	}
@@ -72,7 +72,7 @@ get_register_test(const pp_scope *tree)
 	/* search for a register */
 	try {
 		get_register(tree, pp_path("space/register"));
-	} catch (exception e) {
+	} catch (exception &e) {
 		return_value++;
 		PP_TEST_ERROR("get_register()");
 	}
@@ -82,7 +82,7 @@ get_register_test(const pp_scope *tree)
 		get_register(tree, pp_path("space/field"));
 		PP_TEST_ERROR("get_register()");
 		return_value++;
-	} catch (exception e) {
+	} catch (exception &e) {
 	}
 
 	/* search for an item that is not a leaf node */
@@ -90,7 +90,7 @@ get_register_test(const pp_scope *tree)
 		get_register(tree, pp_path("space/scope"));
 		PP_TEST_ERROR("get_register()");
 		return_value++;
-	} catch (exception e) {
+	} catch (exception &e) {
 	}
 
 	/* search for an item that does not exist */
@@ -98,13 +98,13 @@ get_register_test(const pp_scope *tree)
 		get_register(tree, pp_path("space/garbage"));
 		PP_TEST_ERROR("get_register()");
 		return_value++;
-	} catch (exception e) {
+	} catch (exception &e) {
 	}
 
 	/* search for an item through a path with ".." */
 	try {
 		get_register(tree, pp_path("space/scope/../register"));
-	} catch (exception e) {
+	} catch (exception &e) {
 		PP_TEST_ERROR("get_register()");
 		return_value++;
 	}
@@ -120,7 +120,7 @@ get_dirent_test(const pp_scope *tree)
 	/* search for a register */
 	try {
 		get_dirent(tree, pp_path("space/register"));
-	} catch (exception e) {
+	} catch (exception &e) {
 		return_value++;
 		PP_TEST_ERROR("get_dirent()");
 	}
@@ -128,7 +128,7 @@ get_dirent_test(const pp_scope *tree)
 	/* search for a field */
 	try {
 		get_dirent(tree, pp_path("space/field"));
-	} catch (exception e) {
+	} catch (exception &e) {
 		return_value++;
 		PP_TEST_ERROR("get_dirent()");
 	}
@@ -136,7 +136,7 @@ get_dirent_test(const pp_scope *tree)
 	/* search for a scope */
 	try {
 		get_dirent(tree, pp_path("space/scope"));
-	} catch (exception e) {
+	} catch (exception &e) {
 		return_value++;
 		PP_TEST_ERROR("get_dirent()");
 	}
@@ -146,13 +146,13 @@ get_dirent_test(const pp_scope *tree)
 		get_dirent(tree, pp_path("space/garbage"));
 		PP_TEST_ERROR("get_dirent()");
 		return_value++;
-	} catch (exception e) {
+	} catch (exception &e) {
 	}
 
 	/* search for an item through a path with ".." */
 	try {
 		get_dirent(tree, pp_path("space/scope/../register"));
-	} catch (exception e) {
+	} catch (exception &e) {
 		PP_TEST_ERROR("get_dirent()");
 		return_value++;
 	}
@@ -192,7 +192,7 @@ dirent_defined_test(const pp_scope *tree)
 	/* search for an item through a path with ".." */
 	try {
 		dirent_defined(tree, pp_path("space/scope/../register"));
-	} catch (exception e) {
+	} catch (exception &e) {
 		PP_TEST_ERROR("dirent_defined()");
 		return_value++;
 	}

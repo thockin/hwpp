@@ -90,7 +90,7 @@ class linux_msr_io: public msr_io
 		try {
 			m_file = fs::file::open(filename, O_RDONLY);
 			return;
-		} catch (fs::not_found_error e) {
+		} catch (fs::not_found_error &e) {
 			/* do nothing yet */
 		}
 
@@ -104,7 +104,7 @@ class linux_msr_io: public msr_io
 		try {
 			m_file = fs::file::open(filename, O_RDONLY);
 			return;
-		} catch (fs::not_found_error e) {
+		} catch (fs::not_found_error &e) {
 			/* the device seems to not exist */
 			throw do_io_error("device does not exist");
 		}

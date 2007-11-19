@@ -148,7 +148,7 @@ class pp_scope: public pp_dirent
 	{
 		try {
 			return m_datatypes[name].get();
-		} catch (std::out_of_range) {
+		} catch (std::out_of_range &e) {
 		}
 
 		if (!is_root()) {

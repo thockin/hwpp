@@ -78,7 +78,7 @@ register_discovery(const string &driver_name,
 	try {
 		pp_driver *driver = find_driver(driver_name);
 		driver->register_discovery(args, function);
-	} catch (std::exception e) {
+	} catch (std::exception &e) {
 		delayed_discovery d = {
 			driver_name,
 			args,
@@ -99,7 +99,7 @@ do_discovery(pp_scope *platform)
 			driver = find_driver(discovery_iter->driver_name);
 			driver->register_discovery(discovery_iter->args,
 					discovery_iter->function);
-		} catch (std::exception e) {
+		} catch (std::exception &e) {
 			//FIXME: error
 		}
 		discovery_iter++;
