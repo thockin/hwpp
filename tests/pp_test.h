@@ -7,4 +7,7 @@
 #define PP_TEST_ERROR(msg) \
 	cerr << "ERROR: [" __FILE__ << ":" << __LINE__ << "] " << msg << endl
 
+#define PP_TEST_WARNING(msg) \
+	cerr << "WARNING: [" __FILE__ << ":" << __LINE__ << "] " << msg << endl
+
 #endif // PP_TEST_H__
