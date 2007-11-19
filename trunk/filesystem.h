@@ -19,12 +19,22 @@
 #include <dirent.h>
 #include <sys/mman.h>
 
+#include "pp.h"
+
 namespace fs {
 
 class not_found_error: public std::runtime_error
 {
     public:
 	not_found_error(const std::string &str): runtime_error(str)
+	{
+	}
+};
+
+class permission_denied_error: public std::runtime_error
+{
+    public:
+	permission_denied_error(const std::string &str): runtime_error(str)
 	{
 	}
 };
@@ -204,12 +214,62 @@ class file
 			if (errno == ENOENT) {
 				throw not_found_error(path);
 			}
+			if (errno == EPERM || errno == EACCES) {
+				throw permission_denied_error(path);
+			}
 			throw io_error(
 			    std::string("fs::file::open(") + path + "): "
 			    + strerror(errno));
 		}
 
 		return f;
+	}
+
+	static file_ptr
+	fdopen(int fd, const std::string &path = "", int mode = -1)
+	{
+		file_ptr f(new file());
+
+		f->m_this_ptr = f;
+		f->m_path = path;
+		f->m_mode = mode;
+		f->m_fd = fd;
+
+		return f;
+	}
+
+	static file_ptr
+	tempfile(std::string path_template = "")
+	{
+		if (path_template == "") {
+			path_template = find_tmp_dir() + "/"
+				+ to_string(getpid()) + ".XXXXXX";
+		}
+
+		int r;
+		char buf[path_template.size()+1]; // for mkstemp()
+
+		path_template.copy(buf, path_template.size());
+		buf[path_template.size()] = '\0';
+		r = ::mkstemp(buf);
+		if (r < 0) {
+			throw io_error(
+			    std::string("fs::file::tempfile(")
+			    + path_template + "): " + strerror(errno));
+		}
+
+		return fdopen(r, buf, O_RDWR);
+	}
+
+	// warning: this is racy, but sometimes that is OK
+	static std::string
+	tempname(std::string path_template = "")
+	{
+		fs::file_ptr f = fs::file::tempfile(path_template);
+		std::string filename = f->path();
+		f->close();
+		unlink(filename);
+		return filename;
 	}
 
 	void
@@ -221,6 +281,9 @@ class file
 		if (new_fd < 0) {
 			if (errno == ENOENT) {
 				throw not_found_error(m_path);
+			}
+			if (errno == EPERM || errno == EACCES) {
+				throw permission_denied_error(m_path);
 			}
 			throw io_error(
 			    std::string("fs::file::open(") + m_path + "): "
@@ -252,6 +315,31 @@ class file
 		m_fd = -1;
 	}
 
+	static void
+	unlink(const std::string &path)
+	{
+		int r;
+
+		r = ::unlink(path.c_str());
+		if (r < 0) {
+			if (errno == ENOENT) {
+				throw not_found_error(path);
+			}
+			if (errno == EPERM || errno == EACCES) {
+				throw permission_denied_error(path);
+			}
+			throw io_error(
+			    std::string("fs::file::unlink(") + path + "): "
+			    + strerror(errno));
+		}
+	}
+
+	void
+	unlink()
+	{
+		unlink(m_path);
+	}
+
 	std::size_t
 	read(void *buf, std::size_t size) const
 	{
@@ -267,8 +355,10 @@ class file
 		return r;
 	}
 
-	//FIXME: create
-	//FIXME: remove
+	//FIXME: stat
+	//FIXME: create (static)
+	//FIXME: rename (static with 2 args, and 1 arg)
+	//FIXME: touch
 	//FIXME: add full_read() / full_write() methods?
 
 	std::string
@@ -279,6 +369,7 @@ class file
 
 		do {
 			read(buf, 1);
+			//FIXME: check for errors
 			s.append(buf);
 		} while (buf[0] != '\n');
 
@@ -369,6 +460,25 @@ class file
 	std::string m_path;
 	int m_mode;
 	int m_fd;
+
+	static std::string
+	find_tmp_dir()
+	{
+		char *p;
+
+		p = getenv("TMPDIR");
+		if (p) {
+			return p;
+		}
+		p = getenv("TEMPDIR");
+		if (p) {
+			return p;
+		}
+		#ifdef P_tmpdir
+		return P_tmpdir;
+		#endif
+		return "/tmp";
+	}
 };
 
 inline
@@ -402,6 +512,39 @@ file_mapping::file_mapping(const_file_ptr file,
 }
 
 /*
+ * device
+ *
+ * This class represents a single device node.
+ *
+ * Users can not create instances of this class.  To open a device call
+ * fs::device::open(), which returns a smart pointer to one of these.
+ */
+class device: public file
+{
+    public:
+	static void
+	mkdev(const std::string &path, mode_t perms, int type,
+			int major, int minor)
+	{
+		int r;
+
+		r = ::mknod(path.c_str(), perms | type,
+				::makedev(major, minor));
+		if (r < 0) {
+			if (errno == ENOENT) {
+				throw not_found_error(path);
+			}
+			if (errno == EPERM || errno == EACCES) {
+				throw permission_denied_error(path);
+			}
+			throw io_error(
+			    std::string("fs::device::mkdev(") + path + "): "
+			    + strerror(errno));
+		}
+	}
+};
+
+/*
  * direntry
  *
  * This class represents a single directory entry.
@@ -429,9 +572,7 @@ class direntry
 	exists(const std::string &path)
 	{
 		struct ::stat st;
-		int r;
-
-		r = ::stat(path.c_str(), &st);
+		int r = ::stat(path.c_str(), &st);
 		return (r == 0);
 	}
 
@@ -598,6 +739,9 @@ class directory
 			if (errno == ENOENT) {
 				throw not_found_error(path);
 			}
+			if (errno == EPERM || errno == EACCES) {
+				throw permission_denied_error(path);
+			}
 			throw io_error(
 			    std::string("fs::directory::open(") + path + "): "
 			    + strerror(errno));
@@ -615,6 +759,7 @@ class directory
 
 	//FIXME: create
 	//FIXME: remove
+	//FIXME: mkdtemp => tempname() and tempdir()
 
 	direntry_ptr
 	read() const

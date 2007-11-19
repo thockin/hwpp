@@ -27,11 +27,39 @@ test_file()
 	char buf[16];
 	int r;
 	file_ptr f = file::open("file.exists", O_RDONLY);
+	if (!f->is_open()) {
+		PP_TEST_ERROR("fs::direntry::is_open()");
+		ret++;
+	}
 
 	r = f->read(buf, 16);
 	buf[r] = '\0';
 	if (string(buf) != "exists") {
 		PP_TEST_ERROR("fs::file::read()");
+		ret++;
+	}
+
+	f->unlink();
+	if (direntry::exists("file.exists")) {
+		PP_TEST_ERROR("fs::direntry::unlink()");
+		ret++;
+	}
+
+	f->close();
+	if (f->is_open()) {
+		PP_TEST_ERROR("fs::direntry::is_open()");
+		ret++;
+	}
+
+	f = file::tempfile();
+	if (!f->is_open()) {
+		PP_TEST_ERROR("fs::direntry::tempfile()");
+		ret++;
+	}
+
+	string tempname = file::tempname();
+	if (direntry::exists(tempname)) {
+		PP_TEST_ERROR("fs::file::tempname()");
 		ret++;
 	}
 
@@ -123,7 +151,31 @@ test_dir()
 	}
 
 	system("rm -rf dir");
-	return 0;
+	return ret;
+}
+
+int
+test_dev()
+{
+	int ret = 0;
+
+	string tempname = file::tempname();
+	if (direntry::exists("file.exists")) {
+		PP_TEST_ERROR("fs::file::tempname()");
+		ret++;
+	}
+	try {
+		// major 1, minor 3 = /dev/null
+		device::mkdev(tempname, 0600, S_IFCHR, 1, 3);
+		if (!direntry::exists("file.exists")) {
+			PP_TEST_ERROR("fs::file::tempname()");
+			ret++;
+		}
+	} catch (permission_denied_error &e) {
+		PP_TEST_WARNING("must be root to call fs::device::mkdev");
+	}
+
+	return ret;
 }
 
 int
@@ -134,6 +186,7 @@ main(void)
 	ret += test_file();
 	ret += test_file_mapping();
 	ret += test_dir();
+	ret += test_dev();
 
 	return ret;
 }
