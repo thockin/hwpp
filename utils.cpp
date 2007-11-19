@@ -127,7 +127,7 @@ dirent_defined(const pp_scope *scope, const pp_path &path)
 	const pp_dirent *d = NULL;
 	try {
 		d = get_dirent(scope, path);
-	} catch (std::out_of_range e) {
+	} catch (std::out_of_range &e) {
 	}
 
 	return (d != NULL);

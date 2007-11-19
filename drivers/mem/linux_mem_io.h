@@ -97,7 +97,7 @@ class linux_mem_io: public mem_io
 		try {
 			m_file = fs::file::open(MEM_DEVICE, O_RDONLY);
 			return;
-		} catch (fs::not_found_error e) {
+		} catch (fs::not_found_error &e) {
 			/* the device seems to not exist */
 			throw do_io_error("can't open " MEM_DEVICE);
 		}
