@@ -57,4 +57,50 @@ operator<<(std::ostream& o, const pp_binding &binding)
 	return o << binding.to_string();
 }
 
+/*
+ * simple_binding - a simple binding
+ *
+ * Constructors:
+ *	(Taddress address)
+ *
+ * Notes:
+ */
+template<class Tio, class Taddress>
+class simple_binding: public pp_binding
+{
+    public:
+	explicit simple_binding(Taddress address)
+	    : m_io(address)
+	{
+	}
+
+	virtual pp_value
+	read(const pp_regaddr address, const pp_bitwidth width) const
+	{
+		return m_io.read(address, width);
+	}
+
+	virtual void
+	write(const pp_regaddr address, const pp_bitwidth width,
+	    const pp_value value) const
+	{
+		return m_io.write(address, width, value);
+	}
+
+	virtual string
+	to_string() const
+	{
+		return ::to_string(m_io.address());
+	}
+
+	const Taddress &
+	address()
+	{
+		return m_io.address();
+	}
+
+    private:
+	Tio m_io;
+};
+
 #endif // PP_PP_BINDING_H__

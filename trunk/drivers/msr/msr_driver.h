@@ -4,55 +4,7 @@
 
 #include "pp.h"
 #include "pp_driver.h"
-
-/*
- * msr_address
- */
-struct msr_address
-{
-	/* constructors */
-	msr_address()
-	    : cpu(-1)
-	{
-	}
-	msr_address(int c)
-	    : cpu(cpu)
-	{
-	}
-
-	int cpu;
-};
-
-inline bool
-operator<(const msr_address &left, const msr_address &right)
-{
-	return (left.cpu < right.cpu);
-}
-
-inline std::ostream &
-operator<<(std::ostream& out, const msr_address &addr)
-{
-	out << "msr<" << addr.cpu << ">";
-	return out;
-}
-
-/*
- * Abstract MSR IO
- */
-class msr_io
-{
-    public:
-	/* destructor */
-	virtual
-	~msr_io() {}
-
-	virtual pp_value
-	read(const pp_regaddr address, const pp_bitwidth width) const = 0;
-
-	virtual void
-	write(const pp_regaddr address, const pp_bitwidth width,
-	    const pp_value value) = 0;
-};
+#include "msr_binding.h"
 
 /*
  * msr_driver - MSR driver plugin.
@@ -65,7 +17,7 @@ class msr_io
 class msr_driver: public pp_driver
 {
     public:
-	explicit msr_driver();
+	msr_driver();
 	virtual ~msr_driver();
 
 	/*
