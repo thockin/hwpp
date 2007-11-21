@@ -3,13 +3,14 @@ include $(TOPDIR)/rules.mk
 
 INCLUDES += -I.. -I$(TOPDIR)/tests
 
-TESTS = io_binding_test
+TESTS = io_io_test
 TESTS_SRCS = $(TESTS:=.cpp)
 
 
 all: $(TESTS)
 
-$(TESTS): %: %.o $(TOPDIR)/libpp.a $(TOPDIR)/tests/libpptest.a
+$(TESTS): %: %.o ../io_driver_module.o \
+	$(TOPDIR)/libpp.a $(TOPDIR)/tests/libpptest.a
 
 .PHONY: test
 test: all

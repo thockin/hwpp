@@ -1,7 +1,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/rules.mk
 
-SRCS = pci_driver.cpp
+SRCS = pci_driver.cpp pci_binding.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 
@@ -11,7 +11,7 @@ pci_driver_module.o: $(OBJS)
 	$(LD) -r -o $@ $(OBJS)
 
 .PHONY: test
-test:
+test: all
 	@$(MAKE) -C tests test
 
 .PHONY: clean

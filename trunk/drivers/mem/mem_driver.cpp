@@ -3,10 +3,13 @@
 #include "pp_datatypes.h"
 #include "mem_driver.h"
 #include "mem_binding.h"
-#include "linux_mem_io.h"
 
-int force_mem_driver_linkage;
-static const mem_driver the_mem_driver;
+// this forces linkage and avoids the static initialization order fiasco
+void
+load_mem_driver()
+{
+	static mem_driver the_mem_driver;
+}
 
 mem_driver::mem_driver()
 {

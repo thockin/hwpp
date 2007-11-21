@@ -1,7 +1,5 @@
-#include <unistd.h>
-#include <fcntl.h>
 #include <stdint.h>
-#include <errno.h>
+#include <stdexcept>
 
 #include "pp.h"
 #include "msr_binding.h"
@@ -11,13 +9,7 @@
 #define MSR_DEVICE_DIR	"dev/cpu"
 #define MSR_DEV_MAJOR	202
 
-/* constructors */
-msr_io::msr_io(int cpu,
-    const string &devdir, int major, int minor)
-    : m_address(msr_address(cpu))
-{
-	open_device(devdir, major, minor);
-}
+/* constructor */
 msr_io::msr_io(const msr_address &address,
     const string &devdir, int major, int minor)
     : m_address(address)
@@ -100,9 +92,9 @@ msr_io::open_device(string devdir, int major, int minor)
 	try {
 		m_file = fs::device::open(filename, O_RDONLY);
 		return;
-	} catch (fs::not_found_error &e) {
+	} catch (std::exception &e) {
 		/* the device seems to not exist */
-		throw do_io_error("device does not exist");
+		throw do_io_error("can't open device " + filename);
 	}
 }
 

@@ -10,7 +10,7 @@ OBJS = $(SRCS:.cpp=.o)
 all: libpp.a
 
 libpp.a: $(OBJS) devices/all_devices.o drivers
-	ar rcs $@ $(filter-out $^, drivers)
+	ar rcs $@ $(OBJS) devices/all_devices.o
 	$(MAKE) -C drivers lib LIBNAME=$(TOPDIR)/$@ || $(RM) $@
 
 devices/all_devices.o: FORCE

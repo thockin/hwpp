@@ -3,10 +3,13 @@
 #include "pp_datatypes.h"
 #include "pci_driver.h"
 #include "pci_binding.h"
-#include "linux_pci_io.h"
 
-int force_pci_driver_linkage;
-static const pci_driver the_pci_driver;
+// this forces linkage and avoids the static initialization order fiasco
+void
+load_pci_driver()
+{
+	static pci_driver the_pci_driver;
+}
 
 pci_driver::pci_driver()
 {
@@ -65,7 +68,7 @@ pci_driver::discover(pp_scope *platform) const
 	std::vector<pci_address>::iterator it;
 
 	/* find all PCI addresses */
-	linux_pci_io::enumerate(&addresses);
+	pci_io::enumerate(&addresses);
 
 	/* for each PCI device in the system */
 	it = addresses.begin();
@@ -116,7 +119,7 @@ pci_driver::register_discovery(const std::vector<pp_regaddr> &args,
 const pci_driver::discovery_request *
 pci_driver::find_discovery_request(const pci_address &addr) const
 {
-	linux_pci_io dev(addr);
+	pci_io dev(addr);
 	uint16_t vid = dev.read(0, BITS16);
 	uint16_t did = dev.read(2, BITS16);
 

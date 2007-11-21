@@ -17,14 +17,9 @@ test_msr_io()
 
 	try {
 		/* test ctors (for a dev file that exists) and address() */
-		msr_io io1(93, "test_data", NULL_MAJOR, NULL_MINOR);
-		if (io1.address().cpu != 93) {
-			PP_TEST_ERROR("msr_io::msr_io(int)");
-			ret++;
-		}
-		msr_io io2(msr_address(93), "test_data",
+		msr_io io1(msr_address(93), "test_data",
 				NULL_MAJOR, NULL_MINOR);
-		if (io2.address().cpu != 93) {
+		if (io1.address().cpu != 93) {
 			PP_TEST_ERROR("msr_io::msr_io(msr_address)");
 			ret++;
 		}
@@ -43,7 +38,13 @@ test_msr_io()
 		}
 
 		/* test ctors (for a dev file that does not exist) */
-		msr_io io3(76, "test_data", NULL_MAJOR, NULL_MINOR);
+		try {
+			msr_io io2(msr_address(76), "test_data",
+					NULL_MAJOR, NULL_MINOR);
+			PP_TEST_ERROR("msr_io::msr_io()");
+			ret++;
+		} catch (exception &e) {
+		}
 	} catch (exception &e) {
 		system("rm -rf test_data");
 		throw;
