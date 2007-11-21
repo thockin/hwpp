@@ -82,7 +82,7 @@ extern pp_register *magic_ones;
  * pp_regbits_field - a field that maps directly to register bits.
  *
  * Constructors:
- * 	(const pp_const_datatype &datatype)
+ * 	(const pp_datatype *datatype)
  *
  * Notes:
  */
@@ -159,7 +159,7 @@ typedef boost::shared_ptr<proc_field_accessor> proc_field_accessor_ptr;
  * pp_proc_field - a field that is a procedure
  *
  * Constructors:
- * 	(const pp_const_datatype &datatype, proc_field_accessor_ptr access)
+ * 	(const pp_datatype *datatype, proc_field_accessor_ptr access)
  *
  * Notes:
  */
@@ -208,5 +208,53 @@ class pp_proc_field: public pp_field
 typedef boost::shared_ptr<pp_proc_field> pp_proc_field_ptr;
 
 #define new_pp_proc_field(...) pp_proc_field_ptr(new pp_proc_field(__VA_ARGS__))
+
+/*
+ * pp_constant_field - a field that returns a constant value.
+ *
+ * Constructors:
+ * 	(const pp_datatype *datatype, pp_value value)
+ *
+ * Notes:
+ */
+class pp_constant_field: public pp_field
+{
+    public:
+	explicit pp_constant_field(const pp_datatype *datatype, pp_value value)
+	    : pp_field(datatype), m_value(value)
+	{
+	}
+	virtual ~pp_constant_field() {}
+
+	/*
+	 * pp_constant_field::read()
+	 *
+	 * Read the current value of this field.
+	 */
+	virtual pp_value
+	read() const
+	{
+		return m_value;
+	}
+
+	/*
+	 * pp_constant_field::write(value)
+	 *
+	 * Write a value to this field.
+	 *
+	 * Throws: pp_driver_error
+	 */
+	virtual void
+	write(const pp_value value) const
+	{
+		// discard writes
+	}
+
+    private:
+	pp_value m_value;
+};
+typedef boost::shared_ptr<pp_constant_field> pp_constant_field_ptr;
+
+#define new_pp_constant_field(...) pp_constant_field_ptr(new pp_constant_field(__VA_ARGS__))
 
 #endif // PP_PP_FIELDS_H__

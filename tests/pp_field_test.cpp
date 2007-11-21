@@ -332,6 +332,30 @@ test_proc_field()
 }
 
 int
+test_constant_field()
+{
+	int ret = 0;
+
+	pp_datatype *hex = new pp_hex();
+	pp_constant_field f(hex, 0x12345678);
+	if (f.read() != 0x12345678) {
+		PP_TEST_ERROR("pp_constant_field::read()");
+		ret++;
+	}
+	if (f.evaluate() != "0x12345678") {
+		PP_TEST_ERROR("pp_constant_field::read()");
+		ret++;
+	}
+	f.write(0);
+	if (f.read() != 0x12345678) {
+		PP_TEST_ERROR("pp_constant_field::write()");
+		ret++;
+	}
+
+	return ret;
+}
+
+int
 main()
 {
 	int r = 0;
@@ -343,6 +367,7 @@ main()
 	r |= test_enum_field();
 	r |= test_bitmask_field();
 	r |= test_proc_field();
+	r |= test_constant_field();
 
 	if (r) return EXIT_FAILURE;
 

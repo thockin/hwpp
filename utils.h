@@ -9,7 +9,7 @@
 #include "pp.h"
 #include "pp_dirent.h"
 #include "pp_scope.h"
-#include "pp_field.h"
+#include "pp_fields.h"
 #include "pp_datatype.h"
 #include "pp_datatypes.h"
 #include "pp_register.h"
@@ -157,6 +157,11 @@ REGFIELDN(const string &name, pp_regaddr address, const string &type,
 #define REGFIELD16(name, address, type) REGFIELDN(name, address, type, BITS16)
 #define REGFIELD32(name, address, type) REGFIELDN(name, address, type, BITS32)
 #define REGFIELD64(name, address, type) REGFIELDN(name, address, type, BITS64)
+
+extern void
+CONSTANT_FIELD(const string &name, const pp_datatype *type, pp_value value);
+extern void
+CONSTANT_FIELD(const string &name, const string &type, pp_value value);
 
 /* this is a helper for type-safety */
 struct kvpair_ {
