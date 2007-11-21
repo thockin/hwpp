@@ -377,6 +377,22 @@ REGFIELDN(const string &name, pp_regaddr address, const string &type,
 }
 
 /*
+ * Define a constant-value field.
+ */
+void
+CONSTANT_FIELD(const string &name, const pp_datatype *type, pp_value value)
+{
+	pp_constant_field_ptr field_ptr = new_pp_constant_field(type, value);
+	cur_scope->add_dirent(name, field_ptr);
+}
+void
+CONSTANT_FIELD(const string &name, const string &type, pp_value value)
+{
+	CONSTANT_FIELD(name, cur_scope->resolve_datatype(type), value);
+}
+
+
+/*
  * Define a pp_int datatype.
  */
 pp_int *

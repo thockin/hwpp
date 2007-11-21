@@ -460,7 +460,7 @@ msix_capability(pp_value address)
 {
 	REG16("%msg_ctrl", address + 2);
 	ONE_BIT_FIELD("msix_enable", "yesno_t", "%msg_ctrl", 15);
-	//FIXME: procfield?  lambda?  should be +1
+	//FIXME: procfield?  should be +1
 	SIMPLE_FIELD("table_size", "int_t", "%msg_ctrl", 10, 0);
 	ONE_BIT_FIELD("func_mask", "yesno_t", "%msg_ctrl", 14);
 
@@ -744,7 +744,7 @@ explore_capabilities()
 		while (ptr != 0 && ptr != 0xff) {
 			OPEN_SCOPE("capability[" + to_string(i) + "]");
 
-			//FIXME: add a "literal" fieldtype:  offset=$ptr?
+			CONSTANT_FIELD("offset", "hex8_t", ptr);
 			REGFIELD8("id", ptr, "pci_capability_t");
 			REGFIELD8("next", ptr+1, "hex8_t");
 
