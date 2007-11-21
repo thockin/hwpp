@@ -12,11 +12,12 @@
  */
 struct msr_address
 {
-	/* constructors */
+	/* constructor */
 	msr_address()
 	    : cpu(-1)
 	{
 	}
+	explicit
 	msr_address(int c)
 	    : cpu(c)
 	{
@@ -45,8 +46,6 @@ operator<<(std::ostream& out, const msr_address &addr)
 class msr_io
 {
     public:
-	msr_io(int cpu,
-	    const string &devdir = "", int major = -1, int minor = -1);
 	msr_io(const msr_address &address,
 	    const string &devdir = "", int major = -1, int minor = -1);
 	~msr_io();

@@ -4,8 +4,12 @@
 #include "msr_driver.h"
 #include "msr_binding.h"
 
-int force_msr_driver_linkage;
-static const msr_driver the_msr_driver;
+// this forces linkage and avoids the static initialization order fiasco
+void
+load_msr_driver()
+{
+	static msr_driver the_msr_driver;
+}
 
 msr_driver::msr_driver()
 {

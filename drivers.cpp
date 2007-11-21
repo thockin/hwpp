@@ -11,11 +11,24 @@
 
 typedef std::map<string, pp_driver *> driver_map;
 
-/* this avoid the static initialization order fiasco */
+/* this avoids the static initialization order fiasco */
 static driver_map &
 driver_list()
 {
 	static driver_map the_driver_list;
+
+	// This forces drivers to link and register before being used.
+	// When we have real shared-object drivers, this will be
+	// unnecessary.
+	static int initialized;
+	if (!initialized) {
+		initialized = 1;
+		extern void load_pci_driver(); load_pci_driver();
+		extern void load_io_driver(); load_io_driver();
+		extern void load_mem_driver(); load_mem_driver();
+		extern void load_msr_driver(); load_msr_driver();
+	}
+
 	return the_driver_list;
 }
 
@@ -35,18 +48,11 @@ find_driver(const string &name)
 	return driver_list()[name];
 }
 
+// This is a hack to force device linkage.  When we have a real language,
+// this will be unnecessary.
 void
-init_drivers()
+init_devices()
 {
-	extern int force_io_driver_linkage;
-	force_io_driver_linkage = 1;
-	extern int force_pci_driver_linkage;
-	force_pci_driver_linkage = 1;
-	extern int force_mem_driver_linkage;
-	force_mem_driver_linkage = 1;
-	extern int force_msr_driver_linkage;
-	force_msr_driver_linkage = 1;
-
 	extern int force_devices_linkage;
 	force_devices_linkage = 1;
 }

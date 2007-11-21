@@ -1,7 +1,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/rules.mk
 
-SRCS = io_driver.cpp
+SRCS = io_driver.cpp io_binding.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 
@@ -11,7 +11,7 @@ io_driver_module.o: $(OBJS)
 	$(LD) -r -o $@ $(OBJS)
 
 .PHONY: test
-test:
+test: all
 	@$(MAKE) -C tests test
 
 .PHONY: clean

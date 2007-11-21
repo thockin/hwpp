@@ -4,76 +4,7 @@
 
 #include "pp.h"
 #include "pp_driver.h"
-
-/*
- * pci_address
- */
-struct pci_address
-{
-	/* constructors */
-	pci_address()
-	    : segment(-1), bus(-1), device(-1), function(-1)
-	{
-	}
-	pci_address(int s, int b, int d, int f)
-	    : segment(s), bus(b), device(d), function(f)
-	{
-	}
-	pci_address(int b, int d, int f)
-	    : segment(0), bus(b), device(d), function(f)
-	{
-	}
-
-	int segment;
-	int bus;
-	int device;
-	int function;
-};
-
-inline bool
-operator<(const pci_address &left, const pci_address &right)
-{
-	if (left.segment != right.segment) {
-		return (left.segment < right.segment);
-	}
-	if (left.bus != right.bus) {
-		return (left.bus < right.bus);
-	}
-	if (left.device != right.device) {
-		return (left.device < right.device);
-	}
-	return (left.function < right.function);
-}
-
-inline std::ostream &
-operator<<(std::ostream& out, const pci_address &addr)
-{
-	out << "pci<"
-	  << addr.segment << ","
-	  << addr.bus << ","
-	  << addr.device << ","
-	  << addr.function << ">";
-
-	return out;
-}
-
-/*
- * Abstract PCI IO
- */
-class pci_io
-{
-    public:
-	/* destructor */
-	virtual
-	~pci_io() {}
-
-	virtual pp_value
-	read(const pp_regaddr address, const pp_bitwidth width) const = 0;
-
-	virtual void
-	write(const pp_regaddr address, const pp_bitwidth width,
-	    const pp_value value) = 0;
-};
+#include "pci_binding.h"
 
 /*
  * pci_driver - PCI driver plugin.
@@ -86,7 +17,7 @@ class pci_io
 class pci_driver: public pp_driver
 {
     public:
-	explicit pci_driver();
+	pci_driver();
 	virtual ~pci_driver();
 
 	/*

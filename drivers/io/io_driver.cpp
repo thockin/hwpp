@@ -3,12 +3,15 @@
 #include "pp_datatypes.h"
 #include "io_driver.h"
 #include "io_binding.h"
-#include "linux_io_io.h"
 
 #define IO_SPACE_SIZE	0x10000
 
-int force_io_driver_linkage;
-static const io_driver the_io_driver;
+// this forces linkage and avoids the static initialization order fiasco
+void
+load_io_driver()
+{
+	static io_driver the_io_driver;
+}
 
 io_driver::io_driver()
 {
@@ -31,8 +34,7 @@ io_driver::new_binding(const std::vector<pp_regaddr> &args) const
 	pp_regaddr base, size;
 
 	if (args.size() != 2) {
-		throw pp_driver_args_error(
-		    "io<>: <base, size>");
+		throw pp_driver_args_error("io<>: <base, size>");
 	}
 
 	base = args[0];
