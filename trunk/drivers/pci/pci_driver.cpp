@@ -55,7 +55,7 @@ pci_driver::new_binding(const std::vector<pp_regaddr> &args) const
 	if (dev >= 32) {
 		throw pp_driver_args_error("PCI binding: invalid device");
 	}
-	if (bus >= 8) {
+	if (func >= 8) {
 		throw pp_driver_args_error("PCI binding: invalid function");
 	}
 	return new_pci_binding(pci_address(seg, bus, dev, func));

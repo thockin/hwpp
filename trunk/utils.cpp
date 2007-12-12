@@ -124,6 +124,10 @@ get_dirent(const pp_scope *scope, pp_path path)
 bool
 dirent_defined(const pp_scope *scope, const pp_path &path)
 {
+	if (!scope) {
+		return false;
+	}
+
 	const pp_dirent *d = NULL;
 	try {
 		d = get_dirent(scope, path);
@@ -177,7 +181,6 @@ GET_REGISTER(const pp_path &path)
 bool
 DEFINED(const pp_path &path)
 {
-	DASSERT_MSG(cur_scope, "found NULL cur_scope");
 	return dirent_defined(cur_scope.get(), path);
 }
 
@@ -209,6 +212,12 @@ void
 OPEN_SCOPE(const string &name, pp_const_binding_ptr binding)
 {
 	DTRACE(TRACE_SCOPES, "scope: " + name);
+
+	// note: this is not a debug-only test
+	if (DEFINED(name)) {
+		WARN("scope or field redefined: " + name);
+	}
+
 	pp_scope_ptr tmp_scope_ = new_pp_scope(binding);
 
 	// if we are not opening a top-level scope, save the current scope
@@ -270,7 +279,7 @@ REGN(const string &name, pp_regaddr address, pp_bitwidth width)
 
 	// note: this is not a debug-only test
 	if (DEFINED(name)) {
-		WARN("register name collision: " + name);
+		WARN("register redefined: " + name);
 	}
 
 	pp_register_ptr reg_ptr = new_pp_register(
@@ -315,7 +324,7 @@ COMPLEX_FIELD_(const string &name, const pp_datatype *type,
 
 	// note: this is not a debug-only test
 	if (DEFINED(name)) {
-		WARN("field name collision: " + name);
+		WARN("scope or field redefined: " + name);
 	}
 
 	// create a temporary field and add each bitrange
@@ -412,7 +421,7 @@ INT(const string &name, const string &units)
 }
 
 pp_bitmask *
-BITMASK_(const string &name, kvpair_ *value)
+BITMASK_(const string &name, const string &dflt, kvpair_ *value)
 {
 	DTRACE(TRACE_TYPES, "bitmask: " + name);
 	// sanity
@@ -420,6 +429,9 @@ BITMASK_(const string &name, kvpair_ *value)
 	DASSERT_MSG(value, "found NULL kvpair[] for bitmask " + name);
 
 	pp_bitmask_ptr bitmask_ptr = new_pp_bitmask();
+	if (dflt != "") {
+		bitmask_ptr->set_default(dflt);
+	}
 	while (value->key) {
 		bitmask_ptr->add_bit(value->key, value->value);
 		value++;

@@ -2,6 +2,8 @@
 #ifndef PP_PP_DATATYPES_H__
 #define PP_PP_DATATYPES_H__
 
+#include <stdlib.h>
+
 #include "pp_datatype.h"
 #include "keyed_vector.h"
 
@@ -39,12 +41,14 @@ class pp_enum: public pp_datatype
 
 	/*
 	 * pp_enum::lookup(str)
+	 * pp_enum::lookup(value)
 	 *
 	 * Lookup the value of a (potentially valid) evaluation for this
 	 * datatype.  For an enum type, that means converting a string to
-	 * it's corresponding value.
+	 * it's corresponding value, or validating that a numeric value is
+	 * a valid option.
 	 *
-	 * This will throw pp_datatype_invalid_error if the string is not a
+	 * This will throw pp_datatype_invalid_error if the lookup is not a
 	 * valid value for this enum.
 	 */
 	virtual pp_value
@@ -56,6 +60,16 @@ class pp_enum: public pp_datatype
 			}
 		}
 		throw pp_datatype_invalid_error(str);
+	}
+	virtual pp_value
+	lookup(const pp_value value) const
+	{
+		for (size_t i=0; i < m_values.size(); i++) {
+			if (m_values[i] == value) {
+				return m_values[i];
+			}
+		}
+		throw pp_datatype_invalid_error(to_string(value));
 	}
 
 	/*
@@ -109,7 +123,12 @@ class pp_bool: public pp_enum
 		add_value(false_str, 0);
 		set_default(true_str);
 	}
-	virtual ~pp_bool() {}
+
+	virtual pp_value
+	lookup(const pp_value value) const
+	{
+		return !!value;
+	}
 };
 typedef boost::shared_ptr<pp_bool> pp_bool_ptr;
 
@@ -127,7 +146,7 @@ typedef boost::shared_ptr<pp_bool> pp_bool_ptr;
 class pp_bitmask: public pp_datatype
 {
     public:
-	explicit pp_bitmask() {}
+	explicit pp_bitmask(): m_default("") {}
 	virtual ~pp_bitmask() {}
 
 	/*
@@ -140,7 +159,7 @@ class pp_bitmask: public pp_datatype
 	virtual string
 	evaluate(const pp_value value) const
 	{
-		string ret;
+		string ret("");
 		pp_value myval = value;
 
 		for (size_t i=0; myval != 0 && i < m_bits.size(); i++) {
@@ -166,10 +185,15 @@ class pp_bitmask: public pp_datatype
 			myval >>= 1;
 			unknown++;
 		}
+
+		if (ret == "") {
+			ret = m_default;
+		}
 		return ret;
 	}
 
 	/*
+	 * pp_bitmask::lookup(str)
 	 * pp_bitmask::lookup(value)
 	 *
 	 * Lookup the value of a (potentially valid) evaluation for this
@@ -182,12 +206,18 @@ class pp_bitmask: public pp_datatype
 	virtual pp_value
 	lookup(const string &str) const
 	{
+		//FIXME: need to support multiple bits
 		for (size_t i=0; i < m_bits.size(); i++) {
 			if (m_bits.key_at(i) == str) {
 				return m_bits[i];
 			}
 		}
 		throw pp_datatype_invalid_error(str);
+	}
+	virtual pp_value
+	lookup(const pp_value value) const
+	{
+		return 0; //FIXME: missing
 	}
 
 	/*
@@ -204,7 +234,19 @@ class pp_bitmask: public pp_datatype
 		m_bits.insert(name, value);
 	}
 
+	/*
+	 * pp_bitmask::set_default(name)
+	 *
+	 * Use a string for unknown enumerated values.
+	 */
+	void
+	set_default(const string &name)
+	{
+		m_default = name;
+	}
+
     private:
+	string m_default;
 	keyed_vector<string, pp_value> m_bits;
 };
 typedef boost::shared_ptr<pp_bitmask> pp_bitmask_ptr;
@@ -256,6 +298,11 @@ class pp_int: public pp_datatype
 	{
 		return value;
 	}
+	virtual pp_value
+	lookup(const string &str) const
+	{
+		return strtoull(str.c_str(), NULL, 0);
+	}
 
     protected:
 	string m_units;
@@ -296,18 +343,6 @@ class pp_uint: public pp_int
 		}
 		return ret;
 	}
-
-	/*
-	 * pp_uint::lookup(value)
-	 *
-	 * Lookup the value of a (potentially valid) evaluation for this
-	 * datatype.  For a uint type, this is a no-op.
-	 */
-	virtual pp_value
-	lookup(const pp_value value) const
-	{
-		return value;
-	}
 };
 typedef boost::shared_ptr<pp_uint> pp_uint_ptr;
 
@@ -346,18 +381,6 @@ class pp_hex: public pp_int
 			ret += m_units;
 		}
 		return ret;
-	}
-
-	/*
-	 * pp_hex::lookup(value)
-	 *
-	 * Lookup the value of a (potentially valid) evaluation for this
-	 * datatype.  For a hex type, this is a no-op.
-	 */
-	virtual pp_value
-	lookup(const pp_value value) const
-	{
-		return value;
 	}
 
     private:

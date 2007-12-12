@@ -18,7 +18,7 @@ BAR(const string &name, pp_regaddr address)
 				{"io", 1}),
 			"%lower", 0);
 
-	if (GET_FIELD("type")->compare("mem")) {
+	if (FIELD_EQ("type", "mem")) {
 		SIMPLE_FIELD("width", ANON_ENUM(
 					{"bits32", 0},
 					{"bits20", 1},
@@ -27,12 +27,12 @@ BAR(const string &name, pp_regaddr address)
 		ONE_BIT_FIELD("prefetch", "yesno_t", "%lower", 3);
 	}
 
-	if (GET_FIELD("type")->compare("io")) {
+	if (FIELD_EQ("type", "io")) {
 		COMPLEX_FIELD("address", "addr16_t",
 				{"0", 1, 0},
 				{"%lower", 15, 2});
-	} else if (GET_FIELD("width")->compare("bits32")
-	    || GET_FIELD("width")->compare("bits20")) {
+	} else if (FIELD_EQ("width", "bits32")
+	    || FIELD_EQ("width", "bits20")) {
 		COMPLEX_FIELD("address", "addr32_t",
 				{"0", 3, 0},
 				{"%lower", 31, 4});
@@ -266,7 +266,7 @@ ht_host_capability(pp_value address)
 	ONE_BIT_FIELD("upstream_cfg", "yesno_t", "../%feature", 9);
 	CLOSE_SCOPE();
 
-	if (GET_FIELD("feature/ext_regs")->read()) {
+	if (FIELD_BOOL("feature/ext_regs")) {
 		REGFIELD16("scratchpad", address + 0x10, "hex16_t");
 		ht_error_handling(address + 0x12);
 		REGFIELD8("mem_base_hi", address + 0x14, "addr16_t");
@@ -310,7 +310,7 @@ ht_address_mapping_capability(pp_value address)
 				{"bits64", 1}),
 			"%command", 10, 9);
 
-	if (GET_FIELD("map_type")->compare("bits40")) {
+	if (FIELD_EQ("map_type", "bits40")) {
 		REG32("%sec_non_prefetch", address + 0x04);
 		OPEN_SCOPE("sec_non_prefetch");
 		ONE_BIT_FIELD("enable", "yesno_t", "../%sec_non_prefetch", 31);
@@ -356,7 +356,7 @@ ht_address_mapping_capability(pp_value address)
 					{"%lower", 15, 0});
 			CLOSE_SCOPE();
 		}
-	} else if (GET_FIELD("map_type")->compare("bits64")) {
+	} else if (FIELD_EQ("map_type", "bits64")) {
 		//FIXME: this requires index/data pair access within PCI
 	}
 }
@@ -367,7 +367,7 @@ ht_msi_mapping_capability(pp_value address)
 	REG8("%flags", address+2);
 	ONE_BIT_FIELD("en", "yesno_t", "%flags", 0);
 	ONE_BIT_FIELD("fixed", "yesno_t", "%flags", 1);
-	if (!GET_FIELD("fixed")->read()) {
+	if (!FIELD_BOOL("fixed")) {
 		REG32("%lower", address+4);
 		REG32("%upper", address+8);
 		COMPLEX_FIELD("address", "addr64_t",
@@ -375,6 +375,59 @@ ht_msi_mapping_capability(pp_value address)
 				{"%lower", 31, 20},
 				{"%upper", 31, 0});
 	}
+}
+
+static void
+power_mgmt_capability(pp_value address)
+{
+	REG16("%pmc", address+2);
+	SIMPLE_FIELD("version", ANON_ENUM(
+				{"pcipm_v1_2", 3}),
+			"%pmc", 2, 0);
+	ONE_BIT_FIELD("clock", "yesno_t", "%pmc", 3);
+	ONE_BIT_FIELD("dsi", "yesno_t", "%pmc", 5);
+	SIMPLE_FIELD("aux_current", ANON_ENUM(
+				{"self", 0},
+				{"mA_55", 1},
+				{"mA_100", 2},
+				{"mA_160", 3},
+				{"mA_220", 4},
+				{"mA_270", 5},
+				{"mA_320", 6},
+				{"mA_375", 7}),
+			"%pmc", 8, 6);
+	ONE_BIT_FIELD("d1_support", "yesno_t", "%pmc", 9);
+	ONE_BIT_FIELD("d2_support", "yesno_t", "%pmc", 10);
+	SIMPLE_FIELD("pme_support", ANON_BITMASK(
+				{"d0", 0},
+				{"d1", 1},
+				{"d2", 2},
+				{"d3hot", 3},
+				{"d3cold", 4}),
+			"%pmc", 15, 11);
+
+	REG16("%pmcsr", address+4);
+	SIMPLE_FIELD("power_state", ANON_ENUM(
+				{"d0", 0},
+				{"d1", 1},
+				{"d2", 2},
+				{"d3hot", 3}),
+			"%pmcsr", 1, 0);
+	ONE_BIT_FIELD("no_soft_reset", "yesno_t", "%pmcsr", 3);
+	ONE_BIT_FIELD("pme_en", "yesno_t", "%pmcsr", 8);
+	ONE_BIT_FIELD("pme_status", "yesno_t", "%pmcsr", 15);
+
+	REG8("%pmcsr_bse", address+6);
+	ONE_BIT_FIELD("bpcc_en", "yesno_t", "%pmcsr_bse", 7);
+	if (FIELD_BOOL("bpcc_en")) {
+		ONE_BIT_FIELD("b2_b3", "yesno_t", "%pmcsr_bse", 6);
+	}
+
+	//FIXME: this is really an index/data pair set of regs
+	SIMPLE_FIELD("data_select", "hex4_t", "%pmcsr", 12, 9);
+	SIMPLE_FIELD("data_scale", "hex4_t", "%pmcsr", 14, 13);
+	REG8("%data", address+7);
+	SIMPLE_FIELD("data", "hex8_t", "%data", 7, 0);
 }
 
 static void
@@ -415,14 +468,14 @@ msi_capability(pp_value address)
 	REG32("%msg_addr", address + 4);
 
 	// is this 64 bit capable?
-	if (!GET_FIELD("cap64")->read()) {
+	if (!FIELD_BOOL("cap64")) {
 		// no, just use the low address and define the data
 		COMPLEX_FIELD("msg_addr", "addr32_t",
 				{"0", 1, 0},
 				{"%msg_addr", 31, 2});
 		REGFIELD16("msg_data", address + 8, "hex16_t");
 
-		if (GET_FIELD("mask_per_vec")->read()) {
+		if (FIELD_BOOL("mask_per_vec")) {
 			// mask and pending bits
 			REG32("%mask", address + 12);
 			REG32("%pending", address + 16);
@@ -436,14 +489,14 @@ msi_capability(pp_value address)
 				{"%msg_addr_hi", 31, 0});
 		REGFIELD16("msg_data", address + 12, "hex16_t");
 
-		if (GET_FIELD("mask_per_vec")->read()) {
+		if (FIELD_BOOL("mask_per_vec")) {
 			// mask and pending bits
 			REG32("%mask", address + 16);
 			REG32("%pending", address + 20);
 		}
 	}
 
-	if (GET_FIELD("mask_per_vec")->read()) {
+	if (FIELD_BOOL("mask_per_vec")) {
 		pp_value vecs = 1 << GET_FIELD("multi_msg_cap")->read();
 		pp_value i;
 		for (i = 0; i < vecs; i++) {
@@ -485,6 +538,7 @@ msix_capability(pp_value address)
 			{"0", 2, 0},
 			{"%table_ptr", 31, 3});
 
+	//FIXME: a better way to do this?
 	bar = "^/" + GET_FIELD("table_bir")->evaluate() + "/address";
 	base = GET_FIELD(bar)->read() + GET_FIELD("table_offset")->read();
 	args.push_back(base);
@@ -539,7 +593,6 @@ msix_capability(pp_value address)
 				ONE_BIT_FIELD("pending" + to_string(i*64 + j),
 						"yesno_t", regname, j);
 			}
-			std::cout << tmp_size << " " << 64 << std::endl;
 			tmp_size -= 64;
 		}
 	} CLOSE_SCOPE();
@@ -555,16 +608,16 @@ ht_capability(pp_value address)
 	// This matters because they use different encodings of the
 	// capability type (3 bits vs 5 bits).
 	SIMPLE_FIELD("is_interface", ANON_BOOL("no", "yes"), "%subcap", 7, 6);
-	if (GET_FIELD("is_interface")->compare("yes")) {
+	if (FIELD_EQ("is_interface", "yes")) {
 		// subtype is a 3 bit field
 		SIMPLE_FIELD("subtype", ANON_ENUM(
 					{"slave_primary", 0},
 					{"host_secondary", 1}),
 				"%subcap", 7, 5);
 
-		if (GET_FIELD("subtype")->compare("slave_primary")) {
+		if (FIELD_EQ("subtype", "slave_primary")) {
 			ht_slave_capability(address);
-		} else if (GET_FIELD("subtype")->compare("host_secondary")) {
+		} else if (FIELD_EQ("subtype", "host_secondary")) {
 			ht_host_capability(address);
 		}
 	} else {
@@ -586,34 +639,34 @@ ht_capability(pp_value address)
 					{"power_mgmt", 28}),
 				"%subcap", 7, 3);
 
-		if (GET_FIELD("subtype")->compare("switch")) {
+		if (FIELD_EQ("subtype", "switch")) {
 			//FIXME: not implemented yet
-		} else if (GET_FIELD("subtype")->compare("intr_discovery")) {
+		} else if (FIELD_EQ("subtype", "intr_discovery")) {
 			//FIXME: not implemented yet
 			//This requires index/data accesses within PCI space
-		} else if (GET_FIELD("subtype")->compare("revision")) {
+		} else if (FIELD_EQ("subtype", "revision")) {
 			ht_revision_capability(address);
-		} else if (GET_FIELD("subtype")->compare("unit_id_clump")) {
+		} else if (FIELD_EQ("subtype", "unit_id_clump")) {
 			//FIXME: not implemented yet
-		} else if (GET_FIELD("subtype")->compare("extended_config")) {
+		} else if (FIELD_EQ("subtype", "extended_config")) {
 			ht_extended_config_capability(address);
-		} else if (GET_FIELD("subtype")->compare("address_mapping")) {
+		} else if (FIELD_EQ("subtype", "address_mapping")) {
 			ht_address_mapping_capability(address);
-		} else if (GET_FIELD("subtype")->compare("msi_mapping")) {
+		} else if (FIELD_EQ("subtype", "msi_mapping")) {
 			ht_msi_mapping_capability(address);
-		} else if (GET_FIELD("subtype")->compare("direct_route")) {
+		} else if (FIELD_EQ("subtype", "direct_route")) {
 			//FIXME: not implemented yet
-		} else if (GET_FIELD("subtype")->compare("vc_set")) {
+		} else if (FIELD_EQ("subtype", "vc_set")) {
 			//FIXME: not implemented yet
-		} else if (GET_FIELD("subtype")->compare("retry_mode")) {
+		} else if (FIELD_EQ("subtype", "retry_mode")) {
 			//FIXME: not implemented yet
-		} else if (GET_FIELD("subtype")->compare("x86_encode")) {
+		} else if (FIELD_EQ("subtype", "x86_encode")) {
 			//FIXME: not implemented yet
-		} else if (GET_FIELD("subtype")->compare("gen3")) {
+		} else if (FIELD_EQ("subtype", "gen3")) {
 			//FIXME: not implemented yet
-		} else if (GET_FIELD("subtype")->compare("function_extend")) {
+		} else if (FIELD_EQ("subtype", "function_extend")) {
 			//FIXME: not implemented yet
-		} else if (GET_FIELD("subtype")->compare("power_mgmt")) {
+		} else if (FIELD_EQ("subtype", "power_mgmt")) {
 			//FIXME: not implemented yet
 			//this requires index/data pairs in PCI space
 		}
@@ -630,6 +683,7 @@ ssid_capability(pp_value address)
 static void
 pcie_capability(pp_value address)
 {
+	// all PCI-E devices implement this block
 	REG16("%pcie_caps", address + 0x02);
 	SIMPLE_FIELD("version", "int_t", "%pcie_caps", 3, 0);
 	SIMPLE_FIELD("type", ANON_ENUM(
@@ -637,16 +691,54 @@ pcie_capability(pp_value address)
 				{"legacy_endpoint", 1},
 				{"root_port", 4},
 				{"upstream_switch_port", 5},
-				{"dnstream_switch_port", 6},
+				{"downstream_switch_port", 6},
 				{"pcie_pci_bridge", 7},
 				{"pci_pcie_bridge", 8},
-				{"integrated_endpoint", 9},
-				{"event_collector", 10}),
+				{"root_integrated_endpoint", 9},
+				{"root_event_collector", 10}),
 			"%pcie_caps", 7, 4);
-	ONE_BIT_FIELD("slot", "yesno_t", "%pcie_caps", 8);
+	if (FIELD_EQ("type", "root_port")
+	 || FIELD_EQ("type", "downstream_switch_port")) {
+		ONE_BIT_FIELD("slot_impl", "yesno_t", "%pcie_caps", 8);
+	}
 	SIMPLE_FIELD("intr_msg_num", "int_t", "%pcie_caps", 13, 9);
 	ONE_BIT_FIELD("tcs", "yesno_t", "%pcie_caps", 14);
 
+	// common datatypes
+	ENUM("pcie_l0s_latency_t",
+			{"ns_64", 0},
+			{"ns_128", 1},
+			{"ns_256", 2},
+			{"ns_512", 3},
+			{"us_1", 4},
+			{"us_2", 5},
+			{"us_4", 6},
+			{"us_4_plus", 7});
+	ENUM("pcie_l1_latency_t",
+			{"us_1", 0},
+			{"us_2", 1},
+			{"us_4", 2},
+			{"us_8", 3},
+			{"us_16", 4},
+			{"us_32", 5},
+			{"us_64", 6},
+			{"us_64_plus", 7});
+	ENUM("pcie_width_t",
+			{"x0", 0},
+			{"x1", 1},
+			{"x2", 2},
+			{"x4", 4},
+			{"x8", 8},
+			{"x12", 12},
+			{"x16", 16},
+			{"x32", 32});
+	ENUM("pcie_link_speed_t",
+			{"GTs_25", 1},
+			{"GTs_50", 2});
+
+
+	// all PCI-E devices implement this block
+	OPEN_SCOPE("device");
 	REG32("%dev_caps", address + 0x04);
 	REG16("%dev_control", address + 0x08);
 	REG16("%dev_status", address + 0x0a);
@@ -658,9 +750,13 @@ pcie_capability(pp_value address)
 			{"b1024", 3},
 			{"b2048", 4},
 			{"b4096", 5});
-	SIMPLE_FIELD("max_payload_cap", "pcie_payload_size_t", "%dev_caps", 2, 0);
-	SIMPLE_FIELD("max_payload", "pcie_payload_size_t", "%dev_control", 7, 5);
-	SIMPLE_FIELD("max_read", "pcie_payload_size_t", "%dev_control", 14, 12);
+	SIMPLE_FIELD("max_payload_cap", "pcie_payload_size_t",
+			"%dev_caps", 2, 0);
+	SIMPLE_FIELD("max_payload", "pcie_payload_size_t",
+			"%dev_control", 7, 5);
+	SIMPLE_FIELD("max_read", "pcie_payload_size_t",
+			"%dev_control", 14, 12);
+
 	SIMPLE_FIELD("phantom_funcs_cap", ANON_ENUM(
 				{"phantom_0", 0},
 				{"phantom_4", 1},
@@ -668,42 +764,25 @@ pcie_capability(pp_value address)
 				{"phantom_8", 3}),
 			"%dev_caps", 4, 3);
 	ONE_BIT_FIELD("phantom_funcs", "yesno_t", "%dev_control", 9);
+
 	ONE_BIT_FIELD("ext_tag_field_cap", ANON_ENUM(
 				{"b5", 0},
 				{"b8", 1}),
 			"%dev_caps", 5);
 	ONE_BIT_FIELD("ext_tag_field", "yesno_t", "%dev_control", 8);
-	if (GET_FIELD("type")->compare("endpoint")
-	 || GET_FIELD("type")->compare("legacy_endpoint")
-	 || GET_FIELD("type")->compare("integrated_endpoint")) {
-		SIMPLE_FIELD("max_l0s_lat", ANON_ENUM(
-					{"max_64ns", 0},
-					{"max_128ns", 1},
-					{"max_256ns", 2},
-					{"max_512ns", 3},
-					{"max_1us", 4},
-					{"max_2us", 5},
-					{"max_4us", 6},
-					{"no_limit", 7}),
+
+	if (FIELD_EQ("../type", "endpoint")
+	 || FIELD_EQ("../type", "legacy_endpoint")
+	 || FIELD_EQ("../type", "root_integrated_endpoint")) {
+		SIMPLE_FIELD("max_l0s_lat", "pcie_l0s_latency_t",
 				"%dev_caps", 8, 6);
-		SIMPLE_FIELD("max_l1_lat", ANON_ENUM(
-					{"max_1us", 0},
-					{"max_2us", 1},
-					{"max_4us", 2},
-					{"max_8us", 3},
-					{"max_16us", 4},
-					{"max_32us", 5},
-					{"max_64us", 6},
-					{"no_limit", 7}),
+		SIMPLE_FIELD("max_l1_lat", "pcie_l1_latency_t",
 				"%dev_caps", 11, 9);
 		ONE_BIT_FIELD("func_reset_cap", "yesno_t", "%dev_caps", 28);
 		ONE_BIT_FIELD("func_reset", "yesno_t", "%dev_control", 15);
 	}
-	ONE_BIT_FIELD("attn_button", "yesno_t", "%dev_caps", 12);
-	ONE_BIT_FIELD("attn_indicator", "yesno_t", "%dev_caps", 13);
-	ONE_BIT_FIELD("power_indicator", "yesno_t", "%dev_caps", 14);
-	ONE_BIT_FIELD("role_based_err_cap", "yesno_t", "%dev_caps", 15);
-	if (GET_FIELD("type")->compare("upstream_switch_port")) {
+
+	if (FIELD_EQ("../type", "upstream_switch_port")) {
 		SIMPLE_FIELD("power_limit_value", "int_t", "%dev_caps", 25, 18);
 		SIMPLE_FIELD("power_limit_scale", ANON_ENUM(
 					{"x1_0", 0},
@@ -712,6 +791,7 @@ pcie_capability(pp_value address)
 					{"x0_001", 3}),
 				"%dev_caps", 27, 26);
 	}
+	ONE_BIT_FIELD("role_based_err_cap", "yesno_t", "%dev_caps", 15);
 	ONE_BIT_FIELD("corr_err_report", "yesno_t", "%dev_control", 0);
 	ONE_BIT_FIELD("corr_err_det", "yesno_t", "%dev_status", 0);
 	ONE_BIT_FIELD("nonfatal_err_report", "yesno_t", "%dev_control", 1);
@@ -724,19 +804,292 @@ pcie_capability(pp_value address)
 	ONE_BIT_FIELD("aux_pm", "yesno_t", "%dev_control", 10);
 	ONE_BIT_FIELD("aux_pm_det", "yesno_t", "%dev_status", 4);
 	ONE_BIT_FIELD("en_no_snoop", "yesno_t", "%dev_control", 11);
-	if (!DEFINED("func_reset") && GET_FIELD("^/class")->compare("bridge")) {
+	if (!DEFINED("func_reset") && FIELD_EQ("^/class", "bridge")) {
 		ONE_BIT_FIELD("bridge_retry_en", "yesno_t", "%dev_control", 15);
 	}
 	ONE_BIT_FIELD("txn_pend", "yesno_t", "%dev_status", 5);
 
-	//FIXME: left off here PCIe v2 pg 458
+	if (FIELD_GE("version", 2)) {
+		REG32("%dev_caps2", address + 0x24);
+		REG16("%dev_control2", address + 0x28);
+		REG16("%dev_status2", address + 0x2a);
+
+		BITMASK_DFLT("pcie_completion_timeout_t", "us_50_ms_50",
+				{"us_50_ms_10", 0},
+				{"ms_10_ms_250", 1},
+				{"ms_250_s_4", 2},
+				{"s_4_s_64", 3});
+
+		SIMPLE_FIELD("completion_timeout_ranges",
+				"pcie_completion_timeout_t",
+				"%dev_caps2", 3, 0);
+		SIMPLE_FIELD("completion_timeout",
+				"pcie_completion_timeout_t",
+				"%dev_control2", 3, 0);
+
+		ONE_BIT_FIELD("completion_timeout_disable_en", "yesno_t",
+				"%dev_caps2", 4);
+		ONE_BIT_FIELD("completion_timeout_disable", "yesno_t",
+				"%dev_control2", 4);
+	}
+
+	CLOSE_SCOPE(); // device
+
+	//
+	// not all devices implement the remaining blocks
+	//
+	if (FIELD_EQ("type", "endpoint")
+	 || FIELD_EQ("type", "legacy_endpoint")
+	 || FIELD_EQ("type", "root_port")
+	 || FIELD_EQ("type", "upstream_switch_port")
+	 || FIELD_EQ("type", "downstream_switch_port")
+	 || FIELD_EQ("type", "pcie_pci_bridge")
+	 || FIELD_EQ("type", "pci_pcie_bridge")) {
+		OPEN_SCOPE("link");
+		REG32("%link_caps", address + 0x0c);
+		REG16("%link_control", address + 0x10);
+		REG16("%link_status", address + 0x12);
+
+		SIMPLE_FIELD("port_number", "int_t", "%link_caps", 31, 24);
+
+		SIMPLE_FIELD("supported_speeds", ANON_ENUM(
+					{"GTs_25", 1},
+					{"GTs_50_25", 2}),
+				"%link_caps", 3, 0);
+		SIMPLE_FIELD("speed", "pcie_link_speed_t",
+				"%link_status", 3, 0);
+		SIMPLE_FIELD("max_width", "pcie_width_t", "%link_caps", 9, 4);
+		SIMPLE_FIELD("width", "pcie_width_t", "%link_status", 9, 4);
+
+		SIMPLE_FIELD("aspm_support", ANON_BITMASK(
+					{"l0s", 0},
+					{"l1", 1}),
+				"%link_caps", 11, 10);
+		SIMPLE_FIELD("aspm_ctl", ANON_BITMASK(
+					{"l0s", 0},
+					{"l1", 1}),
+				"%link_control", 1, 0);
+
+		SIMPLE_FIELD("l0s_exit_latency", "pcie_l0s_latency_t",
+				"%link_caps", 14, 12);
+		SIMPLE_FIELD("l1_exit_latency", "pcie_l1_latency_t",
+				"%link_caps", 17, 15);
+
+		ONE_BIT_FIELD("clock_pm_cap", "yesno_t", "%link_caps", 18);
+		ONE_BIT_FIELD("clock_pm_en", "yesno_t", "%link_control", 8);
+
+		ONE_BIT_FIELD("surprise_down_err_report_cap", "yesno_t",
+				"%link_caps", 19);
+		ONE_BIT_FIELD("data_link_active_report_cap", "yesno_t",
+				"%link_caps", 20);
+		if (FIELD_BOOL("data_link_active_report_cap")) {
+			ONE_BIT_FIELD("data_link_active", "yesno_t",
+					"%link_status", 13);
+		}
+		ONE_BIT_FIELD("link_bw_notify_cap", "yesno_t",
+				"%link_caps", 21);
+		if (FIELD_BOOL("link_bw_notify_cap")) {
+			ONE_BIT_FIELD("link_bw_status", "yesno_t",
+					"%link_status", 14);
+			ONE_BIT_FIELD("link_auto_bw_status", "yesno_t",
+					"%link_status", 15);
+		}
+
+		ONE_BIT_FIELD("rcb", ANON_BOOL("b64", "b128"),
+				"%link_control", 3);
+		if (FIELD_EQ("../type", "root_port")
+		 || FIELD_EQ("../type", "downstream_switch_port")
+		 || FIELD_EQ("../type", "pci_pcie_bridge")) {
+			ONE_BIT_FIELD("link_disable", "yesno_t",
+					"%link_control", 4);
+			ONE_BIT_FIELD("link_retrain", "yesno_t",
+					"%link_control", 5);
+			ONE_BIT_FIELD("link_bw_mgmt_intr_en", "yesno_t",
+					"%link_control", 10);
+			ONE_BIT_FIELD("link_auto_bw_mgmt_intr_en", "yesno_t",
+					"%link_control", 11);
+		}
+		ONE_BIT_FIELD("common_clock", "yesno_t", "%link_control", 6);
+		ONE_BIT_FIELD("extended_sync", "yesno_t", "%link_control", 7);
+		ONE_BIT_FIELD("hw_auto_width_dis", "yesno_t",
+				"%link_control", 9);
+
+		if (FIELD_EQ("../type", "root_port")
+		 || FIELD_EQ("../type", "downstream_switch_port")
+		 || FIELD_EQ("../type", "pci_pcie_bridge")) {
+			ONE_BIT_FIELD("link_training", "yesno_t",
+					"%link_status", 11);
+		}
+		ONE_BIT_FIELD("slot_clock", "yesno_t", "%link_status", 12);
+
+		if (FIELD_GE("version", 2)) {
+			REG32("%link_caps2", address + 0x2c);
+			REG16("%link_control2", address + 0x30);
+			REG16("%link_status2", address + 0x32);
+
+			SIMPLE_FIELD("target_link_speed", "pcie_link_speed_t",
+					"%link_control2", 3, 0);
+			ONE_BIT_FIELD("enter_compliance", "yesno_t",
+					"%link_control2", 4);
+			ONE_BIT_FIELD("hw_auto_speed_dis", "yesno_t",
+					"%link_control2", 5);
+			ONE_BIT_FIELD("selecatble_deemphasis",
+					ANON_BOOL("dB_neg_6_0", "dB_neg_3_5"),
+					"%link_control2", 6);
+			SIMPLE_FIELD("transit_margin", "hex4_t",
+					"%link_control2", 9, 7);
+			ONE_BIT_FIELD("enter_mod_compliance", "yesno_t",
+					"%link_control2", 10);
+			ONE_BIT_FIELD("compliance_sos", "yesno_t",
+					"%link_control2", 11);
+			ONE_BIT_FIELD("compliance_deemphasis",
+					ANON_BOOL("dB_neg_6_0", "dB_neg_3_5"),
+					"%link_control2", 12);
+
+			ONE_BIT_FIELD("current_deemphasis",
+					ANON_BOOL("dB_neg_6_0", "dB_neg_3_5"),
+					"%link_status2", 0);
+		}
+
+		CLOSE_SCOPE(); // link
+	}
+
+	if (DEFINED("slot_impl") && FIELD_BOOL("slot_impl")) {
+		OPEN_SCOPE("slot");
+		REG32("%slot_caps", address + 0x14);
+		REG16("%slot_control", address + 0x18);
+		REG16("%slot_status", address + 0x1a);
+
+		SIMPLE_FIELD("slot_number", "int_t", "%slot_caps", 31, 19);
+
+		ONE_BIT_FIELD("attn_button", "yesno_t", "%slot_caps", 0);
+		if (FIELD_BOOL("attn_button")) {
+			ONE_BIT_FIELD("attn_button_en", "yesno_t",
+					"%slot_control", 0);
+			ONE_BIT_FIELD("attn_button_press", "yesno_t",
+					"%slot_status", 0);
+		}
+
+		ONE_BIT_FIELD("power_controller", "yesno_t", "%slot_caps", 1);
+		if (FIELD_BOOL("power_controller")) {
+			ONE_BIT_FIELD("power_controller_ctrl",
+					ANON_BOOL("on", "off"),
+					"%slot_control", 10);
+			ONE_BIT_FIELD("power_fault_en", "yesno_t",
+					"%slot_control", 1);
+			ONE_BIT_FIELD("power_fault_det", "yesno_t",
+					"%slot_status", 1);
+		}
+
+		ONE_BIT_FIELD("mrl_sensor", "yesno_t", "%slot_caps", 2);
+		if (FIELD_BOOL("mrl_sensor")) {
+			ONE_BIT_FIELD("mrl_sensor_en", "yesno_t",
+					"%slot_control", 2);
+			ONE_BIT_FIELD("mrl_sensor_change", "yesno_t",
+					"%slot_status", 2);
+			ONE_BIT_FIELD("mrl_sensor_state",
+					ANON_BOOL("closed", "open"),
+					"%slot_status", 5);
+		}
+
+		ONE_BIT_FIELD("attn_indicator", "yesno_t", "%slot_caps", 3);
+		if (FIELD_BOOL("attn_indicator")) {
+			SIMPLE_FIELD("attn_indicator_ctrl", ANON_ENUM(
+						{"on", 1},
+						{"blink", 2},
+						{"off", 3}),
+					"%slot_control", 7, 6);
+		}
+
+		ONE_BIT_FIELD("power_indicator", "yesno_t", "%slot_caps", 4);
+		if (FIELD_BOOL("power_indicator")) {
+			SIMPLE_FIELD("power_indicator_ctrl", ANON_ENUM(
+						{"on", 1},
+						{"blink", 2},
+						{"off", 3}),
+					"%slot_control", 9, 8);
+		}
+
+		ONE_BIT_FIELD("hotplug_capable", "yesno_t", "%slot_caps", 6);
+		if (FIELD_BOOL("hotplug_capable")) {
+			ONE_BIT_FIELD("hotplug_surprise", "yesno_t",
+					"%slot_caps", 5);
+			ONE_BIT_FIELD("presence_detect_en", "yesno_t",
+					"%slot_control", 3);
+			ONE_BIT_FIELD("presence_detect_change", "yesno_t",
+					"%slot_status", 3);
+			ONE_BIT_FIELD("presence_detect_state",
+					ANON_BOOL("empty", "present"),
+					"%slot_status", 6);
+			ONE_BIT_FIELD("hot_plug_intr_en", "yesno_t",
+					"%slot_control", 5);
+			ONE_BIT_FIELD("no_cmd_complete", "yesno_t",
+					"%slot_caps", 18);
+			if (FIELD_BOOL("no_cmd_complete") == 0) {
+				ONE_BIT_FIELD("cmd_complete_intr_en",
+						"yesno_t", "%slot_control", 4);
+				ONE_BIT_FIELD("cmd_completed", "yesno_t",
+						"%slot_status", 4);
+
+			}
+		}
+
+		ONE_BIT_FIELD("electromech_lock", "yesno_t", "%slot_caps", 17);
+		if (FIELD_BOOL("electromech_lock")) {
+			ONE_BIT_FIELD("electromech_lock_ctrl", "int_t",
+					"%slot_control", 11);
+			ONE_BIT_FIELD("electromech_lock_status",
+					ANON_BOOL("disengaged", "engaged"),
+					"%slot_status", 7);
+		}
+
+		//FIXME: better as a procfield?
+		SIMPLE_FIELD("slot_power_limit", "int_t", "%slot_caps", 14, 7);
+		SIMPLE_FIELD("slot_power_scale", "int_t", "%slot_caps", 16, 15);
+
+		if (FIELD_BOOL("../link/data_link_active_report_cap")) {
+			ONE_BIT_FIELD("data_link_state_change_en", "yesno_t",
+					"%slot_control", 12);
+			ONE_BIT_FIELD("data_link_state_change", "yesno_t",
+					"%slot_status", 8);
+		}
+
+		if (FIELD_GE("version", 2)) {
+			REG32("%link_caps2", address + 0x34);
+			REG16("%link_control2", address + 0x38);
+			REG16("%link_status2", address + 0x3a);
+		}
+		CLOSE_SCOPE(); // slot
+	}
+
+	if (FIELD_EQ("type", "root_event_collector")
+	 || FIELD_EQ("type", "root_port")) {
+		OPEN_SCOPE("root");
+		REG16("%root_control", address + 0x1c);
+		REG16("%root_caps", address + 0x1e);
+		REG32("%root_status", address + 0x20);
+
+		ONE_BIT_FIELD("serr_on_cerr", "yesno_t", "%root_control", 0);
+		ONE_BIT_FIELD("serr_on_nferr", "yesno_t", "%root_control", 1);
+		ONE_BIT_FIELD("serr_on_ferr", "yesno_t", "%root_control", 2);
+		ONE_BIT_FIELD("pme_intr_en", "yesno_t", "%root_control", 3);
+
+		ONE_BIT_FIELD("crs_visible_cap", "yesno_t", "%root_caps", 0);
+		ONE_BIT_FIELD("crs_visible_en", "yesno_t", "%root_control", 4);
+
+		ONE_BIT_FIELD("pme_status", "yesno_t", "%root_status", 16);
+		ONE_BIT_FIELD("pme_pending", "yesno_t", "%root_status", 17);
+		SIMPLE_FIELD("pme_requester", "hex16_t", "%root_status", 15, 0);
+
+		CLOSE_SCOPE(); // root
+	}
 }
 
 // Handle the PCI capabilities linked-list.
 static void
 explore_capabilities()
 {
-	if (GET_FIELD("status/caps")->read()) {
+	if (FIELD_BOOL("status/caps")) {
 		REGFIELD8("capptr", 0x34, "hex8_t");
 
 		pp_value ptr = GET_FIELD("capptr")->read();
@@ -748,50 +1101,50 @@ explore_capabilities()
 			REGFIELD8("id", ptr, "pci_capability_t");
 			REGFIELD8("next", ptr+1, "hex8_t");
 
-			if (GET_FIELD("id")->compare("power_mgmt")) {
+			if (FIELD_EQ("id", "power_mgmt")) {
+				// PCI spec
+				power_mgmt_capability(ptr);
+			} else if (FIELD_EQ("id", "agp")) {
 				// PCI spec
 				//FIXME: not implemented yet
-			} else if (GET_FIELD("id")->compare("agp")) {
+			} else if (FIELD_EQ("id", "agp8x")) {
 				// PCI spec
 				//FIXME: not implemented yet
-			} else if (GET_FIELD("id")->compare("agp8x")) {
+			} else if (FIELD_EQ("id", "vpd")) {
 				// PCI spec
 				//FIXME: not implemented yet
-			} else if (GET_FIELD("id")->compare("vpd")) {
-				// PCI spec
-				//FIXME: not implemented yet
-			} else if (GET_FIELD("id")->compare("slot_id")) {
+			} else if (FIELD_EQ("id", "slot_id")) {
 				// PCI-PCI bridge spec
 				slot_id_capability(ptr);
-			} else if (GET_FIELD("id")->compare("msi")) {
+			} else if (FIELD_EQ("id", "msi")) {
 				// PCI spec
 				msi_capability(ptr);
-			} else if (GET_FIELD("id")->compare("msix")) {
+			} else if (FIELD_EQ("id", "msix")) {
 				// PCI spec
 				msix_capability(ptr);
-			} else if (GET_FIELD("id")->compare("resource_ctrl")) {
+			} else if (FIELD_EQ("id", "resource_ctrl")) {
 				//FIXME: not implemented yet
-			} else if (GET_FIELD("id")->compare("hot_swap")) {
+			} else if (FIELD_EQ("id", "hot_swap")) {
 				//FIXME: not implemented yet
-			} else if (GET_FIELD("id")->compare("hot_plug")) {
+			} else if (FIELD_EQ("id", "hot_plug")) {
 				//FIXME: not implemented yet
-			} else if (GET_FIELD("id")->compare("ht")) {
+			} else if (FIELD_EQ("id", "ht")) {
 				// HT spec
 				ht_capability(ptr);
-			} else if (GET_FIELD("id")->compare("usb2_dbg_port")) {
+			} else if (FIELD_EQ("id", "usb2_dbg_port")) {
 				// EHCI spec
 				//FIXME: not implemented yet
-			} else if (GET_FIELD("id")->compare("ssid")) {
+			} else if (FIELD_EQ("id", "ssid")) {
 				// PCI-PCI bridge spec
 				ssid_capability(ptr);
-			} else if (GET_FIELD("id")->compare("pcix")) {
+			} else if (FIELD_EQ("id", "pcix")) {
 				//FIXME: not implemented yet
-			} else if (GET_FIELD("id")->compare("pcie")) {
+			} else if (FIELD_EQ("id", "pcie")) {
 				// PCI-E spec
 				pcie_capability(ptr);
-			} else if (GET_FIELD("id")->compare("vendor")) {
+			} else if (FIELD_EQ("id", "vendor")) {
 				//FIXME: not implemented yet
-			} else if (GET_FIELD("id")->compare("secure")) {
+			} else if (FIELD_EQ("id", "secure")) {
 				//FIXME: not implemented yet
 			}
 			CLOSE_SCOPE();
@@ -843,14 +1196,14 @@ create_pci_bridge()
 					{"bits32", 1}),
 				"%base_lo", 3, 0);
 
-		if (GET_FIELD("width")->compare("bits16")) {
+		if (FIELD_EQ("width", "bits16")) {
 			COMPLEX_FIELD("base", "addr16_t",
 					{"0", 11, 0},
 					{"%base_lo", 7, 4});
 			COMPLEX_FIELD("limit", "addr16_t",
 					{"1", 11, 0},
 					{"%limit_lo", 7, 4});
-		} else if (GET_FIELD("width")->compare("bits32")) {
+		} else if (FIELD_EQ("width", "bits32")) {
 			COMPLEX_FIELD("base", "addr32_t",
 					{"0", 11, 0},
 					{"%base_lo", 7, 4},
@@ -887,14 +1240,14 @@ create_pci_bridge()
 					{"bits64", 1}),
 				"%base_lo", 3, 0);
 
-		if (GET_FIELD("width")->compare("bits32")) {
+		if (FIELD_EQ("width", "bits32")) {
 			COMPLEX_FIELD("base", "addr32_t",
 					{"0", 19, 0},
 					{"%base_lo", 15, 4});
 			COMPLEX_FIELD("limit", "addr32_t",
 					{"1", 19, 0},
 					{"%limit_lo", 15, 4});
-		} else if (GET_FIELD("width")->compare("bits64")) {
+		} else if (FIELD_EQ("width", "bits64")) {
 			COMPLEX_FIELD("base", "addr64_t",
 					{"0", 19, 0},
 					{"%base_lo", 15, 4},
@@ -942,32 +1295,32 @@ create_device()
 	// if BAR1 is not defined, BAR0 must be 64 bit, BAR2 is ok.
 	// if BAR1 is not 64 bit memory, BAR2 is ok.
 	if (!DEFINED("bar1")
-	 || !(GET_FIELD("bar1/type")->compare("mem")
-	   && GET_FIELD("bar1/width")->compare("bits64"))) {
+	 || !(FIELD_EQ("bar1/type", "mem")
+	   && FIELD_EQ("bar1/width", "bits64"))) {
 		BAR("bar2", 0x18);
 	}
 
 	// if BAR2 is not defined, BAR1 must be 64 bit, BAR3 is ok.
 	// if BAR2 is not 64 bit memory, BAR3 is ok.
 	if (!DEFINED("bar2")
-	 || !(GET_FIELD("bar2/type")->compare("mem")
-	   && GET_FIELD("bar2/width")->compare("bits64"))) {
+	 || !(FIELD_EQ("bar2/type", "mem")
+	   && FIELD_EQ("bar2/width", "bits64"))) {
 		BAR("bar3", 0x1c);
 	}
 
 	// if BAR3 is not defined, BAR2 must be 64 bit, BAR4 is ok.
 	// if BAR3 is not 64 bit memory, BAR4 is ok.
 	if (!DEFINED("bar3")
-	 || !(GET_FIELD("bar3/type")->compare("mem")
-	   && GET_FIELD("bar3/width")->compare("bits64"))) {
+	 || !(FIELD_EQ("bar3/type", "mem")
+	   && FIELD_EQ("bar3/width", "bits64"))) {
 		BAR("bar4", 0x20);
 	}
 
 	// if BAR4 is not defined, BAR3 must be 64 bit, BAR5 is ok.
 	// if BAR4 is not 64 bit memory, BAR5 is ok.
 	if (!DEFINED("bar4")
-	 || !(GET_FIELD("bar4/type")->compare("mem")
-	   && GET_FIELD("bar4/width")->compare("bits64"))) {
+	 || !(FIELD_EQ("bar4/type", "mem")
+	   && FIELD_EQ("bar4/width", "bits64"))) {
 		BAR("bar5", 0x24);
 	}
 
@@ -1042,42 +1395,42 @@ pci_generic_device()
 	REGFIELD8("class", 0x0b, "pci_class_t");
 
 	//FIXME: figure the best way to use the types in pci.c
-	if (GET_FIELD("class")->compare("pre_classcode")) {
+	if (FIELD_EQ("class", "pre_classcode")) {
 		REGFIELD8("subclass", 0x0a, "pci_subclass_pre_classcode");
-	} else if (GET_FIELD("class")->compare("mass_storage")) {
+	} else if (FIELD_EQ("class", "mass_storage")) {
 		REGFIELD8("subclass", 0x0a, "pci_subclass_mass_storage");
-	} else if (GET_FIELD("class")->compare("network")) {
+	} else if (FIELD_EQ("class", "network")) {
 		REGFIELD8("subclass", 0x0a, "pci_subclass_network");
-	} else if (GET_FIELD("class")->compare("display")) {
+	} else if (FIELD_EQ("class", "display")) {
 		REGFIELD8("subclass", 0x0a, "pci_subclass_display");
-	} else if (GET_FIELD("class")->compare("multimedia")) {
+	} else if (FIELD_EQ("class", "multimedia")) {
 		REGFIELD8("subclass", 0x0a, "pci_subclass_multimedia");
-	} else if (GET_FIELD("class")->compare("memory")) {
+	} else if (FIELD_EQ("class", "memory")) {
 		REGFIELD8("subclass", 0x0a, "pci_subclass_memory");
-	} else if (GET_FIELD("class")->compare("bridge")) {
+	} else if (FIELD_EQ("class", "bridge")) {
 		REGFIELD8("subclass", 0x0a, "pci_subclass_bridge");
-	} else if (GET_FIELD("class")->compare("simple_comm")) {
+	} else if (FIELD_EQ("class", "simple_comm")) {
 		REGFIELD8("subclass", 0x0a, "pci_subclass_simple_comm");
-	} else if (GET_FIELD("class")->compare("base_system")) {
+	} else if (FIELD_EQ("class", "base_system")) {
 		REGFIELD8("subclass", 0x0a, "pci_subclass_base_system");
-	} else if (GET_FIELD("class")->compare("input")) {
+	} else if (FIELD_EQ("class", "input")) {
 		REGFIELD8("subclass", 0x0a, "pci_subclass_input");
-	} else if (GET_FIELD("class")->compare("docking")) {
+	} else if (FIELD_EQ("class", "docking")) {
 		REGFIELD8("subclass", 0x0a, "pci_subclass_docking");
-	} else if (GET_FIELD("class")->compare("processor")) {
+	} else if (FIELD_EQ("class", "processor")) {
 		REGFIELD8("subclass", 0x0a, "pci_subclass_processor");
 	//FIXME: not implemented yet
-	//} else if (GET_FIELD("class")->compare("serial")) {
+	//} else if (FIELD_EQ("class", "serial")) {
 		//REGFIELD8("subclass", 0x0a, "pci_subclass_serial");
-	//} else if (GET_FIELD("class")->compare("wireless")) {
+	//} else if (FIELD_EQ("class", "wireless")) {
 		//REGFIELD8("subclass", 0x0a, "pci_subclass_wireless");
-	//} else if (GET_FIELD("class")->compare("intelligent_io")) {
+	//} else if (FIELD_EQ("class", "intelligent_io")) {
 		//REGFIELD8("subclass", 0x0a, "pci_subclass_intelligent_io");
-	//} else if (GET_FIELD("class")->compare("satellite")) {
+	//} else if (FIELD_EQ("class", "satellite")) {
 		//REGFIELD8("subclass", 0x0a, "pci_subclass_satellite");
-	//} else if (GET_FIELD("class")->compare("crypto")) {
+	//} else if (FIELD_EQ("class", "crypto")) {
 		//REGFIELD8("subclass", 0x0a, "pci_subclass_crypto");
-	//} else if (GET_FIELD("class")->compare("dsp")) {
+	//} else if (FIELD_EQ("class", "dsp")) {
 		//REGFIELD8("subclass", 0x0a, "pci_subclass_dsp");
 	} else {
 		REGFIELD8("subclass", 0x0a, "hex8_t");
@@ -1118,16 +1471,16 @@ pci_generic_device()
 	BAR("bar0", 0x10);
 
 	// if BAR0 is not 64 bit memory, declare BAR1
-	if (!(GET_FIELD("bar0/type")->compare("mem")
-	   && GET_FIELD("bar0/width")->compare("bits64"))) {
+	if (!(FIELD_EQ("bar0/type", "mem")
+	   && FIELD_EQ("bar0/width", "bits64"))) {
 		BAR("bar1", 0x14);
 	}
 
-	if (GET_FIELD("hdrtype")->compare("device")) {
+	if (FIELD_EQ("hdrtype", "device")) {
 		create_device();
-	} else if (GET_FIELD("hdrtype")->compare("pci_bridge")) {
+	} else if (FIELD_EQ("hdrtype", "pci_bridge")) {
 		create_pci_bridge();
-	} else if (GET_FIELD("hdrtype")->compare("cardbus_bridge")) {
+	} else if (FIELD_EQ("hdrtype", "cardbus_bridge")) {
 		//TODO: need a spec
 	}
 }

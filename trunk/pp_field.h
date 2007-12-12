@@ -76,20 +76,35 @@ class pp_field: public pp_dirent
 	/*
 	 * pp_field::compare(str)
 	 * pp_field::compare(value)
+	 * pp_field::test(str)
+	 * pp_field::test(value)
 	 *
-	 * Compare the value of a field against a fixed value.
+	 * Compare a field against another argument, according to the
+	 * rules of this datatype.  Return an integer which indicates
+	 * whether the lhs is less than, equal to, or greater than the rhs
+	 * (negative, zero, positive return code, respectively).
 	 *
 	 * This can throw pp_datatype_invalid_error.
 	 */
-	virtual bool
-	compare(const string &str) const
+	virtual int
+	compare(const string &comparator) const
 	{
-		return (read() == lookup(str));
+		return m_datatype->compare(read(), comparator);
 	}
-	virtual bool
-	compare(const pp_value value) const
+	virtual int
+	compare(const pp_value comparator) const
 	{
-		return (read() == lookup(value));
+		return m_datatype->compare(read(), comparator);
+	}
+	virtual pp_value
+	test(const string &comparator) const
+	{
+		return m_datatype->test(read(), comparator);
+	}
+	virtual pp_value
+	test(const pp_value comparator) const
+	{
+		return m_datatype->test(read(), comparator);
 	}
 
     private:
