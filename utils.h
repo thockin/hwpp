@@ -56,7 +56,7 @@ extern bool
 dirent_defined(const pp_scope *scope, const pp_path &path);
 
 
-//FIXME: comment
+//FIXME: comments
 extern const pp_field *
 GET_FIELD(const pp_path &path);
 
@@ -65,6 +65,88 @@ GET_REGISTER(const pp_path &path);
 
 extern bool
 DEFINED(const pp_path &path);
+
+inline int
+FIELD_COMPARE(const string &field, pp_value comparator)
+{
+	return GET_FIELD(field)->compare(comparator);
+}
+inline int
+FIELD_COMPARE(const string &field, const string &comparator)
+{
+	return GET_FIELD(field)->compare(comparator);
+}
+inline bool
+FIELD_EQ(const string &field, const pp_value comparator)
+{
+	return (FIELD_COMPARE(field, comparator) == 0);
+}
+inline bool
+FIELD_EQ(const string &field, const string &comparator)
+{
+	return (FIELD_COMPARE(field, comparator) == 0);
+}
+inline bool
+FIELD_NE(const string &field, const pp_value comparator)
+{
+	return (FIELD_COMPARE(field, comparator) != 0);
+}
+inline bool
+FIELD_NE(const string &field, const string &comparator)
+{
+	return (FIELD_COMPARE(field, comparator) != 0);
+}
+inline bool
+FIELD_LT(const string &field, const pp_value comparator)
+{
+	return (FIELD_COMPARE(field, comparator) < 0);
+}
+inline bool
+FIELD_LT(const string &field, const string &comparator)
+{
+	return (FIELD_COMPARE(field, comparator) < 0);
+}
+inline bool
+FIELD_LE(const string &field, const pp_value comparator)
+{
+	return (FIELD_COMPARE(field, comparator) <= 0);
+}
+inline bool
+FIELD_LE(const string &field, const string &comparator)
+{
+	return (FIELD_COMPARE(field, comparator) <= 0);
+}
+inline bool
+FIELD_GT(const string &field, const pp_value comparator)
+{
+	return (FIELD_COMPARE(field, comparator) > 0);
+}
+inline bool
+FIELD_GT(const string &field, const string &comparator)
+{
+	return (FIELD_COMPARE(field, comparator) > 0);
+}
+inline bool
+FIELD_GE(const string &field, const pp_value comparator)
+{
+	return (FIELD_COMPARE(field, comparator) >= 0);
+}
+inline bool
+FIELD_GE(const string &field, const string &comparator)
+{
+	return (FIELD_COMPARE(field, comparator) >= 0);
+}
+inline bool
+FIELD_BOOL(const string &field)
+{
+	// compare to 0 => false, else true
+	return (FIELD_COMPARE(field, 0) != 0);
+}
+inline int
+FIELD_AND(const string &field, pp_value comparator)
+{
+	return GET_FIELD(field)->test(comparator);
+}
 
 //FIXME: comment
 extern pp_scope_ptr
@@ -186,8 +268,10 @@ INT(const string &name, const string &units="");
  * or something.
  */
 extern pp_bitmask *
-BITMASK_(const string &name, kvpair_ *values);
-#define BITMASK(name, ...) BITMASK_(name, (kvpair_[]){__VA_ARGS__, {NULL}})
+BITMASK_(const string &name, const string &dflt, kvpair_ *values);
+#define BITMASK_DFLT(name, dflt, ...) \
+	BITMASK_(name, dflt, (kvpair_[]){__VA_ARGS__, {NULL}})
+#define BITMASK(name, ...) BITMASK_(name, "", (kvpair_[]){__VA_ARGS__, {NULL}})
 #define ANON_BITMASK(...) BITMASK("", __VA_ARGS__)
 
 /*
