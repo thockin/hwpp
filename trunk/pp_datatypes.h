@@ -301,6 +301,7 @@ class pp_int: public pp_datatype
 	virtual pp_value
 	lookup(const string &str) const
 	{
+		//FIXME: if pp_value becomes a bignum, this needs to change
 		return strtoull(str.c_str(), NULL, 0);
 	}
 
