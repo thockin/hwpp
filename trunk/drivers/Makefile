@@ -1,11 +1,23 @@
 DRIVERS = io mem pci msr
+DRIVER_LIB = libdrivers.a
 
-all test clean dep:
+DRIVER_MOD_SFX = _driver_module.o
+
+all test dep:
 	@for d in $(DRIVERS); do \
 		$(MAKE) -C $$d $@; \
 	done
 
-lib:
+DRIVERS_TO_ADD=$(foreach dir,$(DRIVERS), $(wildcard $(dir)/*$(DRIVER_MOD_SFX)))
+
+$(DRIVER_LIB): $(DRIVERS_TO_ADD)
+	ar rcs $@ $^
+
+lib: $(DRIVER_LIB)
+
+.PHONY: clean
+clean:
 	@for d in $(DRIVERS); do \
-		ar rcs $(LIBNAME) $$d/$${d}_driver_module.o; \
+		$(MAKE) -C $$d $@; \
 	done
+	@$(RM) $(DRIVER_LIB)
