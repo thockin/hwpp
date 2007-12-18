@@ -14,7 +14,7 @@ struct io_address
 {
 	/* constructors */
 	io_address()
-	    : base(-1U), size(-1U)
+	    : base((typeof(base))-1), size((typeof(size))-1)
 	{
 	}
 	io_address(uint16_t b, uint16_t s)
