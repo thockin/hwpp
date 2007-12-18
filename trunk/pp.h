@@ -4,6 +4,7 @@
 
 #define __STDC_LIMIT_MACROS
 #include <stdint.h>
+#include <stdlib.h>
 #include <string>
 using std::string;
 #include <boost/format.hpp>
@@ -68,6 +69,12 @@ operator!=(const boost::format &fmt, const string &str)
  //FIXME: these should probably become opaque bignum types
 typedef uint64_t pp_value;
 typedef int64_t  pp_svalue;
+
+inline pp_value
+pp_value_from_string(const string &str)
+{
+	return strtoull(str.c_str(), NULL, 0);
+}
 
 /*
  * pp_bitwidth - how wide something is, in bits.
