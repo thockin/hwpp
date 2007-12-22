@@ -55,7 +55,7 @@ dep depend:
 	@for f in $^; do \
 		OBJ=$$(echo $$f | sed 's/\.cp*$$/.o/'); \
 		$(CPP) $(PP_INCLUDES) -MM $$f -MT $$OBJ; \
-	done > .depend
+	done > $@
 
 # NOTE: 'sinclude' is "silent-include".  This suppresses a warning if
 # .depend does not exist.  Since Makefile includes this file, and this
