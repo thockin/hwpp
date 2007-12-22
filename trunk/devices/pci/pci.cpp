@@ -11,36 +11,36 @@ pci_datatypes_init(pp_scope *platform)
 {
 	/* pci_vendor_t */
 	ENUM("pci_vendor_t",
-		{"unknown", 0},
-		{"Intel", 0x8086},
-		{"AMD", 0x1022},
-		{"NVidia", 0x10de},
-		{"Broadcom", 0x14e4},
-		{"Silicon Image", 0x1095});
+		KV("unknown", 0),
+		KV("Intel", 0x8086),
+		KV("AMD", 0x1022),
+		KV("NVidia", 0x10de),
+		KV("Broadcom", 0x14e4),
+		KV("Silicon Image", 0x1095));
 		//FIXME: default?
 
 	/* pci_class_t */
 	ENUM("pci_class_t",
 		//TODO: incomplete list
-		{"pre_classcode", 0x00},
-		{"mass_storage", 0x01},
-		{"network", 0x02},
-		{"display", 0x03},
-		{"multimedia", 0x04},
-		{"memory", 0x05},
-		{"bridge", 0x06},
-		{"simple_comm", 0x07},
-		{"base_system", 0x08},
-		{"input", 0x09},
-		{"docking", 0x0a},
-		{"processor", 0x0b},
-		{"serial", 0x0c},
-		{"wireless", 0x0d},
-		{"intelligent_io", 0x0e},
-		{"satellite", 0x0f},
-		{"crypto", 0x10},
-		{"dsp", 0x11},
-		{"other", 0xff});
+		KV("pre_classcode", 0x00),
+		KV("mass_storage", 0x01),
+		KV("network", 0x02),
+		KV("display", 0x03),
+		KV("multimedia", 0x04),
+		KV("memory", 0x05),
+		KV("bridge", 0x06),
+		KV("simple_comm", 0x07),
+		KV("base_system", 0x08),
+		KV("input", 0x09),
+		KV("docking", 0x0a),
+		KV("processor", 0x0b),
+		KV("serial", 0x0c),
+		KV("wireless", 0x0d),
+		KV("intelligent_io", 0x0e),
+		KV("satellite", 0x0f),
+		KV("crypto", 0x10),
+		KV("dsp", 0x11),
+		KV("other", 0xff));
 		//FIXME: default?
 
 	/* pci_subclass_*_t */
@@ -48,72 +48,72 @@ pci_datatypes_init(pp_scope *platform)
 	//unknown classes?
 	//FIXME: _t notation?
 	ENUM("pci_subclass_pre_classcode",
-			{"non-VGA device", 0x00},
-			{"VGA device", 0x01});
+			KV("non-VGA device", 0x00),
+			KV("VGA device", 0x01));
 	ENUM("pci_subclass_mass_storage",
-			{"SCSI controller", 0x00},
-			{"IDE controller", 0x01},
-			{"floppy controller", 0x02},
-			{"IPI bus controller", 0x03},
-			{"RAID controller", 0x04},
-			{"ATA controller with ADMA", 0x05},
-			{"SATA controller", 0x06},
-			{"SAS controller", 0x06},
-			{"other", 0x80});
+			KV("SCSI controller", 0x00),
+			KV("IDE controller", 0x01),
+			KV("floppy controller", 0x02),
+			KV("IPI bus controller", 0x03),
+			KV("RAID controller", 0x04),
+			KV("ATA controller with ADMA", 0x05),
+			KV("SATA controller", 0x06),
+			KV("SAS controller", 0x06),
+			KV("other", 0x80));
 	ENUM("pci_subclass_network",
-			{"ethernet controller", 0x00},
-			{"token Ring controller", 0x01},
-			{"FDDI controller", 0x02},
-			{"ATM controller", 0x03},
-			{"ISDN controller", 0x04},
-			{"other", 0x80});
+			KV("ethernet controller", 0x00),
+			KV("token Ring controller", 0x01),
+			KV("FDDI controller", 0x02),
+			KV("ATM controller", 0x03),
+			KV("ISDN controller", 0x04),
+			KV("other", 0x80));
 	ENUM("pci_subclass_display",
-			{"VGA controller", 0x00},
-			{"XGA controller", 0x01},
-			{"3D controller", 0x02},
-			{"other", 0x80});
+			KV("VGA controller", 0x00),
+			KV("XGA controller", 0x01),
+			KV("3D controller", 0x02),
+			KV("other", 0x80));
 	ENUM("pci_subclass_multimedia",
-			{"video device", 0x00},
-			{"audio device", 0x01},
-			{"computer telephony device", 0x02},
-			{"other", 0x80});
+			KV("video device", 0x00),
+			KV("audio device", 0x01),
+			KV("computer telephony device", 0x02),
+			KV("other", 0x80));
 	ENUM("pci_subclass_memory",
-			{"RAM", 0x00},
-			{"flash", 0x01},
-			{"other", 0x80});
+			KV("RAM", 0x00),
+			KV("flash", 0x01),
+			KV("other", 0x80));
 	ENUM("pci_subclass_bridge",
-			{"host bridge", 0x00},
-			{"ISA bridge", 0x01},
-			{"EISA bridge", 0x02},
-			{"MCA bridge", 0x03},
-			{"PCI bridge", 0x04},
-			{"PCMCIA bridge", 0x05},
-			{"NuBus bridge", 0x06},
-			{"CardBus bridge", 0x07},
-			{"RACEway bridge", 0x08},
-			{"other", 0x80});
+			KV("host bridge", 0x00),
+			KV("ISA bridge", 0x01),
+			KV("EISA bridge", 0x02),
+			KV("MCA bridge", 0x03),
+			KV("PCI bridge", 0x04),
+			KV("PCMCIA bridge", 0x05),
+			KV("NuBus bridge", 0x06),
+			KV("CardBus bridge", 0x07),
+			KV("RACEway bridge", 0x08),
+			KV("other", 0x80));
 	//FIXME: classes 0x07-0x11
 
 	// pci_capability_t
 	ENUM("pci_capability_t",
-			{"unknown", 0},
-			{"power_mgmt", 0x01},
-			{"agp", 0x02},
-			{"vpd", 0x03},
-			{"slot_id", 0x04},
-			{"msi", 0x05},
-			{"hot_swap", 0x06},
-			{"pcix", 0x07},
-			{"ht", 0x08},
-			{"vendor", 0x09},
-			{"usb2_dbg_port", 0x0a},
-			{"resource_ctrl", 0x0b},
-			{"hot_plug", 0x0c},
-			{"ssid", 0x0d},
-			{"agp8x", 0x0e},
-			{"secure", 0x0f},
-			{"pcie", 0x10},
-			{"msix", 0x11});
+			KV("unknown", 0),
+			KV("power_mgmt", 0x01),
+			KV("agp", 0x02),
+			KV("vpd", 0x03),
+			KV("slot_id", 0x04),
+			KV("msi", 0x05),
+			KV("hot_swap", 0x06),
+			KV("pcix", 0x07),
+			KV("ht", 0x08),
+			KV("vendor", 0x09),
+			KV("usb2_dbg_port", 0x0a),
+			KV("resource_ctrl", 0x0b),
+			KV("hot_plug", 0x0c),
+			KV("ssid", 0x0d),
+			KV("agp8x", 0x0e),
+			KV("secure", 0x0f),
+			KV("pcie", 0x10),
+			KV("msix", 0x11));
 }
 
 static void

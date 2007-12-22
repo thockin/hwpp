@@ -14,34 +14,34 @@ BAR(const string &name, pp_regaddr address)
 
 	REG32("%lower", address);
 	ONE_BIT_FIELD("type", ANON_ENUM(
-				{"mem", 0},
-				{"io", 1}),
+				KV("mem", 0),
+				KV("io", 1)),
 			"%lower", 0);
 
 	if (FIELD_EQ("type", "mem")) {
 		SIMPLE_FIELD("width", ANON_ENUM(
-					{"bits32", 0},
-					{"bits20", 1},
-					{"bits64", 2}),
+					KV("bits32", 0),
+					KV("bits20", 1),
+					KV("bits64", 2)),
 				"%lower", 2, 1);
 		ONE_BIT_FIELD("prefetch", "yesno_t", "%lower", 3);
 	}
 
 	if (FIELD_EQ("type", "io")) {
 		COMPLEX_FIELD("address", "addr16_t",
-				{"0", 1, 0},
-				{"%lower", 15, 2});
+				BITS("0", 1, 0),
+				BITS("%lower", 15, 2));
 	} else if (FIELD_EQ("width", "bits32")
 	    || FIELD_EQ("width", "bits20")) {
 		COMPLEX_FIELD("address", "addr32_t",
-				{"0", 3, 0},
-				{"%lower", 31, 4});
+				BITS("0", 3, 0),
+				BITS("%lower", 31, 4));
 	} else {
 		REG32("%upper", address+4);
 		COMPLEX_FIELD("address", "addr64_t",
-				{"0", 3, 0},
-				{"%lower", 31, 4},
-				{"%upper", 31, 0});
+				BITS("0", 3, 0),
+				BITS("%lower", 31, 4),
+				BITS("%upper", 31, 0));
 	}
 	CLOSE_SCOPE();
 }
@@ -73,12 +73,12 @@ static void
 ht_link_config(pp_value address)
 {
 	ENUM("ht_link_width_t",
-			{"bits8", 0},
-			{"bits16", 1},
-			{"bits32", 3},
-			{"bits2", 4},
-			{"bits4", 5},
-			{"nc", 7});
+			KV("bits8", 0),
+			KV("bits16", 1),
+			KV("bits32", 3),
+			KV("bits2", 4),
+			KV("bits4", 5),
+			KV("nc", 7));
 
 	REG16("%config", address);
 	OPEN_SCOPE("config");
@@ -100,21 +100,21 @@ static void
 ht_link_freq_err(pp_value address)
 {
 	ENUM("ht_link_freq_t",
-			{"mhz200", 0},
-			{"mhz300", 1},
-			{"mhz400", 2},
-			{"mhz500", 3},
-			{"mhz600", 4},
-			{"mhz800", 5},
-			{"mhz1000", 6},
-			{"mhz1200", 7},
-			{"mhz1400", 8},
-			{"mhz1600", 9},
-			{"mhz1800", 1},
-			{"mhz2000", 11},
-			{"mhz2200", 12},
-			{"mhz2400", 13},
-			{"mhz2600", 14});
+			KV("mhz200", 0),
+			KV("mhz300", 1),
+			KV("mhz400", 2),
+			KV("mhz500", 3),
+			KV("mhz600", 4),
+			KV("mhz800", 5),
+			KV("mhz1000", 6),
+			KV("mhz1200", 7),
+			KV("mhz1400", 8),
+			KV("mhz1600", 9),
+			KV("mhz1800", 1),
+			KV("mhz2000", 11),
+			KV("mhz2200", 12),
+			KV("mhz2400", 13),
+			KV("mhz2600", 14));
 
 	REG8("%freq_err", address);
 	SIMPLE_FIELD("Freq", "ht_link_freq_t", "%freq_err", 3, 0);
@@ -128,21 +128,21 @@ static void
 ht_link_freq_cap(pp_value address)
 {
 	BITMASK("ht_link_freq_cap_t",
-			{"mhz200", 0},
-			{"mhz300", 1},
-			{"mhz400", 2},
-			{"mhz500", 3},
-			{"mhz600", 4},
-			{"mhz800", 5},
-			{"mhz1000", 6},
-			{"mhz1200", 7},
-			{"mhz1400", 8},
-			{"mhz1600", 9},
-			{"mhz1800", 10},
-			{"mhz2000", 11},
-			{"mhz2200", 12},
-			{"mhz2400", 13},
-			{"mhz2600", 14});
+			KV("mhz200", 0),
+			KV("mhz300", 1),
+			KV("mhz400", 2),
+			KV("mhz500", 3),
+			KV("mhz600", 4),
+			KV("mhz800", 5),
+			KV("mhz1000", 6),
+			KV("mhz1200", 7),
+			KV("mhz1400", 8),
+			KV("mhz1600", 9),
+			KV("mhz1800", 10),
+			KV("mhz2000", 11),
+			KV("mhz2200", 12),
+			KV("mhz2400", 13),
+			KV("mhz2600", 14));
 
 	REG16("%freq_cap", address);
 	SIMPLE_FIELD("FreqCap", "ht_link_freq_cap_t", "%freq_cap", 14, 0);
@@ -287,15 +287,15 @@ ht_extended_config_capability(pp_value address)
 {
 	REG32("%address", address+4);
 	ONE_BIT_FIELD("type", ANON_ENUM(
-				{"type0", 0},
-				{"type1", 1}),
+				KV("type0", 0),
+				KV("type1", 1)),
 			"%address", 28);
 	SIMPLE_FIELD("bus", "int_t", "%address", 27, 20);
 	SIMPLE_FIELD("device", "int_t", "%address", 19, 15);
 	SIMPLE_FIELD("function", "int_t", "%address", 14, 12);
 	COMPLEX_FIELD("register", "hex_t",
-			{"0", 1, 0},
-			{"%address", 11, 2});
+			BITS("0", 1, 0),
+			BITS("%address", 11, 2));
 	REGFIELD32("data", address+8, "hex32_t");
 }
 
@@ -306,8 +306,8 @@ ht_address_mapping_capability(pp_value address)
 	SIMPLE_FIELD("num_dma", "int_t", "%command", 3, 0);
 	SIMPLE_FIELD("io_size", "int_t", "%command", 8, 4);
 	SIMPLE_FIELD("map_type", ANON_ENUM(
-				{"bits40", 0},
-				{"bits64", 1}),
+				KV("bits40", 0),
+				KV("bits64", 1)),
 			"%command", 10, 9);
 
 	if (FIELD_EQ("map_type", "bits40")) {
@@ -319,8 +319,8 @@ ht_address_mapping_capability(pp_value address)
 				"../%sec_non_prefetch", 29);
 		ONE_BIT_FIELD("compat", "yesno_t", "../%sec_non_prefetch", 28);
 		COMPLEX_FIELD("base", "addr64_t",
-				{"0", 19, 0},
-				{"../%sec_non_prefetch", 19, 0});
+				BITS("0", 19, 0),
+				BITS("../%sec_non_prefetch", 19, 0));
 		CLOSE_SCOPE();
 
 		REG32("%sec_prefetch", address + 0x08);
@@ -330,8 +330,8 @@ ht_address_mapping_capability(pp_value address)
 		ONE_BIT_FIELD("noncoherent", "yesno_t", "../%sec_prefetch", 29);
 		ONE_BIT_FIELD("compat", "yesno_t", "../%sec_prefetch", 28);
 		COMPLEX_FIELD("base", "addr64_t",
-				{"0", 19, 0},
-				{"../%sec_prefetch", 19, 0});
+				BITS("0", 19, 0),
+				BITS("../%sec_prefetch", 19, 0));
 		CLOSE_SCOPE();
 
 		pp_value value = GET_FIELD("num_dma")->read();
@@ -346,14 +346,14 @@ ht_address_mapping_capability(pp_value address)
 			ONE_BIT_FIELD("noncoherent", "yesno_t", "%lower", 29);
 
 			COMPLEX_FIELD("pri_base", "addr64_t",
-					{"0", 23, 0},
-					{"%lower", 15, 0});
+					BITS("0", 23, 0),
+					BITS("%lower", 15, 0));
 			COMPLEX_FIELD("sec_base", "addr64_t",
-					{"0", 23, 0},
-					{"%lower", 31, 16});
+					BITS("0", 23, 0),
+					BITS("%lower", 31, 16));
 			COMPLEX_FIELD("sec_limit", "addr64_t",
-					{"1", 23, 0},
-					{"%lower", 15, 0});
+					BITS("1", 23, 0),
+					BITS("%lower", 15, 0));
 			CLOSE_SCOPE();
 		}
 	} else if (FIELD_EQ("map_type", "bits64")) {
@@ -371,9 +371,9 @@ ht_msi_mapping_capability(pp_value address)
 		REG32("%lower", address+4);
 		REG32("%upper", address+8);
 		COMPLEX_FIELD("address", "addr64_t",
-				{"0", 19, 0},
-				{"%lower", 31, 20},
-				{"%upper", 31, 0});
+				BITS("0", 19, 0),
+				BITS("%lower", 31, 20),
+				BITS("%upper", 31, 0));
 	}
 }
 
@@ -382,36 +382,36 @@ power_mgmt_capability(pp_value address)
 {
 	REG16("%pmc", address+2);
 	SIMPLE_FIELD("version", ANON_ENUM(
-				{"pcipm_v1_2", 3}),
+				KV("pcipm_v1_2", 3)),
 			"%pmc", 2, 0);
 	ONE_BIT_FIELD("clock", "yesno_t", "%pmc", 3);
 	ONE_BIT_FIELD("dsi", "yesno_t", "%pmc", 5);
 	SIMPLE_FIELD("aux_current", ANON_ENUM(
-				{"self", 0},
-				{"mA_55", 1},
-				{"mA_100", 2},
-				{"mA_160", 3},
-				{"mA_220", 4},
-				{"mA_270", 5},
-				{"mA_320", 6},
-				{"mA_375", 7}),
+				KV("self", 0),
+				KV("mA_55", 1),
+				KV("mA_100", 2),
+				KV("mA_160", 3),
+				KV("mA_220", 4),
+				KV("mA_270", 5),
+				KV("mA_320", 6),
+				KV("mA_375", 7)),
 			"%pmc", 8, 6);
 	ONE_BIT_FIELD("d1_support", "yesno_t", "%pmc", 9);
 	ONE_BIT_FIELD("d2_support", "yesno_t", "%pmc", 10);
 	SIMPLE_FIELD("pme_support", ANON_BITMASK(
-				{"d0", 0},
-				{"d1", 1},
-				{"d2", 2},
-				{"d3hot", 3},
-				{"d3cold", 4}),
+				KV("d0", 0),
+				KV("d1", 1),
+				KV("d2", 2),
+				KV("d3hot", 3),
+				KV("d3cold", 4)),
 			"%pmc", 15, 11);
 
 	REG16("%pmcsr", address+4);
 	SIMPLE_FIELD("power_state", ANON_ENUM(
-				{"d0", 0},
-				{"d1", 1},
-				{"d2", 2},
-				{"d3hot", 3}),
+				KV("d0", 0),
+				KV("d1", 1),
+				KV("d2", 2),
+				KV("d3hot", 3)),
 			"%pmcsr", 1, 0);
 	ONE_BIT_FIELD("no_soft_reset", "yesno_t", "%pmcsr", 3);
 	ONE_BIT_FIELD("pme_en", "yesno_t", "%pmcsr", 8);
@@ -446,20 +446,20 @@ msi_capability(pp_value address)
 	REG16("%msg_ctrl", address + 2);
 	ONE_BIT_FIELD("msi_enable", "yesno_t", "%msg_ctrl", 0);
 	SIMPLE_FIELD("multi_msg_cap", ANON_ENUM(
-				{"vec1",  0},
-				{"vec2",  1},
-				{"vec4",  2},
-				{"vec8",  3},
-				{"vec16", 4},
-				{"vec32", 5}),
+				KV("vec1", 0),
+				KV("vec2", 1),
+				KV("vec4", 2),
+				KV("vec8", 3),
+				KV("vec16", 4),
+				KV("vec32", 5)),
 			"%msg_ctrl", 3, 1);
 	SIMPLE_FIELD("multi_msg_en", ANON_ENUM(
-				{"vec1",  0},
-				{"vec2",  1},
-				{"vec4",  2},
-				{"vec8",  3},
-				{"vec16", 4},
-				{"vec32", 5}),
+				KV("vec1", 0),
+				KV("vec2", 1),
+				KV("vec4", 2),
+				KV("vec8", 3),
+				KV("vec16", 4),
+				KV("vec32", 5)),
 			"%msg_ctrl", 6, 4);
 	ONE_BIT_FIELD("cap64", "yesno_t", "%msg_ctrl", 7);
 	ONE_BIT_FIELD("mask_per_vec", "yesno_t", "%msg_ctrl", 8);
@@ -471,8 +471,8 @@ msi_capability(pp_value address)
 	if (!FIELD_BOOL("cap64")) {
 		// no, just use the low address and define the data
 		COMPLEX_FIELD("msg_addr", "addr32_t",
-				{"0", 1, 0},
-				{"%msg_addr", 31, 2});
+				BITS("0", 1, 0),
+				BITS("%msg_addr", 31, 2));
 		REGFIELD16("msg_data", address + 8, "hex16_t");
 
 		if (FIELD_BOOL("mask_per_vec")) {
@@ -484,9 +484,9 @@ msi_capability(pp_value address)
 		// add the high address and define the data
 		REG32("%msg_addr_hi",  address + 8);
 		COMPLEX_FIELD("msg_addr", "addr64_t",
-				{"0", 1, 0},
-				{"%msg_addr", 31, 2},
-				{"%msg_addr_hi", 31, 0});
+				BITS("0", 1, 0),
+				BITS("%msg_addr", 31, 2),
+				BITS("%msg_addr_hi", 31, 0));
 		REGFIELD16("msg_data", address + 12, "hex16_t");
 
 		if (FIELD_BOOL("mask_per_vec")) {
@@ -527,16 +527,16 @@ msix_capability(pp_value address)
 	// the table is memory mapped through a BAR
 	REG32("%table_ptr", address + 4);
 	SIMPLE_FIELD("table_bir", ANON_ENUM(
-				{"bar0", 0},
-				{"bar1", 1},
-				{"bar2", 2},
-				{"bar3", 3},
-				{"bar4", 4},
-				{"bar5", 5}),
+				KV("bar0", 0),
+				KV("bar1", 1),
+				KV("bar2", 2),
+				KV("bar3", 3),
+				KV("bar4", 4),
+				KV("bar5", 5)),
 			"%table_ptr", 2, 0);
 	COMPLEX_FIELD("table_offset", "hex_t",
-			{"0", 2, 0},
-			{"%table_ptr", 31, 3});
+			BITS("0", 2, 0),
+			BITS("%table_ptr", 31, 3));
 
 	//FIXME: a better way to do this?
 	bar = "^/" + GET_FIELD("table_bir")->evaluate() + "/address";
@@ -550,9 +550,9 @@ msix_capability(pp_value address)
 				REG32("%msg_addr", i*16 + 0);
 				REG32("%msg_upper_addr", i*16 + 4);
 				COMPLEX_FIELD("address", "addr64_t",
-						{"0", 1, 0},
-						{"%msg_addr", 31, 2},
-						{"%msg_upper_addr", 31, 0});
+						BITS("0", 1, 0),
+						BITS("%msg_addr", 31, 2),
+						BITS("%msg_upper_addr", 31, 0));
 				REGFIELD32("msg_data", i*16 + 8, "hex_t");
 				REG32("%vector_ctrl", i*16 + 12);
 				ONE_BIT_FIELD("mask", "yesno_t",
@@ -564,16 +564,16 @@ msix_capability(pp_value address)
 	// the pending bit array is memory mapped through a BAR
 	REG32("%pba_ptr", address + 8);
 	SIMPLE_FIELD("pba_bir", ANON_ENUM(
-				{"bar0", 0},
-				{"bar1", 1},
-				{"bar2", 2},
-				{"bar3", 3},
-				{"bar4", 4},
-				{"bar5", 5}),
+				KV("bar0", 0),
+				KV("bar1", 1),
+				KV("bar2", 2),
+				KV("bar3", 3),
+				KV("bar4", 4),
+				KV("bar5", 5)),
 			"%pba_ptr", 2, 0);
 	COMPLEX_FIELD("pba_offset", "hex_t",
-			{"0", 2, 0},
-			{"%pba_ptr", 31, 3});
+			BITS("0", 2, 0),
+			BITS("%pba_ptr", 31, 3));
 
 	args.clear();
 	bar = "^/" + GET_FIELD("pba_bir")->evaluate() + "/address";
@@ -611,8 +611,8 @@ ht_capability(pp_value address)
 	if (FIELD_EQ("is_interface", "yes")) {
 		// subtype is a 3 bit field
 		SIMPLE_FIELD("subtype", ANON_ENUM(
-					{"slave_primary", 0},
-					{"host_secondary", 1}),
+					KV("slave_primary", 0),
+					KV("host_secondary", 1)),
 				"%subcap", 7, 5);
 
 		if (FIELD_EQ("subtype", "slave_primary")) {
@@ -623,20 +623,20 @@ ht_capability(pp_value address)
 	} else {
 		// subtype is a 5 bit field
 		SIMPLE_FIELD("subtype", ANON_ENUM(
-					{"switch", 8},
-					{"intr_discovery", 16},
-					{"revision", 17},
-					{"unit_id_clump", 18},
-					{"extended_config", 19},
-					{"address_mapping", 20},
-					{"msi_mapping", 21},
-					{"direct_route", 22},
-					{"vc_set", 23},
-					{"retry_mode", 24},
-					{"x86_encode", 25},
-					{"gen3", 26},
-					{"function_extend", 27},
-					{"power_mgmt", 28}),
+					KV("switch", 8),
+					KV("intr_discovery", 16),
+					KV("revision", 17),
+					KV("unit_id_clump", 18),
+					KV("extended_config", 19),
+					KV("address_mapping", 20),
+					KV("msi_mapping", 21),
+					KV("direct_route", 22),
+					KV("vc_set", 23),
+					KV("retry_mode", 24),
+					KV("x86_encode", 25),
+					KV("gen3", 26),
+					KV("function_extend", 27),
+					KV("power_mgmt", 28)),
 				"%subcap", 7, 3);
 
 		if (FIELD_EQ("subtype", "switch")) {
@@ -687,15 +687,15 @@ pcie_capability(pp_value address)
 	REG16("%pcie_caps", address + 0x02);
 	SIMPLE_FIELD("version", "int_t", "%pcie_caps", 3, 0);
 	SIMPLE_FIELD("type", ANON_ENUM(
-				{"endpoint", 0},
-				{"legacy_endpoint", 1},
-				{"root_port", 4},
-				{"upstream_switch_port", 5},
-				{"downstream_switch_port", 6},
-				{"pcie_pci_bridge", 7},
-				{"pci_pcie_bridge", 8},
-				{"root_integrated_endpoint", 9},
-				{"root_event_collector", 10}),
+				KV("endpoint", 0),
+				KV("legacy_endpoint", 1),
+				KV("root_port", 4),
+				KV("upstream_switch_port", 5),
+				KV("downstream_switch_port", 6),
+				KV("pcie_pci_bridge", 7),
+				KV("pci_pcie_bridge", 8),
+				KV("root_integrated_endpoint", 9),
+				KV("root_event_collector", 10)),
 			"%pcie_caps", 7, 4);
 	if (FIELD_EQ("type", "root_port")
 	 || FIELD_EQ("type", "downstream_switch_port")) {
@@ -706,35 +706,35 @@ pcie_capability(pp_value address)
 
 	// common datatypes
 	ENUM("pcie_l0s_latency_t",
-			{"ns_64", 0},
-			{"ns_128", 1},
-			{"ns_256", 2},
-			{"ns_512", 3},
-			{"us_1", 4},
-			{"us_2", 5},
-			{"us_4", 6},
-			{"us_4_plus", 7});
+			KV("ns_64", 0),
+			KV("ns_128", 1),
+			KV("ns_256", 2),
+			KV("ns_512", 3),
+			KV("us_1", 4),
+			KV("us_2", 5),
+			KV("us_4", 6),
+			KV("us_4_plus", 7));
 	ENUM("pcie_l1_latency_t",
-			{"us_1", 0},
-			{"us_2", 1},
-			{"us_4", 2},
-			{"us_8", 3},
-			{"us_16", 4},
-			{"us_32", 5},
-			{"us_64", 6},
-			{"us_64_plus", 7});
+			KV("us_1", 0),
+			KV("us_2", 1),
+			KV("us_4", 2),
+			KV("us_8", 3),
+			KV("us_16", 4),
+			KV("us_32", 5),
+			KV("us_64", 6),
+			KV("us_64_plus", 7));
 	ENUM("pcie_width_t",
-			{"x0", 0},
-			{"x1", 1},
-			{"x2", 2},
-			{"x4", 4},
-			{"x8", 8},
-			{"x12", 12},
-			{"x16", 16},
-			{"x32", 32});
+			KV("x0", 0),
+			KV("x1", 1),
+			KV("x2", 2),
+			KV("x4", 4),
+			KV("x8", 8),
+			KV("x12", 12),
+			KV("x16", 16),
+			KV("x32", 32));
 	ENUM("pcie_link_speed_t",
-			{"GTs_25", 1},
-			{"GTs_50", 2});
+			KV("GTs_25", 1),
+			KV("GTs_50", 2));
 
 
 	// all PCI-E devices implement this block
@@ -744,12 +744,12 @@ pcie_capability(pp_value address)
 	REG16("%dev_status", address + 0x0a);
 
 	ENUM("pcie_payload_size_t",
-			{"b128", 0},
-			{"b256", 1},
-			{"b512", 2},
-			{"b1024", 3},
-			{"b2048", 4},
-			{"b4096", 5});
+			KV("b128", 0),
+			KV("b256", 1),
+			KV("b512", 2),
+			KV("b1024", 3),
+			KV("b2048", 4),
+			KV("b4096", 5));
 	SIMPLE_FIELD("max_payload_cap", "pcie_payload_size_t",
 			"%dev_caps", 2, 0);
 	SIMPLE_FIELD("max_payload", "pcie_payload_size_t",
@@ -758,16 +758,16 @@ pcie_capability(pp_value address)
 			"%dev_control", 14, 12);
 
 	SIMPLE_FIELD("phantom_funcs_cap", ANON_ENUM(
-				{"phantom_0", 0},
-				{"phantom_4", 1},
-				{"phantom_6", 2},
-				{"phantom_8", 3}),
+				KV("phantom_0", 0),
+				KV("phantom_4", 1),
+				KV("phantom_6", 2),
+				KV("phantom_8", 3)),
 			"%dev_caps", 4, 3);
 	ONE_BIT_FIELD("phantom_funcs", "yesno_t", "%dev_control", 9);
 
 	ONE_BIT_FIELD("ext_tag_field_cap", ANON_ENUM(
-				{"b5", 0},
-				{"b8", 1}),
+				KV("b5", 0),
+				KV("b8", 1)),
 			"%dev_caps", 5);
 	ONE_BIT_FIELD("ext_tag_field", "yesno_t", "%dev_control", 8);
 
@@ -785,10 +785,10 @@ pcie_capability(pp_value address)
 	if (FIELD_EQ("../type", "upstream_switch_port")) {
 		SIMPLE_FIELD("power_limit_value", "int_t", "%dev_caps", 25, 18);
 		SIMPLE_FIELD("power_limit_scale", ANON_ENUM(
-					{"x1_0", 0},
-					{"x0_1", 1},
-					{"x0_01", 2},
-					{"x0_001", 3}),
+					KV("x1_0", 0),
+					KV("x0_1", 1),
+					KV("x0_01", 2),
+					KV("x0_001", 3)),
 				"%dev_caps", 27, 26);
 	}
 	ONE_BIT_FIELD("role_based_err_cap", "yesno_t", "%dev_caps", 15);
@@ -815,10 +815,10 @@ pcie_capability(pp_value address)
 		REG16("%dev_status2", address + 0x2a);
 
 		BITMASK_DFLT("pcie_completion_timeout_t", "us_50_ms_50",
-				{"us_50_ms_10", 0},
-				{"ms_10_ms_250", 1},
-				{"ms_250_s_4", 2},
-				{"s_4_s_64", 3});
+				KV("us_50_ms_10", 0),
+				KV("ms_10_ms_250", 1),
+				KV("ms_250_s_4", 2),
+				KV("s_4_s_64", 3));
 
 		SIMPLE_FIELD("completion_timeout_ranges",
 				"pcie_completion_timeout_t",
@@ -853,8 +853,8 @@ pcie_capability(pp_value address)
 		SIMPLE_FIELD("port_number", "int_t", "%link_caps", 31, 24);
 
 		SIMPLE_FIELD("supported_speeds", ANON_ENUM(
-					{"GTs_25", 1},
-					{"GTs_50_25", 2}),
+					KV("GTs_25", 1),
+					KV("GTs_50_25", 2)),
 				"%link_caps", 3, 0);
 		SIMPLE_FIELD("speed", "pcie_link_speed_t",
 				"%link_status", 3, 0);
@@ -862,12 +862,12 @@ pcie_capability(pp_value address)
 		SIMPLE_FIELD("width", "pcie_width_t", "%link_status", 9, 4);
 
 		SIMPLE_FIELD("aspm_support", ANON_BITMASK(
-					{"l0s", 0},
-					{"l1", 1}),
+					KV("l0s", 0),
+					KV("l1", 1)),
 				"%link_caps", 11, 10);
 		SIMPLE_FIELD("aspm_ctl", ANON_BITMASK(
-					{"l0s", 0},
-					{"l1", 1}),
+					KV("l0s", 0),
+					KV("l1", 1)),
 				"%link_control", 1, 0);
 
 		SIMPLE_FIELD("l0s_exit_latency", "pcie_l0s_latency_t",
@@ -995,18 +995,18 @@ pcie_capability(pp_value address)
 		ONE_BIT_FIELD("attn_indicator", "yesno_t", "%slot_caps", 3);
 		if (FIELD_BOOL("attn_indicator")) {
 			SIMPLE_FIELD("attn_indicator_ctrl", ANON_ENUM(
-						{"on", 1},
-						{"blink", 2},
-						{"off", 3}),
+						KV("on", 1),
+						KV("blink", 2),
+						KV("off", 3)),
 					"%slot_control", 7, 6);
 		}
 
 		ONE_BIT_FIELD("power_indicator", "yesno_t", "%slot_caps", 4);
 		if (FIELD_BOOL("power_indicator")) {
 			SIMPLE_FIELD("power_indicator_ctrl", ANON_ENUM(
-						{"on", 1},
-						{"blink", 2},
-						{"off", 3}),
+						KV("on", 1),
+						KV("blink", 2),
+						KV("off", 3)),
 					"%slot_control", 9, 8);
 		}
 
@@ -1173,9 +1173,9 @@ create_pci_bridge()
 		ONE_BIT_FIELD("fbb", "yesno_t", "../%sec_status", 7);
 		ONE_BIT_FIELD("mdperr", "yesno_t", "../%sec_status", 8);
 		SIMPLE_FIELD("devsel", ANON_ENUM(
-					{"FAST", 0},
-					{"MEDIUM", 1},
-					{"SLOW", 2}),
+					KV("FAST", 0),
+					KV("MEDIUM", 1),
+					KV("SLOW", 2)),
 				"../%sec_status", 10, 9);
 		ONE_BIT_FIELD("sigtabort", "yesno_t", "../%sec_status", 11);
 		ONE_BIT_FIELD("rcvtabort", "yesno_t", "../%sec_status", 12);
@@ -1192,26 +1192,26 @@ create_pci_bridge()
 		REG16("%limit_hi", 0x32);
 
 		SIMPLE_FIELD("width", ANON_ENUM(
-					{"bits16", 0},
-					{"bits32", 1}),
+					KV("bits16", 0),
+					KV("bits32", 1)),
 				"%base_lo", 3, 0);
 
 		if (FIELD_EQ("width", "bits16")) {
 			COMPLEX_FIELD("base", "addr16_t",
-					{"0", 11, 0},
-					{"%base_lo", 7, 4});
+					BITS("0", 11, 0),
+					BITS("%base_lo", 7, 4));
 			COMPLEX_FIELD("limit", "addr16_t",
-					{"1", 11, 0},
-					{"%limit_lo", 7, 4});
+					BITS("1", 11, 0),
+					BITS("%limit_lo", 7, 4));
 		} else if (FIELD_EQ("width", "bits32")) {
 			COMPLEX_FIELD("base", "addr32_t",
-					{"0", 11, 0},
-					{"%base_lo", 7, 4},
-					{"%base_hi", 15, 0});
+					BITS("0", 11, 0),
+					BITS("%base_lo", 7, 4),
+					BITS("%base_hi", 15, 0));
 			COMPLEX_FIELD("limit", "addr32_t",
-					{"1", 11, 0},
-					{"%limit_lo", 7, 4},
-					{"%limit_hi", 15, 0});
+					BITS("1", 11, 0),
+					BITS("%limit_lo", 7, 4),
+					BITS("%limit_hi", 15, 0));
 		}
 	CLOSE_SCOPE();
 
@@ -1221,11 +1221,11 @@ create_pci_bridge()
 		REG16("%limit", 0x22);
 
 		COMPLEX_FIELD("base", "addr32_t",
-				{"0", 19, 0},
-				{"%base", 15, 4});
+				BITS("0", 19, 0),
+				BITS("%base", 15, 4));
 		COMPLEX_FIELD("limit", "addr32_t",
-				{"1", 19, 0},
-				{"%limit", 15, 4});
+				BITS("1", 19, 0),
+				BITS("%limit", 15, 4));
 	CLOSE_SCOPE();
 
 	// Prefetched memory decode window
@@ -1236,26 +1236,26 @@ create_pci_bridge()
 		REG32("%limit_hi", 0x2c);
 
 		SIMPLE_FIELD("width", ANON_ENUM(
-					{"bits32", 0},
-					{"bits64", 1}),
+					KV("bits32", 0),
+					KV("bits64", 1)),
 				"%base_lo", 3, 0);
 
 		if (FIELD_EQ("width", "bits32")) {
 			COMPLEX_FIELD("base", "addr32_t",
-					{"0", 19, 0},
-					{"%base_lo", 15, 4});
+					BITS("0", 19, 0),
+					BITS("%base_lo", 15, 4));
 			COMPLEX_FIELD("limit", "addr32_t",
-					{"1", 19, 0},
-					{"%limit_lo", 15, 4});
+					BITS("1", 19, 0),
+					BITS("%limit_lo", 15, 4));
 		} else if (FIELD_EQ("width", "bits64")) {
 			COMPLEX_FIELD("base", "addr64_t",
-					{"0", 19, 0},
-					{"%base_lo", 15, 4},
-					{"%base_hi", 31, 0});
+					BITS("0", 19, 0),
+					BITS("%base_lo", 15, 4),
+					BITS("%base_hi", 31, 0));
 			COMPLEX_FIELD("limit", "addr64_t",
-					{"1", 19, 0},
-					{"%limit_lo", 15, 4},
-					{"%limit_hi", 31, 0});
+					BITS("1", 19, 0),
+					BITS("%limit_lo", 15, 4),
+					BITS("%limit_hi", 31, 0));
 		}
 	CLOSE_SCOPE();
 
@@ -1267,8 +1267,8 @@ create_pci_bridge()
 	OPEN_SCOPE("rombase");
 		ONE_BIT_FIELD("enabled", "yesno_t", "../%rombase", 0);
 		COMPLEX_FIELD("address", "addr32_t",
-				{"0", 10, 0},
-				{"../%rombase", 31, 11});
+				BITS("0", 10, 0),
+				BITS("../%rombase", 31, 11));
 	CLOSE_SCOPE();
 
 	// Bridge control
@@ -1338,8 +1338,8 @@ create_device()
 	OPEN_SCOPE("rombase");
 		ONE_BIT_FIELD("enabled", "yesno_t", "../%rombase", 0);
 		COMPLEX_FIELD("address", "addr32_t",
-				{"0", 10, 0},
-				{"../%rombase", 31, 11});
+				BITS("0", 10, 0),
+				BITS("../%rombase", 31, 11));
 	CLOSE_SCOPE();
 
 	REGFIELD8("mingnt", 0x3e, ANON_INT("1/4 usecs"));
@@ -1381,9 +1381,9 @@ pci_generic_device()
 		ONE_BIT_FIELD("fbb", "yesno_t", "../%status", 7);
 		ONE_BIT_FIELD("mdperr", "yesno_t", "../%status", 8);
 		SIMPLE_FIELD("devsel", ANON_ENUM(
-					{"FAST", 0},
-					{"MEDIUM", 1},
-					{"SLOW", 2}),
+					KV("FAST", 0),
+					KV("MEDIUM", 1),
+					KV("SLOW", 2)),
 				"../%status", 10, 9);
 		ONE_BIT_FIELD("sigtabort", "yesno_t", "../%status", 11);
 		ONE_BIT_FIELD("rcvtabort", "yesno_t", "../%status", 12);
@@ -1445,27 +1445,27 @@ pci_generic_device()
 
 	REG8("%hdrtype", 0x0e);
 	COMPLEX_FIELD("hdrtype", ANON_ENUM(
-				{"device", 0},
-				{"pci_bridge", 1},
-				{"cardbus_bridge", 2}),
-			{"%hdrtype", 6, 0});
+				KV("device", 0),
+				KV("pci_bridge", 1),
+				KV("cardbus_bridge", 2)),
+			BITS("%hdrtype", 6, 0));
 	ONE_BIT_FIELD("multifunc", "yesno_t", "%hdrtype", 7);
 
 	REG8("%bist", 0x0f);
 	OPEN_SCOPE("bist");
 		ONE_BIT_FIELD("capable", "yesno_t", "../%bist", 7);
 		ONE_BIT_FIELD("start", "yesno_t", "../%bist", 6);
-		COMPLEX_FIELD("code", "hex8_t", {"../%bist", 3, 0});
+		COMPLEX_FIELD("code", "hex8_t", BITS("../%bist", 3, 0));
 	CLOSE_SCOPE();
 
 	REGFIELD8("intline", 0x3c, "int_t");
 
 	REGFIELD8("intpin", 0x3d, ANON_ENUM(
-				{"none", 0},
-				{"inta", 1},
-				{"intb", 2},
-				{"intc", 3},
-				{"intd", 4}));
+				KV("none", 0),
+				KV("inta", 1),
+				KV("intb", 2),
+				KV("intc", 3),
+				KV("intd", 4)));
 
 	// Base Address Registers - all devices have at least 2 BARs.
 	BAR("bar0", 0x10);

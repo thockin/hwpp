@@ -199,34 +199,44 @@ SIMPLE_FIELD(const string &name, const string &type,
 #define ONE_BIT_FIELD(name, type, regname, bit) \
 		SIMPLE_FIELD(name, type, regname, bit, bit)
 
-/* this is a helper for type-safety */
-struct bitrange_ {
-	const char *regname;
+// This is a helper for type safety in COMPLEX_FIELD()
+struct reg_bitrange
+{
+	reg_bitrange(): regname(""), hi_bit(0), lo_bit(0) {}
+	reg_bitrange(string reg, unsigned hi, unsigned lo)
+	    : regname(reg), hi_bit(hi), lo_bit(lo) {}
+	string regname;
 	unsigned hi_bit;
 	unsigned lo_bit;
 };
+#define BITS(reg,hi,lo) reg_bitrange(reg, hi, lo)
 
 /*
  * COMPLEX_FIELD
  * Create a complex field, give the name, type, registers from which the
- * bits will be taken from, the hi and lo bits.  Note that this function is
- * for handling fields with bits comming from multiple registers and can take
- * and unlimited amount of arguments.  This is a simplified
- * macro function, and the field created will be added to the present
- * scope (as created with OPEN_SCOPE).
+ * bits will be taken from, the hi and lo bits.
+ *
+ * It can take an "unlimted" amount of arguments, in the form:
+ * 	COMPLEX_FIELD("name", "type", BIT("abc", 1, 0), BIT("def", 7, 2))
+ *
+ * NOTE: If I could check this in under an assumed name, I would.  I am
+ * embarrassed to put my name on this.  I just can't see a cleaner,
+ * type-safe solution right now.  I'm sure one exists.  This will all go
+ * away when we have a real language, and we can switch this to take a
+ * vector or something.
  */
 extern void
-COMPLEX_FIELD_(const string &name, const pp_datatype *type,
-		const bitrange_ *bits);
+COMPLEX_FIELD(const string &name, const pp_datatype *type,
+	const reg_bitrange &bits0, const reg_bitrange &bits1=reg_bitrange(),
+	const reg_bitrange &bits2=reg_bitrange(),
+	const reg_bitrange &bits3=reg_bitrange(),
+	const reg_bitrange &bits4=reg_bitrange());
 extern void
-COMPLEX_FIELD_(const string &name, const string &type, const bitrange_ *bits);
-#define COMPLEX_FIELD(name, type, ...) do { \
-	bitrange_ ranges_[] = { \
-		__VA_ARGS__, \
-		{NULL} \
-	}; \
-	COMPLEX_FIELD_(name, type, ranges_); \
-} while (0)
+COMPLEX_FIELD(const string &name, const string &type,
+	const reg_bitrange &bits0, const reg_bitrange &bits1=reg_bitrange(),
+	const reg_bitrange &bits2=reg_bitrange(),
+	const reg_bitrange &bits3=reg_bitrange(),
+	const reg_bitrange &bits4=reg_bitrange());
 
 //FIXME: comment
 extern void
@@ -245,50 +255,82 @@ CONSTANT_FIELD(const string &name, const pp_datatype *type, pp_value value);
 extern void
 CONSTANT_FIELD(const string &name, const string &type, pp_value value);
 
-/* this is a helper for type-safety */
-struct kvpair_ {
-	const char *key;
-	pp_value value;
-};
-
+/*
+ * INT
+ * A shortcut for creating a pp_int.
+ */
 extern pp_int *
 INT(const string &name, const string &units="");
 #define ANON_INT(units) INT("", units)
 
+// This is a helper for type safety in pp_enum and pp_bitmask.
+struct kv_pair
+{
+	kv_pair(): key(""), value(0) {}
+	kv_pair(string k, pp_value v): key(k), value(v) {}
+	string key;
+	pp_value value;
+};
+#define KV(k,v) kv_pair(k, v)
+
 /*
  * BITMASK
- * A shortcut function for creating a bitmask.
- * It can take an unlimted amount of arguments, in the form:
- * 	BITMASK("name", {"abc", 1}, {"def", 2})
+ * A shortcut function for creating a pp_bitmask.
+ * It can take an "unlimted" amount of arguments, in the form:
+ * 	BITMASK("name", KV("abc", 1), KV("def", 2))
  *
- * NOTE: this works for callers that use literals, but as soon as you use a
- * variable in the kvpairs, it becomes a non-lvalue array, and can not be
- * used anymore.  When we get there we will have the real language, so we
- * can dump all literal call-sites anyway, and switch this to take a vector
- * or something.
+ * NOTE: If I could check this in under an assumed name, I would.  I am
+ * embarrassed to put my name on this.  I just can't see a cleaner,
+ * type-safe solution right now.  I'm sure one exists.  This will all go
+ * away when we have a real language, and we can switch this to take a
+ * vector or something.
  */
 extern pp_bitmask *
-BITMASK_(const string &name, const string &dflt, kvpair_ *values);
-#define BITMASK_DFLT(name, dflt, ...) \
-	BITMASK_(name, dflt, (kvpair_[]){__VA_ARGS__, {NULL}})
-#define BITMASK(name, ...) BITMASK_(name, "", (kvpair_[]){__VA_ARGS__, {NULL}})
-#define ANON_BITMASK(...) BITMASK("", __VA_ARGS__)
+BITMASK_(const string &name, const string &dflt,
+	const kv_pair &kv0, const kv_pair &kv1=kv_pair(),
+	const kv_pair &kv2=kv_pair(), const kv_pair &kv3=kv_pair(),
+	const kv_pair &kv4=kv_pair(), const kv_pair &kv5=kv_pair(),
+	const kv_pair &kv6=kv_pair(), const kv_pair &kv7=kv_pair(),
+	const kv_pair &kv8=kv_pair(), const kv_pair &kv9=kv_pair(),
+	const kv_pair &kv10=kv_pair(), const kv_pair &kv11=kv_pair(),
+	const kv_pair &kv12=kv_pair(), const kv_pair &kv13=kv_pair(),
+	const kv_pair &kv14=kv_pair(), const kv_pair &kv15=kv_pair(),
+	const kv_pair &kv16=kv_pair(), const kv_pair &kv17=kv_pair(),
+	const kv_pair &kv18=kv_pair(), const kv_pair &kv19=kv_pair(),
+	const kv_pair &kv20=kv_pair(), const kv_pair &kv21=kv_pair(),
+	const kv_pair &kv22=kv_pair(), const kv_pair &kv23=kv_pair(),
+	const kv_pair &kv24=kv_pair(), const kv_pair &kv25=kv_pair(),
+	const kv_pair &kv26=kv_pair(), const kv_pair &kv27=kv_pair(),
+	const kv_pair &kv28=kv_pair(), const kv_pair &kv29=kv_pair(),
+	const kv_pair &kv30=kv_pair(), const kv_pair &kv31=kv_pair());
+#define BITMASK_DFLT(name, dflt, ...)	BITMASK_(name, dflt, __VA_ARGS__)
+#define BITMASK(name, ...)		BITMASK_(name, "", __VA_ARGS__)
+#define ANON_BITMASK(...)		BITMASK_("", "", __VA_ARGS__)
 
 /*
  * ENUM
- * A shortcut function for creating an enumeration.
- * It can take an unlimted amount of arguments, in the form:
- * 	ENUM("name", {"abc", 1}, {"def", 2})
+ * A shortcut function for creating a pp_enum.
+ * It can take an "unlimted" amount of arguments, in the form:
+ * 	ENUM("name", KV("abc", 1), KV("def", 2))
  *
- * NOTE: this works for callers that use literals, but as soon as you use a
- * variable in the kvpairs, it becomes a non-lvalue array, and can not be
- * used anymore.  When we get there we will have the real language, so we
- * can dump all literal call-sites anyway, and switch this to take a vector
- * or something.
+ * NOTE: If I could check this in under an assumed name, I would.  I am
+ * embarrassed to put my name on this.  I just can't see a cleaner,
+ * type-safe solution right now.  I'm sure one exists.  This will all go
+ * away when we have a real language, and we can switch this to take a
+ * vector or something.
  */
 extern pp_enum *
-ENUM_(const string &name, kvpair_ *values);
-#define ENUM(name, ...) ENUM_(name, (kvpair_[]){__VA_ARGS__, {NULL}})
+ENUM(const string &name,
+	const kv_pair &kv0, const kv_pair &kv1=kv_pair(),
+	const kv_pair &kv2=kv_pair(), const kv_pair &kv3=kv_pair(),
+	const kv_pair &kv4=kv_pair(), const kv_pair &kv5=kv_pair(),
+	const kv_pair &kv6=kv_pair(), const kv_pair &kv7=kv_pair(),
+	const kv_pair &kv8=kv_pair(), const kv_pair &kv9=kv_pair(),
+	const kv_pair &kv10=kv_pair(), const kv_pair &kv11=kv_pair(),
+	const kv_pair &kv12=kv_pair(), const kv_pair &kv13=kv_pair(),
+	const kv_pair &kv14=kv_pair(), const kv_pair &kv15=kv_pair(),
+	const kv_pair &kv16=kv_pair(), const kv_pair &kv17=kv_pair(),
+	const kv_pair &kv18=kv_pair(), const kv_pair &kv19=kv_pair());
 #define ANON_ENUM(...) ENUM("", __VA_ARGS__)
 
 /*
