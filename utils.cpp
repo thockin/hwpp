@@ -290,15 +290,12 @@ REGN(const string &name, pp_regaddr address, pp_bitwidth width)
 /*
  * Define a simple regbits_field from a single range of bits from a single
  * register.
- *
- * NOTE: this can not simply be a macro, because COMPLEX_FIELD takes a
- * "char *" rather than a "string".
  */
 void
 SIMPLE_FIELD(const string &name, const pp_datatype *type,
 		const string &regname, unsigned hi_bit, unsigned lo_bit)
 {
-	COMPLEX_FIELD(name, type, {regname.c_str(), hi_bit, lo_bit});
+	COMPLEX_FIELD(name, type, BITS(regname.c_str(), hi_bit, lo_bit));
 }
 void
 SIMPLE_FIELD(const string &name, const string &type_str,
@@ -313,58 +310,69 @@ SIMPLE_FIELD(const string &name, const string &type_str,
  *
  * ASSUMPTION: bit ranges are added sequentially from lowest to highest.
  */
+static int
+add_bitrange(pp_regbits_field *field, const reg_bitrange &bits, int ttl_bits)
+{
+	DTRACE(TRACE_FIELDS && TRACE_FIELD_BITS, string("  ")
+			+ bits.regname + "["
+			+ to_string(bits.hi_bit) + ","
+			+ to_string(bits.lo_bit) + "]");
+
+	const pp_register *reg = GET_REGISTER(bits.regname);
+	int nbits = (bits.hi_bit - bits.lo_bit) + 1;
+
+	// sanity check the bit range
+	if (bits.hi_bit < bits.lo_bit
+	 || bits.hi_bit >= (unsigned)reg->width()) {
+		WARN("bad bit range: ["
+			+ to_string(bits.hi_bit)
+			+ string(":")
+			+ to_string(bits.lo_bit)
+			+ string("]"));
+	}
+
+	// add the current bitrange at the next free bit number
+	field->add_regbits(reg, bits.lo_bit, PP_MASK(nbits), ttl_bits);
+	return nbits;
+}
+
 void
-COMPLEX_FIELD_(const string &name, const pp_datatype *type,
-		const bitrange_ *bitrange)
+COMPLEX_FIELD(const string &name, const pp_datatype *type,
+		const reg_bitrange &bits0, const reg_bitrange &bits1,
+		const reg_bitrange &bits2, const reg_bitrange &bits3,
+		const reg_bitrange &bits4)
 {
 	DTRACE(TRACE_FIELDS, "field: " + name);
 	// sanity
 	DASSERT_MSG(type, "found NULL pp_datatype for field " + name);
-	DASSERT_MSG(bitrange, "found NULL bitrange[] for field " + name);
 
 	// note: this is not a debug-only test
 	if (DEFINED(name)) {
 		WARN("scope or field redefined: " + name);
 	}
 
-	// create a temporary field and add each bitrange
+	// create a field and add each bitrange
 	pp_regbits_field_ptr field_ptr = new_pp_regbits_field(type);
 	int ttl_bits = 0;
-	while (bitrange->regname) {
-		DTRACE(TRACE_FIELDS && TRACE_FIELD_BITS, string("  ")
-				+ bitrange->regname + "["
-				+ to_string(bitrange->hi_bit) + ","
-				+ to_string(bitrange->lo_bit) + "]");
+	ttl_bits += add_bitrange(field_ptr.get(), bits0, ttl_bits);
 
-		const pp_register *reg = GET_REGISTER(bitrange->regname);
-		int nbits = (bitrange->hi_bit - bitrange->lo_bit) + 1;
-
-		// sanity check the bit range
-		if (bitrange->hi_bit < bitrange->lo_bit
-		 || bitrange->hi_bit >= (unsigned)reg->width()) {
-			WARN("bad bit range: ["
-				+ to_string(bitrange->hi_bit)
-				+ string(":")
-				+ to_string(bitrange->lo_bit)
-				+ string("]"));
-		}
-
-		// add the current bitrange at the next free bit number
-		field_ptr->add_regbits(reg, bitrange->lo_bit, PP_MASK(nbits),
-				ttl_bits);
-		ttl_bits += nbits;
-
-		// next bitrange
-		bitrange++;
-	}
+	#define ADD_BITS(bits) do { \
+		if (bits.regname == "") goto done_adding_bits; \
+		ttl_bits += add_bitrange(field_ptr.get(), bits, ttl_bits); \
+	} while (0)
+	ADD_BITS(bits1); ADD_BITS(bits2); ADD_BITS(bits3); ADD_BITS(bits4);
+done_adding_bits:
 
 	cur_scope->add_dirent(name, field_ptr);
 }
 void
-COMPLEX_FIELD_(const string &name, const string &type,
-		const bitrange_ *bitrange)
+COMPLEX_FIELD(const string &name, const string &type,
+		const reg_bitrange &bits0, const reg_bitrange &bits1,
+		const reg_bitrange &bits2, const reg_bitrange &bits3,
+		const reg_bitrange &bits4)
 {
-	COMPLEX_FIELD_(name, cur_scope->resolve_datatype(type), bitrange);
+	COMPLEX_FIELD(name, cur_scope->resolve_datatype(type),
+			bits0, bits1, bits2, bits3, bits4);
 }
 
 /*
@@ -420,22 +428,52 @@ INT(const string &name, const string &units)
 	return int_ptr.get();
 }
 
+// see comment in utils.h
 pp_bitmask *
-BITMASK_(const string &name, const string &dflt, kvpair_ *value)
+BITMASK_(const string &name, const string &dflt,
+	const kv_pair &kv0, const kv_pair &kv1,
+	const kv_pair &kv2, const kv_pair &kv3,
+	const kv_pair &kv4, const kv_pair &kv5,
+	const kv_pair &kv6, const kv_pair &kv7,
+	const kv_pair &kv8, const kv_pair &kv9,
+	const kv_pair &kv10, const kv_pair &kv11,
+	const kv_pair &kv12, const kv_pair &kv13,
+	const kv_pair &kv14, const kv_pair &kv15,
+	const kv_pair &kv16, const kv_pair &kv17,
+	const kv_pair &kv18, const kv_pair &kv19,
+	const kv_pair &kv20, const kv_pair &kv21,
+	const kv_pair &kv22, const kv_pair &kv23,
+	const kv_pair &kv24, const kv_pair &kv25,
+	const kv_pair &kv26, const kv_pair &kv27,
+	const kv_pair &kv28, const kv_pair &kv29,
+	const kv_pair &kv30, const kv_pair &kv31)
 {
 	DTRACE(TRACE_TYPES, "bitmask: " + name);
 	// sanity
 	DASSERT_MSG(cur_scope, "found NULL cur_scope");
-	DASSERT_MSG(value, "found NULL kvpair[] for bitmask " + name);
 
 	pp_bitmask_ptr bitmask_ptr = new_pp_bitmask();
 	if (dflt != "") {
 		bitmask_ptr->set_default(dflt);
 	}
-	while (value->key) {
-		bitmask_ptr->add_bit(value->key, value->value);
-		value++;
-	}
+	bitmask_ptr->add_bit(kv0.key, kv0.value);
+
+	#define ADD_BMSK_KV(kv) do { \
+		if (kv.key == "") goto done_adding_kv; \
+		bitmask_ptr->add_bit(kv.key, kv.value); \
+	} while (0)
+	ADD_BMSK_KV(kv1); ADD_BMSK_KV(kv2); ADD_BMSK_KV(kv3);
+	ADD_BMSK_KV(kv4); ADD_BMSK_KV(kv5); ADD_BMSK_KV(kv6);
+	ADD_BMSK_KV(kv7); ADD_BMSK_KV(kv8); ADD_BMSK_KV(kv9);
+	ADD_BMSK_KV(kv10); ADD_BMSK_KV(kv11); ADD_BMSK_KV(kv12);
+	ADD_BMSK_KV(kv13); ADD_BMSK_KV(kv14); ADD_BMSK_KV(kv15);
+	ADD_BMSK_KV(kv16); ADD_BMSK_KV(kv17); ADD_BMSK_KV(kv18);
+	ADD_BMSK_KV(kv19); ADD_BMSK_KV(kv20); ADD_BMSK_KV(kv21);
+	ADD_BMSK_KV(kv22); ADD_BMSK_KV(kv23); ADD_BMSK_KV(kv24);
+	ADD_BMSK_KV(kv25); ADD_BMSK_KV(kv26); ADD_BMSK_KV(kv27);
+	ADD_BMSK_KV(kv28); ADD_BMSK_KV(kv29); ADD_BMSK_KV(kv30);
+	ADD_BMSK_KV(kv31);
+done_adding_kv:
 
 	if (name == "") {
 		cur_scope->add_datatype(bitmask_ptr);
@@ -446,19 +484,39 @@ BITMASK_(const string &name, const string &dflt, kvpair_ *value)
 	return bitmask_ptr.get();
 }
 
+// see comment in utils.h
 pp_enum *
-ENUM_(const string &name, kvpair_ *value)
+ENUM(const string &name,
+	const kv_pair &kv0, const kv_pair &kv1,
+	const kv_pair &kv2, const kv_pair &kv3,
+	const kv_pair &kv4, const kv_pair &kv5,
+	const kv_pair &kv6, const kv_pair &kv7,
+	const kv_pair &kv8, const kv_pair &kv9,
+	const kv_pair &kv10, const kv_pair &kv11,
+	const kv_pair &kv12, const kv_pair &kv13,
+	const kv_pair &kv14, const kv_pair &kv15,
+	const kv_pair &kv16, const kv_pair &kv17,
+	const kv_pair &kv18, const kv_pair &kv19)
 {
 	DTRACE(TRACE_TYPES, "enum: " + name);
 	// sanity
 	DASSERT_MSG(cur_scope, "found NULL cur_scope");
-	DASSERT_MSG(value, "found NULL kvpair[] for enum " + name);
 
 	pp_enum_ptr enum_ptr = new_pp_enum();
-	while (value->key) {
-		enum_ptr->add_value(value->key, value->value);
-		value++;
-	}
+	enum_ptr->add_value(kv0.key, kv0.value);
+
+	#define ADD_ENUM_KV(kv) do { \
+		if (kv.key == "") goto done_adding_kv; \
+		enum_ptr->add_value(kv.key, kv.value); \
+	} while (0)
+	ADD_ENUM_KV(kv1); ADD_ENUM_KV(kv2); ADD_ENUM_KV(kv3);
+	ADD_ENUM_KV(kv4); ADD_ENUM_KV(kv5); ADD_ENUM_KV(kv6);
+	ADD_ENUM_KV(kv7); ADD_ENUM_KV(kv8); ADD_ENUM_KV(kv9);
+	ADD_ENUM_KV(kv10); ADD_ENUM_KV(kv11); ADD_ENUM_KV(kv12);
+	ADD_ENUM_KV(kv13); ADD_ENUM_KV(kv14); ADD_ENUM_KV(kv15);
+	ADD_ENUM_KV(kv16); ADD_ENUM_KV(kv17); ADD_ENUM_KV(kv18);
+	ADD_ENUM_KV(kv19);
+done_adding_kv:
 
 	if (name == "") {
 		cur_scope->add_datatype(enum_ptr);
