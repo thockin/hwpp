@@ -809,7 +809,7 @@ pcie_capability(pp_value address)
 	}
 	ONE_BIT_FIELD("txn_pend", "yesno_t", "%dev_status", 5);
 
-	if (FIELD_GE("version", 2)) {
+	if (FIELD_GE("../version", 2)) {
 		REG32("%dev_caps2", address + 0x24);
 		REG16("%dev_control2", address + 0x28);
 		REG16("%dev_status2", address + 0x2a);
@@ -922,7 +922,7 @@ pcie_capability(pp_value address)
 		}
 		ONE_BIT_FIELD("slot_clock", "yesno_t", "%link_status", 12);
 
-		if (FIELD_GE("version", 2)) {
+		if (FIELD_GE("../version", 2)) {
 			REG32("%link_caps2", address + 0x2c);
 			REG16("%link_control2", address + 0x30);
 			REG16("%link_status2", address + 0x32);
@@ -1054,7 +1054,7 @@ pcie_capability(pp_value address)
 					"%slot_status", 8);
 		}
 
-		if (FIELD_GE("version", 2)) {
+		if (FIELD_GE("../version", 2)) {
 			REG32("%link_caps2", address + 0x34);
 			REG16("%link_control2", address + 0x38);
 			REG16("%link_status2", address + 0x3a);
