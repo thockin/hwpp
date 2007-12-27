@@ -301,7 +301,7 @@ test_proc_field_accessor: public proc_field_accessor
 	}
 
 	virtual void
-	write(pp_value value) const
+	write(const pp_value &value) const
 	{
 		m_data = value;
 	}

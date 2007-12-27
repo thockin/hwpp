@@ -87,6 +87,7 @@ typedef enum pp_bitwidth {
 	BITS32 = 32,
 	BITS64 = 64,
 } pp_bitwidth;
+#define PP_BITWIDTH_MAX BITS64
 
 /* generate a bitmask of n bits */
 #define PP_MASK(n) ((((1ULL<<(n)/2)<<(n)/2)<<(n)%2)-1)
@@ -94,7 +95,7 @@ typedef enum pp_bitwidth {
 /*
  * pp_regaddr - the address of a register.
  */
-typedef uint64_t pp_regaddr;
+typedef pp_value pp_regaddr;
 
 /*
  * WARN() - issue a runtime warning

@@ -37,7 +37,7 @@ class pp_field: public pp_dirent
 	 * Write a value to this field.
 	 */
 	virtual void
-	write(const pp_value value) const = 0;
+	write(const pp_value &value) const = 0;
 
 	/*
 	 * pp_field::evaluate()
@@ -68,7 +68,7 @@ class pp_field: public pp_dirent
 		return m_datatype->lookup(str);
 	}
 	virtual pp_value
-	lookup(const pp_value value) const
+	lookup(const pp_value &value) const
 	{
 		return m_datatype->lookup(value);
 	}
@@ -76,8 +76,6 @@ class pp_field: public pp_dirent
 	/*
 	 * pp_field::compare(str)
 	 * pp_field::compare(value)
-	 * pp_field::test(str)
-	 * pp_field::test(value)
 	 *
 	 * Compare a field against another argument, according to the
 	 * rules of this datatype.  Return an integer which indicates
@@ -92,17 +90,24 @@ class pp_field: public pp_dirent
 		return m_datatype->compare(read(), comparator);
 	}
 	virtual int
-	compare(const pp_value comparator) const
+	compare(const pp_value &comparator) const
 	{
 		return m_datatype->compare(read(), comparator);
 	}
+
+	/*
+	 * pp_field::test(str)
+	 * pp_field::test(value)
+	 *
+	 * Perform a logical AND or a field and an argument.
+	 */
 	virtual pp_value
 	test(const string &comparator) const
 	{
 		return m_datatype->test(read(), comparator);
 	}
 	virtual pp_value
-	test(const pp_value comparator) const
+	test(const pp_value &comparator) const
 	{
 		return m_datatype->test(read(), comparator);
 	}

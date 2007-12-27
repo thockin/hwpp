@@ -30,7 +30,7 @@ msr_io::address() const
 }
 
 pp_value
-msr_io::read(const pp_regaddr address, const pp_bitwidth width) const
+msr_io::read(const pp_regaddr &address, const pp_bitwidth width) const
 {
 	switch (width) {
 	    case BITS64:
@@ -44,8 +44,8 @@ msr_io::read(const pp_regaddr address, const pp_bitwidth width) const
 }
 
 void
-msr_io::write(const pp_regaddr address, const pp_bitwidth width,
-    const pp_value value) const
+msr_io::write(const pp_regaddr &address, const pp_bitwidth width,
+    const pp_value &value) const
 {
 	switch (width) {
 	    case BITS64:
@@ -99,7 +99,7 @@ msr_io::open_device(string devdir, int major, int minor)
 }
 
 void
-msr_io::seek(const pp_regaddr offset) const
+msr_io::seek(const pp_regaddr &offset) const
 {
 	/* MSRs have 32 bit addresses */
 	if (offset >= 0x100000000ULL) {
@@ -113,7 +113,7 @@ msr_io::seek(const pp_regaddr offset) const
 
 template<typename Tdata>
 pp_value
-msr_io::do_read(const pp_regaddr offset) const
+msr_io::do_read(const pp_regaddr &offset) const
 {
 	seek(offset);
 	Tdata data;
@@ -127,7 +127,7 @@ msr_io::do_read(const pp_regaddr offset) const
 
 template<typename Tdata>
 void
-msr_io::do_write(const pp_regaddr offset, const pp_value value) const
+msr_io::do_write(const pp_regaddr &offset, const pp_value &value) const
 {
 	/* see if we are already open RW or can change to RW */
 	if (m_file->mode() == O_RDONLY) {

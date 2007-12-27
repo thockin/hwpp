@@ -27,7 +27,7 @@ class pp_binding
 	 * Throws: pp_driver_error
 	 */
 	virtual pp_value
-	read(const pp_regaddr address, const pp_bitwidth width) const = 0;
+	read(const pp_regaddr &address, const pp_bitwidth width) const = 0;
 
 	/*
 	 * pp_binding::write(address, width, value)
@@ -37,8 +37,8 @@ class pp_binding
 	 * Throws: pp_driver_error
 	 */
 	virtual void
-	write(const pp_regaddr address, const pp_bitwidth width,
-	    const pp_value value) const = 0;
+	write(const pp_regaddr &address, const pp_bitwidth width,
+	    const pp_value &value) const = 0;
 
 	/*
 	 * pp_binding::to_string()
@@ -75,14 +75,14 @@ class simple_binding: public pp_binding
 	}
 
 	virtual pp_value
-	read(const pp_regaddr address, const pp_bitwidth width) const
+	read(const pp_regaddr &address, const pp_bitwidth width) const
 	{
 		return m_io.read(address, width);
 	}
 
 	virtual void
-	write(const pp_regaddr address, const pp_bitwidth width,
-	    const pp_value value) const
+	write(const pp_regaddr &address, const pp_bitwidth width,
+	    const pp_value &value) const
 	{
 		return m_io.write(address, width, value);
 	}

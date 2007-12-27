@@ -8,7 +8,7 @@
 
 // All standard BARs look like this.
 static void
-BAR(const string &name, pp_regaddr address)
+BAR(const string &name, const pp_regaddr &address)
 {
 	OPEN_SCOPE(name);
 
@@ -47,7 +47,7 @@ BAR(const string &name, pp_regaddr address)
 }
 
 static void
-ht_link_control(pp_value address)
+ht_link_control(const pp_value &address)
 {
 	REG16("%control", address);
 	OPEN_SCOPE("control");
@@ -70,7 +70,7 @@ ht_link_control(pp_value address)
 }
 
 static void
-ht_link_config(pp_value address)
+ht_link_config(const pp_value &address)
 {
 	ENUM("ht_link_width_t",
 			KV("bits8", 0),
@@ -97,7 +97,7 @@ ht_link_config(pp_value address)
 }
 
 static void
-ht_link_freq_err(pp_value address)
+ht_link_freq_err(const pp_value &address)
 {
 	ENUM("ht_link_freq_t",
 			KV("mhz200", 0),
@@ -125,7 +125,7 @@ ht_link_freq_err(pp_value address)
 }
 
 static void
-ht_link_freq_cap(pp_value address)
+ht_link_freq_cap(const pp_value &address)
 {
 	BITMASK("ht_link_freq_cap_t",
 			KV("mhz200", 0),
@@ -149,7 +149,7 @@ ht_link_freq_cap(pp_value address)
 }
 
 static void
-ht_error_handling(pp_value address)
+ht_error_handling(const pp_value &address)
 {
 	REG16("%error", address);
 	OPEN_SCOPE("error");
@@ -174,7 +174,7 @@ ht_error_handling(pp_value address)
 }
 
 static void
-ht_slave_link(const string &name, pp_value address)
+ht_slave_link(const string &name, const pp_value &address)
 {
 	OPEN_SCOPE(name);
 	ht_link_control(address);
@@ -186,7 +186,7 @@ ht_slave_link(const string &name, pp_value address)
 
 // HyperTransport primary/slave
 static void
-ht_slave_capability(pp_value address)
+ht_slave_capability(const pp_value &address)
 {
 	REG16("%command", address + 2);
 	SIMPLE_FIELD("base_unit_id", "int_t", "%command", 4, 0);
@@ -224,7 +224,7 @@ ht_slave_capability(pp_value address)
 }
 
 static void
-ht_host_link(const string &name, pp_value address)
+ht_host_link(const string &name, const pp_value &address)
 {
 	OPEN_SCOPE(name);
 	ht_link_control(address);
@@ -235,7 +235,7 @@ ht_host_link(const string &name, pp_value address)
 }
 
 static void
-ht_host_capability(pp_value address)
+ht_host_capability(const pp_value &address)
 {
 	REG16("%command", address + 2);
 	ONE_BIT_FIELD("warm_reset", "yesno_t", "%command", 0);
@@ -275,7 +275,7 @@ ht_host_capability(pp_value address)
 }
 
 static void
-ht_revision_capability(pp_value address)
+ht_revision_capability(const pp_value &address)
 {
 	REG8("%rev", address+2);
 	SIMPLE_FIELD("major_rev", "int_t", "%rev", 7, 5);
@@ -283,7 +283,7 @@ ht_revision_capability(pp_value address)
 }
 
 static void
-ht_extended_config_capability(pp_value address)
+ht_extended_config_capability(const pp_value &address)
 {
 	REG32("%address", address+4);
 	ONE_BIT_FIELD("type", ANON_ENUM(
@@ -300,7 +300,7 @@ ht_extended_config_capability(pp_value address)
 }
 
 static void
-ht_address_mapping_capability(pp_value address)
+ht_address_mapping_capability(const pp_value &address)
 {
 	REG16("%command", address + 0x02);
 	SIMPLE_FIELD("num_dma", "int_t", "%command", 3, 0);
@@ -335,8 +335,7 @@ ht_address_mapping_capability(pp_value address)
 		CLOSE_SCOPE();
 
 		pp_value value = GET_FIELD("num_dma")->read();
-		pp_value i = 0;
-		for (i = 0; i < value; i++) {
+		for (unsigned i = 0; i < value; i++) {
 			OPEN_SCOPE("dma[" + to_string(i+1) + "]");
 			REG32("%lower", address + 0x0c + (8*i));
 			REG32("%upper", address + 0x10 + (8*i));
@@ -362,7 +361,7 @@ ht_address_mapping_capability(pp_value address)
 }
 
 static void
-ht_msi_mapping_capability(pp_value address)
+ht_msi_mapping_capability(const pp_value &address)
 {
 	REG8("%flags", address+2);
 	ONE_BIT_FIELD("en", "yesno_t", "%flags", 0);
@@ -378,7 +377,7 @@ ht_msi_mapping_capability(pp_value address)
 }
 
 static void
-power_mgmt_capability(pp_value address)
+power_mgmt_capability(const pp_value &address)
 {
 	REG16("%pmc", address+2);
 	SIMPLE_FIELD("version", ANON_ENUM(
@@ -431,7 +430,7 @@ power_mgmt_capability(pp_value address)
 }
 
 static void
-slot_id_capability(pp_value address)
+slot_id_capability(const pp_value &address)
 {
 	REG8("%slot", address+2);
 	SIMPLE_FIELD("nslots", "int_t", "%slot", 4, 0);
@@ -440,7 +439,7 @@ slot_id_capability(pp_value address)
 }
 
 static void
-msi_capability(pp_value address)
+msi_capability(const pp_value &address)
 {
 	// message control
 	REG16("%msg_ctrl", address + 2);
@@ -498,8 +497,7 @@ msi_capability(pp_value address)
 
 	if (FIELD_BOOL("mask_per_vec")) {
 		pp_value vecs = 1 << GET_FIELD("multi_msg_cap")->read();
-		pp_value i;
-		for (i = 0; i < vecs; i++) {
+		for (unsigned i = 0; i < vecs; i++) {
 			ONE_BIT_FIELD("mask["+to_string(i)+"]",
 					"yesno_t", "%mask", i);
 			ONE_BIT_FIELD("pend["+to_string(i)+"]",
@@ -509,7 +507,7 @@ msi_capability(pp_value address)
 }
 
 static void
-msix_capability(pp_value address)
+msix_capability(const pp_value &address)
 {
 	REG16("%msg_ctrl", address + 2);
 	ONE_BIT_FIELD("msix_enable", "yesno_t", "%msg_ctrl", 15);
@@ -545,7 +543,7 @@ msix_capability(pp_value address)
 	args.push_back(table_size * 16);
 	bind = find_driver("mem")->new_binding(args);
 	OPEN_SCOPE("table", bind); {
-		for (pp_value i = 0; i < table_size; i++) {
+		for (unsigned i = 0; i < table_size; i++) {
 			OPEN_SCOPE("entry[" + to_string(i) + "]"); {
 				REG32("%msg_addr", i*16 + 0);
 				REG32("%msg_upper_addr", i*16 + 4);
@@ -584,7 +582,7 @@ msix_capability(pp_value address)
 	OPEN_SCOPE("pba", bind); {
 		pp_value tmp_size = table_size;
 		// loop for each PBA QWORD
-		for (pp_value i = 0; i < (table_size+63)/64; i++) {
+		for (unsigned i = 0; i < (table_size+63)/64; i++) {
 			string regname = "%pending[" + to_string(i) + "]";
 			REG64(regname, i);
 			for (size_t j = 0; j < 64; j++) {
@@ -599,7 +597,7 @@ msix_capability(pp_value address)
 }
 
 static void
-ht_capability(pp_value address)
+ht_capability(const pp_value &address)
 {
 	REG8("%subcap", address + 3);
 	// Check the upper two bits - if they are zero, then we have
@@ -674,14 +672,14 @@ ht_capability(pp_value address)
 }
 
 static void
-ssid_capability(pp_value address)
+ssid_capability(const pp_value &address)
 {
 	REGFIELD16("ssvid", address + 0x04, "pci_vendor_t");
 	REGFIELD16("ssid", address + 0x06, "hex16_t");
 }
 
 static void
-pcie_capability(pp_value address)
+pcie_capability(const pp_value &address)
 {
 	// all PCI-E devices implement this block
 	REG16("%pcie_caps", address + 0x02);
@@ -1093,7 +1091,7 @@ explore_capabilities()
 		REGFIELD8("capptr", 0x34, "hex8_t");
 
 		pp_value ptr = GET_FIELD("capptr")->read();
-		pp_value i = 0;
+		unsigned i = 0;
 		while (ptr != 0 && ptr != 0xff) {
 			OPEN_SCOPE("capability[" + to_string(i) + "]");
 
@@ -1350,7 +1348,7 @@ create_device()
 void
 pci_generic_device()
 {
-	for (int i = 0; i < 4096; i += 4) {
+	for (unsigned i = 0; i < 4096; i += 4) {
 		REG32(to_string(boost::format("%%PCI[%04x]") %i), i);
 	}
 
