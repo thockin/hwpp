@@ -14,7 +14,7 @@ class test_binding: public pp_binding
 	virtual ~test_binding() {}
 
 	virtual pp_value
-	read(const pp_regaddr address, const pp_bitwidth width) const
+	read(const pp_regaddr &address, const pp_bitwidth width) const
 	{
 		if (address == 0x12345678)
 			throw pp_driver_io_error("test binding read");
@@ -22,8 +22,8 @@ class test_binding: public pp_binding
 	}
 
 	virtual void
-	write(const pp_regaddr address, const pp_bitwidth width,
-	    const pp_value value) const
+	write(const pp_regaddr &address, const pp_bitwidth width,
+	    const pp_value &value) const
 	{
 		if (address == 0x12345678)
 			throw pp_driver_io_error("test binding write");

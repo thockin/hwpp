@@ -32,7 +32,7 @@ class pp_datatype
 	 * argument.
 	 */
 	virtual string
-	evaluate(const pp_value value) const = 0;
+	evaluate(const pp_value &value) const = 0;
 
 	/*
 	 * pp_datatype::lookup(str)
@@ -46,7 +46,7 @@ class pp_datatype
 	virtual pp_value
 	lookup(const string &str) const = 0;
 	virtual pp_value
-	lookup(const pp_value value) const = 0;
+	lookup(const pp_value &value) const = 0;
 
 	/*
 	 * pp_datatype::compare(value, str)
@@ -62,25 +62,25 @@ class pp_datatype
 	 * This can throw pp_datatype_invalid_error.
 	 */
 	virtual int
-	compare(const pp_value lhs, const string &rhs) const
+	compare(const pp_value &lhs, const string &rhs) const
 	{
 		/* default implementation */
 		return (lhs - lookup(rhs));
 	}
 	virtual int
-	compare(const pp_value lhs, const pp_value rhs) const
+	compare(const pp_value &lhs, const pp_value &rhs) const
 	{
 		/* default implementation */
 		return (lhs - lookup(rhs));
 	}
 	virtual pp_value
-	test(const pp_value lhs, const string &rhs) const
+	test(const pp_value &lhs, const string &rhs) const
 	{
 		/* default implementation */
 		return (lhs & lookup(rhs));
 	}
 	virtual pp_value
-	test(const pp_value lhs, const pp_value rhs) const
+	test(const pp_value &lhs, const pp_value &rhs) const
 	{
 		/* default implementation */
 		return (lhs & lookup(rhs));

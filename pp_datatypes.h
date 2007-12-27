@@ -27,7 +27,7 @@ class pp_enum: public pp_datatype
 	 * argument.
 	 */
 	virtual string
-	evaluate(const pp_value value) const
+	evaluate(const pp_value &value) const
 	{
 		for (size_t i=0; i < m_values.size(); i++) {
 			if (m_values[i] == value) {
@@ -60,7 +60,7 @@ class pp_enum: public pp_datatype
 		throw pp_datatype_invalid_error(str);
 	}
 	virtual pp_value
-	lookup(const pp_value value) const
+	lookup(const pp_value &value) const
 	{
 		for (size_t i=0; i < m_values.size(); i++) {
 			if (m_values[i] == value) {
@@ -76,7 +76,7 @@ class pp_enum: public pp_datatype
 	 * Add a possible value to this enumeration.
 	 */
 	void
-	add_value(const string &name, pp_value value)
+	add_value(const string &name, const pp_value &value)
 	{
 		DASSERT_MSG(m_values.find(name) == m_values.end(),
 				"adding duplicate enum key: "
@@ -123,7 +123,7 @@ class pp_bool: public pp_enum
 	}
 
 	virtual pp_value
-	lookup(const pp_value value) const
+	lookup(const pp_value &value) const
 	{
 		return !!value;
 	}
@@ -155,7 +155,7 @@ class pp_bitmask: public pp_datatype
 	 * argument.
 	 */
 	virtual string
-	evaluate(const pp_value value) const
+	evaluate(const pp_value &value) const
 	{
 		string ret("");
 		pp_value myval = value;
@@ -213,7 +213,7 @@ class pp_bitmask: public pp_datatype
 		throw pp_datatype_invalid_error(str);
 	}
 	virtual pp_value
-	lookup(const pp_value value) const
+	lookup(const pp_value &value) const
 	{
 		return 0; //FIXME: missing
 	}
@@ -224,7 +224,7 @@ class pp_bitmask: public pp_datatype
 	 * Add a named bit to this bitmask.
 	 */
 	void
-	add_bit(const string &name, const pp_value value)
+	add_bit(const string &name, const pp_value &value)
 	{
 		DASSERT_MSG(m_bits.find(name) == m_bits.end(),
 				"adding duplicate bitmask key: "
@@ -274,7 +274,7 @@ class pp_int: public pp_datatype
 	 * argument.
 	 */
 	virtual string
-	evaluate(const pp_value value) const
+	evaluate(const pp_value &value) const
 	{
 		pp_svalue svalue(value);
 		string ret = to_string(svalue);
@@ -292,7 +292,7 @@ class pp_int: public pp_datatype
 	 * datatype.  For an int type, this is a no-op.
 	 */
 	virtual pp_value
-	lookup(const pp_value value) const
+	lookup(const pp_value &value) const
 	{
 		return value;
 	}
@@ -332,7 +332,7 @@ class pp_uint: public pp_int
 	 * argument.
 	 */
 	virtual string
-	evaluate(const pp_value value) const
+	evaluate(const pp_value &value) const
 	{
 		string ret = to_string(value);
 		if (!m_units.empty()) {
@@ -370,7 +370,7 @@ class pp_hex: public pp_int
 	 * argument.
 	 */
 	virtual string
-	evaluate(const pp_value value) const
+	evaluate(const pp_value &value) const
 	{
 		string fmt = "0x%0" + to_string(m_width/4) + "x";
 		string ret = to_string(boost::format(fmt) %value);

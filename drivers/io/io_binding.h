@@ -52,11 +52,11 @@ class io_io
 	address() const;
 
 	pp_value
-	read(const pp_regaddr address, const pp_bitwidth width) const;
+	read(const pp_regaddr &address, const pp_bitwidth width) const;
 
 	void
-	write(const pp_regaddr address, const pp_bitwidth width,
-	    const pp_value value) const;
+	write(const pp_regaddr &address, const pp_bitwidth width,
+	    const pp_value &value) const;
 
     private:
 	io_address m_address;
@@ -69,15 +69,15 @@ class io_io
 	open_device(string device);
 
 	void
-	seek(const pp_regaddr offset) const;
+	seek(const pp_regaddr &offset) const;
 
 	template<typename Tdata>
 	pp_value
-	do_read(const pp_regaddr offset) const;
+	do_read(const pp_regaddr &offset) const;
 
 	template<typename Tdata>
 	void
-	do_write(const pp_regaddr offset, const pp_value value) const;
+	do_write(const pp_regaddr &offset, const pp_value &value) const;
 };
 
 /*

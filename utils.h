@@ -67,7 +67,7 @@ extern bool
 DEFINED(const pp_path &path);
 
 inline int
-FIELD_COMPARE(const string &field, pp_value comparator)
+FIELD_COMPARE(const string &field, const pp_value &comparator)
 {
 	return GET_FIELD(field)->compare(comparator);
 }
@@ -77,7 +77,7 @@ FIELD_COMPARE(const string &field, const string &comparator)
 	return GET_FIELD(field)->compare(comparator);
 }
 inline bool
-FIELD_EQ(const string &field, const pp_value comparator)
+FIELD_EQ(const string &field, const pp_value &comparator)
 {
 	return (FIELD_COMPARE(field, comparator) == 0);
 }
@@ -87,7 +87,7 @@ FIELD_EQ(const string &field, const string &comparator)
 	return (FIELD_COMPARE(field, comparator) == 0);
 }
 inline bool
-FIELD_NE(const string &field, const pp_value comparator)
+FIELD_NE(const string &field, const pp_value &comparator)
 {
 	return (FIELD_COMPARE(field, comparator) != 0);
 }
@@ -97,7 +97,7 @@ FIELD_NE(const string &field, const string &comparator)
 	return (FIELD_COMPARE(field, comparator) != 0);
 }
 inline bool
-FIELD_LT(const string &field, const pp_value comparator)
+FIELD_LT(const string &field, const pp_value &comparator)
 {
 	return (FIELD_COMPARE(field, comparator) < 0);
 }
@@ -107,7 +107,7 @@ FIELD_LT(const string &field, const string &comparator)
 	return (FIELD_COMPARE(field, comparator) < 0);
 }
 inline bool
-FIELD_LE(const string &field, const pp_value comparator)
+FIELD_LE(const string &field, const pp_value &comparator)
 {
 	return (FIELD_COMPARE(field, comparator) <= 0);
 }
@@ -117,7 +117,7 @@ FIELD_LE(const string &field, const string &comparator)
 	return (FIELD_COMPARE(field, comparator) <= 0);
 }
 inline bool
-FIELD_GT(const string &field, const pp_value comparator)
+FIELD_GT(const string &field, const pp_value &comparator)
 {
 	return (FIELD_COMPARE(field, comparator) > 0);
 }
@@ -127,7 +127,7 @@ FIELD_GT(const string &field, const string &comparator)
 	return (FIELD_COMPARE(field, comparator) > 0);
 }
 inline bool
-FIELD_GE(const string &field, const pp_value comparator)
+FIELD_GE(const string &field, const pp_value &comparator)
 {
 	return (FIELD_COMPARE(field, comparator) >= 0);
 }
@@ -142,8 +142,8 @@ FIELD_BOOL(const string &field)
 	// compare to 0 => false, else true
 	return (FIELD_COMPARE(field, 0) != 0);
 }
-inline int
-FIELD_AND(const string &field, pp_value comparator)
+inline pp_value
+FIELD_AND(const string &field, const pp_value &comparator)
 {
 	return GET_FIELD(field)->test(comparator);
 }
@@ -176,7 +176,7 @@ CLOSE_SCOPE();
  * OPEN_SCOPE function).
  */
 extern void
-REGN(const string &name, pp_regaddr address, pp_bitwidth width);
+REGN(const string &name, const pp_regaddr &address, pp_bitwidth width);
 #define REG8(name, address)  REGN(name, address, BITS8)
 #define REG16(name, address) REGN(name, address, BITS16)
 #define REG32(name, address) REGN(name, address, BITS32)
@@ -203,7 +203,7 @@ SIMPLE_FIELD(const string &name, const string &type,
 struct reg_bitrange
 {
 	reg_bitrange(): regname(""), hi_bit(0), lo_bit(0) {}
-	reg_bitrange(string reg, unsigned hi, unsigned lo)
+	reg_bitrange(const string &reg, unsigned hi, unsigned lo)
 	    : regname(reg), hi_bit(hi), lo_bit(lo) {}
 	string regname;
 	unsigned hi_bit;
@@ -240,20 +240,21 @@ COMPLEX_FIELD(const string &name, const string &type,
 
 //FIXME: comment
 extern void
-REGFIELDN(const string &name, pp_regaddr address, const pp_datatype *type,
-		pp_bitwidth width);
+REGFIELDN(const string &name, const pp_regaddr &address,
+		const pp_datatype *type, pp_bitwidth width);
 extern void
-REGFIELDN(const string &name, pp_regaddr address, const string &type,
-		pp_bitwidth width);
+REGFIELDN(const string &name, const pp_regaddr &address,
+		const string &type, pp_bitwidth width);
 #define REGFIELD8(name, address, type)  REGFIELDN(name, address, type, BITS8)
 #define REGFIELD16(name, address, type) REGFIELDN(name, address, type, BITS16)
 #define REGFIELD32(name, address, type) REGFIELDN(name, address, type, BITS32)
 #define REGFIELD64(name, address, type) REGFIELDN(name, address, type, BITS64)
 
 extern void
-CONSTANT_FIELD(const string &name, const pp_datatype *type, pp_value value);
+CONSTANT_FIELD(const string &name, const pp_datatype *type,
+		const pp_value &value);
 extern void
-CONSTANT_FIELD(const string &name, const string &type, pp_value value);
+CONSTANT_FIELD(const string &name, const string &type, const pp_value &value);
 
 /*
  * INT
@@ -267,7 +268,7 @@ INT(const string &name, const string &units="");
 struct kv_pair
 {
 	kv_pair(): key(""), value(0) {}
-	kv_pair(string k, pp_value v): key(k), value(v) {}
+	kv_pair(const string &k, const pp_value &v): key(k), value(v) {}
 	string key;
 	pp_value value;
 };

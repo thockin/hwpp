@@ -12,7 +12,7 @@
  *
  * Constructors:
  * 	(const pp_register *reg, const int shift,
- * 	 const pp_value mask, const int position)
+ * 	 const pp_value &mask, const int position)
  *
  * Notes:
  *	This class is a helper for pp_regbits_field.
@@ -21,7 +21,7 @@ class regbits
 {
     public:
 	explicit regbits(const pp_register *reg, const int shift,
-	    const pp_value mask, const int position)
+	    const pp_value &mask, const int position)
 	    : m_reg(reg), m_regshift(shift), m_mask(mask),
 	      m_position(position) {}
 	virtual ~regbits() {}
@@ -53,7 +53,7 @@ class regbits
 	 * Throws: pp_driver_error
 	 */
 	void
-	write(const pp_value value) const
+	write(const pp_value &value) const
 	{
 		pp_value myval = value;
 		myval >>= m_position;
@@ -118,7 +118,7 @@ class pp_regbits_field: public pp_field
 	 * Throws: pp_driver_error
 	 */
 	virtual void
-	write(const pp_value value) const
+	write(const pp_value &value) const
 	{
 		for (size_t i=0; i < m_regbits.size(); i++) {
 			m_regbits[i].write(value);
@@ -127,14 +127,14 @@ class pp_regbits_field: public pp_field
 
 	/*
 	 * pp_regbits_field::add_regbits(const pp_register *reg,
-	 * 	const int shift, const pp_value mask, const int position)
+	 * 	const int shift, const pp_value &mask, const int position)
 	 *
 	 * Add register bits to this field.
 	 */
 	 //FIXME: just pass a vector to ctor?
 	void
 	add_regbits(const pp_register *reg,
-	    const int shift, const pp_value mask, const int position)
+	    const int shift, const pp_value &mask, const int position)
 	{
 		m_regbits.push_back(regbits(reg, shift, mask, position));
 	}
@@ -151,7 +151,7 @@ class proc_field_accessor
     public:
 	virtual ~proc_field_accessor() {}
 	virtual pp_value read() const = 0;
-	virtual void write(pp_value value) const = 0;
+	virtual void write(const pp_value &value) const = 0;
 };
 typedef boost::shared_ptr<proc_field_accessor> proc_field_accessor_ptr;
 
@@ -197,7 +197,7 @@ class pp_proc_field: public pp_field
 	 * Throws: pp_driver_error
 	 */
 	virtual void
-	write(const pp_value value) const
+	write(const pp_value &value) const
 	{
 		m_access->write(value);
 	}
@@ -213,14 +213,15 @@ typedef boost::shared_ptr<pp_proc_field> pp_proc_field_ptr;
  * pp_constant_field - a field that returns a constant value.
  *
  * Constructors:
- * 	(const pp_datatype *datatype, pp_value value)
+ * 	(const pp_datatype *datatype, const pp_value &value)
  *
  * Notes:
  */
 class pp_constant_field: public pp_field
 {
     public:
-	explicit pp_constant_field(const pp_datatype *datatype, pp_value value)
+	pp_constant_field(const pp_datatype *datatype,
+			const pp_value &value)
 	    : pp_field(datatype), m_value(value)
 	{
 	}
@@ -245,7 +246,7 @@ class pp_constant_field: public pp_field
 	 * Throws: pp_driver_error
 	 */
 	virtual void
-	write(const pp_value value) const
+	write(const pp_value &value) const
 	{
 		// discard writes
 	}
