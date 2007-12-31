@@ -12,7 +12,7 @@
 
 #define PP_TEST_ASSERT(pred, msg) PP_TEST_ASSERT_(pred, msg, __FILE__, __LINE__)
 inline int
-PP_TEST_ASSERT_(int predicate, const string &msg, const string &file, int line)
+PP_TEST_ASSERT_(bool predicate, const string &msg, const string &file, int line)
 {
 	if (!predicate) {
 		PP_TEST_ERROR_ON_LINE(msg, file, line);
