@@ -1,3 +1,6 @@
+# project version
+PP_VERSION = 0.2.0
+
 # build options
 
 DEBUG = 1
@@ -13,7 +16,7 @@ CC = $(CXX)
 
 PP_CXXFLAGS = -O2 $(INCLUDES)
 PP_WARNS = -Wall -Werror $(WARNS)
-PP_DEFS = $(DEFS)
+PP_DEFS = -DPP_VERSION="\"$(PP_VERSION)\"" $(DEFS)
 PP_INCLUDES = -I$(TOPDIR) $(INCLUDES)
 ifeq ($(strip $(DEBUG)),1)
 PP_DEBUG = -O0 -ggdb -DDEBUG
