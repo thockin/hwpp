@@ -12,7 +12,8 @@ FIXMEs
 
 move more code to .cpp files
 
-pp_path "/"
 remove the length arg of io/mem bindings? else report PCI BAR sizes
 
 write DEFS and other stuff to a dotfile and make that a makefile dependency
+
+write docs
