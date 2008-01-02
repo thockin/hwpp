@@ -6,7 +6,7 @@
 #include "pp_driver.h"
 #include "filesystem.h"
 
-#define MSR_DEVICE_DIR	"dev/cpu"
+#define MSR_DEVICE_DIR	"/dev/cpu"
 #define MSR_DEV_MAJOR	202
 
 /* constructor */
