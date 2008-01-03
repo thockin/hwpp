@@ -6,6 +6,7 @@
 #include "pp_binding.h"
 #include "pp_driver.h"
 #include "filesystem.h"
+#include <iostream>
 
 /*
  * mem_address

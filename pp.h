@@ -3,10 +3,12 @@
 #define PP_PP_H__
 
 #define __STDC_LIMIT_MACROS
+#define _FILE_OFFSET_BITS 64
 #include <stdint.h>
 #include <stdlib.h>
 #include <string>
 using std::string;
+#include <iostream>
 #include <boost/format.hpp>
 #include <boost/smart_ptr.hpp>
 #include "debug.h"

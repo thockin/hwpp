@@ -1,9 +1,12 @@
+#include "pp.h"
+
 #include <stdint.h>
+#include <unistd.h>
 #include <stdexcept>
 #include <vector>
 #include <algorithm>
+#include <sstream>
 
-#include "pp.h"
 #include "pci_binding.h"
 #include "pp_driver.h"
 #include "filesystem.h"
