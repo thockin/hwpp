@@ -127,6 +127,11 @@ class pp_bool: public pp_enum
 	{
 		return !!value;
 	}
+	virtual pp_value
+	lookup(const string &str) const
+	{
+		return pp_enum::lookup(str);
+	}
 };
 typedef boost::shared_ptr<pp_bool> pp_bool_ptr;
 

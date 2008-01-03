@@ -15,11 +15,11 @@ CC = $(CXX)
 # build flags
 
 PP_CXXFLAGS = -O2 $(INCLUDES)
-PP_WARNS = -Wall -Werror $(WARNS)
+PP_WARNS = -Wall -Werror -Woverloaded-virtual $(WARNS)
 PP_DEFS = -DPP_VERSION="\"$(PP_VERSION)\"" $(DEFS)
 PP_INCLUDES = -I$(TOPDIR) $(INCLUDES)
 ifeq ($(strip $(DEBUG)),1)
-PP_DEBUG = -O0 -ggdb -DDEBUG
+PP_DEBUG = -O0 -ggdb -DDEBUG -fno-default-inline
 else
 PP_DEBUG = -DNDEBUG
 endif
