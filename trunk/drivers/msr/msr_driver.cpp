@@ -27,9 +27,9 @@ msr_driver::name() const
 }
 
 pp_binding_ptr
-msr_driver::new_binding(const std::vector<pp_regaddr> &args) const
+msr_driver::new_binding(const std::vector<pp_value> &args) const
 {
-	pp_regaddr cpu;
+	pp_value cpu;
 
 	if (args.size() != 1) {
 		throw pp_driver_args_error("MSR binding: <cpu>");

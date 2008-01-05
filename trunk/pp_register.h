@@ -12,7 +12,7 @@
  * pp_register - a register definition.
  *
  * Constructors:
- *	(pp_binding *binding, const pp_regaddr &address,
+ *	(pp_binding *binding, const pp_value &address,
  *	    const pp_bitwidth width)
  *
  * Notes:
@@ -21,7 +21,7 @@ class pp_register: public pp_dirent
 {
     public:
 	explicit pp_register(const pp_binding *binding,
-	    const pp_regaddr &address, const pp_bitwidth width)
+	    const pp_value &address, const pp_bitwidth width)
 	    : pp_dirent(PP_DIRENT_REGISTER),
 	      m_binding(binding), m_address(address), m_width(width) {}
 	virtual ~pp_register() {}
@@ -31,7 +31,7 @@ class pp_register: public pp_dirent
 	 *
 	 * Get the address of this register.
 	 */
-	pp_regaddr
+	pp_value
 	address() const
 	{
 		return m_address;
@@ -76,7 +76,7 @@ class pp_register: public pp_dirent
 
     private:
 	const pp_binding *m_binding;
-	pp_regaddr m_address;
+	pp_value m_address;
 	pp_bitwidth m_width;
 };
 typedef boost::shared_ptr<pp_register> pp_register_ptr;

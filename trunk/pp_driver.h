@@ -67,7 +67,7 @@ class pp_driver
 	 * Throws: pp_driver_args_error
 	 */
 	virtual pp_binding_ptr
-	new_binding(const std::vector<pp_regaddr> &args) const = 0;
+	new_binding(const std::vector<pp_value> &args) const = 0;
 
 	/*
 	 * pp_driver::discover(platform)
@@ -91,7 +91,7 @@ class pp_driver
 	 */
 	typedef void (*discovery_callback)(pp_scope *platform,
 			const pp_driver *driver,
-			const std::vector<pp_regaddr> &args);
+			const std::vector<pp_value> &args);
 
 	/*
 	 * pp_driver::register_discovery(args, function)
@@ -101,7 +101,7 @@ class pp_driver
 	 * The contents af the args vector depends on the specific driver.
 	 */
 	virtual void
-	register_discovery(const std::vector<pp_regaddr> &args,
+	register_discovery(const std::vector<pp_value> &args,
 			discovery_callback function)
 	{
 		throw pp_driver_not_supported_error(this->name() + ": " +

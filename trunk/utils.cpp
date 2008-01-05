@@ -269,7 +269,7 @@ CLOSE_SCOPE()
  * Define a register.
  */
 void
-REGN(const string &name, const pp_regaddr &address, pp_bitwidth width)
+REGN(const string &name, const pp_value &address, pp_bitwidth width)
 {
 	DTRACE(TRACE_REGS, "reg: " + name);
 	// check that we have a current binding
@@ -379,7 +379,7 @@ COMPLEX_FIELD(const string &name, const string &type,
  * Define a register and a field that consumes that register.
  */
 void
-REGFIELDN(const string &name, const pp_regaddr &address, const pp_datatype *type,
+REGFIELDN(const string &name, const pp_value &address, const pp_datatype *type,
 		pp_bitwidth width)
 {
 	string regname = "%" + name;
@@ -387,7 +387,7 @@ REGFIELDN(const string &name, const pp_regaddr &address, const pp_datatype *type
 	SIMPLE_FIELD(name, type, regname, width-1, 0);
 }
 void
-REGFIELDN(const string &name, const pp_regaddr &address, const string &type,
+REGFIELDN(const string &name, const pp_value &address, const string &type,
 		pp_bitwidth width)
 {
 	REGFIELDN(name, address, cur_scope->resolve_datatype(type), width);

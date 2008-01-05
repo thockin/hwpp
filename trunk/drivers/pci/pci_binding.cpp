@@ -40,7 +40,7 @@ pci_io::address() const
 }
 
 pp_value
-pci_io::read(const pp_regaddr &address, const pp_bitwidth width) const
+pci_io::read(const pp_value &address, const pp_bitwidth width) const
 {
 	switch (width) {
 	    case BITS8:
@@ -60,7 +60,7 @@ pci_io::read(const pp_regaddr &address, const pp_bitwidth width) const
 }
 
 void
-pci_io::write(const pp_regaddr &address, const pp_bitwidth width,
+pci_io::write(const pp_value &address, const pp_bitwidth width,
     const pp_value &value) const
 {
 	switch (width) {
@@ -140,7 +140,7 @@ pci_io::open_device(string devdir)
 }
 
 void
-pci_io::seek(const pp_regaddr &offset) const
+pci_io::seek(const pp_value &offset) const
 {
 	/* we only support 4KB config space */
 	if (offset >= 4096) {
@@ -154,7 +154,7 @@ pci_io::seek(const pp_regaddr &offset) const
 
 template<typename Tdata>
 pp_value
-pci_io::do_read(const pp_regaddr &offset) const
+pci_io::do_read(const pp_value &offset) const
 {
 	seek(offset);
 	Tdata data;
@@ -168,7 +168,7 @@ pci_io::do_read(const pp_regaddr &offset) const
 
 template<typename Tdata>
 void
-pci_io::do_write(const pp_regaddr &offset, const pp_value &value) const
+pci_io::do_write(const pp_value &offset, const pp_value &value) const
 {
 	/* see if we are already open RW or can change to RW */
 	if (m_file->mode() == O_RDONLY) {

@@ -36,7 +36,7 @@ class mem_driver: public pp_driver
 	 * Throws: pp_driver_args_error
 	 */
 	virtual pp_binding_ptr
-	new_binding(const std::vector<pp_regaddr> &args) const;
+	new_binding(const std::vector<pp_value> &args) const;
 };
 
 #define new_mem_driver(...) pp_driver_ptr(new mem_driver(__VA_ARGS__))

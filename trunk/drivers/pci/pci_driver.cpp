@@ -27,9 +27,9 @@ pci_driver::name() const
 }
 
 pp_binding_ptr
-pci_driver::new_binding(const std::vector<pp_regaddr> &args) const
+pci_driver::new_binding(const std::vector<pp_value> &args) const
 {
-	pp_regaddr seg, bus, dev, func;
+	pp_value seg, bus, dev, func;
 	int i = 0;
 
 	if (args.size() < 3 || args.size() > 4) {
@@ -75,7 +75,7 @@ pci_driver::discover(pp_scope *platform) const
 	while (it != addresses.end()) {
 		/* check if anyone registered for this vendor/device */
 		const discovery_request *dr = find_discovery_request(*it);
-		std::vector<pp_regaddr> args;
+		std::vector<pp_value> args;
 		args.push_back(it->segment);
 		args.push_back(it->bus);
 		args.push_back(it->device);
@@ -92,7 +92,7 @@ pci_driver::discover(pp_scope *platform) const
 }
 
 void
-pci_driver::register_discovery(const std::vector<pp_regaddr> &args,
+pci_driver::register_discovery(const std::vector<pp_value> &args,
     discovery_callback function)
 {
 	if (args.size() == 0) {

@@ -12,7 +12,7 @@ find_driver(const string &name);
 
 extern void
 register_discovery(const string &driver_name,
-		const std::vector<pp_regaddr> &args,
+		const std::vector<pp_value> &args,
 		pp_driver::discovery_callback function);
 
 extern void

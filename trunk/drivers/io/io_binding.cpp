@@ -30,7 +30,7 @@ io_io::address() const
 }
 
 pp_value
-io_io::read(const pp_regaddr &address, const pp_bitwidth width) const
+io_io::read(const pp_value &address, const pp_bitwidth width) const
 {
 	switch (width) {
 	    case BITS8:
@@ -49,7 +49,7 @@ io_io::read(const pp_regaddr &address, const pp_bitwidth width) const
 }
 
 void
-io_io::write(const pp_regaddr &address, const pp_bitwidth width,
+io_io::write(const pp_value &address, const pp_bitwidth width,
     const pp_value &value) const
 {
 	switch (width) {
@@ -90,7 +90,7 @@ io_io::open_device(string device)
 }
 
 void
-io_io::seek(const pp_regaddr &offset) const
+io_io::seek(const pp_value &offset) const
 {
 	if (offset >= m_address.size) {
 		throw do_io_error(to_string(
@@ -102,7 +102,7 @@ io_io::seek(const pp_regaddr &offset) const
 
 template<typename Tdata>
 pp_value
-io_io::do_read(const pp_regaddr &offset) const
+io_io::do_read(const pp_value &offset) const
 {
 	seek(offset);
 	Tdata data;
@@ -115,7 +115,7 @@ io_io::do_read(const pp_regaddr &offset) const
 
 template<typename Tdata>
 void
-io_io::do_write(const pp_regaddr &offset, const pp_value &value) const
+io_io::do_write(const pp_value &offset, const pp_value &value) const
 {
 	/* see if we are already open RW or can change to RW */
 	if (m_file->mode() == O_RDONLY) {

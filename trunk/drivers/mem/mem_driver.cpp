@@ -27,9 +27,9 @@ mem_driver::name() const
 }
 
 pp_binding_ptr
-mem_driver::new_binding(const std::vector<pp_regaddr> &args) const
+mem_driver::new_binding(const std::vector<pp_value> &args) const
 {
-	pp_regaddr base, size;
+	pp_value base, size;
 
 	if (args.size() != 2) {
 		throw pp_driver_args_error("mem<>: <base, size>");

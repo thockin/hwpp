@@ -8,7 +8,7 @@
 
 // All standard BARs look like this.
 static void
-BAR(const string &name, const pp_regaddr &address)
+BAR(const string &name, const pp_value &address)
 {
 	OPEN_SCOPE(name);
 
@@ -517,8 +517,8 @@ msix_capability(const pp_value &address)
 
 	// these will be used a bit later
 	string bar;
-	pp_regaddr base;
-	std::vector<pp_regaddr> args;
+	pp_value base;
+	std::vector<pp_value> args;
 	pp_const_binding_ptr bind;
 	pp_value table_size = GET_FIELD("table_size")->read() + 1;
 

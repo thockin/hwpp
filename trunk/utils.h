@@ -176,7 +176,7 @@ CLOSE_SCOPE();
  * OPEN_SCOPE function).
  */
 extern void
-REGN(const string &name, const pp_regaddr &address, pp_bitwidth width);
+REGN(const string &name, const pp_value &address, pp_bitwidth width);
 #define REG8(name, address)  REGN(name, address, BITS8)
 #define REG16(name, address) REGN(name, address, BITS16)
 #define REG32(name, address) REGN(name, address, BITS32)
@@ -240,10 +240,10 @@ COMPLEX_FIELD(const string &name, const string &type,
 
 //FIXME: comment
 extern void
-REGFIELDN(const string &name, const pp_regaddr &address,
+REGFIELDN(const string &name, const pp_value &address,
 		const pp_datatype *type, pp_bitwidth width);
 extern void
-REGFIELDN(const string &name, const pp_regaddr &address,
+REGFIELDN(const string &name, const pp_value &address,
 		const string &type, pp_bitwidth width);
 #define REGFIELD8(name, address, type)  REGFIELDN(name, address, type, BITS8)
 #define REGFIELD16(name, address, type) REGFIELDN(name, address, type, BITS16)

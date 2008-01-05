@@ -63,7 +63,7 @@ init_devices()
 
 struct delayed_discovery {
 	string driver_name;
-	std::vector<pp_regaddr> args;
+	std::vector<pp_value> args;
 	pp_driver::discovery_callback function;
 };
 typedef std::vector<delayed_discovery> discovery_vector;
@@ -78,7 +78,7 @@ discovery_list()
 
 void
 register_discovery(const string &driver_name,
-		const std::vector<pp_regaddr> &args,
+		const std::vector<pp_value> &args,
 		pp_driver::discovery_callback function)
 {
 	try {
