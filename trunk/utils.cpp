@@ -196,10 +196,10 @@ NEW_PLATFORM()
 	DASSERT_MSG(scope_stack.empty(), "scope_stack must be empty");
 
 	OPEN_SCOPE("");
+	global_datatypes_init(cur_scope.get());
 
 	// FIXME: take these out when we have a real language
-	global_datatypes_init(cur_scope.get());
-	pci_datatypes_init(cur_scope.get());
+	pci_datatypes_init();
 
 	DASSERT_MSG(cur_scope, "found NULL cur_scope");
 	return cur_scope;

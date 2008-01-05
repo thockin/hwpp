@@ -7,7 +7,7 @@
 #include "generic_device.h"
 
 void
-pci_datatypes_init(pp_scope *platform)
+pci_datatypes_init()
 {
 	/* pci_vendor_t */
 	ENUM("pci_vendor_t",
