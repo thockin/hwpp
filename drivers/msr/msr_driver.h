@@ -36,7 +36,7 @@ class msr_driver: public pp_driver
 	 * Throws: pp_driver_args_error
 	 */
 	virtual pp_binding_ptr
-	new_binding(const std::vector<pp_regaddr> &args) const;
+	new_binding(const std::vector<pp_value> &args) const;
 };
 
 #define new_msr_driver(...) pp_driver_ptr(new msr_driver(__VA_ARGS__))

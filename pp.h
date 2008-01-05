@@ -95,11 +95,6 @@ typedef enum pp_bitwidth {
 #define PP_MASK(n) ((((1ULL<<(n)/2)<<(n)/2)<<(n)%2)-1)
 
 /*
- * pp_regaddr - the address of a register.
- */
-typedef pp_value pp_regaddr;
-
-/*
  * WARN() - issue a runtime warning
  */
 #define WARN(message) do { \

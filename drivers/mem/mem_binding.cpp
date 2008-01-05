@@ -30,7 +30,7 @@ mem_io::address() const
 }
 
 pp_value
-mem_io::read(const pp_regaddr &address, const pp_bitwidth width) const
+mem_io::read(const pp_value &address, const pp_bitwidth width) const
 {
 	switch (width) {
 	    case BITS8:
@@ -50,7 +50,7 @@ mem_io::read(const pp_regaddr &address, const pp_bitwidth width) const
 }
 
 void
-mem_io::write(const pp_regaddr &address, const pp_bitwidth width,
+mem_io::write(const pp_value &address, const pp_bitwidth width,
     const pp_value &value) const
 {
 	switch (width) {
@@ -92,7 +92,7 @@ mem_io::open_device(string device)
 }
 
 fs::file_mapping_ptr
-mem_io::map(const pp_regaddr &offset, std::size_t length) const
+mem_io::map(const pp_value &offset, std::size_t length) const
 {
 	if ((offset+length) > m_address.size) {
 		throw do_io_error(to_string(
@@ -105,7 +105,7 @@ mem_io::map(const pp_regaddr &offset, std::size_t length) const
 
 template<typename Tdata>
 pp_value
-mem_io::do_read(const pp_regaddr &offset) const
+mem_io::do_read(const pp_value &offset) const
 {
 	fs::file_mapping_ptr mapping = map(offset, sizeof(Tdata));
 	Tdata *ptr = (Tdata *)mapping->address();
@@ -115,7 +115,7 @@ mem_io::do_read(const pp_regaddr &offset) const
 
 template<typename Tdata>
 void
-mem_io::do_write(const pp_regaddr &offset, const pp_value &value) const
+mem_io::do_write(const pp_value &offset, const pp_value &value) const
 {
 	/* see if we are already open RW or can change to RW */
 	if (m_file->mode() == O_RDONLY) {

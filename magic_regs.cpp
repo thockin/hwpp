@@ -18,13 +18,13 @@ class magic_binding: public pp_binding
 	}
 
 	virtual pp_value
-	read(const pp_regaddr &address, const pp_bitwidth width) const
+	read(const pp_value &address, const pp_bitwidth width) const
 	{
 		return m_value;
 	}
 
 	virtual void
-	write(const pp_regaddr &address, const pp_bitwidth width,
+	write(const pp_value &address, const pp_bitwidth width,
 		const pp_value &value) const
 	{
 		/* do nothing */

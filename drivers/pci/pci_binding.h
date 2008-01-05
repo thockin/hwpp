@@ -70,10 +70,10 @@ class pci_io
 	~pci_io();
 
 	pp_value
-	read(const pp_regaddr &address, const pp_bitwidth width) const;
+	read(const pp_value &address, const pp_bitwidth width) const;
 
 	void
-	write(const pp_regaddr &address, const pp_bitwidth width,
+	write(const pp_value &address, const pp_bitwidth width,
 	    const pp_value &value) const;
 
 	const pci_address &
@@ -93,15 +93,15 @@ class pci_io
 	open_device(string devdir);
 
 	void
-	seek(const pp_regaddr &offset) const;
+	seek(const pp_value &offset) const;
 
 	template<typename Tdata>
 	pp_value
-	do_read(const pp_regaddr &offset) const;
+	do_read(const pp_value &offset) const;
 
 	template<typename Tdata>
 	void
-	do_write(const pp_regaddr &offset, const pp_value &value) const;
+	do_write(const pp_value &offset, const pp_value &value) const;
 };
 
 /*
