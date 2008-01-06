@@ -60,7 +60,7 @@ class regbits
 		myval &= m_mask;
 		myval <<= m_regshift;
 		pp_value tmp = m_reg->read();
-		tmp &= ~(m_mask << m_regshift);
+		tmp ^= (tmp & (m_mask << m_regshift));
 		tmp |= myval;
 		m_reg->write(tmp);
 	}

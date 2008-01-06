@@ -27,12 +27,13 @@ magic_regs_test()
 		ret++;
 	}
 
-	if (magic_ones->read() != 0xffffffffffffffffULL) {
+	pp_value ones = pp_value("0xffffffffffffffffffffffffffffffff");
+	if (magic_ones->read() != ones) {
 		PP_TEST_ERROR("magic_ones->read()");
 		ret++;
 	}
 	magic_ones->write(0);
-	if (magic_ones->read() != 0xffffffffffffffffULL) {
+	if (magic_ones->read() != ones) {
 		PP_TEST_ERROR("magic_ones->write()");
 		ret++;
 	}

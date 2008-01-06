@@ -33,14 +33,14 @@ test_mem_io()
 			PP_TEST_ERROR("mem_io::read(BITS32)");
 			ret++;
 		}
-		if (io1.read(0, BITS64) != 0x3736353433323130ULL) {
+		if (io1.read(0, BITS64) != pp_value("0x3736353433323130")) {
 			PP_TEST_ERROR("mem_io::read(BITS64)");
 			ret++;
 		}
 
 		/* test the write() method */
-		io1.write(0, BITS64, 0xffeeddccbbaa9988ULL);
-		if (io1.read(0, BITS64) != 0xffeeddccbbaa9988ULL) {
+		io1.write(0, BITS64, pp_value("0xffeeddccbbaa9988"));
+		if (io1.read(0, BITS64) != pp_value("0xffeeddccbbaa9988")) {
 			PP_TEST_ERROR("mem_io::write()");
 			ret++;
 		}

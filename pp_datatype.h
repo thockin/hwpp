@@ -65,13 +65,23 @@ class pp_datatype
 	compare(const pp_value &lhs, const string &rhs) const
 	{
 		/* default implementation */
-		return (lhs - lookup(rhs));
+		pp_value result = lhs - lookup(rhs);
+		if (result < 0)
+			return -1;
+		if (result > 0)
+			return 1;
+		return 0;
 	}
 	virtual int
 	compare(const pp_value &lhs, const pp_value &rhs) const
 	{
 		/* default implementation */
-		return (lhs - lookup(rhs));
+		pp_value result = lhs - lookup(rhs);
+		if (result < 0)
+			return -1;
+		if (result > 0)
+			return 1;
+		return 0;
 	}
 	virtual pp_value
 	test(const pp_value &lhs, const string &rhs) const

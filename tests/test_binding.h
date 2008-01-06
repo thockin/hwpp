@@ -10,7 +10,7 @@
 class test_binding: public pp_binding
 {
     public:
-	explicit test_binding(): m_data(-1ULL) {}
+	explicit test_binding(): m_data(PP_MASK(PP_BITWIDTH_MAX)) {}
 	virtual ~test_binding() {}
 
 	virtual pp_value
@@ -27,7 +27,7 @@ class test_binding: public pp_binding
 	{
 		if (address == 0x12345678)
 			throw pp_driver_io_error("test binding write");
-		m_data &= ~PP_MASK(width);
+		m_data ^= (m_data & PP_MASK(width));
 		m_data |= value & PP_MASK(width);
 	}
 

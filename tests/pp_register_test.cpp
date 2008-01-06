@@ -20,21 +20,26 @@ test_pp_register()
 	pp_register r2(bind.get(), 2, BITS16);
 	pp_register r3(bind.get(), 3, BITS32);
 	pp_register r4(bind.get(), 4, BITS64);
+	pp_register r5(bind.get(), 5, BITS128);
 
 	/* test the read() method */
-	if (r1.read() != 0xff) {
+	if (r1.read() != PP_MASK(BITS8)) {
 		PP_TEST_ERROR("pp_register::read()");
 		ret++;
 	}
-	if (r2.read() != 0xffff) {
+	if (r2.read() != PP_MASK(BITS16)) {
 		PP_TEST_ERROR("pp_register::read()");
 		ret++;
 	}
-	if (r3.read() != 0xffffffff) {
+	if (r3.read() != PP_MASK(BITS32)) {
 		PP_TEST_ERROR("pp_register::read()");
 		ret++;
 	}
-	if (r4.read() != 0xffffffffffffffffULL) {
+	if (r4.read() != PP_MASK(BITS64)) {
+		PP_TEST_ERROR("pp_register::read()");
+		ret++;
+	}
+	if (r5.read() != PP_MASK(BITS128)) {
 		PP_TEST_ERROR("pp_register::read()");
 		ret++;
 	}
@@ -55,8 +60,13 @@ test_pp_register()
 		PP_TEST_ERROR("pp_register::write()");
 		ret++;
 	}
-	r4.write(0x4444444444444444ULL);
-	if (r4.read() != 0x4444444444444444ULL) {
+	r4.write(pp_value("0x4444444444444444"));
+	if (r4.read() != pp_value("0x4444444444444444")) {
+		PP_TEST_ERROR("pp_register::write()");
+		ret++;
+	}
+	r5.write(pp_value("0x555555555555555555555555"));
+	if (r5.read() != pp_value("0x555555555555555555555555")) {
 		PP_TEST_ERROR("pp_register::write()");
 		ret++;
 	}

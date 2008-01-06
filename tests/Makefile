@@ -5,7 +5,7 @@ SRCS = test_helpers.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 TESTS = keyed_vector_test \
-	pp_value_test \
+	bignum_test \
 	filesystem_test \
 	pp_datatype_test \
 	pp_binding_test \

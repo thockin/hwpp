@@ -140,7 +140,7 @@ inline bool
 FIELD_BOOL(const string &field)
 {
 	// compare to 0 => false, else true
-	return (FIELD_COMPARE(field, 0) != 0);
+	return (FIELD_COMPARE(field, pp_value(0)) != 0);
 }
 inline pp_value
 FIELD_AND(const string &field, const pp_value &comparator)

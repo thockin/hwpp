@@ -91,52 +91,6 @@ test_int_field()
 }
 
 int
-test_uint_field()
-{
-	int ret = 0;
-
-	/* two bindings with one reg each */
-	pp_binding_ptr bind1 = new_test_binding();
-	bind1->write(0, BITS16, 0x1111);
-	pp_register_ptr r1 = new_pp_register(bind1.get(), 1, BITS16);
-	pp_binding_ptr bind2 = new_test_binding();
-	bind2->write(0, BITS16, 0x2222);
-	pp_register_ptr r2 = new_pp_register(bind2.get(), 1, BITS16);
-
-	pp_datatype_ptr uinteger = new_pp_uint();
-	pp_regbits_field f1(uinteger.get());
-	f1.add_regbits(r1.get(), 0, 0xff, 0);
-	f1.add_regbits(r2.get(), 0, 0xff, 8);
-
-	/* test read() */
-	if (f1.read() != 8721) {
-		PP_TEST_ERROR("pp_regbits_field::read()");
-		ret++;
-	}
-	if (f1.evaluate() != "8721") {
-		PP_TEST_ERROR("pp_regbits_field::evaluate()");
-		ret++;
-	}
-
-	/* test write */
-	f1.write(0x0102);
-	if (f1.read() != 0x0102) {
-		PP_TEST_ERROR("pp_regbits_field::write()");
-		ret++;
-	}
-	if (r1->read() != 0x1102) {
-		PP_TEST_ERROR("pp_regbits_field::write()");
-		ret++;
-	}
-	if (r2->read() != 0x2201) {
-		PP_TEST_ERROR("pp_regbits_field::write()");
-		ret++;
-	}
-
-	return ret;
-}
-
-int
 test_hex_field()
 {
 	int ret = 0;
@@ -362,7 +316,6 @@ main()
 
 	r |= test_regbits();
 	r |= test_int_field();
-	r |= test_uint_field();
 	r |= test_hex_field();
 	r |= test_enum_field();
 	r |= test_bitmask_field();

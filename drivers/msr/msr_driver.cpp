@@ -37,5 +37,5 @@ msr_driver::new_binding(const std::vector<pp_value> &args) const
 
 	cpu = args[0];
 
-	return new_msr_binding(msr_address(cpu));
+	return new_msr_binding(msr_address(bignum_to<int>(cpu)));
 }
