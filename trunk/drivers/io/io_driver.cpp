@@ -46,6 +46,6 @@ io_driver::new_binding(const std::vector<pp_value> &args) const
 	if (base + size > IO_SPACE_SIZE) {
 		throw pp_driver_args_error("io<>: invalid size");
 	}
-	return new_io_binding(io_address(bignum_to<uint16_t>(base),
-			bignum_to<uint16_t>(size)));
+	return new_io_binding(io_address(pp_value_to<uint16_t>(base),
+			pp_value_to<uint16_t>(size)));
 }

@@ -1,44 +1,44 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_BIGNUM_H__
-#define PP_BIGNUM_H__
+#ifndef PP_PP_VALUE_H__
+#define PP_PP_VALUE_H__
 
 #include <gmpxx.h>
 
-// All bignums are signed.  GMP will allow you to create a bignum from
+// All pp_values are signed.  GMP will allow you to create a pp_value from
 // either signed or unsigned raw integers, and it will do "the right
-// thing".  Unsigned raw integers will create a positive bignum.  It is
+// thing".  Unsigned raw integers will create a positive pp_value.  It is
 // not clear exactly what happens if you read an out-of-bounds positive
-// bignum as a signed value (e.g. ULONG_MAX read back as signed long).  It
-// is also not clear what happens if you read a negative bignum as an
+// pp_value as a signed value (e.g. ULONG_MAX read back as signed long).  It
+// is also not clear what happens if you read a negative pp_value as an
 // unsigned value (e.g. -1 read back as unsigned int).  Just don't do
 // those things, and we'll all be happy.
-typedef mpz_class bignum;
+typedef mpz_class pp_value;
 
 //
 // Since I can not add constructors to GMP's class, let's define some
-// friendly converter functions for bignums.
+// friendly converter functions for pp_values.
 //
 
 #define BITS_PER_LONG	(sizeof(long)*CHAR_BIT)
 
 template<typename Tdata>
-inline bignum
-bignum_from(Tdata value)
+inline pp_value
+pp_value_from(Tdata value)
 {
-	return bignum(value);
+	return pp_value(value);
 }
 
 // GMP only supports up to 'long' args for it's ctors.  We can support
 // 'long long' at a small cost on 32 bit systems, and for free on 64 bit
 // systems.
 template<>
-inline bignum
-bignum_from<int64_t>(int64_t value)
+inline pp_value
+pp_value_from<int64_t>(int64_t value)
 {
 	if ((sizeof(long) == sizeof(long long))
 	 || (value >= LONG_MIN && value <= LONG_MAX)) {
 		// simple
-		return bignum((long)value);
+		return pp_value((long)value);
 	}
 
 	// not so simple
@@ -50,7 +50,7 @@ bignum_from<int64_t>(int64_t value)
 
 	unsigned long vlo = value;
 	unsigned long vhi = value >> BITS_PER_LONG;
-	bignum ret(vhi);
+	pp_value ret(vhi);
 	ret <<= BITS_PER_LONG;
 	ret += vlo;
 
@@ -61,18 +61,18 @@ bignum_from<int64_t>(int64_t value)
 	return ret;
 }
 template<>
-inline bignum
-bignum_from<uint64_t>(uint64_t value)
+inline pp_value
+pp_value_from<uint64_t>(uint64_t value)
 {
 	if ((sizeof(long) == sizeof(long long)) || (value <= ULONG_MAX)) {
 		// simple
-		return bignum((unsigned long)value);
+		return pp_value((unsigned long)value);
 	}
 
 	// not so simple
 	unsigned long vlo = value;
 	unsigned long vhi = value >> BITS_PER_LONG;
-	bignum ret(vhi);
+	pp_value ret(vhi);
 	ret <<= BITS_PER_LONG;
 	ret += vlo;
 	return ret;
@@ -80,7 +80,7 @@ bignum_from<uint64_t>(uint64_t value)
 
 template<typename Tdata>
 inline Tdata
-bignum_to(const bignum &value)
+pp_value_to(const pp_value &value)
 {
 	if (std::numeric_limits<Tdata>::is_signed) {
 		return value.get_si();
@@ -93,7 +93,7 @@ bignum_to(const bignum &value)
 // systems.
 template<>
 inline int64_t
-bignum_to<int64_t>(const bignum &value)
+pp_value_to<int64_t>(const pp_value &value)
 {
 	if (sizeof(long) == sizeof(long long)
 	 || (value >= LONG_MIN && value <= LONG_MAX)) {
@@ -102,7 +102,7 @@ bignum_to<int64_t>(const bignum &value)
 	}
 
 	// not so simple
-	bignum myval(value);
+	pp_value myval(value);
 	int negative = 0;
 	if (myval < 0) {
 		negative = 1;
@@ -122,7 +122,7 @@ bignum_to<int64_t>(const bignum &value)
 }
 template<>
 inline uint64_t
-bignum_to<uint64_t>(const bignum &value)
+pp_value_to<uint64_t>(const pp_value &value)
 {
 	if ((sizeof(long) == sizeof(long long)) || (value <= ULONG_MAX)) {
 		// simple
@@ -130,7 +130,7 @@ bignum_to<uint64_t>(const bignum &value)
 	}
 
 	// not so simple
-	bignum myval(value);
+	pp_value myval(value);
 	unsigned long rlo = myval.get_ui();
 	myval >>= BITS_PER_LONG;
 	unsigned long long rhi = myval.get_ui();
@@ -140,7 +140,7 @@ bignum_to<uint64_t>(const bignum &value)
 }
 template<>
 inline string
-bignum_to<string>(const bignum &value)
+pp_value_to<string>(const pp_value &value)
 {
 	return value.get_str();
 }
@@ -149,15 +149,15 @@ bignum_to<string>(const bignum &value)
 // add some operators that the standard implementation does not define
 //
 
-inline bignum
-operator<<(const bignum &lhs, const bignum &rhs)
+inline pp_value
+operator<<(const pp_value &lhs, const pp_value &rhs)
 {
 	return (lhs << rhs.get_ui());
 }
-inline bignum
-operator>>(const bignum &lhs, const bignum &rhs)
+inline pp_value
+operator>>(const pp_value &lhs, const pp_value &rhs)
 {
 	return (lhs >> rhs.get_ui());
 }
 
-#endif // PP_BIGNUM_H__
+#endif // PP_PP_VALUE_H__

@@ -13,7 +13,7 @@ using std::string;
 #include <climits>
 #include <boost/format.hpp>
 #include <boost/smart_ptr.hpp>
-#include "bignum.h"
+#include "pp_value.h"
 #include "debug.h"
 
 /* convert any stream-ready object to a string */
@@ -67,11 +67,6 @@ operator!=(const boost::format &fmt, const string &str)
 {
 	return !(str == fmt);
 }
-
-/*
- * pp_value - data from a register.
- */
-typedef bignum pp_value;
 
 /*
  * pp_bitwidth - how wide something is, in bits.
