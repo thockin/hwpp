@@ -39,5 +39,5 @@ mem_driver::new_binding(const std::vector<pp_value> &args) const
 	size = args[1];
 
 	return new_mem_binding(mem_address(
-		bignum_to<uint64_t>(base), bignum_to<uint64_t>(size)));
+		pp_value_to<uint64_t>(base), pp_value_to<uint64_t>(size)));
 }

@@ -94,13 +94,14 @@ mem_io::open_device(string device)
 fs::file_mapping_ptr
 mem_io::map(const pp_value &offset, std::size_t length) const
 {
-	if (bignum_to<uint64_t>(offset+length) > m_address.size) {
+	if (pp_value_to<uint64_t>(offset+length) > m_address.size) {
 		throw do_io_error(to_string(
 		    boost::format("can't access register 0x%x")
 		    %offset));
 	}
 
-	return m_file->mmap(m_address.base+bignum_to<uint64_t>(offset), length);
+	return m_file->mmap(m_address.base+pp_value_to<uint64_t>(offset),
+	    length);
 }
 
 template<typename Tdata>
@@ -110,7 +111,7 @@ mem_io::do_read(const pp_value &offset) const
 	fs::file_mapping_ptr mapping = map(offset, sizeof(Tdata));
 	Tdata *ptr = (Tdata *)mapping->address();
 	Tdata data = *ptr;
-	return bignum_from<Tdata>(data);
+	return pp_value_from<Tdata>(data);
 }
 
 template<typename Tdata>
@@ -124,6 +125,6 @@ mem_io::do_write(const pp_value &offset, const pp_value &value) const
 
 	fs::file_mapping_ptr mapping = map(offset, sizeof(Tdata));
 	Tdata *ptr = (Tdata *)mapping->address();
-	Tdata data = bignum_to<Tdata>(value);
+	Tdata data = pp_value_to<Tdata>(value);
 	*ptr = data;
 }
