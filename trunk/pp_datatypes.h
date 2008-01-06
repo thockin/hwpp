@@ -125,7 +125,7 @@ class pp_bool: public pp_enum
 	virtual pp_value
 	lookup(const pp_value &value) const
 	{
-		return !!value;
+		return value == 0 ? 0 : 1;
 	}
 	virtual pp_value
 	lookup(const string &str) const
@@ -168,18 +168,18 @@ class pp_bitmask: public pp_datatype
 		for (size_t i=0; myval != 0 && i < m_bits.size(); i++) {
 			pp_value b = m_bits[i];
 			pp_value mask = (1 << b);
-			if (myval & mask) {
+			if ((myval & mask) != 0) {
 				if (!ret.empty()) {
 					ret += " ";
 				}
 				ret += m_bits.key_at(i);
-				myval &= ~mask;
+				myval ^= (myval & mask);
 			}
 		}
 
 		int unknown = 0;
-		while (myval) {
-			if (myval & 1) {
+		while (myval != 0) {
+			if ((myval & pp_value(1)) == 1) {
 				if (!ret.empty()) {
 					ret += " ";
 				}
@@ -281,8 +281,7 @@ class pp_int: public pp_datatype
 	virtual string
 	evaluate(const pp_value &value) const
 	{
-		pp_svalue svalue(value);
-		string ret = to_string(svalue);
+		string ret = to_string(value);
 		if (!m_units.empty()) {
 			ret += " ";
 			ret += m_units;
@@ -304,7 +303,7 @@ class pp_int: public pp_datatype
 	virtual pp_value
 	lookup(const string &str) const
 	{
-		return pp_value_from_string(str);
+		return pp_value(str);
 	}
 
     protected:
@@ -313,43 +312,6 @@ class pp_int: public pp_datatype
 typedef boost::shared_ptr<pp_int> pp_int_ptr;
 
 #define new_pp_int(...) pp_int_ptr(new pp_int(__VA_ARGS__))
-
-/*
- * pp_uint - datatype for unsigned integer values.
- *
- * Constructors:
- * 	(const string &units = "")
- *
- * Notes:
- * 	This class makes a private copy of the 'units' argument.
- */
-class pp_uint: public pp_int
-{
-    public:
-	explicit pp_uint(const string &units = ""): pp_int(units) {}
-	virtual ~pp_uint() {}
-
-	/*
-	 * pp_uint::evaluate(value)
-	 *
-	 * Evaluate a value against this datatype.  This method returns a
-	 * string containing the evaluated representation of the 'value'
-	 * argument.
-	 */
-	virtual string
-	evaluate(const pp_value &value) const
-	{
-		string ret = to_string(value);
-		if (!m_units.empty()) {
-			ret += " ";
-			ret += m_units;
-		}
-		return ret;
-	}
-};
-typedef boost::shared_ptr<pp_uint> pp_uint_ptr;
-
-#define new_pp_uint(...) pp_uint_ptr(new pp_uint(__VA_ARGS__))
 
 /*
  * pp_hex - datatype for hexadecimal values.

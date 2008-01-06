@@ -9,8 +9,11 @@
 #include <string>
 using std::string;
 #include <iostream>
+#include <limits>
+#include <climits>
 #include <boost/format.hpp>
 #include <boost/smart_ptr.hpp>
+#include "bignum.h"
 #include "debug.h"
 
 /* convert any stream-ready object to a string */
@@ -66,17 +69,9 @@ operator!=(const boost::format &fmt, const string &str)
 }
 
 /*
- * pp_value - the fundamental container for data values.
+ * pp_value - data from a register.
  */
- //FIXME: these should probably become opaque bignum types
-typedef uint64_t pp_value;
-typedef int64_t  pp_svalue;
-
-inline pp_value
-pp_value_from_string(const string &str)
-{
-	return strtoull(str.c_str(), NULL, 0);
-}
+typedef bignum pp_value;
 
 /*
  * pp_bitwidth - how wide something is, in bits.
@@ -88,11 +83,19 @@ typedef enum pp_bitwidth {
 	BITS16 = 16,
 	BITS32 = 32,
 	BITS64 = 64,
+	BITS128 = 128,
 } pp_bitwidth;
-#define PP_BITWIDTH_MAX BITS64
+#define PP_BITWIDTH_MAX BITS128
 
 /* generate a bitmask of n bits */
-#define PP_MASK(n) ((((1ULL<<(n)/2)<<(n)/2)<<(n)%2)-1)
+static inline pp_value
+PP_MASK(int nbits)
+{
+	pp_value val(1);
+	val <<= nbits;
+	val--;
+	return val;
+}
 
 /*
  * WARN() - issue a runtime warning

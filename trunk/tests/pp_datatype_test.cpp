@@ -99,7 +99,7 @@ test_pp_int()
 		PP_TEST_ERROR("pp_int::evaluate()");
 		ret++;
 	}
-	if (i1.evaluate(-1ULL) != "-1") {
+	if (i1.evaluate(-1) != "-1") {
 		PP_TEST_ERROR("pp_int::evaluate()");
 		ret++;
 	}
@@ -112,42 +112,8 @@ test_pp_int()
 		PP_TEST_ERROR("pp_int::evaluate()");
 		ret++;
 	}
-	if (i2.evaluate(-1ULL) != "-1 units") {
+	if (i2.evaluate(-1) != "-1 units") {
 		PP_TEST_ERROR("pp_int::evaluate()");
-		ret++;
-	}
-
-	return ret;
-}
-
-int
-test_pp_uint()
-{
-	int ret = 0;
-
-	/* test the basic constructor */
-	pp_uint u1;
-
-	/* test the evaluate() method */
-	if (u1.evaluate(1) != "1") {
-		PP_TEST_ERROR("pp_uint::evaluate()");
-		ret++;
-	}
-	if (u1.evaluate(-1ULL) != to_string(UINT64_MAX)) {
-		PP_TEST_ERROR("pp_uint::evaluate()");
-		ret++;
-	}
-
-	/* test the units constructor */
-	pp_uint u2("units");
-
-	/* test the evaluate() method */
-	if (u2.evaluate(1) != "1 units") {
-		PP_TEST_ERROR("pp_uint::evaluate()");
-		ret++;
-	}
-	if (u2.evaluate(-1ULL) != to_string(UINT64_MAX) + " units") {
-		PP_TEST_ERROR("pp_uint::evaluate()");
 		ret++;
 	}
 
@@ -167,18 +133,10 @@ test_pp_hex()
 		PP_TEST_ERROR("pp_hex::evaluate()");
 		ret++;
 	}
-	if (h1.evaluate(-1ULL) != "0xffffffffffffffff") {
-		PP_TEST_ERROR("pp_hex::evaluate()");
-		ret++;
-	}
 
 	/* test the units constructor */
 	pp_hex h2(BITS0, "units");
 	if (h2.evaluate(1) != "0x1 units") {
-		PP_TEST_ERROR("pp_hex::evaluate()");
-		ret++;
-	}
-	if (h2.evaluate(-1ULL) != "0xffffffffffffffff units") {
 		PP_TEST_ERROR("pp_hex::evaluate()");
 		ret++;
 	}
@@ -191,16 +149,8 @@ test_pp_hex()
 		PP_TEST_ERROR("pp_hex::evaluate()");
 		ret++;
 	}
-	if (h3.evaluate((uint8_t)-1) != "0xff") {
-		PP_TEST_ERROR("pp_hex::evaluate()");
-		ret++;
-	}
 	pp_hex h4(BITS16);
 	if (h4.evaluate(0x0201) != "0x0201") {
-		PP_TEST_ERROR("pp_hex::evaluate()");
-		ret++;
-	}
-	if (h4.evaluate((uint16_t)-1) != "0xffff") {
 		PP_TEST_ERROR("pp_hex::evaluate()");
 		ret++;
 	}
@@ -209,16 +159,8 @@ test_pp_hex()
 		PP_TEST_ERROR("pp_hex::evaluate()");
 		ret++;
 	}
-	if (h5.evaluate((uint32_t)-1) != "0xffffffff") {
-		PP_TEST_ERROR("pp_hex::evaluate()");
-		ret++;
-	}
 	pp_hex h6(BITS64);
-	if (h6.evaluate(0x0807060504030201ULL) != "0x0807060504030201") {
-		PP_TEST_ERROR("pp_hex::evaluate()");
-		ret++;
-	}
-	if (h6.evaluate(-1ULL) != "0xffffffffffffffff") {
+	if (h6.evaluate(pp_value("0x0807060504030201")) != "0x0807060504030201") {
 		PP_TEST_ERROR("pp_hex::evaluate()");
 		ret++;
 	}
@@ -242,7 +184,7 @@ test_pp_hex()
 		ret++;
 	}
 	pp_hex h10(BITS64, "units");
-	if (h10.evaluate(0x0807060504030201ULL) != "0x0807060504030201 units") {
+	if (h10.evaluate(pp_value("0x0807060504030201")) != "0x0807060504030201 units") {
 		PP_TEST_ERROR("h10.evaluate()");
 		ret++;
 	}
@@ -260,8 +202,6 @@ main()
 	r = test_pp_bitmask();
 	if (r) return EXIT_FAILURE;
 	r = test_pp_int();
-	if (r) return EXIT_FAILURE;
-	r = test_pp_uint();
 	if (r) return EXIT_FAILURE;
 	r = test_pp_hex();
 	if (r) return EXIT_FAILURE;

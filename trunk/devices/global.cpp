@@ -22,6 +22,7 @@ global_datatypes_init(pp_scope *platform)
 	platform->add_datatype("hex16_t", new_pp_hex(BITS16));
 	platform->add_datatype("hex32_t", new_pp_hex(BITS32));
 	platform->add_datatype("hex64_t", new_pp_hex(BITS64));
+	platform->add_datatype("hex128_t", new_pp_hex(BITS128));
 	platform->add_datatype("addr16_t", new_pp_hex(BITS16));
 	platform->add_datatype("addr32_t", new_pp_hex(BITS32));
 	platform->add_datatype("addr64_t", new_pp_hex(BITS64));

@@ -149,7 +149,7 @@ pci_io::seek(const pp_value &offset) const
 		    %offset));
 	}
 
-	m_file->seek(offset, SEEK_SET);
+	m_file->seek(bignum_to<uint16_t>(offset), SEEK_SET);
 }
 
 template<typename Tdata>
@@ -163,7 +163,7 @@ pci_io::do_read(const pp_value &offset) const
 		    boost::format("error reading register 0x%x")
 		    %offset));
 	}
-	return data;
+	return bignum_from<Tdata>(data);
 }
 
 template<typename Tdata>
@@ -176,7 +176,7 @@ pci_io::do_write(const pp_value &offset, const pp_value &value) const
 	}
 
 	seek(offset);
-	Tdata data = value;
+	Tdata data = bignum_to<Tdata>(value);
 	if (m_file->write(&data, sizeof(data)) != sizeof(data)) {
 		throw do_io_error(to_string(
 		    boost::format("error writing register 0x%x")

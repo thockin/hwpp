@@ -24,7 +24,7 @@ else
 PP_DEBUG = -DNDEBUG
 endif
 
-PP_LDLIBS = $(LIBS)
+PP_LDLIBS = $(LIBS) -lgmpxx -lgmp
 ifeq ($(strip $(STATIC)),1)
 PP_STATIC = -static
 endif
