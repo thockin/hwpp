@@ -5,7 +5,7 @@ DRIVER_MOD_SFX = _driver_module.o
 
 all test dep:
 	@for d in $(DRIVERS); do \
-		$(MAKE) -C $$d $@; \
+		$(MAKE) -C $$d $@ || exit 1; \
 	done
 
 DRIVERS_TO_ADD=$(foreach dir,$(DRIVERS), $(wildcard $(dir)/*$(DRIVER_MOD_SFX)))
