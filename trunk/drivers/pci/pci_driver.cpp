@@ -58,9 +58,8 @@ pci_driver::new_binding(const std::vector<pp_value> &args) const
 	if (func >= 8) {
 		throw pp_driver_args_error("PCI binding: invalid function");
 	}
-	return new_pci_binding(pci_address(
-		pp_value_to<int>(seg), pp_value_to<int>(bus),
-		pp_value_to<int>(dev), pp_value_to<int>(func)));
+	return new_pci_binding(pci_address(seg.get_int(), bus.get_int(),
+		dev.get_int(), func.get_int()));
 }
 
 void
@@ -112,8 +111,8 @@ pci_driver::register_discovery(const std::vector<pp_value> &args,
 	}
 
 	discovery_request dr;
-	dr.vendor = pp_value_to<uint16_t>(args[0]);
-	dr.device = pp_value_to<uint16_t>(args[1]);
+	dr.vendor = args[0].get_uint();
+	dr.device = args[1].get_uint();
 	dr.function = function;
 	m_callbacks.push_back(dr);
 }
@@ -122,8 +121,8 @@ const pci_driver::discovery_request *
 pci_driver::find_discovery_request(const pci_address &addr) const
 {
 	pci_io dev(addr);
-	uint16_t vid = pp_value_to<uint16_t>(dev.read(0, BITS16));
-	uint16_t did = pp_value_to<uint16_t>(dev.read(2, BITS16));
+	uint16_t vid = dev.read(0, BITS16).get_uint();
+	uint16_t did = dev.read(2, BITS16).get_uint();
 
 	for (size_t i = 0; i < m_callbacks.size(); i++) {
 		if (m_callbacks[i].vendor == vid
