@@ -1,6 +1,6 @@
 #include "pp.h"
 #include "pp_test.h"
-#include "pp_value.h"
+#include "bignum.h"
 using namespace std;
 
 int
@@ -28,15 +28,6 @@ test_ctors()
 			"pp_value::pp_value(signed char)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "12",
 			"pp_value::pp_value(signed char)");
-		ret += PP_TEST_ASSERT(pp_value_to<signed char>(val) == 0x12,
-			"pp_value_to<signed char>()");
-		ret += PP_TEST_ASSERT(pp_value_to<int64_t>(val) == 0x12,
-			"pp_value_to<int64_t>()");
-		ret += PP_TEST_ASSERT(pp_value_to<uint64_t>(val) == 0x12,
-			"pp_value_to<uint64_t>()");
-		pp_value val2 = pp_value_from<signed char>(0x12);
-		ret += PP_TEST_ASSERT(val == val2,
-			"pp_value_from<signed char>()");
 	}
 	{
 		pp_value val((signed char)-1);
@@ -44,13 +35,6 @@ test_ctors()
 			"pp_value::pp_value(signed char)");
 		ret += PP_TEST_ASSERT(val.get_str(10) == "-1",
 			"pp_value::pp_value(signed char)");
-		ret += PP_TEST_ASSERT(pp_value_to<signed char>(val) == -1,
-			"pp_value_to<signed char>()");
-		ret += PP_TEST_ASSERT(pp_value_to<int64_t>(val) == -1,
-			"pp_value_to<int64_t>()");
-		pp_value val2 = pp_value_from<signed char>(-1);
-		ret += PP_TEST_ASSERT(val == val2,
-			"pp_value_from<signed char>()");
 	}
 	{
 		pp_value val((unsigned char)0x12);
@@ -60,13 +44,6 @@ test_ctors()
 			"pp_value::pp_value(unsigned char)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "12",
 			"pp_value::pp_value(unsigned char)");
-		ret += PP_TEST_ASSERT(pp_value_to<unsigned char>(val) == 0x12,
-			"pp_value_to<unsigned char>()");
-		ret += PP_TEST_ASSERT(pp_value_to<uint64_t>(val) == 0x12,
-			"pp_value_to<uint64_t>()");
-		pp_value val2 = pp_value_from<unsigned char>(0x12);
-		ret += PP_TEST_ASSERT(val == val2,
-			"pp_value_from<unsigned char>()");
 	}
 	{
 		pp_value val((unsigned char)-1);
@@ -76,13 +53,6 @@ test_ctors()
 			"pp_value::pp_value(unsigned char)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "ff",
 			"pp_value::pp_value(unsigned char)");
-		ret += PP_TEST_ASSERT(pp_value_to<unsigned char>(val) == 0xff,
-			"pp_value_to<unsigned char>()");
-		ret += PP_TEST_ASSERT(pp_value_to<uint64_t>(val) == 0xff,
-			"pp_value_to<uint64_t>()");
-		pp_value val2 = pp_value_from<unsigned char>((unsigned char)-1);
-		ret += PP_TEST_ASSERT(val == val2,
-			"pp_value_from<unsigned char>()");
 	}
 
 	// from short
@@ -94,15 +64,6 @@ test_ctors()
 			"pp_value::pp_value(signed short)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "1234",
 			"pp_value::pp_value(signed short)");
-		ret += PP_TEST_ASSERT(pp_value_to<signed short>(val) == 0x1234,
-			"pp_value_to<signed short>()");
-		ret += PP_TEST_ASSERT(pp_value_to<int64_t>(val) == 0x1234,
-			"pp_value_to<int64_t>()");
-		ret += PP_TEST_ASSERT(pp_value_to<uint64_t>(val) == 0x1234,
-			"pp_value_to<uint64_t>()");
-		pp_value val2 = pp_value_from<signed short>(0x1234);
-		ret += PP_TEST_ASSERT(val == val2,
-			"pp_value_from<signed short>()");
 	}
 	{
 		pp_value val((signed short)-1);
@@ -110,13 +71,6 @@ test_ctors()
 			"pp_value::pp_value(signed short)");
 		ret += PP_TEST_ASSERT(val.get_str(10) == "-1",
 			"pp_value::pp_value(signed short)");
-		ret += PP_TEST_ASSERT(pp_value_to<signed short>(val) == -1,
-			"pp_value_to<signed short>()");
-		ret += PP_TEST_ASSERT(pp_value_to<int64_t>(val) == -1,
-			"pp_value_to<int64_t>()");
-		pp_value val2 = pp_value_from<signed short>(-1);
-		ret += PP_TEST_ASSERT(val == val2,
-			"pp_value_from<signed short>()");
 	}
 	{
 		pp_value val((unsigned short)0x1234);
@@ -126,13 +80,6 @@ test_ctors()
 			"pp_value::pp_value(unsigned short)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "1234",
 			"pp_value::pp_value(unsigned short)");
-		ret += PP_TEST_ASSERT(pp_value_to<unsigned short>(val) == 0x1234,
-			"pp_value_to<unsigned short>()");
-		ret += PP_TEST_ASSERT(pp_value_to<uint64_t>(val) == 0x1234,
-			"pp_value_to<uint64_t>()");
-		pp_value val2 = pp_value_from<unsigned short>(0x1234);
-		ret += PP_TEST_ASSERT(val == val2,
-			"pp_value_from<unsigned short>()");
 	}
 	{
 		pp_value val((unsigned short)-1);
@@ -142,13 +89,6 @@ test_ctors()
 			"pp_value::pp_value(unsigned short)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "ffff",
 			"pp_value::pp_value(unsigned short)");
-		ret += PP_TEST_ASSERT(pp_value_to<unsigned short>(val) == 0xffff,
-			"pp_value_to<unsigned short>()");
-		ret += PP_TEST_ASSERT(pp_value_to<uint64_t>(val) == 0xffff,
-			"pp_value_to<uint64_t>()");
-		pp_value val2 = pp_value_from<unsigned short>((unsigned short)-1);
-		ret += PP_TEST_ASSERT(val == val2,
-			"pp_value_from<unsigned short>()");
 	}
 
 	// from int
@@ -162,15 +102,6 @@ test_ctors()
 			"pp_value::pp_value(signed int)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "12345678",
 			"pp_value::pp_value(signed int)");
-		ret += PP_TEST_ASSERT(pp_value_to<signed int>(val) == 0x12345678,
-			"pp_value_to<signed int>()");
-		ret += PP_TEST_ASSERT(pp_value_to<int64_t>(val) == 0x12345678,
-			"pp_value_to<int64_t>()");
-		ret += PP_TEST_ASSERT(pp_value_to<uint64_t>(val) == 0x12345678,
-			"pp_value_to<uint64_t>()");
-		pp_value val2 = pp_value_from<signed int>(0x12345678);
-		ret += PP_TEST_ASSERT(val == val2,
-			"pp_value_from<signed int>()");
 	}
 	{
 		pp_value val((signed int)-1);
@@ -178,13 +109,6 @@ test_ctors()
 			"pp_value::pp_value(signed int)");
 		ret += PP_TEST_ASSERT(val.get_str(10) == "-1",
 			"pp_value::pp_value(signed int)");
-		ret += PP_TEST_ASSERT(pp_value_to<signed int>(val) == -1,
-			"pp_value_to<signed int>()");
-		ret += PP_TEST_ASSERT(pp_value_to<int64_t>(val) == -1,
-			"pp_value_to<int64_t>()");
-		pp_value val2 = pp_value_from<signed int>(-1);
-		ret += PP_TEST_ASSERT(val == val2,
-			"pp_value_from<signed int>()");
 	}
 	{
 		pp_value val((unsigned int)0x12345678);
@@ -194,13 +118,6 @@ test_ctors()
 			"pp_value::pp_value(unsigned int)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "12345678",
 			"pp_value::pp_value(unsigned int)");
-		ret += PP_TEST_ASSERT(pp_value_to<unsigned int>(val) == 0x12345678,
-			"pp_value_to<unsigned int>()");
-		ret += PP_TEST_ASSERT(pp_value_to<uint64_t>(val) == 0x12345678,
-			"pp_value_to<uint64_t>()");
-		pp_value val2 = pp_value_from<unsigned int>(0x12345678);
-		ret += PP_TEST_ASSERT(val == val2,
-			"pp_value_from<unsigned int>()");
 	}
 	{
 		pp_value val((unsigned int)-1);
@@ -212,52 +129,40 @@ test_ctors()
 			"pp_value::pp_value(unsigned int)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "ffffffff",
 			"pp_value::pp_value(unsigned int)");
-		ret += PP_TEST_ASSERT(pp_value_to<unsigned int>(val) == 0xffffffff,
-			"pp_value_to<unsigned int>()");
-		ret += PP_TEST_ASSERT(pp_value_to<uint64_t>(val) == 0xffffffff,
-			"pp_value_to<uint64_t>()");
-		pp_value val2 = pp_value_from<unsigned int>((unsigned int)-1);
-		ret += PP_TEST_ASSERT(val == val2,
-			"pp_value_from<unsigned int>()");
 	}
 
 	// from long long
 	// Skip long, since either sizeof(long) == sizeof(int) or
 	// sizeof(long) == sizeof(long long).
 	{
-		pp_value val = pp_value_from<signed long long>(0x123456789abcdef0LL);
+		pp_value val(0x123456789abcdef0LL);
+		ret += PP_TEST_ASSERT(val.get_si() == 0x123456789abcdef0LL,
+			"val.get_int()");
+		ret += PP_TEST_ASSERT(val.get_ui() == 0x123456789abcdef0ULL,
+			"val.get_uint()");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "123456789abcdef0",
 			"pp_value::pp_value(signed long long)");
-		ret += PP_TEST_ASSERT(
-			pp_value_to<int64_t>(val) == 0x123456789abcdef0LL,
-			"pp_value_to<int64_t>()");
-		ret += PP_TEST_ASSERT(
-			pp_value_to<uint64_t>(val)==0x123456789abcdef0ULL,
-			"pp_value_to<uint64_t>()");
 	}
 	{
-		pp_value val = pp_value_from<signed long long>(-1LL);
+		pp_value val(-1LL);
+		ret += PP_TEST_ASSERT(val.get_si() == -1,
+			"val.get_int()");
 		ret += PP_TEST_ASSERT(val.get_str(10) == "-1",
 			"pp_value::pp_value(signed long long)");
-		ret += PP_TEST_ASSERT(pp_value_to<int64_t>(val) == -1,
-			"pp_value_to<int64_t>()");
 	}
 	{
-		pp_value val = pp_value_from<unsigned long long>(
-			0x123456789abcdef0ULL);
+		pp_value val(0x123456789abcdef0ULL);
+		ret += PP_TEST_ASSERT(val.get_ui() == 0x123456789abcdef0ULL,
+			"val.get_uint()");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "123456789abcdef0",
 			"pp_value::pp_value(unsigned long long)");
-		ret += PP_TEST_ASSERT(
-			pp_value_to<uint64_t>(val)==0x123456789abcdef0ULL,
-			"pp_value_to<uint64_t>()");
 	}
 	{
-		pp_value val = pp_value_from<unsigned long long>(-1ULL);
+		pp_value val(-1ULL);
+		ret += PP_TEST_ASSERT(val.get_uint() == 0xffffffffffffffffULL,
+			"val.get_uint()");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "ffffffffffffffff",
 			"pp_value::pp_value(unsigned long long)");
-		ret += PP_TEST_ASSERT(
-			pp_value_to<uint64_t>(val)==0xffffffffffffffffULL,
-			"pp_value_to<uint64_t>()");
 	}
 
 	// from pp_value
@@ -273,16 +178,16 @@ test_ctors()
 		pp_value val("12345678");
 		ret += PP_TEST_ASSERT(val.get_ui() == 12345678,
 			"pp_value::pp_value(string)");
-		val = pp_value_from("12345678");
-		ret += PP_TEST_ASSERT(val.get_ui() == 12345678,
+		val = "23456789";
+		ret += PP_TEST_ASSERT(val.get_ui() == 23456789,
 			"pp_value::pp_value(string)");
 	}
 	{
 		pp_value val("0x12345678");
 		ret += PP_TEST_ASSERT(val.get_ui() == 0x12345678,
 			"pp_value::pp_value(string)");
-		val = pp_value_from("0x12345678");
-		ret += PP_TEST_ASSERT(val.get_ui() == 0x12345678,
+		val = "0x23456789";
+		ret += PP_TEST_ASSERT(val.get_ui() == 0x23456789,
 			"pp_value::pp_value(string)");
 	}
 	{
@@ -290,16 +195,16 @@ test_ctors()
 		ret += PP_TEST_ASSERT(
 			val.get_str(16) == "112233445566778899aabbccddeeff00",
 			"pp_value::pp_value(string)");
-		val = pp_value_from("0x112233445566778899aabbccddeeff00");
+		val = "0x2233445566778899aabbccddeeff0011";
 		ret += PP_TEST_ASSERT(
-			val.get_str(16) == "112233445566778899aabbccddeeff00",
+			val.get_str(16) == "2233445566778899aabbccddeeff0011",
 			"pp_value::pp_value(string)");
 	}
 	{
 		pp_value val("-1");
 		ret += PP_TEST_ASSERT(val.get_si() == -1,
 			"pp_value::pp_value(string)");
-		val = pp_value_from("-1");
+		val = "-1";
 		ret += PP_TEST_ASSERT(val.get_si() == -1,
 			"pp_value::pp_value(string)");
 	}
@@ -458,28 +363,28 @@ test_comparisons()
 
 	// to char
 	{
-		pp_value val = pp_value_from<signed char>(0x12);
+		pp_value val((signed char)0x12);
 		ret += PP_TEST_ASSERT(val == (signed char)0x12,
 			"pp_value::operator==(signed char)");
 		ret += PP_TEST_ASSERT(val == 0x12,
 			"pp_value::operator==(int)");
 	}
 	{
-		pp_value val = pp_value_from<signed char>(-1);
+		pp_value val((signed char)-1);
 		ret += PP_TEST_ASSERT(val == (signed char)-1,
 			"pp_value::operator==(signed char)");
 		ret += PP_TEST_ASSERT(val == -1,
 			"pp_value::operator==(int)");
 	}
 	{
-		pp_value val = pp_value_from<unsigned char>(0x12);
+		pp_value val((unsigned char)0x12);
 		ret += PP_TEST_ASSERT(val == (unsigned char)0x12,
 			"pp_value::operator==(unsigned char)");
 		ret += PP_TEST_ASSERT(val == 0x12,
 			"pp_value::operator==(int)");
 	}
 	{
-		pp_value val = pp_value_from<unsigned char>((unsigned char)-1);
+		pp_value val((unsigned char)-1);
 		ret += PP_TEST_ASSERT(val == (unsigned char)0xff,
 			"pp_value::operator==(unsigned char)");
 		ret += PP_TEST_ASSERT(val == 0xff,
@@ -488,28 +393,28 @@ test_comparisons()
 
 	// to short
 	{
-		pp_value val = pp_value_from<signed short>(0x1234);
+		pp_value val((signed short)0x1234);
 		ret += PP_TEST_ASSERT(val == (signed short)0x1234,
 			"pp_value::operator==(signed short)");
 		ret += PP_TEST_ASSERT(val == 0x1234,
 			"pp_value::operator==(int)");
 	}
 	{
-		pp_value val = pp_value_from<signed short>(-1);
+		pp_value val((signed short)-1);
 		ret += PP_TEST_ASSERT(val == (signed short)-1,
 			"pp_value::operator==(signed short)");
 		ret += PP_TEST_ASSERT(val == -1,
 			"pp_value::operator==(int)");
 	}
 	{
-		pp_value val = pp_value_from<unsigned short>(0x1234);
+		pp_value val((unsigned short)0x1234);
 		ret += PP_TEST_ASSERT(val == (unsigned short)0x1234,
 			"pp_value::operator==(unsigned short)");
 		ret += PP_TEST_ASSERT(val == 0x1234,
 			"pp_value::operator==(int)");
 	}
 	{
-		pp_value val = pp_value_from<unsigned short>((unsigned short)-1);
+		pp_value val((unsigned short)-1);
 		ret += PP_TEST_ASSERT(val == (unsigned short)0xffff,
 			"pp_value::operator==(unsigned short)");
 		ret += PP_TEST_ASSERT(val == 0xffff,
@@ -518,28 +423,28 @@ test_comparisons()
 
 	// to int
 	{
-		pp_value val = pp_value_from<signed int>(0x12345678);
+		pp_value val((signed int)0x12345678);
 		ret += PP_TEST_ASSERT(val == (signed int)0x12345678,
 			"pp_value::operator==(signed int)");
 		ret += PP_TEST_ASSERT(val == 0x12345678,
 			"pp_value::operator==(int)");
 	}
 	{
-		pp_value val = pp_value_from<signed int>(-1);
+		pp_value val((signed int)-1);
 		ret += PP_TEST_ASSERT(val == (signed int)-1,
 			"pp_value::operator==(signed int)");
 		ret += PP_TEST_ASSERT(val == -1,
 			"pp_value::operator==(int)");
 	}
 	{
-		pp_value val = pp_value_from<unsigned int>(0x12345678);
+		pp_value val((unsigned int)0x12345678);
 		ret += PP_TEST_ASSERT(val == (unsigned int)0x12345678,
 			"pp_value::operator==(unsigned int)");
 		ret += PP_TEST_ASSERT(val == 0x12345678,
 			"pp_value::operator==(int)");
 	}
 	{
-		pp_value val = pp_value_from<unsigned int>((unsigned int)-1);
+		pp_value val((unsigned int)-1);
 		ret += PP_TEST_ASSERT(val == (unsigned int)0xffffffff,
 			"pp_value::operator==(unsigned int)");
 		ret += PP_TEST_ASSERT(val == 0xffffffff,
@@ -556,7 +461,7 @@ test_comparisons()
 
 	// can't cmpare directly to strings
 
-	// Test other comparison operators.  Thsi assumes that if all the ==
+	// Test other comparison operators.  This assumes that if all the ==
 	// tests pass for all the integral types, so will the other
 	// comparisons.
 	{
@@ -642,7 +547,7 @@ test_small_arithmetic()
 			"pp_value::operator+(pp_value, int)");
 		ret += PP_TEST_ASSERT(3+val == 13,
 			"pp_value::operator+(int, pp_value)");
-		ret += PP_TEST_ASSERT(val+pp_value_from(3) == 13,
+		ret += PP_TEST_ASSERT(val+pp_value(3) == 13,
 			"pp_value::operator+(pp_value, pp_value)");
 		val += 5;
 		ret += PP_TEST_ASSERT(val == 15,
@@ -660,7 +565,7 @@ test_small_arithmetic()
 			"pp_value::operator-(pp_value, int)");
 		ret += PP_TEST_ASSERT(17-val == 7,
 			"pp_value::operator-(int, pp_value)");
-		ret += PP_TEST_ASSERT(val-pp_value_from(3) == 7,
+		ret += PP_TEST_ASSERT(val-pp_value(3) == 7,
 			"pp_value::operator-(pp_value, pp_value)");
 		val -= 5;
 		ret += PP_TEST_ASSERT(val == 5,
@@ -678,7 +583,7 @@ test_small_arithmetic()
 			"pp_value::operator*(pp_value, int)");
 		ret += PP_TEST_ASSERT(2*val == 20,
 			"pp_value::operator*(int, pp_value)");
-		ret += PP_TEST_ASSERT(val*pp_value_from(2) == 20,
+		ret += PP_TEST_ASSERT(val*pp_value(2) == 20,
 			"pp_value::operator*(pp_value, pp_value)");
 		val *= 3;
 		ret += PP_TEST_ASSERT(val == 30,
@@ -690,7 +595,7 @@ test_small_arithmetic()
 			"pp_value::operator/(pp_value, int)");
 		ret += PP_TEST_ASSERT(50/val == 5,
 			"pp_value::operator/(int, pp_value)");
-		ret += PP_TEST_ASSERT(val/pp_value_from(2) == 5,
+		ret += PP_TEST_ASSERT(val/pp_value(2) == 5,
 			"pp_value::operator/(pp_value, pp_value)");
 		val /= 5;
 		ret += PP_TEST_ASSERT(val == 2,
@@ -702,7 +607,7 @@ test_small_arithmetic()
 			"pp_value::operator%(pp_value, int)");
 		ret += PP_TEST_ASSERT(24%val == 7,
 			"pp_value::operator%(int, pp_value)");
-		ret += PP_TEST_ASSERT(val%pp_value_from(10) == 7,
+		ret += PP_TEST_ASSERT(val%pp_value(10) == 7,
 			"pp_value::operator%(pp_value, pp_value)");
 		val %= 5;
 		ret += PP_TEST_ASSERT(val == 2,

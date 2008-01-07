@@ -97,7 +97,7 @@ io_io::seek(const pp_value &offset) const
 		    boost::format("can't access register 0x%x") %offset));
 	}
 
-	m_file->seek(m_address.base+pp_value_to<uint16_t>(offset), SEEK_SET);
+	m_file->seek(m_address.base+offset.get_uint(), SEEK_SET);
 }
 
 template<typename Tdata>
@@ -110,7 +110,7 @@ io_io::do_read(const pp_value &offset) const
 		throw do_io_error(to_string(
 		    boost::format("can't read register 0x%x") %offset));
 	}
-	return pp_value_from<Tdata>(data);
+	return pp_value(data);
 }
 
 template<typename Tdata>
@@ -123,7 +123,7 @@ io_io::do_write(const pp_value &offset, const pp_value &value) const
 	}
 
 	seek(offset);
-	Tdata data = pp_value_to<Tdata>(value);
+	Tdata data = value.get_uint();
 	if (m_file->write(&data, sizeof(data)) != sizeof(data)) {
 		throw do_io_error(to_string(
 		    boost::format("can't write register 0x%x") %offset));
