@@ -10,203 +10,203 @@ test_ctors()
 
 	// default
 	{
-		pp_value val;
+		bignum val;
 		ret += PP_TEST_ASSERT(val.get_si() == 0,
-			"pp_value::pp_value()");
+			"bignum::bignum()");
 		ret += PP_TEST_ASSERT(val.get_ui() == 0,
-			"pp_value::pp_value()");
+			"bignum::bignum()");
 		ret += PP_TEST_ASSERT(val.get_str(10) == "0",
-			"pp_value::pp_value()");
+			"bignum::bignum()");
 	}
 
 	// from char
 	{
-		pp_value val((signed char)0x12);
+		bignum val((signed char)0x12);
 		ret += PP_TEST_ASSERT(val.get_si() == 0x12,
-			"pp_value::pp_value(signed char)");
+			"bignum::bignum(signed char)");
 		ret += PP_TEST_ASSERT(val.get_ui() == 0x12,
-			"pp_value::pp_value(signed char)");
+			"bignum::bignum(signed char)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "12",
-			"pp_value::pp_value(signed char)");
+			"bignum::bignum(signed char)");
 	}
 	{
-		pp_value val((signed char)-1);
+		bignum val((signed char)-1);
 		ret += PP_TEST_ASSERT(val.get_si() == -1,
-			"pp_value::pp_value(signed char)");
+			"bignum::bignum(signed char)");
 		ret += PP_TEST_ASSERT(val.get_str(10) == "-1",
-			"pp_value::pp_value(signed char)");
+			"bignum::bignum(signed char)");
 	}
 	{
-		pp_value val((unsigned char)0x12);
+		bignum val((unsigned char)0x12);
 		ret += PP_TEST_ASSERT(val.get_si() == 0x12,
-			"pp_value::pp_value(unsigned char)");
+			"bignum::bignum(unsigned char)");
 		ret += PP_TEST_ASSERT(val.get_ui() == 0x12,
-			"pp_value::pp_value(unsigned char)");
+			"bignum::bignum(unsigned char)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "12",
-			"pp_value::pp_value(unsigned char)");
+			"bignum::bignum(unsigned char)");
 	}
 	{
-		pp_value val((unsigned char)-1);
+		bignum val((unsigned char)-1);
 		ret += PP_TEST_ASSERT(val.get_si() == 0xff,
-			"pp_value::pp_value(unsigned char)");
+			"bignum::bignum(unsigned char)");
 		ret += PP_TEST_ASSERT(val.get_ui() == 0xff,
-			"pp_value::pp_value(unsigned char)");
+			"bignum::bignum(unsigned char)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "ff",
-			"pp_value::pp_value(unsigned char)");
+			"bignum::bignum(unsigned char)");
 	}
 
 	// from short
 	{
-		pp_value val((signed short)0x1234);
+		bignum val((signed short)0x1234);
 		ret += PP_TEST_ASSERT(val.get_si() == 0x1234,
-			"pp_value::pp_value(signed short)");
+			"bignum::bignum(signed short)");
 		ret += PP_TEST_ASSERT(val.get_ui() == 0x1234,
-			"pp_value::pp_value(signed short)");
+			"bignum::bignum(signed short)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "1234",
-			"pp_value::pp_value(signed short)");
+			"bignum::bignum(signed short)");
 	}
 	{
-		pp_value val((signed short)-1);
+		bignum val((signed short)-1);
 		ret += PP_TEST_ASSERT(val.get_si() == -1,
-			"pp_value::pp_value(signed short)");
+			"bignum::bignum(signed short)");
 		ret += PP_TEST_ASSERT(val.get_str(10) == "-1",
-			"pp_value::pp_value(signed short)");
+			"bignum::bignum(signed short)");
 	}
 	{
-		pp_value val((unsigned short)0x1234);
+		bignum val((unsigned short)0x1234);
 		ret += PP_TEST_ASSERT(val.get_si() == 0x1234,
-			"pp_value::pp_value(unsigned short)");
+			"bignum::bignum(unsigned short)");
 		ret += PP_TEST_ASSERT(val.get_ui() == 0x1234,
-			"pp_value::pp_value(unsigned short)");
+			"bignum::bignum(unsigned short)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "1234",
-			"pp_value::pp_value(unsigned short)");
+			"bignum::bignum(unsigned short)");
 	}
 	{
-		pp_value val((unsigned short)-1);
+		bignum val((unsigned short)-1);
 		ret += PP_TEST_ASSERT(val.get_si() == 0xffff,
-			"pp_value::pp_value(unsigned short)");
+			"bignum::bignum(unsigned short)");
 		ret += PP_TEST_ASSERT(val.get_ui() == 0xffff,
-			"pp_value::pp_value(unsigned short)");
+			"bignum::bignum(unsigned short)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "ffff",
-			"pp_value::pp_value(unsigned short)");
+			"bignum::bignum(unsigned short)");
 	}
 
 	// from int
 	// On 32 bit platforms this is where we will start to see
 	// signed vs. unsigned oddities.
 	{
-		pp_value val((signed int)0x12345678);
+		bignum val((signed int)0x12345678);
 		ret += PP_TEST_ASSERT(val.get_si() == 0x12345678,
-			"pp_value::pp_value(signed int)");
+			"bignum::bignum(signed int)");
 		ret += PP_TEST_ASSERT(val.get_ui() == 0x12345678,
-			"pp_value::pp_value(signed int)");
+			"bignum::bignum(signed int)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "12345678",
-			"pp_value::pp_value(signed int)");
+			"bignum::bignum(signed int)");
 	}
 	{
-		pp_value val((signed int)-1);
+		bignum val((signed int)-1);
 		ret += PP_TEST_ASSERT(val.get_si() == -1,
-			"pp_value::pp_value(signed int)");
+			"bignum::bignum(signed int)");
 		ret += PP_TEST_ASSERT(val.get_str(10) == "-1",
-			"pp_value::pp_value(signed int)");
+			"bignum::bignum(signed int)");
 	}
 	{
-		pp_value val((unsigned int)0x12345678);
+		bignum val((unsigned int)0x12345678);
 		ret += PP_TEST_ASSERT(val.get_si() == 0x12345678,
-			"pp_value::pp_value(unsigned int)");
+			"bignum::bignum(unsigned int)");
 		ret += PP_TEST_ASSERT(val.get_ui() == 0x12345678,
-			"pp_value::pp_value(unsigned int)");
+			"bignum::bignum(unsigned int)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "12345678",
-			"pp_value::pp_value(unsigned int)");
+			"bignum::bignum(unsigned int)");
 	}
 	{
-		pp_value val((unsigned int)-1);
+		bignum val((unsigned int)-1);
 		// On a 32 bit platform this will fail, since get_si()
 		// will return a signed value, and -1 is OOB.
 		//ret += PP_TEST_ASSERT(val.get_si() == (signed int)0xffffffff,
-		//	"pp_value::pp_value(unsigned int)");
+		//	"bignum::bignum(unsigned int)");
 		ret += PP_TEST_ASSERT(val.get_ui() == 0xffffffff,
-			"pp_value::pp_value(unsigned int)");
+			"bignum::bignum(unsigned int)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "ffffffff",
-			"pp_value::pp_value(unsigned int)");
+			"bignum::bignum(unsigned int)");
 	}
 
 	// from long long
 	// Skip long, since either sizeof(long) == sizeof(int) or
 	// sizeof(long) == sizeof(long long).
 	{
-		pp_value val(0x123456789abcdef0LL);
+		bignum val(0x123456789abcdef0LL);
 		ret += PP_TEST_ASSERT(val.get_si() == 0x123456789abcdef0LL,
 			"val.get_int()");
 		ret += PP_TEST_ASSERT(val.get_ui() == 0x123456789abcdef0ULL,
 			"val.get_uint()");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "123456789abcdef0",
-			"pp_value::pp_value(signed long long)");
+			"bignum::bignum(signed long long)");
 	}
 	{
-		pp_value val(-1LL);
+		bignum val(-1LL);
 		ret += PP_TEST_ASSERT(val.get_si() == -1,
 			"val.get_int()");
 		ret += PP_TEST_ASSERT(val.get_str(10) == "-1",
-			"pp_value::pp_value(signed long long)");
+			"bignum::bignum(signed long long)");
 	}
 	{
-		pp_value val(0x123456789abcdef0ULL);
+		bignum val(0x123456789abcdef0ULL);
 		ret += PP_TEST_ASSERT(val.get_ui() == 0x123456789abcdef0ULL,
 			"val.get_uint()");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "123456789abcdef0",
-			"pp_value::pp_value(unsigned long long)");
+			"bignum::bignum(unsigned long long)");
 	}
 	{
-		pp_value val(-1ULL);
+		bignum val(-1ULL);
 		ret += PP_TEST_ASSERT(val.get_uint() == 0xffffffffffffffffULL,
 			"val.get_uint()");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "ffffffffffffffff",
-			"pp_value::pp_value(unsigned long long)");
+			"bignum::bignum(unsigned long long)");
 	}
 
-	// from pp_value
+	// from bignum
 	{
-		pp_value val1(12345678);
-		pp_value val2(val1);
+		bignum val1(12345678);
+		bignum val2(val1);
 		ret += PP_TEST_ASSERT(val2 == val1 && val2.get_ui() == 12345678,
-			"pp_value::pp_value(pp_value)");
+			"bignum::bignum(bignum)");
 	}
 
 	// from string
 	{
-		pp_value val("12345678");
+		bignum val("12345678");
 		ret += PP_TEST_ASSERT(val.get_ui() == 12345678,
-			"pp_value::pp_value(string)");
+			"bignum::bignum(string)");
 		val = "23456789";
 		ret += PP_TEST_ASSERT(val.get_ui() == 23456789,
-			"pp_value::pp_value(string)");
+			"bignum::bignum(string)");
 	}
 	{
-		pp_value val("0x12345678");
+		bignum val("0x12345678");
 		ret += PP_TEST_ASSERT(val.get_ui() == 0x12345678,
-			"pp_value::pp_value(string)");
+			"bignum::bignum(string)");
 		val = "0x23456789";
 		ret += PP_TEST_ASSERT(val.get_ui() == 0x23456789,
-			"pp_value::pp_value(string)");
+			"bignum::bignum(string)");
 	}
 	{
-		pp_value val("0x112233445566778899aabbccddeeff00");
+		bignum val("0x112233445566778899aabbccddeeff00");
 		ret += PP_TEST_ASSERT(
 			val.get_str(16) == "112233445566778899aabbccddeeff00",
-			"pp_value::pp_value(string)");
+			"bignum::bignum(string)");
 		val = "0x2233445566778899aabbccddeeff0011";
 		ret += PP_TEST_ASSERT(
 			val.get_str(16) == "2233445566778899aabbccddeeff0011",
-			"pp_value::pp_value(string)");
+			"bignum::bignum(string)");
 	}
 	{
-		pp_value val("-1");
+		bignum val("-1");
 		ret += PP_TEST_ASSERT(val.get_si() == -1,
-			"pp_value::pp_value(string)");
+			"bignum::bignum(string)");
 		val = "-1";
 		ret += PP_TEST_ASSERT(val.get_si() == -1,
-			"pp_value::pp_value(string)");
+			"bignum::bignum(string)");
 	}
 
 	return ret;
@@ -219,138 +219,138 @@ test_assignments()
 
 	// from char
 	{
-		pp_value val;
+		bignum val;
 		val = (signed char)0x12;
 		ret += PP_TEST_ASSERT(val.get_si() == 0x12,
-			"pp_value::operator=(signed char)");
+			"bignum::operator=(signed char)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "12",
-			"pp_value::operator=(signed char)");
+			"bignum::operator=(signed char)");
 	}
 	{
-		pp_value val;
+		bignum val;
 		val = (signed char)-1;
 		ret += PP_TEST_ASSERT(val.get_si() == -1,
-			"pp_value::operator=(signed char)");
+			"bignum::operator=(signed char)");
 		ret += PP_TEST_ASSERT(val.get_str(10) == "-1",
-			"pp_value::operator=(signed char)");
+			"bignum::operator=(signed char)");
 	}
 	{
-		pp_value val;
+		bignum val;
 		val = (unsigned char)0x12;
 		ret += PP_TEST_ASSERT(val.get_ui() == 0x12,
-			"pp_value::operator=(unsigned char)");
+			"bignum::operator=(unsigned char)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "12",
-			"pp_value::operator=(unsigned char)");
+			"bignum::operator=(unsigned char)");
 	}
 	{
-		pp_value val;
+		bignum val;
 		val = (unsigned char)-1;
 		ret += PP_TEST_ASSERT(val.get_ui() == 0xff,
-			"pp_value::operator=(unsigned char)");
+			"bignum::operator=(unsigned char)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "ff",
-			"pp_value::operator=(unsigned char)");
+			"bignum::operator=(unsigned char)");
 	}
 
 	// from short
 	{
-		pp_value val;
+		bignum val;
 		val = (signed short)0x1234;
 		ret += PP_TEST_ASSERT(val.get_si() == 0x1234,
-			"pp_value::operator=(signed short)");
+			"bignum::operator=(signed short)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "1234",
-			"pp_value::operator=(signed short)");
+			"bignum::operator=(signed short)");
 	}
 	{
-		pp_value val;
+		bignum val;
 		val = (signed short)-1;
 		ret += PP_TEST_ASSERT(val.get_si() == -1,
-			"pp_value::operator=(signed short)");
+			"bignum::operator=(signed short)");
 		ret += PP_TEST_ASSERT(val.get_str(10) == "-1",
-			"pp_value::operator=(signed short)");
+			"bignum::operator=(signed short)");
 	}
 	{
-		pp_value val;
+		bignum val;
 		val = (unsigned short)0x1234;
 		ret += PP_TEST_ASSERT(val.get_ui() == 0x1234,
-			"pp_value::operator=(unsigned short)");
+			"bignum::operator=(unsigned short)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "1234",
-			"pp_value::operator=(unsigned short)");
+			"bignum::operator=(unsigned short)");
 	}
 	{
-		pp_value val;
+		bignum val;
 		val = (unsigned short)-1;
 		ret += PP_TEST_ASSERT(val.get_ui() == 0xffff,
-			"pp_value::operator=(unsigned short)");
+			"bignum::operator=(unsigned short)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "ffff",
-			"pp_value::operator=(unsigned short)");
+			"bignum::operator=(unsigned short)");
 	}
 
 	// from int
 	{
-		pp_value val;
+		bignum val;
 		val = (signed int)0x12345678;
 		ret += PP_TEST_ASSERT(val.get_si() == 0x12345678,
-			"pp_value::operator=(signed int)");
+			"bignum::operator=(signed int)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "12345678",
-			"pp_value::operator=(signed int)");
+			"bignum::operator=(signed int)");
 	}
 	{
-		pp_value val;
+		bignum val;
 		val = (signed int)-1;
 		ret += PP_TEST_ASSERT(val.get_si() == -1,
-			"pp_value::operator=(signed int)");
+			"bignum::operator=(signed int)");
 		ret += PP_TEST_ASSERT(val.get_str(10) == "-1",
-			"pp_value::operator=(signed int)");
+			"bignum::operator=(signed int)");
 	}
 	{
-		pp_value val;
+		bignum val;
 		val = (unsigned int)0x12345678;
 		ret += PP_TEST_ASSERT(val.get_ui() == 0x12345678,
-			"pp_value::operator=(unsigned int)");
+			"bignum::operator=(unsigned int)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "12345678",
-			"pp_value::operator=(unsigned int)");
+			"bignum::operator=(unsigned int)");
 	}
 	{
-		pp_value val;
+		bignum val;
 		val = (unsigned int)-1;
 		ret += PP_TEST_ASSERT(val.get_ui() == 0xffffffff,
-			"pp_value::operator=(unsigned int)");
+			"bignum::operator=(unsigned int)");
 		ret += PP_TEST_ASSERT(val.get_str(16) == "ffffffff",
-			"pp_value::operator=(unsigned int)");
+			"bignum::operator=(unsigned int)");
 	}
 
-	// from pp_value
+	// from bignum
 	{
-		pp_value val1(12345678);
-		pp_value val2;
+		bignum val1(12345678);
+		bignum val2;
 		val2 = val1;
 		ret += PP_TEST_ASSERT(val2 == val1 && val2.get_ui() == 12345678,
-			"pp_value::operator=(pp_value)");
+			"bignum::operator=(bignum)");
 	}
 
 	// from string
 	{
-		pp_value val;
+		bignum val;
 		val = "12345678";
 		ret += PP_TEST_ASSERT(val.get_ui() == 12345678,
-			"pp_value::operator=(string)");
+			"bignum::operator=(string)");
 		ret += PP_TEST_ASSERT(val.get_str(10) == "12345678",
-			"pp_value::operator=(string)");
+			"bignum::operator=(string)");
 	}
 	{
-		pp_value val;
+		bignum val;
 		val = "0x112233445566778899aabbccddeeff00";
 		ret += PP_TEST_ASSERT(
 			val.get_str(16) == "112233445566778899aabbccddeeff00",
-			"pp_value::operator=(string)");
+			"bignum::operator=(string)");
 	}
 	{
-		pp_value val;
+		bignum val;
 		val = "-1";
 		ret += PP_TEST_ASSERT(val.get_si() == -1,
-			"pp_value::operator=(string)");
+			"bignum::operator=(string)");
 		ret += PP_TEST_ASSERT(val.get_str(10) == "-1",
-			"pp_value::operator=(string)");
+			"bignum::operator=(string)");
 	}
 
 	return ret;
@@ -363,100 +363,100 @@ test_comparisons()
 
 	// to char
 	{
-		pp_value val((signed char)0x12);
+		bignum val((signed char)0x12);
 		ret += PP_TEST_ASSERT(val == (signed char)0x12,
-			"pp_value::operator==(signed char)");
+			"bignum::operator==(signed char)");
 		ret += PP_TEST_ASSERT(val == 0x12,
-			"pp_value::operator==(int)");
+			"bignum::operator==(int)");
 	}
 	{
-		pp_value val((signed char)-1);
+		bignum val((signed char)-1);
 		ret += PP_TEST_ASSERT(val == (signed char)-1,
-			"pp_value::operator==(signed char)");
+			"bignum::operator==(signed char)");
 		ret += PP_TEST_ASSERT(val == -1,
-			"pp_value::operator==(int)");
+			"bignum::operator==(int)");
 	}
 	{
-		pp_value val((unsigned char)0x12);
+		bignum val((unsigned char)0x12);
 		ret += PP_TEST_ASSERT(val == (unsigned char)0x12,
-			"pp_value::operator==(unsigned char)");
+			"bignum::operator==(unsigned char)");
 		ret += PP_TEST_ASSERT(val == 0x12,
-			"pp_value::operator==(int)");
+			"bignum::operator==(int)");
 	}
 	{
-		pp_value val((unsigned char)-1);
+		bignum val((unsigned char)-1);
 		ret += PP_TEST_ASSERT(val == (unsigned char)0xff,
-			"pp_value::operator==(unsigned char)");
+			"bignum::operator==(unsigned char)");
 		ret += PP_TEST_ASSERT(val == 0xff,
-			"pp_value::operator==(int)");
+			"bignum::operator==(int)");
 	}
 
 	// to short
 	{
-		pp_value val((signed short)0x1234);
+		bignum val((signed short)0x1234);
 		ret += PP_TEST_ASSERT(val == (signed short)0x1234,
-			"pp_value::operator==(signed short)");
+			"bignum::operator==(signed short)");
 		ret += PP_TEST_ASSERT(val == 0x1234,
-			"pp_value::operator==(int)");
+			"bignum::operator==(int)");
 	}
 	{
-		pp_value val((signed short)-1);
+		bignum val((signed short)-1);
 		ret += PP_TEST_ASSERT(val == (signed short)-1,
-			"pp_value::operator==(signed short)");
+			"bignum::operator==(signed short)");
 		ret += PP_TEST_ASSERT(val == -1,
-			"pp_value::operator==(int)");
+			"bignum::operator==(int)");
 	}
 	{
-		pp_value val((unsigned short)0x1234);
+		bignum val((unsigned short)0x1234);
 		ret += PP_TEST_ASSERT(val == (unsigned short)0x1234,
-			"pp_value::operator==(unsigned short)");
+			"bignum::operator==(unsigned short)");
 		ret += PP_TEST_ASSERT(val == 0x1234,
-			"pp_value::operator==(int)");
+			"bignum::operator==(int)");
 	}
 	{
-		pp_value val((unsigned short)-1);
+		bignum val((unsigned short)-1);
 		ret += PP_TEST_ASSERT(val == (unsigned short)0xffff,
-			"pp_value::operator==(unsigned short)");
+			"bignum::operator==(unsigned short)");
 		ret += PP_TEST_ASSERT(val == 0xffff,
-			"pp_value::operator==(int)");
+			"bignum::operator==(int)");
 	}
 
 	// to int
 	{
-		pp_value val((signed int)0x12345678);
+		bignum val((signed int)0x12345678);
 		ret += PP_TEST_ASSERT(val == (signed int)0x12345678,
-			"pp_value::operator==(signed int)");
+			"bignum::operator==(signed int)");
 		ret += PP_TEST_ASSERT(val == 0x12345678,
-			"pp_value::operator==(int)");
+			"bignum::operator==(int)");
 	}
 	{
-		pp_value val((signed int)-1);
+		bignum val((signed int)-1);
 		ret += PP_TEST_ASSERT(val == (signed int)-1,
-			"pp_value::operator==(signed int)");
+			"bignum::operator==(signed int)");
 		ret += PP_TEST_ASSERT(val == -1,
-			"pp_value::operator==(int)");
+			"bignum::operator==(int)");
 	}
 	{
-		pp_value val((unsigned int)0x12345678);
+		bignum val((unsigned int)0x12345678);
 		ret += PP_TEST_ASSERT(val == (unsigned int)0x12345678,
-			"pp_value::operator==(unsigned int)");
+			"bignum::operator==(unsigned int)");
 		ret += PP_TEST_ASSERT(val == 0x12345678,
-			"pp_value::operator==(int)");
+			"bignum::operator==(int)");
 	}
 	{
-		pp_value val((unsigned int)-1);
+		bignum val((unsigned int)-1);
 		ret += PP_TEST_ASSERT(val == (unsigned int)0xffffffff,
-			"pp_value::operator==(unsigned int)");
+			"bignum::operator==(unsigned int)");
 		ret += PP_TEST_ASSERT(val == 0xffffffff,
-			"pp_value::operator==(int)");
+			"bignum::operator==(int)");
 	}
 
-	// to pp_value
+	// to bignum
 	{
-		pp_value val1(12345678);
-		pp_value val2(12345678);
+		bignum val1(12345678);
+		bignum val2(12345678);
 		ret += PP_TEST_ASSERT(val2 == val1 && val2 == 12345678,
-			"pp_value::operator==(pp_value)");
+			"bignum::operator==(bignum)");
 	}
 
 	// can't cmpare directly to strings
@@ -465,72 +465,72 @@ test_comparisons()
 	// tests pass for all the integral types, so will the other
 	// comparisons.
 	{
-		pp_value val(10);
+		bignum val(10);
 		ret += PP_TEST_ASSERT(val == 10,
-			"pp_value::operator==()");
+			"bignum::operator==()");
 		ret += PP_TEST_ASSERT(!(val == 11),
-			"pp_value::operator==()");
+			"bignum::operator==()");
 		ret += PP_TEST_ASSERT(val != 11,
-			"pp_value::operator!=()");
+			"bignum::operator!=()");
 		ret += PP_TEST_ASSERT(!(val != 10),
-			"pp_value::operator!=()");
+			"bignum::operator!=()");
 		ret += PP_TEST_ASSERT(val < 20,
-			"pp_value::operator<()");
+			"bignum::operator<()");
 		ret += PP_TEST_ASSERT(!(val < 2),
-			"pp_value::operator<()");
+			"bignum::operator<()");
 		ret += PP_TEST_ASSERT(val <= 20,
-			"pp_value::operator<=()");
+			"bignum::operator<=()");
 		ret += PP_TEST_ASSERT(!(val <= 2),
-			"pp_value::operator<=()");
+			"bignum::operator<=()");
 		ret += PP_TEST_ASSERT(val <= 10,
-			"pp_value::operator<=()");
+			"bignum::operator<=()");
 		ret += PP_TEST_ASSERT(val > 2,
-			"pp_value::operator>()");
+			"bignum::operator>()");
 		ret += PP_TEST_ASSERT(!(val > 20),
-			"pp_value::operator>()");
+			"bignum::operator>()");
 		ret += PP_TEST_ASSERT(val >= 2,
-			"pp_value::operator>=()");
+			"bignum::operator>=()");
 		ret += PP_TEST_ASSERT(!(val >= 20),
-			"pp_value::operator>=()");
+			"bignum::operator>=()");
 		ret += PP_TEST_ASSERT(val >= 10,
-			"pp_value::operator>=()");
+			"bignum::operator>=()");
 	}
 	{
-		pp_value val("0x112233445566778899aa");
-		ret += PP_TEST_ASSERT(val == pp_value("0x112233445566778899aa"),
-			"pp_value::operator==()");
+		bignum val("0x112233445566778899aa");
+		ret += PP_TEST_ASSERT(val == bignum("0x112233445566778899aa"),
+			"bignum::operator==()");
 		ret += PP_TEST_ASSERT(
-			!(val == pp_value("0x112233445566778899ab")),
-			"pp_value::operator==()");
-		ret += PP_TEST_ASSERT(val != pp_value("0x112233445566778899ab"),
-			"pp_value::operator!=()");
+			!(val == bignum("0x112233445566778899ab")),
+			"bignum::operator==()");
+		ret += PP_TEST_ASSERT(val != bignum("0x112233445566778899ab"),
+			"bignum::operator!=()");
 		ret += PP_TEST_ASSERT(
-			!(val != pp_value("0x112233445566778899aa")),
-			"pp_value::operator!=()");
-		ret += PP_TEST_ASSERT(val < pp_value("0x112233445566778899ab"),
-			"pp_value::operator<()");
+			!(val != bignum("0x112233445566778899aa")),
+			"bignum::operator!=()");
+		ret += PP_TEST_ASSERT(val < bignum("0x112233445566778899ab"),
+			"bignum::operator<()");
 		ret += PP_TEST_ASSERT(
-			!(val < pp_value("0x112233445566778899a9")),
-			"pp_value::operator<()");
-		ret += PP_TEST_ASSERT(val <= pp_value("0x112233445566778899ab"),
-			"pp_value::operator<=()");
+			!(val < bignum("0x112233445566778899a9")),
+			"bignum::operator<()");
+		ret += PP_TEST_ASSERT(val <= bignum("0x112233445566778899ab"),
+			"bignum::operator<=()");
 		ret += PP_TEST_ASSERT(
-			!(val <= pp_value("0x112233445566778899a9")),
-			"pp_value::operator<=()");
-		ret += PP_TEST_ASSERT(val <= pp_value("0x112233445566778899aa"),
-			"pp_value::operator<=()");
-		ret += PP_TEST_ASSERT(val > pp_value("0x112233445566778899a9"),
-			"pp_value::operator>()");
+			!(val <= bignum("0x112233445566778899a9")),
+			"bignum::operator<=()");
+		ret += PP_TEST_ASSERT(val <= bignum("0x112233445566778899aa"),
+			"bignum::operator<=()");
+		ret += PP_TEST_ASSERT(val > bignum("0x112233445566778899a9"),
+			"bignum::operator>()");
 		ret += PP_TEST_ASSERT(
-			!(val > pp_value("0x112233445566778899ab")),
-			"pp_value::operator>()");
-		ret += PP_TEST_ASSERT(val >= pp_value("0x112233445566778899a9"),
-			"pp_value::operator>=()");
+			!(val > bignum("0x112233445566778899ab")),
+			"bignum::operator>()");
+		ret += PP_TEST_ASSERT(val >= bignum("0x112233445566778899a9"),
+			"bignum::operator>=()");
 		ret += PP_TEST_ASSERT(
-			!(val >= pp_value("0x112233445566778899ab")),
-			"pp_value::operator>=()");
-		ret += PP_TEST_ASSERT(val >= pp_value("0x112233445566778899aa"),
-			"pp_value::operator>=()");
+			!(val >= bignum("0x112233445566778899ab")),
+			"bignum::operator>=()");
+		ret += PP_TEST_ASSERT(val >= bignum("0x112233445566778899aa"),
+			"bignum::operator>=()");
 	}
 
 	return ret;
@@ -542,76 +542,76 @@ test_small_arithmetic()
 	int ret = 0;
 
 	{
-		pp_value val(10);
+		bignum val(10);
 		ret += PP_TEST_ASSERT(val+3 == 13,
-			"pp_value::operator+(pp_value, int)");
+			"bignum::operator+(bignum, int)");
 		ret += PP_TEST_ASSERT(3+val == 13,
-			"pp_value::operator+(int, pp_value)");
-		ret += PP_TEST_ASSERT(val+pp_value(3) == 13,
-			"pp_value::operator+(pp_value, pp_value)");
+			"bignum::operator+(int, bignum)");
+		ret += PP_TEST_ASSERT(val+bignum(3) == 13,
+			"bignum::operator+(bignum, bignum)");
 		val += 5;
 		ret += PP_TEST_ASSERT(val == 15,
-			"pp_value::operator+=(pp_value, int)");
+			"bignum::operator+=(bignum, int)");
 		val++;
 		ret += PP_TEST_ASSERT(val == 16,
-			"pp_value::operator++()");
+			"bignum::operator++()");
 		++val;
 		ret += PP_TEST_ASSERT(val == 17,
-			"pp_value::operator++()");
+			"bignum::operator++()");
 	}
 	{
-		pp_value val(10);
+		bignum val(10);
 		ret += PP_TEST_ASSERT(val-3 == 7,
-			"pp_value::operator-(pp_value, int)");
+			"bignum::operator-(bignum, int)");
 		ret += PP_TEST_ASSERT(17-val == 7,
-			"pp_value::operator-(int, pp_value)");
-		ret += PP_TEST_ASSERT(val-pp_value(3) == 7,
-			"pp_value::operator-(pp_value, pp_value)");
+			"bignum::operator-(int, bignum)");
+		ret += PP_TEST_ASSERT(val-bignum(3) == 7,
+			"bignum::operator-(bignum, bignum)");
 		val -= 5;
 		ret += PP_TEST_ASSERT(val == 5,
-			"pp_value::operator-=(pp_value, int)");
+			"bignum::operator-=(bignum, int)");
 		val--;
 		ret += PP_TEST_ASSERT(val == 4,
-			"pp_value::operator--()");
+			"bignum::operator--()");
 		--val;
 		ret += PP_TEST_ASSERT(val == 3,
-			"pp_value::operator-()");
+			"bignum::operator-()");
 	}
 	{
-		pp_value val(10);
+		bignum val(10);
 		ret += PP_TEST_ASSERT(val*2 == 20,
-			"pp_value::operator*(pp_value, int)");
+			"bignum::operator*(bignum, int)");
 		ret += PP_TEST_ASSERT(2*val == 20,
-			"pp_value::operator*(int, pp_value)");
-		ret += PP_TEST_ASSERT(val*pp_value(2) == 20,
-			"pp_value::operator*(pp_value, pp_value)");
+			"bignum::operator*(int, bignum)");
+		ret += PP_TEST_ASSERT(val*bignum(2) == 20,
+			"bignum::operator*(bignum, bignum)");
 		val *= 3;
 		ret += PP_TEST_ASSERT(val == 30,
-			"pp_value::operator*=(pp_value, int)");
+			"bignum::operator*=(bignum, int)");
 	}
 	{
-		pp_value val(10);
+		bignum val(10);
 		ret += PP_TEST_ASSERT(val/2 == 5,
-			"pp_value::operator/(pp_value, int)");
+			"bignum::operator/(bignum, int)");
 		ret += PP_TEST_ASSERT(50/val == 5,
-			"pp_value::operator/(int, pp_value)");
-		ret += PP_TEST_ASSERT(val/pp_value(2) == 5,
-			"pp_value::operator/(pp_value, pp_value)");
+			"bignum::operator/(int, bignum)");
+		ret += PP_TEST_ASSERT(val/bignum(2) == 5,
+			"bignum::operator/(bignum, bignum)");
 		val /= 5;
 		ret += PP_TEST_ASSERT(val == 2,
-			"pp_value::operator/=(pp_value, int)");
+			"bignum::operator/=(bignum, int)");
 	}
 	{
-		pp_value val(17);
+		bignum val(17);
 		ret += PP_TEST_ASSERT(val%10 == 7,
-			"pp_value::operator%(pp_value, int)");
+			"bignum::operator%(bignum, int)");
 		ret += PP_TEST_ASSERT(24%val == 7,
-			"pp_value::operator%(int, pp_value)");
-		ret += PP_TEST_ASSERT(val%pp_value(10) == 7,
-			"pp_value::operator%(pp_value, pp_value)");
+			"bignum::operator%(int, bignum)");
+		ret += PP_TEST_ASSERT(val%bignum(10) == 7,
+			"bignum::operator%(bignum, bignum)");
 		val %= 5;
 		ret += PP_TEST_ASSERT(val == 2,
-			"pp_value::operator%=(pp_value, int)");
+			"bignum::operator%=(bignum, int)");
 	}
 
 	return ret;
@@ -622,60 +622,60 @@ test_large_arithmetic()
 {
 	int ret = 0;
 	{
-		pp_value val("0x1000000000000000a");
-		ret += PP_TEST_ASSERT(val+3 == pp_value("0x1000000000000000d"),
-			"pp_value::operator+(pp_value, int)");
-		ret += PP_TEST_ASSERT(3+val == pp_value("0x1000000000000000d"),
-			"pp_value::operator+(int, pp_value)");
+		bignum val("0x1000000000000000a");
+		ret += PP_TEST_ASSERT(val+3 == bignum("0x1000000000000000d"),
+			"bignum::operator+(bignum, int)");
+		ret += PP_TEST_ASSERT(3+val == bignum("0x1000000000000000d"),
+			"bignum::operator+(int, bignum)");
 		val += 5;
-		ret += PP_TEST_ASSERT(val == pp_value("0x1000000000000000f"),
-			"pp_value::operator+=(pp_value, int)");
+		ret += PP_TEST_ASSERT(val == bignum("0x1000000000000000f"),
+			"bignum::operator+=(bignum, int)");
 		val++;
-		ret += PP_TEST_ASSERT(val == pp_value("0x10000000000000010"),
-			"pp_value::operator++()");
+		ret += PP_TEST_ASSERT(val == bignum("0x10000000000000010"),
+			"bignum::operator++()");
 		++val;
-		ret += PP_TEST_ASSERT(val == pp_value("0x10000000000000011"),
-			"pp_value::operator++()");
+		ret += PP_TEST_ASSERT(val == bignum("0x10000000000000011"),
+			"bignum::operator++()");
 	}
 	{
-		pp_value val("0x1000000000000000a");
-		ret += PP_TEST_ASSERT(val-3 == pp_value("0x10000000000000007"),
-			"pp_value::operator-(pp_value, int)");
+		bignum val("0x1000000000000000a");
+		ret += PP_TEST_ASSERT(val-3 == bignum("0x10000000000000007"),
+			"bignum::operator-(bignum, int)");
 		val -= 5;
-		ret += PP_TEST_ASSERT(val == pp_value("0x10000000000000005"),
-			"pp_value::operator-=(int, pp_value)");
+		ret += PP_TEST_ASSERT(val == bignum("0x10000000000000005"),
+			"bignum::operator-=(int, bignum)");
 		val--;
-		ret += PP_TEST_ASSERT(val == pp_value("0x10000000000000004"),
-			"pp_value::operator--(pp_value, int)");
+		ret += PP_TEST_ASSERT(val == bignum("0x10000000000000004"),
+			"bignum::operator--(bignum, int)");
 		--val;
-		ret += PP_TEST_ASSERT(val == pp_value("0x10000000000000003"),
-			"pp_value::operator--()");
+		ret += PP_TEST_ASSERT(val == bignum("0x10000000000000003"),
+			"bignum::operator--()");
 	}
 	{
-		pp_value val("0x10000000000000010");
-		ret += PP_TEST_ASSERT(val*2 == pp_value("0x20000000000000020"),
-			"pp_value::operator*(pp_value, int)");
-		ret += PP_TEST_ASSERT(2*val == pp_value("0x20000000000000020"),
-			"pp_value::operator*(int, pp_value)");
+		bignum val("0x10000000000000010");
+		ret += PP_TEST_ASSERT(val*2 == bignum("0x20000000000000020"),
+			"bignum::operator*(bignum, int)");
+		ret += PP_TEST_ASSERT(2*val == bignum("0x20000000000000020"),
+			"bignum::operator*(int, bignum)");
 		val *= 3;
-		ret += PP_TEST_ASSERT(val == pp_value("0x30000000000000030"),
-			"pp_value::operator*=(pp_value, int)");
+		ret += PP_TEST_ASSERT(val == bignum("0x30000000000000030"),
+			"bignum::operator*=(bignum, int)");
 	}
 	{
-		pp_value val("0xa000000000000000a");
-		ret += PP_TEST_ASSERT(val/2 == pp_value("0x50000000000000005"),
-			"pp_value::operator/(pp_value, int)");
+		bignum val("0xa000000000000000a");
+		ret += PP_TEST_ASSERT(val/2 == bignum("0x50000000000000005"),
+			"bignum::operator/(bignum, int)");
 		val /= 5;
-		ret += PP_TEST_ASSERT(val == pp_value("0x20000000000000002"),
-			"pp_value::operator/=(pp_value, int)");
+		ret += PP_TEST_ASSERT(val == bignum("0x20000000000000002"),
+			"bignum::operator/=(bignum, int)");
 	}
 	{
-		pp_value val("0x10000000000000011");
-		ret += PP_TEST_ASSERT(val%10 == pp_value("0x03"),
-			"pp_value::operator%(pp_value, int)");
+		bignum val("0x10000000000000011");
+		ret += PP_TEST_ASSERT(val%10 == bignum("0x03"),
+			"bignum::operator%(bignum, int)");
 		val %= 5;
-		ret += PP_TEST_ASSERT(val == pp_value("0x03"),
-			"pp_value::operator%=(pp_value, int)");
+		ret += PP_TEST_ASSERT(val == bignum("0x03"),
+			"bignum::operator%=(bignum, int)");
 	}
 
 	return ret;
@@ -690,50 +690,50 @@ test_small_logical()
 	int ret = 0;
 
 	{
-		pp_value val(0xff);
-		ret += PP_TEST_ASSERT((val & pp_value(0x107)) == 0x7,
-			"pp_value::operator&(pp_value, unsigned)");
-		ret += PP_TEST_ASSERT((pp_value(0x107) & val) == 0x7,
-			"pp_value::operator&(unsigned, pp_value)");
-		val &= pp_value(0x370);
+		bignum val(0xff);
+		ret += PP_TEST_ASSERT((val & bignum(0x107)) == 0x7,
+			"bignum::operator&(bignum, unsigned)");
+		ret += PP_TEST_ASSERT((bignum(0x107) & val) == 0x7,
+			"bignum::operator&(unsigned, bignum)");
+		val &= bignum(0x370);
 		ret += PP_TEST_ASSERT(val == 0x70,
-			"pp_value::operator&=(pp_value, unsigned)");
+			"bignum::operator&=(bignum, unsigned)");
 	}
 	{
-		pp_value val(0xff);
-		ret += PP_TEST_ASSERT((val | pp_value(0x107)) == 0x1ff,
-			"pp_value::operator|()");
-		ret += PP_TEST_ASSERT((pp_value(0x107) | val) == 0x1ff,
-			"pp_value::operator|()");
-		val |= pp_value(0x270);
-		ret += PP_TEST_ASSERT(val == 0x2ff, "pp_value::operator|=()");
+		bignum val(0xff);
+		ret += PP_TEST_ASSERT((val | bignum(0x107)) == 0x1ff,
+			"bignum::operator|()");
+		ret += PP_TEST_ASSERT((bignum(0x107) | val) == 0x1ff,
+			"bignum::operator|()");
+		val |= bignum(0x270);
+		ret += PP_TEST_ASSERT(val == 0x2ff, "bignum::operator|=()");
 	}
 	{
-		pp_value val(0xff);
-		ret += PP_TEST_ASSERT((val ^ pp_value(0x107)) == 0x1f8,
-			"pp_value::operator^()");
-		ret += PP_TEST_ASSERT((pp_value(0x107) ^ val) == 0x1f8,
-			"pp_value::operator^()");
-		val ^= pp_value(0x270);
-		ret += PP_TEST_ASSERT(val == 0x28f, "pp_value::operator^=()");
+		bignum val(0xff);
+		ret += PP_TEST_ASSERT((val ^ bignum(0x107)) == 0x1f8,
+			"bignum::operator^()");
+		ret += PP_TEST_ASSERT((bignum(0x107) ^ val) == 0x1f8,
+			"bignum::operator^()");
+		val ^= bignum(0x270);
+		ret += PP_TEST_ASSERT(val == 0x28f, "bignum::operator^=()");
 	}
 	{
-		pp_value val(0x10);
+		bignum val(0x10);
 		ret += PP_TEST_ASSERT((val << 2) == 0x40,
-			"pp_value::operator<<()");
+			"bignum::operator<<()");
 		ret += PP_TEST_ASSERT((2 << val) == 0x20000,
-			"pp_value::operator<<()");
+			"bignum::operator<<()");
 		val <<= 3;
-		ret += PP_TEST_ASSERT(val == 0x80, "pp_value::operator<<=()");
+		ret += PP_TEST_ASSERT(val == 0x80, "bignum::operator<<=()");
 	}
 	{
-		pp_value val(0x10);
+		bignum val(0x10);
 		ret += PP_TEST_ASSERT((val >> 2) == 0x04,
-			"pp_value::operator>>()");
+			"bignum::operator>>()");
 		ret += PP_TEST_ASSERT((0x20000 >> val) == 0x2,
-			"pp_value::operator>>()");
+			"bignum::operator>>()");
 		val >>= 3;
-		ret += PP_TEST_ASSERT(val == 0x02, "pp_value::operator>>=()");
+		ret += PP_TEST_ASSERT(val == 0x02, "bignum::operator>>=()");
 	}
 
 	return ret;
@@ -744,59 +744,59 @@ test_large_logical()
 {
 	int ret = 0;
 	{
-		pp_value val("0xf00000000000000ff");
-		ret += PP_TEST_ASSERT((val & pp_value(0x107)) == 0x7,
-			"pp_value::operator&()");
-		ret += PP_TEST_ASSERT((pp_value(0x107) & val) == 0x7,
-			"pp_value::operator&()");
-		val &= pp_value(0x370);
-		ret += PP_TEST_ASSERT(val == 0x70, "pp_value::operator&=()");
+		bignum val("0xf00000000000000ff");
+		ret += PP_TEST_ASSERT((val & bignum(0x107)) == 0x7,
+			"bignum::operator&()");
+		ret += PP_TEST_ASSERT((bignum(0x107) & val) == 0x7,
+			"bignum::operator&()");
+		val &= bignum(0x370);
+		ret += PP_TEST_ASSERT(val == 0x70, "bignum::operator&=()");
 	}
 	{
-		pp_value val("0xf00000000000000ff");
+		bignum val("0xf00000000000000ff");
 		ret += PP_TEST_ASSERT(
-			(val | pp_value(0x107)) == pp_value("0xf00000000000001ff"),
-			"pp_value::operator|()");
+			(val | bignum(0x107)) == bignum("0xf00000000000001ff"),
+			"bignum::operator|()");
 		ret += PP_TEST_ASSERT(
-			(pp_value(0x107) | val) == pp_value("0xf00000000000001ff"),
-			"pp_value::operator|()");
-		val |= pp_value(0x270);
+			(bignum(0x107) | val) == bignum("0xf00000000000001ff"),
+			"bignum::operator|()");
+		val |= bignum(0x270);
 		ret += PP_TEST_ASSERT(
-			val == pp_value("0xf00000000000002ff"),
-			"pp_value::operator|=()");
+			val == bignum("0xf00000000000002ff"),
+			"bignum::operator|=()");
 	}
 	{
-		pp_value val("0xf00000000000000ff");
+		bignum val("0xf00000000000000ff");
 		ret += PP_TEST_ASSERT(
-			(val ^ pp_value(0x107)) == pp_value("0xf00000000000001f8"),
-			"pp_value::operator^()");
+			(val ^ bignum(0x107)) == bignum("0xf00000000000001f8"),
+			"bignum::operator^()");
 		ret += PP_TEST_ASSERT(
-			(pp_value(0x107) ^ val) == pp_value("0xf00000000000001f8"),
-			"pp_value::operator^()");
-		val ^= pp_value(0x270);
+			(bignum(0x107) ^ val) == bignum("0xf00000000000001f8"),
+			"bignum::operator^()");
+		val ^= bignum(0x270);
 		ret += PP_TEST_ASSERT(
-			val == pp_value("0xf000000000000028f"),
-			"pp_value::operator^=()");
+			val == bignum("0xf000000000000028f"),
+			"bignum::operator^=()");
 	}
 	{
-		pp_value val("0xf0000000000000010");
+		bignum val("0xf0000000000000010");
 		ret += PP_TEST_ASSERT(
-			(val << 2) == pp_value("0x3c0000000000000040"),
-			"pp_value::operator<<()");
+			(val << 2) == bignum("0x3c0000000000000040"),
+			"bignum::operator<<()");
 		val <<= 3;
 		ret += PP_TEST_ASSERT(
-			val == pp_value("0x780000000000000080"),
-			"pp_value::operator<<=()");
+			val == bignum("0x780000000000000080"),
+			"bignum::operator<<=()");
 	}
 	{
-		pp_value val("0xf0000000000000010");
+		bignum val("0xf0000000000000010");
 		ret += PP_TEST_ASSERT(
-			(val >> 2) == pp_value("0x3c000000000000004"),
-			"pp_value::operator>>()");
+			(val >> 2) == bignum("0x3c000000000000004"),
+			"bignum::operator>>()");
 		val >>= 3;
 		ret += PP_TEST_ASSERT(
-			val == pp_value("0x1e000000000000002"),
-			"pp_value::operator>>=()");
+			val == bignum("0x1e000000000000002"),
+			"bignum::operator>>=()");
 	}
 
 	return ret;
@@ -808,7 +808,7 @@ test_small_io()
 	int ret = 0;
 
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss << std::dec;
 		rawoss << 15;
@@ -816,10 +816,10 @@ test_small_io()
 		valoss << std::dec;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss << std::oct;
 		rawoss << 15;
@@ -827,10 +827,10 @@ test_small_io()
 		valoss << std::oct;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss << std::hex;
 		rawoss << 15;
@@ -838,10 +838,10 @@ test_small_io()
 		valoss << std::hex;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::showbase);
 		rawoss << std::dec;
@@ -851,10 +851,10 @@ test_small_io()
 		valoss << std::dec;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::showbase);
 		rawoss << std::oct;
@@ -864,10 +864,10 @@ test_small_io()
 		valoss << std::oct;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::showbase);
 		rawoss << std::hex;
@@ -877,10 +877,10 @@ test_small_io()
 		valoss << std::hex;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::showbase);
 		rawoss.setf(std::ios_base::uppercase);
@@ -892,10 +892,10 @@ test_small_io()
 		valoss << std::dec;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::showbase);
 		rawoss.setf(std::ios_base::uppercase);
@@ -907,10 +907,10 @@ test_small_io()
 		valoss << std::oct;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::showbase);
 		rawoss.setf(std::ios_base::uppercase);
@@ -922,10 +922,10 @@ test_small_io()
 		valoss << std::hex;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::showpos);
 		rawoss << std::dec;
@@ -935,12 +935,12 @@ test_small_io()
 		valoss << std::dec;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
 		#if 0
 		// This test fails, but I don't care.
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::showpos);
 		rawoss << std::oct;
@@ -950,13 +950,13 @@ test_small_io()
 		valoss << std::oct;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 		#endif
 	}
 	{
 		#if 0
 		// This test fails, but I don't care.
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::showpos);
 		rawoss << std::hex;
@@ -966,11 +966,11 @@ test_small_io()
 		valoss << std::hex;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 		#endif
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::left);
 		rawoss.width(8);
@@ -982,10 +982,10 @@ test_small_io()
 		valoss << std::dec;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::left);
 		rawoss.width(8);
@@ -997,10 +997,10 @@ test_small_io()
 		valoss << std::oct;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::left);
 		rawoss.width(8);
@@ -1012,10 +1012,10 @@ test_small_io()
 		valoss << std::hex;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::right);
 		rawoss.width(8);
@@ -1027,10 +1027,10 @@ test_small_io()
 		valoss << std::dec;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::right);
 		rawoss.width(8);
@@ -1042,10 +1042,10 @@ test_small_io()
 		valoss << std::oct;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::right);
 		rawoss.width(8);
@@ -1057,10 +1057,10 @@ test_small_io()
 		valoss << std::hex;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::left);
 		rawoss.width(8);
@@ -1074,10 +1074,10 @@ test_small_io()
 		valoss << std::dec;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::left);
 		rawoss.width(8);
@@ -1091,10 +1091,10 @@ test_small_io()
 		valoss << std::oct;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::left);
 		rawoss.width(8);
@@ -1108,10 +1108,10 @@ test_small_io()
 		valoss << std::hex;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::right);
 		rawoss.width(8);
@@ -1125,10 +1125,10 @@ test_small_io()
 		valoss << std::dec;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::right);
 		rawoss.width(8);
@@ -1142,10 +1142,10 @@ test_small_io()
 		valoss << std::oct;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::right);
 		rawoss.width(8);
@@ -1159,10 +1159,10 @@ test_small_io()
 		valoss << std::hex;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::left);
 		rawoss.setf(std::ios_base::showbase);
@@ -1178,10 +1178,10 @@ test_small_io()
 		valoss << std::dec;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::left);
 		rawoss.setf(std::ios_base::showbase);
@@ -1197,10 +1197,10 @@ test_small_io()
 		valoss << std::oct;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::left);
 		rawoss.setf(std::ios_base::showbase);
@@ -1216,10 +1216,10 @@ test_small_io()
 		valoss << std::hex;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::right);
 		rawoss.setf(std::ios_base::showbase);
@@ -1235,10 +1235,10 @@ test_small_io()
 		valoss << std::dec;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::right);
 		rawoss.setf(std::ios_base::showbase);
@@ -1254,13 +1254,13 @@ test_small_io()
 		valoss << std::oct;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
 		#if 0
 		// This test fails, and I think the standard version is
 		// wrong.
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::right);
 		rawoss.setf(std::ios_base::showbase);
@@ -1276,20 +1276,20 @@ test_small_io()
 		valoss << std::hex;
 		valoss << val;
 		ret += PP_TEST_ASSERT(rawoss.str() == valoss.str(),
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 		#endif
 	}
 
 	// test boost::format support
 	{
-		pp_value val(15);
+		bignum val(15);
 		std::ostringstream oss;
 		oss.width(8);
 		oss.fill('0');
 		oss << std::hex;
 		oss << 15;
 		ret += PP_TEST_ASSERT(oss.str() == boost::format("%08x") %15,
-			"boost::format() % pp_value");
+			"boost::format() % bignum");
 	}
 
 	return ret;
@@ -1302,33 +1302,33 @@ test_large_io()
 
 	{
 		string num = "12345678123456781234567812345678";
-		pp_value val(num);
+		bignum val(num);
 		std::ostringstream oss;
 		oss.setf(std::ios_base::showbase);
 		oss << std::dec;
 		oss << val;
 		ret += PP_TEST_ASSERT(oss.str() == num,
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
 		string num = "012345671234567123456712345671234567";
-		pp_value val(num);
+		bignum val(num);
 		std::ostringstream oss;
 		oss.setf(std::ios_base::showbase);
 		oss << std::oct;
 		oss << val;
 		ret += PP_TEST_ASSERT(oss.str() == num,
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 	{
 		string num = "0x123456789abcdef123456789abcdef";
-		pp_value val(num);
+		bignum val(num);
 		std::ostringstream oss;
 		oss.setf(std::ios_base::showbase);
 		oss << std::hex;
 		oss << val;
 		ret += PP_TEST_ASSERT(oss.str() == num,
-			"pp_value::operator<<(ostream)");
+			"bignum::operator<<(ostream)");
 	}
 
 	return ret;
