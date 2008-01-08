@@ -6,6 +6,7 @@ OBJS = $(SRCS:.cpp=.o)
 
 TESTS = keyed_vector_test \
 	filesystem_test \
+	bitbuffer_test \
 	bignum_test \
 	pp_datatype_test \
 	pp_binding_test \

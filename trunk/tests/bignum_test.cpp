@@ -1,5 +1,6 @@
 #include "pp.h"
 #include "pp_test.h"
+#include "bitbuffer.h"
 #include "bignum.h"
 using namespace std;
 
@@ -207,6 +208,40 @@ test_ctors()
 		val = "-1";
 		ret += PP_TEST_ASSERT(val.get_si() == -1,
 			"bignum::bignum(string)");
+	}
+
+	// from bitbuffer
+	{
+		bitbuffer bb(8);
+		bb.byte_at(0) = 0x12;
+		bignum val(bb);
+		ret += PP_TEST_ASSERT(val.get_ui() == 0x12,
+			"bignum(bitbuffer)");
+		bitbuffer bb2 = val.get_bitbuffer();
+		ret += PP_TEST_ASSERT(to_string(bb2) == "0x12",
+			"bignum::get_bitbuffer()");
+		bitbuffer bb3 = val.get_bitbuffer(BITS8);
+		ret += PP_TEST_ASSERT(to_string(bb3) == "0x12",
+			"bignum::get_bitbuffer(int)");
+	}
+	{
+		bitbuffer bb(16);
+		bb.byte_at(1) = 0x12;
+		bb.byte_at(0) = 0x34;
+		bignum val(bb);
+		ret += PP_TEST_ASSERT(val.get_ui() == 0x1234,
+			"bignum(bitbuffer)");
+		bitbuffer bb2 = val.get_bitbuffer();
+		ret += PP_TEST_ASSERT(to_string(bb2) == "0x1234",
+			"bignum::get_bitbuffer()");
+		bitbuffer bb3 = val.get_bitbuffer(BITS16);
+		ret += PP_TEST_ASSERT(to_string(bb3) == "0x1234",
+			"bignum::get_bitbuffer(int)");
+	}
+	{
+		bitbuffer bb = pp_value(-1).get_bitbuffer();
+		ret += PP_TEST_ASSERT(to_string(bb) == "0x1",
+			"bignum::get_bitbuffer()");
 	}
 
 	return ret;

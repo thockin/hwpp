@@ -3,6 +3,7 @@
 #define PP_BIGNUM_H__
 
 #include <gmpxx.h>
+#include "bitbuffer.h"
 
 #define BITS_PER_LONG	(sizeof(long)*CHAR_BIT)
 
@@ -18,7 +19,7 @@ class bignum: public mpz_class
 {
     public:
 	// ctors are mostly pass-thru to GMP
-	bignum(): mpz_class() {}
+	bignum() {}
 	bignum(const bignum &that): mpz_class(that) {}
 	template <class T, class U>
 	bignum(const __gmp_expr<T, U> &expr): mpz_class(expr) {}
@@ -44,6 +45,10 @@ class bignum: public mpz_class
 	bignum(unsigned long long value)
 	{
 		*this = value;
+	}
+	bignum(const bitbuffer &bitbuf)
+	{
+		*this = bitbuf;
 	}
 
 	// assignment operators are mostly pass-thru to GMP
@@ -96,7 +101,7 @@ class bignum: public mpz_class
 		if ((sizeof(long) == sizeof(long long))
 		 || (that >= LONG_MIN && that <= LONG_MAX)) {
 			// simple
-			mpz_class::operator=((signed long)that);
+			*this = (signed long)that;
 			return *this;
 		}
 
@@ -109,7 +114,7 @@ class bignum: public mpz_class
 
 		unsigned long vlo = that;
 		unsigned long vhi = that >> BITS_PER_LONG;
-		mpz_class::operator=(vhi);
+		*this = vhi;
 		*this <<= BITS_PER_LONG;
 		*this += vlo;
 		*this *= multiplier;
@@ -122,17 +127,28 @@ class bignum: public mpz_class
 		if ((sizeof(long) == sizeof(long long))
 		 || (that <= ULONG_MAX)) {
 			// simple
-			mpz_class::operator=((unsigned long)that);
+			*this = (unsigned long)that;
 			return *this;
 		}
 
 		// not so simple
 		unsigned long vlo = that;
 		unsigned long vhi = that >> BITS_PER_LONG;
-		mpz_class::operator=(vhi);
+		*this = vhi;
 		*this <<= BITS_PER_LONG;
 		*this += vlo;
 
+		return *this;
+	}
+	bignum &
+	operator=(const bitbuffer &bitbuf)
+	{
+		// mpz_import() seems to not work.
+		*this = 0;
+		for (unsigned i = bitbuf.size_bytes(); i > 0; i--) {
+			*this <<= CHAR_BIT;
+			*this += bitbuf.byte_at(i-1);
+		}
 		return *this;
 	}
 
@@ -192,6 +208,30 @@ class bignum: public mpz_class
 		unsigned long long result = ((rhi << BITS_PER_LONG) | rlo);
 
 		return result;
+	}
+
+	bitbuffer
+	get_bitbuffer(unsigned bits=0) const
+	{
+		// mpz_export() seems to not work.
+		unsigned bytes = 0;
+		bignum tmp(*this);
+		while (tmp != 0) {
+			bytes++;
+			tmp >>= CHAR_BIT;
+		}
+		if (bits) {
+			bytes = (bits + (CHAR_BIT-1)) / CHAR_BIT;
+		}
+		bitbuffer bitbuf(bits ? bits : (bytes * CHAR_BIT));
+
+		bignum myval(*this);
+		for (unsigned i = 0; i < bytes; i++) {
+			bitbuf.byte_at(i) = myval.get_uint() & 0xff;
+			myval >>= CHAR_BIT;
+		}
+
+		return bitbuf;
 	}
 
 	// Stay consistent with the mpz_class API.

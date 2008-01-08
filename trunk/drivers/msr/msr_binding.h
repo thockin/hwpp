@@ -73,14 +73,6 @@ class msr_io
 
 	void
 	seek(const pp_value &offset) const;
-
-	template<typename Tdata>
-	pp_value
-	do_read(const pp_value &offset) const;
-
-	template<typename Tdata>
-	void
-	do_write(const pp_value &offset, const pp_value &value) const;
 };
 
 /*
