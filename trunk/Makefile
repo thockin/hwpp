@@ -26,8 +26,12 @@ libpp.a: $(OBJS) devices/all_devices.o $(DRIVER_LIB)
 $(DRIVER_LIB): drivers
 	@$(MAKE) -C drivers lib
 
-.PHONY: drivers devices examples
-drivers devices examples:
+.PHONY: drivers devices
+drivers devices:
+	@$(MAKE) -C $@
+
+.PHONY: examples
+examples: all
 	@$(MAKE) -C $@
 
 # This target is a hack until we have a real language.  It's written this
