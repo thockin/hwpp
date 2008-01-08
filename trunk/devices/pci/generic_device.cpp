@@ -1,4 +1,5 @@
 #include "pp.h"
+#include <vector>
 #include "pp_scope.h"
 #include "pp_register.h"
 #include "pp_datatypes.h"
