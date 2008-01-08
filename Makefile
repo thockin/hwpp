@@ -37,7 +37,7 @@ examples: all
 # This target is a hack until we have a real language.  It's written this
 # way on purpose, to work around make being too smart for it's own good.
 devices/all_devices.o: FORCE
-	$(MAKE) devices
+	@$(MAKE) devices
 
 .PHONY: test
 test: all
