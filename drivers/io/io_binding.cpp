@@ -34,18 +34,23 @@ io_io::read(const pp_value &address, const pp_bitwidth width) const
 {
 	switch (width) {
 	    case BITS8:
-		return do_read<uint8_t>(address);
 	    case BITS16:
-		return do_read<uint16_t>(address);
 	    case BITS32:
-		return do_read<uint32_t>(address);
 	    case BITS64:
-		return do_read<uint64_t>(address);
-	    default:
 		break;
+	    default:
+		throw do_io_error(to_string(
+		    boost::format("unsupported register width %d") %width));
 	}
-	throw do_io_error(to_string(
-	    boost::format("unsupported register width %d") %width));
+
+	seek(address);
+	bitbuffer bb(width);
+	if (m_file->read(bb.get(), bb.size_bytes()) != bb.size_bytes()) {
+		throw do_io_error(to_string(
+		    boost::format("can't read register 0x%x") %address));
+	}
+
+	return pp_value(bb);
 }
 
 void
@@ -54,18 +59,26 @@ io_io::write(const pp_value &address, const pp_bitwidth width,
 {
 	switch (width) {
 	    case BITS8:
-		return do_write<uint8_t>(address, value);
 	    case BITS16:
-		return do_write<uint16_t>(address, value);
 	    case BITS32:
-		return do_write<uint32_t>(address, value);
 	    case BITS64:
-		return do_write<uint64_t>(address, value);
-	    default:
 		break;
+	    default:
+		throw do_io_error(to_string(
+		    boost::format("unsupported register width %d") %width));
 	}
-	throw do_io_error(to_string(
-	    boost::format("unsupported register width %d") %width));
+
+	/* see if we are already open RW or can change to RW */
+	if (m_file->mode() == O_RDONLY) {
+		m_file->reopen(O_RDWR);
+	}
+
+	seek(address);
+	bitbuffer bb = value.get_bitbuffer(width);
+	if (m_file->write(bb.get(), bb.size_bytes()) != bb.size_bytes()) {
+		throw do_io_error(to_string(
+		    boost::format("can't write register 0x%x") %address));
+	}
 }
 
 pp_driver_io_error
@@ -98,34 +111,4 @@ io_io::seek(const pp_value &offset) const
 	}
 
 	m_file->seek(m_address.base+offset.get_uint(), SEEK_SET);
-}
-
-template<typename Tdata>
-pp_value
-io_io::do_read(const pp_value &offset) const
-{
-	seek(offset);
-	Tdata data;
-	if (m_file->read(&data, sizeof(data)) != sizeof(data)) {
-		throw do_io_error(to_string(
-		    boost::format("can't read register 0x%x") %offset));
-	}
-	return pp_value(data);
-}
-
-template<typename Tdata>
-void
-io_io::do_write(const pp_value &offset, const pp_value &value) const
-{
-	/* see if we are already open RW or can change to RW */
-	if (m_file->mode() == O_RDONLY) {
-		m_file->reopen(O_RDWR);
-	}
-
-	seek(offset);
-	Tdata data = value.get_uint();
-	if (m_file->write(&data, sizeof(data)) != sizeof(data)) {
-		throw do_io_error(to_string(
-		    boost::format("can't write register 0x%x") %offset));
-	}
 }
