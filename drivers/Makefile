@@ -6,7 +6,7 @@ DRIVER_LIB = libdrivers.a
 
 DRIVER_MOD_SFX = _driver_module.o
 
-all test dep:
+all test:
 	@for d in $(DRIVERS); do \
 		$(MAKE) -C $$d $@ || exit 1; \
 	done
