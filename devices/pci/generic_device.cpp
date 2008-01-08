@@ -381,6 +381,8 @@ power_mgmt_capability(const pp_value &address)
 {
 	REG16("%pmc", address+2);
 	SIMPLE_FIELD("version", ANON_ENUM(
+				KV("pcipm_v1_0", 1),
+				KV("pcipm_v1_1", 2),
 				KV("pcipm_v1_2", 3)),
 			"%pmc", 2, 0);
 	ONE_BIT_FIELD("clock", "yesno_t", "%pmc", 3);
