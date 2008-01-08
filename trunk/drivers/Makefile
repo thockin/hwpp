@@ -1,3 +1,6 @@
+TOPDIR = ..
+include $(TOPDIR)/rules.mk
+
 DRIVERS = io mem pci msr
 DRIVER_LIB = libdrivers.a
 
