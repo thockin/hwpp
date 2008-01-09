@@ -10,7 +10,7 @@ OBJS = $(SRCS:.cpp=.o)
 all: all_devices.o
 
 all_devices.o: $(OBJS)
-	$(LD) -r -o $@ $^
+	$(CXX) $(LDFLAGS) -nostdlib -Wl,-r -o $@ $^
 
 .PHONY: test
 test:

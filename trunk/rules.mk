@@ -14,17 +14,13 @@ CC = $(CXX)
 
 # build flags
 
-PP_CXXFLAGS = 
+PP_CXXFLAGS = $(ARCHFLAGS)
+PP_LDFLAGS = $(ARCHFLAGS)
 PP_WARNS = -Wall -Werror -Woverloaded-virtual $(WARNS)
 PP_DEFS = -DPP_VERSION="\"$(PP_VERSION)\"" $(DEFS)
 PP_INCLUDES = -I$(TOPDIR) $(INCLUDES)
-ifeq ($(strip $(DEBUG)),1)
-PP_DEBUG = -O0 -ggdb -DDEBUG -UNDEBUG -fno-default-inline
-else
-PP_DEBUG = -O2 -DNDEBUG
-endif
-
 PP_LDLIBS = $(LIBS) -lgmpxx -lgmp
+
 ifeq ($(strip $(STATIC)),1)
 PP_STATIC = -static
 endif
@@ -38,11 +34,18 @@ PP_LDFLAGS += -pg
 PP_LDLIBS += -lgcov
 endif
 
+# debug options should go last
+ifeq ($(strip $(DEBUG)),1)
+PP_DEBUG = -O0 -ggdb -DDEBUG -UNDEBUG -fno-default-inline
+else
+PP_DEBUG = -O2 -DNDEBUG
+endif
+
 CXXFLAGS += $(PP_CXXFLAGS) $(PP_WARNS) $(PP_DEFS) $(PP_INCLUDES) $(PP_DEBUG)
 LDFLAGS += $(PP_LDFLAGS)
 LDLIBS += $(PP_LDLIBS) $(PP_STATIC)
 
-MAKEFLAGS = --no-print-directory
+MAKEFLAGS += --no-print-directory
 
 # common rules
 

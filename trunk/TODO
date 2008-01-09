@@ -1,3 +1,5 @@
+link against a good memory debugger
+
 Fix and finish PCI subclass and progintf stuff
 
 preserve/set/clear flags for registers
