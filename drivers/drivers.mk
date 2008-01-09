@@ -10,7 +10,7 @@ OBJS = $(SRCS:.cpp=.o)
 all: $(DRIVER_OBJ)
 
 $(DRIVER_OBJ): $(OBJS)
-	$(LD) -r -o $@ $(OBJS)
+	$(CXX) $(LDFLAGS) -nostdlib -Wl,-r -o $@ $(OBJS)
 
 .PHONY: test
 test: all
