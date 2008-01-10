@@ -36,7 +36,8 @@ endif
 
 # debug options should go last
 ifeq ($(strip $(DEBUG)),1)
-PP_DEBUG = -O0 -ggdb -DDEBUG -UNDEBUG -fno-default-inline
+PP_TRACE = $(foreach trace, $(TRACE), -DTRACE_$(trace)=1)
+PP_DEBUG = -O0 -ggdb -DDEBUG -UNDEBUG -fno-default-inline $(PP_TRACE)
 else
 PP_DEBUG = -O2 -DNDEBUG
 endif
