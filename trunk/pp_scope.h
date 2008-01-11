@@ -3,14 +3,14 @@
 #define PP_PP_SCOPE_H__
 
 #include "pp.h"
+#include <stdexcept>
+#include "pp_path.h"
 #include "pp_dirent.h"
 #include "pp_binding.h"
 #include "keyed_vector.h"
 #include "pp_datatype.h"
 #include "pp_register.h"
 #include "pp_field.h"
-
-#include <stdexcept>
 
 /*
  * pp_scope - a lexical scope.
@@ -40,13 +40,7 @@ class pp_scope: public pp_dirent
 	 * pointer to this object.
 	 */
 	const pp_scope *
-	parent() const
-	{
-		if (is_root()) {
-			return this;
-		}
-		return m_parent;
-	}
+	parent() const;
 
 	/*
 	 * pp_scope::set_parent()
@@ -54,10 +48,7 @@ class pp_scope: public pp_dirent
 	 * Set the parent scope of this object.
 	 */
 	void
-	set_parent(const pp_scope *parent)
-	{
-		m_parent = parent;
-	}
+	set_parent(const pp_scope *parent);
 
 	/*
 	 * pp_scope::is_root()
@@ -68,10 +59,7 @@ class pp_scope: public pp_dirent
 	 *     (object->parent() == object)
 	 */
 	bool
-	is_root() const
-	{
-		return (m_parent == NULL);
-	}
+	is_root() const;
 
 	/*
 	 * pp_scope::binding()
@@ -79,10 +67,7 @@ class pp_scope: public pp_dirent
 	 * Get the binding of this scope.
 	 */
 	const pp_binding *
-	binding() const
-	{
-		return m_binding.get();
-	}
+	binding() const;
 
 	/*
 	 * pp_scope::add_datatype(name, datatype)
@@ -90,15 +75,9 @@ class pp_scope: public pp_dirent
 	 * Add a named or unnamed datatype to this scope.
 	 */
 	void
-	add_datatype(const string &name, pp_const_datatype_ptr datatype)
-	{
-		m_datatypes.insert(name, datatype);
-	}
+	add_datatype(const string &name, pp_const_datatype_ptr datatype);
 	void
-	add_datatype(pp_const_datatype_ptr datatype)
-	{
-		m_anon_datatypes.push_back(datatype);
-	}
+	add_datatype(pp_const_datatype_ptr datatype);
 
 	/*
 	 * pp_scope::n_datatypes()
@@ -106,10 +85,7 @@ class pp_scope: public pp_dirent
 	 * Return the number of named datatypes in this scope.
 	 */
 	size_t
-	n_datatypes() const
-	{
-		return m_datatypes.size();
-	}
+	n_datatypes() const;
 
 	/*
 	 * pp_scope::datatype()
@@ -117,15 +93,9 @@ class pp_scope: public pp_dirent
 	 * Provide access to the datatypes vector.
 	 */
 	const pp_datatype *
-	datatype(int index) const
-	{
-		return m_datatypes[index].get();
-	}
+	datatype(int index) const;
 	const pp_datatype *
-	datatype(string index) const
-	{
-		return m_datatypes[index].get();
-	}
+	datatype(string index) const;
 
 	/*
 	 * pp_scope::datatype_name(index)
@@ -133,10 +103,7 @@ class pp_scope: public pp_dirent
 	 * Return the name of the indexed datatype.
 	 */
 	string
-	datatype_name(int index) const
-	{
-		return m_datatypes.key_at(index);
-	}
+	datatype_name(int index) const;
 
 	/*
 	 * pp_scope::resolve_datatype(name)
@@ -144,19 +111,7 @@ class pp_scope: public pp_dirent
 	 * Look up a datatype by name.
 	 */
 	const pp_datatype *
-	resolve_datatype(const string &name) const
-	{
-		try {
-			return m_datatypes[name].get();
-		} catch (std::out_of_range &e) {
-		}
-
-		if (!is_root()) {
-			return m_parent->resolve_datatype(name);
-		}
-
-		return NULL;
-	}
+	resolve_datatype(const string &name) const;
 
 	/*
 	 * pp_scope::add_dirent(name, dirent)
@@ -164,14 +119,7 @@ class pp_scope: public pp_dirent
 	 * Add a named dirent to this scope.
 	 */
 	void
-	add_dirent(const string &name, pp_dirent_ptr dirent)
-	{
-		if (dirent->is_scope()) {
-			pp_scope *scope = static_cast<pp_scope*>(dirent.get());
-			scope->set_parent(this);
-		}
-		m_dirents.insert(name, dirent);
-	}
+	add_dirent(const string &name, pp_dirent_ptr dirent);
 
 	/*
 	 * pp_scope::n_dirents()
@@ -179,10 +127,7 @@ class pp_scope: public pp_dirent
 	 * Return the number of dirents in this scope.
 	 */
 	size_t
-	n_dirents() const
-	{
-		return m_dirents.size();
-	}
+	n_dirents() const;
 
 	/*
 	 * pp_scope::dirent()
@@ -190,15 +135,9 @@ class pp_scope: public pp_dirent
 	 * Provide access to the dirents vector.
 	 */
 	const pp_dirent *
-	dirent(int index) const
-	{
-		return m_dirents[index].get();
-	}
+	dirent(int index) const;
 	const pp_dirent *
-	dirent(string index) const
-	{
-		return m_dirents[index].get();
-	}
+	dirent(string index) const;
 
 	/*
 	 * pp_scope::dirent_name(index)
@@ -206,10 +145,7 @@ class pp_scope: public pp_dirent
 	 * Return the name of the indexed dirent.
 	 */
 	string
-	dirent_name(int index) const
-	{
-		return m_dirents.key_at(index);
-	}
+	dirent_name(int index) const;
 
     private:
 	const pp_scope *m_parent;
