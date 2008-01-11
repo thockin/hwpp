@@ -168,9 +168,9 @@ const pp_register *
 GET_REGISTER(const pp_path &path)
 {
 	DASSERT_MSG(cur_scope, "found NULL cur_scope");
-	if (path == "0")
+	if (path == "%0")
 		return magic_zeros;
-	if (path == "1")
+	if (path == "%1")
 		return magic_ones;
 	return get_register(cur_scope.get(), path);
 }
