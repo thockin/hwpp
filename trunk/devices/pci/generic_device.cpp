@@ -30,17 +30,17 @@ BAR(const string &name, const pp_value &address)
 
 	if (FIELD_EQ("type", "io")) {
 		COMPLEX_FIELD("address", "addr16_t",
-				BITS("0", 1, 0),
+				BITS("%0", 1, 0),
 				BITS("%lower", 15, 2));
 	} else if (FIELD_EQ("width", "bits32")
 	    || FIELD_EQ("width", "bits20")) {
 		COMPLEX_FIELD("address", "addr32_t",
-				BITS("0", 3, 0),
+				BITS("%0", 3, 0),
 				BITS("%lower", 31, 4));
 	} else {
 		REG32("%upper", address+4);
 		COMPLEX_FIELD("address", "addr64_t",
-				BITS("0", 3, 0),
+				BITS("%0", 3, 0),
 				BITS("%lower", 31, 4),
 				BITS("%upper", 31, 0));
 	}
@@ -295,7 +295,7 @@ ht_extended_config_capability(const pp_value &address)
 	SIMPLE_FIELD("device", "int_t", "%address", 19, 15);
 	SIMPLE_FIELD("function", "int_t", "%address", 14, 12);
 	COMPLEX_FIELD("register", "hex_t",
-			BITS("0", 1, 0),
+			BITS("%0", 1, 0),
 			BITS("%address", 11, 2));
 	REGFIELD32("data", address+8, "hex32_t");
 }
@@ -320,7 +320,7 @@ ht_address_mapping_capability(const pp_value &address)
 				"../%sec_non_prefetch", 29);
 		ONE_BIT_FIELD("compat", "yesno_t", "../%sec_non_prefetch", 28);
 		COMPLEX_FIELD("base", "addr64_t",
-				BITS("0", 19, 0),
+				BITS("%0", 19, 0),
 				BITS("../%sec_non_prefetch", 19, 0));
 		CLOSE_SCOPE();
 
@@ -331,7 +331,7 @@ ht_address_mapping_capability(const pp_value &address)
 		ONE_BIT_FIELD("noncoherent", "yesno_t", "../%sec_prefetch", 29);
 		ONE_BIT_FIELD("compat", "yesno_t", "../%sec_prefetch", 28);
 		COMPLEX_FIELD("base", "addr64_t",
-				BITS("0", 19, 0),
+				BITS("%0", 19, 0),
 				BITS("../%sec_prefetch", 19, 0));
 		CLOSE_SCOPE();
 
@@ -346,13 +346,13 @@ ht_address_mapping_capability(const pp_value &address)
 			ONE_BIT_FIELD("noncoherent", "yesno_t", "%lower", 29);
 
 			COMPLEX_FIELD("pri_base", "addr64_t",
-					BITS("0", 23, 0),
+					BITS("%0", 23, 0),
 					BITS("%lower", 15, 0));
 			COMPLEX_FIELD("sec_base", "addr64_t",
-					BITS("0", 23, 0),
+					BITS("%0", 23, 0),
 					BITS("%lower", 31, 16));
 			COMPLEX_FIELD("sec_limit", "addr64_t",
-					BITS("1", 23, 0),
+					BITS("%1", 23, 0),
 					BITS("%lower", 15, 0));
 			CLOSE_SCOPE();
 		}
@@ -371,7 +371,7 @@ ht_msi_mapping_capability(const pp_value &address)
 		REG32("%lower", address+4);
 		REG32("%upper", address+8);
 		COMPLEX_FIELD("address", "addr64_t",
-				BITS("0", 19, 0),
+				BITS("%0", 19, 0),
 				BITS("%lower", 31, 20),
 				BITS("%upper", 31, 0));
 	}
@@ -473,7 +473,7 @@ msi_capability(const pp_value &address)
 	if (!FIELD_BOOL("cap64")) {
 		// no, just use the low address and define the data
 		COMPLEX_FIELD("msg_addr", "addr32_t",
-				BITS("0", 1, 0),
+				BITS("%0", 1, 0),
 				BITS("%msg_addr", 31, 2));
 		REGFIELD16("msg_data", address + 8, "hex16_t");
 
@@ -486,7 +486,7 @@ msi_capability(const pp_value &address)
 		// add the high address and define the data
 		REG32("%msg_addr_hi",  address + 8);
 		COMPLEX_FIELD("msg_addr", "addr64_t",
-				BITS("0", 1, 0),
+				BITS("%0", 1, 0),
 				BITS("%msg_addr", 31, 2),
 				BITS("%msg_addr_hi", 31, 0));
 		REGFIELD16("msg_data", address + 12, "hex16_t");
@@ -536,7 +536,7 @@ msix_capability(const pp_value &address)
 				KV("bar5", 5)),
 			"%table_ptr", 2, 0);
 	COMPLEX_FIELD("table_offset", "hex_t",
-			BITS("0", 2, 0),
+			BITS("%0", 2, 0),
 			BITS("%table_ptr", 31, 3));
 
 	//FIXME: a better way to do this?
@@ -551,7 +551,7 @@ msix_capability(const pp_value &address)
 				REG32("%msg_addr", i*16 + 0);
 				REG32("%msg_upper_addr", i*16 + 4);
 				COMPLEX_FIELD("address", "addr64_t",
-						BITS("0", 1, 0),
+						BITS("%0", 1, 0),
 						BITS("%msg_addr", 31, 2),
 						BITS("%msg_upper_addr", 31, 0));
 				REGFIELD32("msg_data", i*16 + 8, "hex_t");
@@ -573,7 +573,7 @@ msix_capability(const pp_value &address)
 				KV("bar5", 5)),
 			"%pba_ptr", 2, 0);
 	COMPLEX_FIELD("pba_offset", "hex_t",
-			BITS("0", 2, 0),
+			BITS("%0", 2, 0),
 			BITS("%pba_ptr", 31, 3));
 
 	args.clear();
@@ -1199,18 +1199,18 @@ create_pci_bridge()
 
 		if (FIELD_EQ("width", "bits16")) {
 			COMPLEX_FIELD("base", "addr16_t",
-					BITS("0", 11, 0),
+					BITS("%0", 11, 0),
 					BITS("%base_lo", 7, 4));
 			COMPLEX_FIELD("limit", "addr16_t",
-					BITS("1", 11, 0),
+					BITS("%1", 11, 0),
 					BITS("%limit_lo", 7, 4));
 		} else if (FIELD_EQ("width", "bits32")) {
 			COMPLEX_FIELD("base", "addr32_t",
-					BITS("0", 11, 0),
+					BITS("%0", 11, 0),
 					BITS("%base_lo", 7, 4),
 					BITS("%base_hi", 15, 0));
 			COMPLEX_FIELD("limit", "addr32_t",
-					BITS("1", 11, 0),
+					BITS("%1", 11, 0),
 					BITS("%limit_lo", 7, 4),
 					BITS("%limit_hi", 15, 0));
 		}
@@ -1222,10 +1222,10 @@ create_pci_bridge()
 		REG16("%limit", 0x22);
 
 		COMPLEX_FIELD("base", "addr32_t",
-				BITS("0", 19, 0),
+				BITS("%0", 19, 0),
 				BITS("%base", 15, 4));
 		COMPLEX_FIELD("limit", "addr32_t",
-				BITS("1", 19, 0),
+				BITS("%1", 19, 0),
 				BITS("%limit", 15, 4));
 	CLOSE_SCOPE();
 
@@ -1243,18 +1243,18 @@ create_pci_bridge()
 
 		if (FIELD_EQ("width", "bits32")) {
 			COMPLEX_FIELD("base", "addr32_t",
-					BITS("0", 19, 0),
+					BITS("%0", 19, 0),
 					BITS("%base_lo", 15, 4));
 			COMPLEX_FIELD("limit", "addr32_t",
-					BITS("1", 19, 0),
+					BITS("%1", 19, 0),
 					BITS("%limit_lo", 15, 4));
 		} else if (FIELD_EQ("width", "bits64")) {
 			COMPLEX_FIELD("base", "addr64_t",
-					BITS("0", 19, 0),
+					BITS("%0", 19, 0),
 					BITS("%base_lo", 15, 4),
 					BITS("%base_hi", 31, 0));
 			COMPLEX_FIELD("limit", "addr64_t",
-					BITS("1", 19, 0),
+					BITS("%1", 19, 0),
 					BITS("%limit_lo", 15, 4),
 					BITS("%limit_hi", 31, 0));
 		}
@@ -1268,7 +1268,7 @@ create_pci_bridge()
 	OPEN_SCOPE("rombase");
 		ONE_BIT_FIELD("enabled", "yesno_t", "../%rombase", 0);
 		COMPLEX_FIELD("address", "addr32_t",
-				BITS("0", 10, 0),
+				BITS("%0", 10, 0),
 				BITS("../%rombase", 31, 11));
 	CLOSE_SCOPE();
 
@@ -1339,7 +1339,7 @@ create_device()
 	OPEN_SCOPE("rombase");
 		ONE_BIT_FIELD("enabled", "yesno_t", "../%rombase", 0);
 		COMPLEX_FIELD("address", "addr32_t",
-				BITS("0", 10, 0),
+				BITS("%0", 10, 0),
 				BITS("../%rombase", 31, 11));
 	CLOSE_SCOPE();
 
