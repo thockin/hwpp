@@ -51,7 +51,7 @@ dump_scope(const pp_scope *scope, string indent = "")
 
 			cout << indent;
 			cout << scope->dirent_name(i);
-			if (sub->binding()) {
+			if (sub->is_bound()) {
 				cout << " (@" << *sub->binding() << ")";
 			}
 			cout << " {"
@@ -68,8 +68,8 @@ dump_scope(const pp_scope *scope, string indent = "")
 int
 main()
 {
-	pp_scope_ptr platform = NEW_PLATFORM();
-	do_discovery(platform.get());
-	dump_scope(platform.get());
+	pp_scope *platform = NEW_PLATFORM();
+	do_discovery(platform);
+	dump_scope(platform);
 	return 0;
 }

@@ -54,12 +54,23 @@ pp_scope::is_root() const
 /*
  * pp_scope::binding()
  *
- * Get the binding of this scope.
+ * Get the binding of this scope.  If this scope is not bound,
+ * climb the scope hierarchy until you find a binding.  If no
+ * scope in the hierarchy is bound, return NULL.
  */
 const pp_binding *
 pp_scope::binding() const
 {
-	return m_binding.get();
+	const pp_scope *s = this;
+	while (!s->is_bound() && !s->is_root()) {
+		s = s->parent();
+	}
+	return s->m_binding.get();
+}
+bool
+pp_scope::is_bound() const
+{
+	return m_binding ? true : false;
 }
 
 /*
@@ -210,7 +221,7 @@ pp_scope::lookup_dirent(pp_path path) const
 {
 	if (path.front() == "^") {
 		const pp_scope *s = this;
-		while (!s->binding() && !s->is_root()) {
+		while (!s->is_bound() && !s->is_root()) {
 			s = s->parent();
 		}
 		path.pop_front();

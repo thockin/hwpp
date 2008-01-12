@@ -7,14 +7,28 @@
  */
 
 #include "pp.h"
+#include "pp_path.h"
+#include "pp_field.h"
+#include "pp_register.h"
 #include "pp_dirent.h"
 #include "pp_scope.h"
-#include "pp_fields.h"
-#include "pp_datatype.h"
-#include "pp_datatypes.h"
-#include "pp_register.h"
+#include "pp_context.h"
 #include "pp_binding.h"
-#include "pp_path.h"
+
+/*
+ * Get/set the current active context.
+ */
+extern pp_context
+GET_CURRENT_CONTEXT();
+
+class pp_saved_context_impl;
+typedef boost::shared_ptr<pp_saved_context_impl> pp_saved_context;
+
+extern pp_saved_context
+SET_CURRENT_CONTEXT(const pp_context &new_context);
+
+
+#include "pp_fields.h"
 
 //FIXME: comments
 extern const pp_field *
@@ -108,23 +122,27 @@ FIELD_AND(const string &field, const pp_value &comparator)
 	return GET_FIELD(field)->test(comparator);
 }
 
-//FIXME: comment
-extern pp_scope_ptr
+/*
+ * NEW_PLATFORM
+ * Create a new platform scope and initialize it with the built-in
+ * primitive types as well as global language-defined types.
+ */
+extern pp_scope *
 NEW_PLATFORM();
 
 /*
  * OPEN_SCOPE
- * Create a new scope with the input name.  This pair of open and close scope
- * shortcut functions works like a matching bracket stack.  After you open a scope
- * all subsequent operations (from these shortcut operations, eg ONE_BIT_FIELD)
- * will be placed on this scope.
+ * Create a new scope with the input name.  This pair of open and close
+ * scope shortcut functions works like a matching bracket stack.  After
+ * you open a scope all subsequent operations (from these shortcut
+ * operations, eg ONE_BIT_FIELD) will be placed on this scope.
  */
 extern void
 OPEN_SCOPE(const string &name, pp_const_binding_ptr binding = pp_binding_ptr());
 
 /*
  * CLOSE_SCOPE
- * Closes the most recent scope. (Similar to bracket matching algorithms).
+ * Closes the current scope context.
  */
 extern void
 CLOSE_SCOPE();
@@ -141,6 +159,9 @@ REGN(const string &name, const pp_value &address, pp_bitwidth width);
 #define REG16(name, address) REGN(name, address, BITS16)
 #define REG32(name, address) REGN(name, address, BITS32)
 #define REG64(name, address) REGN(name, address, BITS64)
+
+#include "pp_datatype.h"
+#include "pp_datatypes.h"
 
 /*
  * SIMPLE_FIELD
@@ -215,6 +236,7 @@ CONSTANT_FIELD(const string &name, const pp_datatype *type,
 		const pp_value &value);
 extern void
 CONSTANT_FIELD(const string &name, const string &type, const pp_value &value);
+
 
 /*
  * INT
