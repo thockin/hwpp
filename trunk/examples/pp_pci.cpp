@@ -51,7 +51,7 @@ dump_scope(const pp_scope *scope, string indent = "")
 
 			cout << indent;
 			cout << scope->dirent_name(i);
-			if (sub->binding()) {
+			if (sub->is_bound()) {
 				cout << " (@" << *sub->binding() << ")";
 			}
 			cout << " {"
@@ -68,9 +68,9 @@ dump_scope(const pp_scope *scope, string indent = "")
 int
 main()
 {
-	pp_scope_ptr platform = NEW_PLATFORM();
+	pp_scope *platform = NEW_PLATFORM();
 	const pp_driver *driver = find_driver("pci");
-	driver->discover(platform.get());
-	dump_scope(platform.get());
+	driver->discover(platform);
+	dump_scope(platform);
 	return 0;
 }

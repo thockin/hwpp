@@ -63,10 +63,14 @@ class pp_scope: public pp_dirent
 	/*
 	 * pp_scope::binding()
 	 *
-	 * Get the binding of this scope.
+	 * Get the binding of this scope.  If this scope is not bound,
+	 * climb the scope hierarchy until you find a binding.  If no
+	 * scope in the hierarchy is bound, return NULL.
 	 */
 	const pp_binding *
 	binding() const;
+	bool
+	is_bound() const;
 
 	/*
 	 * pp_scope::add_datatype(name, datatype)
