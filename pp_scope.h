@@ -16,7 +16,7 @@
  * pp_scope - a lexical scope.
  *
  * Constructors:
- *	()
+ *	(binding?)
  *
  * Notes:
  */
@@ -27,7 +27,6 @@ class pp_scope: public pp_dirent
 	    : pp_dirent(PP_DIRENT_SCOPE), m_binding(binding)
 	{
 	}
-
 	virtual ~pp_scope()
 	{
 	}
@@ -146,6 +145,57 @@ class pp_scope: public pp_dirent
 	 */
 	string
 	dirent_name(int index) const;
+
+	/*
+	 * pp_scope::lookup_dirent(path)
+	 *
+	 * Return a pointer to the specified dirent.  If the dirent at the
+	 * end of the path is not a field, or if the some element of the
+	 * path does not exist, throw std::out_of_range.
+	 *
+	 * NOTE: This takes path as a copy.
+	 */
+	const pp_dirent *
+	lookup_dirent(pp_path path) const;
+
+	/*
+	 * pp_scope::dirent_defined(path)
+	 *
+	 * Tests whether the path resolves to a defined dirent.  Does not
+	 * throw.
+	 */
+	bool
+	dirent_defined(const pp_path &path) const;
+
+	/*
+	 * pp_scope::lookup_register(path)
+	 *
+	 * Return a pointer to the specified register.  If the dirent at the
+	 * end of the path is not a register, or if the some element of the
+	 * path does not exist, throw std::out_of_range.
+	 */
+	const pp_register *
+	lookup_register(const pp_path &path) const;
+
+	/*
+	 * pp_scope::lookup_field(path)
+	 *
+	 * Return a pointer to the specified field.  If the dirent at the
+	 * end of the path is not a field, or if the some element of the
+	 * path does not exist, throw std::out_of_range.
+	 */
+	const pp_field *
+	lookup_field(const pp_path &path) const;
+
+	/*
+	 * pp_scope::lookup_scope(path)
+	 *
+	 * Return a pointer to the specified scope.  If the dirent at the
+	 * end of the path is not a scope, or if the some element of the
+	 * path does not exist, throw std::out_of_range.
+	 */
+	const pp_scope *
+	lookup_scope(const pp_path &path) const;
 
     private:
 	const pp_scope *m_parent;

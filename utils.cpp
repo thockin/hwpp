@@ -19,124 +19,6 @@
 #include <stdexcept>
 using namespace std;
 
-/*
- * get_field()
- *
- * A function to search the tree and return a pointer to
- * the field in question.
- */
-const pp_field *
-get_field(const pp_scope *scope, const pp_path &path)
-{
-	const pp_dirent *de = get_dirent(scope, path);
-	if (de->dirent_type() == PP_DIRENT_FIELD) {
-		return pp_field_from_dirent(de);
-	}
-	/* default error case */
-	throw std::out_of_range("path is not a field: "
-			+ to_string(path));
-}
-
-/*
- * get_register()
- *
- * A function to search the tree and return a pointer to
- * the field in question.
- */
-const pp_register *
-get_register(const pp_scope *scope, const pp_path &path)
-{
-	const pp_dirent *de = get_dirent(scope, path);
-	if (de->dirent_type() == PP_DIRENT_REGISTER) {
-		return pp_register_from_dirent(de);
-	}
-	/* default error case */
-	throw std::out_of_range("path is not a register: "
-			+ to_string(path));
-}
-
-/*
- * get_dirent()
- *
- * A function to search the tree and return a pointer to
- * the dirent in question.
- *
- * NOTE: this takes path as a non-const reference, and may modify it.
- */
-static const pp_dirent *
-get_dirent_internal(const pp_scope *scope, pp_path &path)
-{
-	/* error case */
-	if (path.empty()) {
-		throw std::out_of_range("path not found: "
-			+ to_string(path));
-	}
-
-	/* grab first element of path */
-	string path_front = path.pop_front();
-
-	/*
-	 * Look up the dirent of the next element.  This can throw
-	 * std::out_of_range if the dirent does not exist.
-	 */
-	const pp_dirent *de;
-	if (path_front == "..") {
-		de = scope->parent();
-	} else {
-		de = scope->dirent(path_front);
-	}
-
-	/* did we find the dirent? */
-	if (path.empty()) {
-		return de;
-	}
-
-	/* keep looking */
-	if (de->dirent_type() == PP_DIRENT_SCOPE) {
-		return get_dirent(pp_scope_from_dirent(de), path);
-	}
-
-	/* default error case */
-	throw std::out_of_range("path is not a known dirent_type: "
-			+ to_string(path)
-			+ "(" + to_string(de->dirent_type()) + ")");
-}
-/*
- * NOTE: this takes a copy of the path, since it will be modified.
- */
-const pp_dirent *
-get_dirent(const pp_scope *scope, pp_path path)
-{
-	if (path.front() == "^") {
-		while (!scope->is_root() && !scope->binding()) {
-			scope = scope->parent();
-		}
-		path.pop_front();
-	}
-	return get_dirent_internal(scope, path);
-}
-
-/*
- * dirent_defined()
- *
- * Tests whether the pp_path resolves to a defined dirent.
- */
-bool
-dirent_defined(const pp_scope *scope, const pp_path &path)
-{
-	if (!scope) {
-		return false;
-	}
-
-	const pp_dirent *d = NULL;
-	try {
-		d = get_dirent(scope, path);
-	} catch (std::out_of_range &e) {
-	}
-
-	return (d != NULL);
-}
-
 //FIXME: need tests
 
 static pp_scope_ptr cur_scope;
@@ -156,7 +38,7 @@ const pp_field *
 GET_FIELD(const pp_path &path)
 {
 	DASSERT_MSG(cur_scope, "found NULL cur_scope");
-	return get_field(cur_scope.get(), path);
+	return cur_scope->lookup_field(path);
 }
 
 /*
@@ -172,7 +54,7 @@ GET_REGISTER(const pp_path &path)
 		return magic_zeros;
 	if (path == "%1")
 		return magic_ones;
-	return get_register(cur_scope.get(), path);
+	return cur_scope->lookup_register(path);
 }
 
 /*
@@ -181,7 +63,11 @@ GET_REGISTER(const pp_path &path)
 bool
 DEFINED(const pp_path &path)
 {
-	return dirent_defined(cur_scope.get(), path);
+	if (!cur_scope) {
+		return false;
+	}
+
+	return cur_scope->dirent_defined(path);
 }
 
 /*
