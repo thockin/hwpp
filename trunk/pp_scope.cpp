@@ -10,7 +10,6 @@
 #include "pp_register.h"
 #include "pp_field.h"
 
-
 /*
  * pp_scope::parent()
  *
@@ -195,4 +194,133 @@ string
 pp_scope::dirent_name(int index) const
 {
 	return m_dirents.key_at(index);
+}
+
+/*
+ * pp_scope::lookup_dirent(path)
+ *
+ * Return a pointer to the specified dirent.  If the dirent at the
+ * end of the path is not a field, or if the some element of the
+ * path does not exist, throw std::out_of_range.
+ *
+ * NOTE: This takes path as a copy.
+ */
+const pp_dirent *
+pp_scope::lookup_dirent(pp_path path) const
+{
+	if (path.front() == "^") {
+		const pp_scope *s = this;
+		while (!s->binding() && !s->is_root()) {
+			s = s->parent();
+		}
+		path.pop_front();
+		return s->lookup_dirent(path);
+	}
+
+	if (path.empty()) {
+		throw std::out_of_range("path not found: "
+				+ to_string(path));
+	}
+
+	/* grab first element of path */
+	string path_front = path.pop_front();
+
+	/*
+	 * Look up the dirent of the next element.  This can throw
+	 * std::out_of_range if the dirent does not exist.
+	 */
+	const pp_dirent *de;
+	if (path_front == "..") {
+		de = parent();
+	} else {
+		de = dirent(path_front);
+	}
+
+	/* did we find the dirent? */
+	if (path.empty()) {
+		return de;
+	}
+
+	/* keep looking */
+	if (de->dirent_type() == PP_DIRENT_SCOPE) {
+		const pp_scope *s = pp_scope_from_dirent(de);
+		return s->lookup_dirent(path);
+	}
+
+	/* error */
+	throw std::out_of_range("path element is not a scope: "
+			+ to_string(path)
+			+ "(" + to_string(de->dirent_type()) + ")");
+}
+
+/*
+ * pp_scope::dirent_defined(path)
+ *
+ * Tests whether the path resolves to a defined dirent.  Does not
+ * throw.
+ */
+bool
+pp_scope::dirent_defined(const pp_path &path) const
+{
+	const pp_dirent *de = NULL;
+	try {
+		de = lookup_dirent(path);
+	} catch (std::out_of_range &e) {
+	}
+
+	return (de != NULL);
+}
+
+/*
+ * pp_scope::lookup_register(path)
+ *
+ * Return a pointer to the specified register.  If the dirent at the
+ * end of the path is not a register, or if the some element of the
+ * path does not exist, throw std::out_of_range.
+ */
+const pp_register *
+pp_scope::lookup_register(const pp_path &path) const
+{
+	const pp_dirent *de = lookup_dirent(path);
+	if (de->dirent_type() == PP_DIRENT_REGISTER) {
+		return pp_register_from_dirent(de);
+	}
+	throw std::out_of_range("path is not a register: "
+			+ to_string(path));
+}
+
+/*
+ * pp_scope::lookup_field(path)
+ *
+ * Return a pointer to the specified field.  If the dirent at the
+ * end of the path is not a field, or if the some element of the
+ * path does not exist, throw std::out_of_range.
+ */
+const pp_field *
+pp_scope::lookup_field(const pp_path &path) const
+{
+	const pp_dirent *de = lookup_dirent(path);
+	if (de->dirent_type() == PP_DIRENT_FIELD) {
+		return pp_field_from_dirent(de);
+	}
+	throw std::out_of_range("path is not a field: "
+			+ to_string(path));
+}
+
+/*
+ * pp_scope::lookup_scope(path)
+ *
+ * Return a pointer to the specified scope.  If the dirent at the
+ * end of the path is not a scope, or if the some element of the
+ * path does not exist, throw std::out_of_range.
+ */
+const pp_scope *
+pp_scope::lookup_scope(const pp_path &path) const
+{
+	const pp_dirent *de = lookup_dirent(path);
+	if (de->dirent_type() == PP_DIRENT_SCOPE) {
+		return pp_scope_from_dirent(de);
+	}
+	throw std::out_of_range("path is not a scope: "
+			+ to_string(path));
 }

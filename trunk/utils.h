@@ -16,46 +16,6 @@
 #include "pp_binding.h"
 #include "pp_path.h"
 
-/*
- * get_field()
- *
- * Returns a pointer to the field specified by pp_path.
- * If the field does not exist, or pp_path does not specify a field, this
- * function will throw std::out_of_range.
- */
-extern const pp_field *
-get_field(const pp_scope *scope, const pp_path &path);
-
-/*
- * get_register()
- *
- * Returns a pointer to the register specified by pp_path.
- * If the register does not exist, or pp_path does not specify a register,
- * this function will throw std::out_of_range.
- */
-extern const pp_register *
-get_register(const pp_scope *scope, const pp_path &path);
-
-/*
- * get_dirent()
- *
- * Returns a pointer to the dirent specified by pp_path.
- * If the dirent does not exist, this function will throw std::out_of_range.
- *
- * NOTE: this does not take path as a reference because it may modify it.
- */
-extern const pp_dirent *
-get_dirent(const pp_scope *scope, pp_path path);
-
-/*
- * dirent_defined()
- *
- * Tests whether the pp_path resolves to a defined dirent.
- */
-extern bool
-dirent_defined(const pp_scope *scope, const pp_path &path);
-
-
 //FIXME: comments
 extern const pp_field *
 GET_FIELD(const pp_path &path);
