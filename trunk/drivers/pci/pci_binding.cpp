@@ -223,11 +223,11 @@ enumerate_procfs(std::vector<pci_address> *addresses)
 				pci_address addr;
 				addr.segment = 0;
 
-				std::istringstream iss(subde->name());
+				std::istringstream bus_iss(de->name());
+				bus_iss >> std::hex >> addr.bus;
+				std::istringstream devfn_iss(subde->name());
 				char c;
-				iss >> std::hex
-				    >> addr.bus
-				    >> c
+				devfn_iss >> std::hex
 				    >> addr.device
 				    >> c
 				    >> addr.function;
