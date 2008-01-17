@@ -247,6 +247,13 @@ class bignum: public mpz_class
 	{
 		return (*this >= 0 && *this <= ULONG_MAX);
 	}
+
+	// Count the number of set bits.
+	unsigned long
+	popcount() const
+	{
+		return mpz_popcount(get_mpz_t());
+	}
 };
 
 //
