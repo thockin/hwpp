@@ -82,6 +82,8 @@ class pp_register: public pp_dirent
 typedef boost::shared_ptr<pp_register> pp_register_ptr;
 typedef boost::shared_ptr<const pp_register> pp_const_register_ptr;
 
+#define new_pp_register(...) pp_register_ptr(new pp_register(__VA_ARGS__))
+
 inline const pp_register *
 pp_register_from_dirent(const pp_dirent *dirent)
 {
@@ -91,7 +93,5 @@ pp_register_from_dirent(const pp_dirent *dirent)
 	}
 	return static_cast<const pp_register *>(dirent);
 }
-
-#define new_pp_register(...) pp_register_ptr(new pp_register(__VA_ARGS__))
 
 #endif // PP_PP_REGISTER_H__
