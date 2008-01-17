@@ -19,3 +19,8 @@ remove the length arg of io/mem bindings? else report PCI BAR sizes
 write DEFS and other stuff to a dotfile and make that a makefile dependency
 
 write docs
+
+operator, for KV()
+put the magic regs into the platform, get rid of the externs in pp_fields
+single FIELD() function
+READ(field) and READ(register) and READ(pp_value regnum)
