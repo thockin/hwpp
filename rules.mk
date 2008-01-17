@@ -94,7 +94,7 @@ run_tests:
 		else \
 			echo FAIL; \
 			cat $$f.err | while read LINE; do \
-				echo -e "    $$LINE"; \
+				echo "    $$LINE"; \
 			done; \
 		fi; \
 		$(RM) -f $$f.err; \
