@@ -3,46 +3,12 @@
 #include "pp_test.h"
 #include "pp_datatypes.h"
 #include "pp_register.h"
+#include "pp_regbits.h"
 #include "test_binding.h"
 using namespace std;
 
 //FIXME: test lookup()
 //FIXME: test compare()
-
-int
-test_regbits()
-{
-	int ret = 0;
-
-	pp_binding_ptr ts = new_test_binding();
-	pp_register_ptr r1 = new_pp_register(ts.get(), 1, BITS16);
-
-	/* test a read() with valid shift */
-	regbits rb1(r1.get(), 0, 0xf, 16);
-	if (rb1.read() != 0xf0000) {
-		PP_TEST_ERROR("regbits::read()");
-		ret++;
-	}
-	/* test a read() with invalid shift */
-	regbits rb2(r1.get(), 32, 0x1, 0);
-	if (rb2.read() != 0) {
-		PP_TEST_ERROR("regbits::read()");
-		ret++;
-	}
-
-	/* test the write() method */
-	rb1.write(0x90000);
-	if (rb1.read() != 0x90000) {
-		PP_TEST_ERROR("regbits::write()");
-		ret++;
-	}
-	if (r1->read() != 0xfff9) {
-		PP_TEST_ERROR("regbits::write()");
-		ret++;
-	}
-
-	return ret;
-}
 
 int
 test_int_field()
@@ -58,32 +24,31 @@ test_int_field()
 	pp_register_ptr r2 = new_pp_register(bind2.get(), 1, BITS16);
 
 	pp_datatype_ptr integer = new_pp_int();
-	pp_regbits_field f1(integer.get());
-	f1.add_regbits(r1.get(), 0, 0xff, 0);
-	f1.add_regbits(r2.get(), 0, 0xff, 8);
+	pp_direct_field f1(integer.get(),
+		pp_regbits(r2.get(), 7, 0) + pp_regbits(r1.get(), 7, 0));
 
 	/* test read() */
 	if (f1.read() != 8721) {
-		PP_TEST_ERROR("pp_regbits_field::read()");
+		PP_TEST_ERROR("pp_direct_field::read()");
 		ret++;
 	}
 	if (f1.evaluate() != "8721") {
-		PP_TEST_ERROR("pp_regbits_field::evaluate()");
+		PP_TEST_ERROR("pp_direct_field::evaluate()");
 		ret++;
 	}
 
 	/* test write */
 	f1.write(0x0102);
 	if (f1.read() != 0x0102) {
-		PP_TEST_ERROR("pp_regbits_field::write()");
+		PP_TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 	if (r1->read() != 0x1102) {
-		PP_TEST_ERROR("pp_regbits_field::write()");
+		PP_TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 	if (r2->read() != 0x2201) {
-		PP_TEST_ERROR("pp_regbits_field::write()");
+		PP_TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 
@@ -105,32 +70,31 @@ test_hex_field()
 
 	/* test a hex16 field */
 	pp_datatype_ptr hex16 = new_pp_hex(BITS16);
-	pp_regbits_field f1(hex16.get());
-	f1.add_regbits(r1.get(), 0, 0xff, 0);
-	f1.add_regbits(r2.get(), 0, 0xff, 8);
+	pp_direct_field f1(hex16.get(),
+		pp_regbits(r2.get(), 7, 0) + pp_regbits(r1.get(), 7, 0));
 
 	/* test read() */
 	if (f1.read() != 0x2211) {
-		PP_TEST_ERROR("pp_regbits_field::read()");
+		PP_TEST_ERROR("pp_direct_field::read()");
 		ret++;
 	}
 	if (f1.evaluate() != "0x2211") {
-		PP_TEST_ERROR("pp_regbits_field::evaluate()");
+		PP_TEST_ERROR("pp_direct_field::evaluate()");
 		ret++;
 	}
 
 	/* test write */
 	f1.write(0x0102);
 	if (f1.read() != 0x0102) {
-		PP_TEST_ERROR("pp_regbits_field::write()");
+		PP_TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 	if (r1->read() != 0x1102) {
-		PP_TEST_ERROR("pp_regbits_field::write()");
+		PP_TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 	if (r2->read() != 0x2201) {
-		PP_TEST_ERROR("pp_regbits_field::write()");
+		PP_TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 
@@ -156,17 +120,16 @@ test_enum_field()
 	e1->add_value("two", 2);
 	e1->add_value("three", 3);
 	e1->add_value("correct", 0x2211);
-	pp_regbits_field_ptr f1 = new_pp_regbits_field(e1.get());
-	f1->add_regbits(r1.get(), 0, 0xff, 0);
-	f1->add_regbits(r2.get(), 0, 0xff, 8);
+	pp_direct_field_ptr f1 = new_pp_direct_field(e1.get(),
+		pp_regbits(r2.get(), 7, 0) + pp_regbits(r1.get(), 7, 0));
 
 	/* test read() */
 	if (f1->read() != 0x2211) {
-		PP_TEST_ERROR("pp_regbits_field::read()");
+		PP_TEST_ERROR("pp_direct_field::read()");
 		ret++;
 	}
 	if (f1->evaluate() != "correct") {
-		PP_TEST_ERROR("pp_regbits_field::evaluate()");
+		PP_TEST_ERROR("pp_direct_field::evaluate()");
 		ret++;
 	}
 
@@ -174,15 +137,15 @@ test_enum_field()
 	//FIXME: write by string? or lookup by string?
 	f1->write(1);
 	if (f1->read() != 0x1) {
-		PP_TEST_ERROR("pp_regbits_field::write()");
+		PP_TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 	if (r1->read() != 0x1101) {
-		PP_TEST_ERROR("pp_regbits_field::write()");
+		PP_TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 	if (r2->read() != 0x2200) {
-		PP_TEST_ERROR("pp_regbits_field::write()");
+		PP_TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 
@@ -211,17 +174,16 @@ test_bitmask_field()
 	b1->add_bit("four", 4);
 	b1->add_bit("nine", 9);
 	b1->add_bit("thirteen", 13);
-	pp_regbits_field_ptr f1 = new_pp_regbits_field(b1.get());
-	f1->add_regbits(r1.get(), 0, 0xff, 0);
-	f1->add_regbits(r2.get(), 0, 0xff, 8);
+	pp_direct_field_ptr f1 = new_pp_direct_field(b1.get(),
+		pp_regbits(r2.get(), 7, 0) + pp_regbits(r1.get(), 7, 0));
 
 	/* test read() */
 	if (f1->read() != 0x2211) {
-		PP_TEST_ERROR("pp_regbits_field::read()");
+		PP_TEST_ERROR("pp_direct_field::read()");
 		ret++;
 	}
 	if (f1->evaluate() != "zero four nine thirteen") {
-		PP_TEST_ERROR("pp_regbits_field::evaluate()");
+		PP_TEST_ERROR("pp_direct_field::evaluate()");
 		ret++;
 	}
 
@@ -229,15 +191,15 @@ test_bitmask_field()
 	//FIXME: write by string? or lookup by string?
 	f1->write(0x207);
 	if (f1->read() != 0x207) {
-		PP_TEST_ERROR("pp_regbits_field::write()");
+		PP_TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 	if (r1->read() != 0x1107) {
-		PP_TEST_ERROR("pp_regbits_field::write()");
+		PP_TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 	if (r2->read() != 0x2202) {
-		PP_TEST_ERROR("pp_regbits_field::write()");
+		PP_TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 
@@ -314,7 +276,6 @@ main()
 {
 	int r = 0;
 
-	r |= test_regbits();
 	r |= test_int_field();
 	r |= test_hex_field();
 	r |= test_enum_field();

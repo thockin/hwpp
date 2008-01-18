@@ -5,72 +5,8 @@
 #include "pp_field.h"
 #include "pp_datatype.h"
 #include "pp_register.h"
+#include "pp_regbits.h"
 #include <vector>
-
-/*
- * regbits - a bit range from a register.
- *
- * Constructors:
- * 	(const pp_register *reg, const int shift,
- * 	 const pp_value &mask, const int position)
- *
- * Notes:
- *	This class is a helper for pp_regbits_field.
- */
-class regbits
-{
-    public:
-	explicit regbits(const pp_register *reg, const int shift,
-	    const pp_value &mask, const int position)
-	    : m_reg(reg), m_regshift(shift), m_mask(mask),
-	      m_position(position) {}
-	virtual ~regbits() {}
-
-	/*
-	 * regbits::read()
-	 *
-	 * Read the value of this regbits.  The resulting value is aligned
-	 * to the requested position.
-	 *
-	 * Throws: pp_driver_error
-	 */
-	pp_value
-	read() const
-	{
-		pp_value result = m_reg->read();
-		result >>= m_regshift;
-		result &= m_mask;
-		result <<= m_position;
-		return result;
-	}
-
-	/*
-	 * regbits::write(value)
-	 *
-	 * Write a value to this regbits.  The value is assumed to be
-	 * positioned in the output position.
-	 *
-	 * Throws: pp_driver_error
-	 */
-	void
-	write(const pp_value &value) const
-	{
-		pp_value myval = value;
-		myval >>= m_position;
-		myval &= m_mask;
-		myval <<= m_regshift;
-		pp_value tmp = m_reg->read();
-		tmp ^= (tmp & (m_mask << m_regshift));
-		tmp |= myval;
-		m_reg->write(tmp);
-	}
-
-    private:
-	const pp_register *m_reg;
-	int m_regshift;
-	pp_value m_mask;
-	int m_position;
-};
 
 /*
  * magic registers - used for filling hardcoded regbits
@@ -79,22 +15,24 @@ extern pp_register *magic_zeros;
 extern pp_register *magic_ones;
 
 /*
- * pp_regbits_field - a field that maps directly to register bits.
+ * pp_direct_field - a field that maps directly to register bits.
  *
  * Constructors:
- * 	(const pp_datatype *datatype)
+ * 	(const pp_datatype *datatype, const pp_regbits &regbits)
  *
  * Notes:
  */
-class pp_regbits_field: public pp_field
+class pp_direct_field: public pp_field
 {
     public:
-	explicit pp_regbits_field(const pp_datatype *datatype)
-	    : pp_field(datatype) {}
-	virtual ~pp_regbits_field() {}
+	pp_direct_field(const pp_datatype *datatype, const pp_regbits &regbits)
+	    : pp_field(datatype), m_regbits(regbits)
+	{}
+	virtual ~pp_direct_field()
+	{}
 
 	/*
-	 * pp_regbits_field::read()
+	 * pp_direct_field::read()
 	 *
 	 * Read the current value of this field.
 	 *
@@ -103,15 +41,11 @@ class pp_regbits_field: public pp_field
 	virtual pp_value
 	read() const
 	{
-		pp_value result = 0;
-		for (size_t i=0; i < m_regbits.size(); i++) {
-			result |= m_regbits[i].read();
-		}
-		return result;
+		return m_regbits.read();
 	}
 
 	/*
-	 * pp_regbits_field::write(value)
+	 * pp_direct_field::write(value)
 	 *
 	 * Write a value to this field.
 	 *
@@ -120,32 +54,18 @@ class pp_regbits_field: public pp_field
 	virtual void
 	write(const pp_value &value) const
 	{
-		for (size_t i=0; i < m_regbits.size(); i++) {
-			m_regbits[i].write(value);
-		}
-	}
-
-	/*
-	 * pp_regbits_field::add_regbits(const pp_register *reg,
-	 * 	const int shift, const pp_value &mask, const int position)
-	 *
-	 * Add register bits to this field.
-	 */
-	 //FIXME: just pass a vector to ctor?
-	void
-	add_regbits(const pp_register *reg,
-	    const int shift, const pp_value &mask, const int position)
-	{
-		m_regbits.push_back(regbits(reg, shift, mask, position));
+		m_regbits.write(value);
 	}
 
     private:
-	std::vector<regbits> m_regbits;
+	pp_regbits m_regbits;
 };
-typedef boost::shared_ptr<pp_regbits_field> pp_regbits_field_ptr;
+typedef boost::shared_ptr<pp_direct_field> pp_direct_field_ptr;
 
-#define new_pp_regbits_field(...) pp_regbits_field_ptr(new pp_regbits_field(__VA_ARGS__))
+#define new_pp_direct_field(...) \
+	pp_direct_field_ptr(new pp_direct_field(__VA_ARGS__))
 
+// a helper for proc_fields
 class proc_field_accessor
 {
     public:
@@ -166,15 +86,12 @@ typedef boost::shared_ptr<proc_field_accessor> proc_field_accessor_ptr;
 class pp_proc_field: public pp_field
 {
     public:
-	explicit pp_proc_field(const pp_datatype *datatype,
+	pp_proc_field(const pp_datatype *datatype,
 	    proc_field_accessor_ptr access)
 	    : pp_field(datatype), m_access(access)
-	{
-	}
-
+	{}
 	virtual ~pp_proc_field()
-	{
-	}
+	{}
 
 	/*
 	 * pp_proc_field::read()
@@ -207,7 +124,8 @@ class pp_proc_field: public pp_field
 };
 typedef boost::shared_ptr<pp_proc_field> pp_proc_field_ptr;
 
-#define new_pp_proc_field(...) pp_proc_field_ptr(new pp_proc_field(__VA_ARGS__))
+#define new_pp_proc_field(...) \
+	pp_proc_field_ptr(new pp_proc_field(__VA_ARGS__))
 
 /*
  * pp_constant_field - a field that returns a constant value.
@@ -220,12 +138,11 @@ typedef boost::shared_ptr<pp_proc_field> pp_proc_field_ptr;
 class pp_constant_field: public pp_field
 {
     public:
-	pp_constant_field(const pp_datatype *datatype,
-			const pp_value &value)
+	pp_constant_field(const pp_datatype *datatype, const pp_value &value)
 	    : pp_field(datatype), m_value(value)
-	{
-	}
-	virtual ~pp_constant_field() {}
+	{}
+	virtual ~pp_constant_field()
+	{}
 
 	/*
 	 * pp_constant_field::read()
@@ -256,6 +173,7 @@ class pp_constant_field: public pp_field
 };
 typedef boost::shared_ptr<pp_constant_field> pp_constant_field_ptr;
 
-#define new_pp_constant_field(...) pp_constant_field_ptr(new pp_constant_field(__VA_ARGS__))
+#define new_pp_constant_field(...) \
+	pp_constant_field_ptr(new pp_constant_field(__VA_ARGS__))
 
 #endif // PP_PP_FIELDS_H__
