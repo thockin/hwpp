@@ -78,6 +78,12 @@ GET_FIELD(const pp_path &path)
 }
 
 /*
+ * magic registers
+ */
+extern pp_register *magic_zeros;
+extern pp_register *magic_ones;
+
+/*
  * Resolve a path to a register, relative to the current scope.  If the
  * specified path does not exist or is not a register, throw
  * std::out_of_range.
@@ -119,7 +125,7 @@ NEW_PLATFORM()
 	DASSERT_MSG(context_stack.empty(), "context_stack must be empty");
 
 	OPEN_SCOPE("");
-	global_datatypes_init(current_context.scope());
+	platform_global_init(current_context.scope());
 
 	// FIXME: take these out when we have a real language
 	pci_datatypes_init();

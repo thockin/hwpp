@@ -12,6 +12,9 @@
 #include <iostream>
 using namespace std;
 
+extern pp_register *magic_zeros;
+extern pp_register *magic_ones;
+
 int
 magic_regs_test()
 {

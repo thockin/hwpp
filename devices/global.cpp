@@ -12,7 +12,7 @@ int force_devices_linkage;
 /* call this when you init a new platform */
 //FIXME: do this automagically via a static object ctor?
 void
-global_datatypes_init(pp_scope *platform)
+platform_global_init(pp_scope *platform)
 {
 	/* primitives */
 	platform->add_datatype("int_t", new_pp_int());

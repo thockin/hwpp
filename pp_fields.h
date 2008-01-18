@@ -9,12 +9,6 @@
 #include <vector>
 
 /*
- * magic registers - used for filling hardcoded regbits
- */
-extern pp_register *magic_zeros;
-extern pp_register *magic_ones;
-
-/*
  * pp_direct_field - a field that maps directly to register bits.
  *
  * Constructors:
