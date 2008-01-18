@@ -8,13 +8,14 @@ TESTS = keyed_vector_test \
 	filesystem_test \
 	bitbuffer_test \
 	bignum_test \
-	pp_datatype_test \
-	pp_binding_test \
-	pp_field_test \
-	pp_register_test \
-	pp_scope_test \
-	pp_dirent_test \
 	pp_path_test \
+	pp_dirent_test \
+	pp_binding_test \
+	pp_register_test \
+	pp_regbits_test \
+	pp_datatype_test \
+	pp_field_test \
+	pp_scope_test \
 	utils_test \
 	magic_regs_test
 TESTS_SRCS = $(TESTS:=.cpp)

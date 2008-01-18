@@ -74,7 +74,8 @@ generate_scope(pp_scope_ptr root)
 			generate_scope(scope);
 		} else if (choice == FIELD && field_count < MAX_FIELDS) {
 			/* Add a Field */
-			pp_regbits_field_ptr field = new_pp_regbits_field(integer);
+			pp_direct_field_ptr field
+			    = new_pp_direct_field(integer, pp_regbits());
 			root->add_dirent("F"+to_string(field_count),field);
 			field_count++;
 		} else if (choice == REGISTER && register_count < MAX_REGISTERS) {

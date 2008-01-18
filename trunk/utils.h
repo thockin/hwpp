@@ -180,44 +180,27 @@ SIMPLE_FIELD(const string &name, const string &type,
 #define ONE_BIT_FIELD(name, type, regname, bit) \
 		SIMPLE_FIELD(name, type, regname, bit, bit)
 
-// This is a helper for type safety in COMPLEX_FIELD()
-struct reg_bitrange
-{
-	reg_bitrange(): regname(""), hi_bit(0), lo_bit(0) {}
-	reg_bitrange(const string &reg, unsigned hi, unsigned lo)
-	    : regname(reg), hi_bit(hi), lo_bit(lo) {}
-	string regname;
-	unsigned hi_bit;
-	unsigned lo_bit;
-};
-#define BITS(reg,hi,lo) reg_bitrange(reg, hi, lo)
+extern pp_regbits
+BITS(const string &regname);
+extern pp_regbits
+BITS(const string &regname, unsigned bit);
+extern pp_regbits
+BITS(const string &regname, unsigned hi, unsigned lo);
 
 /*
  * COMPLEX_FIELD
  * Create a complex field, give the name, type, registers from which the
- * bits will be taken from, the hi and lo bits.
+ * bits will be taken.
  *
  * It can take an "unlimted" amount of arguments, in the form:
- * 	COMPLEX_FIELD("name", "type", BIT("abc", 1, 0), BIT("def", 7, 2))
- *
- * NOTE: If I could check this in under an assumed name, I would.  I am
- * embarrassed to put my name on this.  I just can't see a cleaner,
- * type-safe solution right now.  I'm sure one exists.  This will all go
- * away when we have a real language, and we can switch this to take a
- * vector or something.
+ * 	COMPLEX_FIELD("name", "type", BITS("abc", 1, 0) + BITS("def", 7, 2))
  */
 extern void
 COMPLEX_FIELD(const string &name, const pp_datatype *type,
-	const reg_bitrange &bits0, const reg_bitrange &bits1=reg_bitrange(),
-	const reg_bitrange &bits2=reg_bitrange(),
-	const reg_bitrange &bits3=reg_bitrange(),
-	const reg_bitrange &bits4=reg_bitrange());
+		const pp_regbits &bits);
 extern void
 COMPLEX_FIELD(const string &name, const string &type,
-	const reg_bitrange &bits0, const reg_bitrange &bits1=reg_bitrange(),
-	const reg_bitrange &bits2=reg_bitrange(),
-	const reg_bitrange &bits3=reg_bitrange(),
-	const reg_bitrange &bits4=reg_bitrange());
+		const pp_regbits &bits);
 
 //FIXME: comment
 extern void

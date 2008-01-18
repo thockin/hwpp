@@ -179,6 +179,28 @@ CLOSE_SCOPE()
 }
 
 /*
+ * Define a regbits from a register name and bit range.
+ */
+pp_regbits
+BITS(const string &regname)
+{
+	const pp_register *reg = GET_REGISTER(regname);
+	return pp_regbits(reg, reg->width()-1, 0);
+}
+pp_regbits
+BITS(const string &regname, unsigned bit)
+{
+	const pp_register *reg = GET_REGISTER(regname);
+	return pp_regbits(reg, bit, bit);
+}
+pp_regbits
+BITS(const string &regname, unsigned hi_bit, unsigned lo_bit)
+{
+	const pp_register *reg = GET_REGISTER(regname);
+	return pp_regbits(reg, hi_bit, lo_bit);
+}
+
+/*
  * Define a register.
  */
 void
@@ -204,7 +226,7 @@ REGN(const string &name, const pp_value &address, pp_bitwidth width)
 }
 
 /*
- * Define a simple regbits_field from a single range of bits from a single
+ * Define a simple direct_field from a single range of bits from a single
  * register.
  */
 void
@@ -221,42 +243,9 @@ SIMPLE_FIELD(const string &name, const string &type_str,
 	SIMPLE_FIELD(name, type, regname, hi_bit, lo_bit);
 }
 
-/*
- * Define a regbits_field from an array of bitranges.
- *
- * ASSUMPTION: bit ranges are added sequentially from lowest to highest.
- */
-static int
-add_bitrange(pp_regbits_field *field, const reg_bitrange &bits, int ttl_bits)
-{
-	DTRACE(TRACE_FIELDS && TRACE_FIELD_BITS, string("  ")
-			+ bits.regname + "["
-			+ to_string(bits.hi_bit) + ","
-			+ to_string(bits.lo_bit) + "]");
-
-	const pp_register *reg = GET_REGISTER(bits.regname);
-	int nbits = (bits.hi_bit - bits.lo_bit) + 1;
-
-	// sanity check the bit range
-	if (bits.hi_bit < bits.lo_bit
-	 || bits.hi_bit >= (unsigned)reg->width()) {
-		WARN("bad bit range: ["
-			+ to_string(bits.hi_bit)
-			+ string(":")
-			+ to_string(bits.lo_bit)
-			+ string("]"));
-	}
-
-	// add the current bitrange at the next free bit number
-	field->add_regbits(reg, bits.lo_bit, PP_MASK(nbits), ttl_bits);
-	return nbits;
-}
-
 void
 COMPLEX_FIELD(const string &name, const pp_datatype *type,
-		const reg_bitrange &bits0, const reg_bitrange &bits1,
-		const reg_bitrange &bits2, const reg_bitrange &bits3,
-		const reg_bitrange &bits4)
+		const pp_regbits &bits)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
@@ -269,28 +258,15 @@ COMPLEX_FIELD(const string &name, const pp_datatype *type,
 		WARN("scope or field redefined: " + name);
 	}
 
-	// create a field and add each bitrange
-	pp_regbits_field_ptr field_ptr = new_pp_regbits_field(type);
-	int ttl_bits = 0;
-	ttl_bits += add_bitrange(field_ptr.get(), bits0, ttl_bits);
-
-	#define ADD_BITS(bits) do { \
-		if (bits.regname == "") goto done_adding_bits; \
-		ttl_bits += add_bitrange(field_ptr.get(), bits, ttl_bits); \
-	} while (0)
-	ADD_BITS(bits1); ADD_BITS(bits2); ADD_BITS(bits3); ADD_BITS(bits4);
-done_adding_bits:
-
+	// create a field and add it to the current scope
+	pp_direct_field_ptr field_ptr = new_pp_direct_field(type, bits);
 	current_context.add_dirent(name, field_ptr);
 }
 void
 COMPLEX_FIELD(const string &name, const string &type,
-		const reg_bitrange &bits0, const reg_bitrange &bits1,
-		const reg_bitrange &bits2, const reg_bitrange &bits3,
-		const reg_bitrange &bits4)
+		const pp_regbits &bits)
 {
-	COMPLEX_FIELD(name, current_context.resolve_datatype(type),
-			bits0, bits1, bits2, bits3, bits4);
+	COMPLEX_FIELD(name, current_context.resolve_datatype(type), bits);
 }
 
 /*
