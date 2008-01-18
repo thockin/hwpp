@@ -312,25 +312,8 @@ INT(const string &name, const string &units)
 	return int_ptr.get();
 }
 
-// see comment in utils.h
 pp_bitmask *
-BITMASK_(const string &name, const string &dflt,
-	const kv_pair &kv0, const kv_pair &kv1,
-	const kv_pair &kv2, const kv_pair &kv3,
-	const kv_pair &kv4, const kv_pair &kv5,
-	const kv_pair &kv6, const kv_pair &kv7,
-	const kv_pair &kv8, const kv_pair &kv9,
-	const kv_pair &kv10, const kv_pair &kv11,
-	const kv_pair &kv12, const kv_pair &kv13,
-	const kv_pair &kv14, const kv_pair &kv15,
-	const kv_pair &kv16, const kv_pair &kv17,
-	const kv_pair &kv18, const kv_pair &kv19,
-	const kv_pair &kv20, const kv_pair &kv21,
-	const kv_pair &kv22, const kv_pair &kv23,
-	const kv_pair &kv24, const kv_pair &kv25,
-	const kv_pair &kv26, const kv_pair &kv27,
-	const kv_pair &kv28, const kv_pair &kv29,
-	const kv_pair &kv30, const kv_pair &kv31)
+BITMASK_(const string &name, const string &dflt, const kvpair_list &kvlist)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
@@ -338,28 +321,10 @@ BITMASK_(const string &name, const string &dflt,
 	// sanity
 	DASSERT_MSG(current_context.is_valid(), "invalid current_context");
 
-	pp_bitmask_ptr bitmask_ptr = new_pp_bitmask();
+	pp_bitmask_ptr bitmask_ptr = new_pp_bitmask(kvlist);
 	if (dflt != "") {
 		bitmask_ptr->set_default(dflt);
 	}
-	bitmask_ptr->add_bit(kv0.key, kv0.value);
-
-	#define ADD_BMSK_KV(kv) do { \
-		if (kv.key == "") goto done_adding_kv; \
-		bitmask_ptr->add_bit(kv.key, kv.value); \
-	} while (0)
-	ADD_BMSK_KV(kv1); ADD_BMSK_KV(kv2); ADD_BMSK_KV(kv3);
-	ADD_BMSK_KV(kv4); ADD_BMSK_KV(kv5); ADD_BMSK_KV(kv6);
-	ADD_BMSK_KV(kv7); ADD_BMSK_KV(kv8); ADD_BMSK_KV(kv9);
-	ADD_BMSK_KV(kv10); ADD_BMSK_KV(kv11); ADD_BMSK_KV(kv12);
-	ADD_BMSK_KV(kv13); ADD_BMSK_KV(kv14); ADD_BMSK_KV(kv15);
-	ADD_BMSK_KV(kv16); ADD_BMSK_KV(kv17); ADD_BMSK_KV(kv18);
-	ADD_BMSK_KV(kv19); ADD_BMSK_KV(kv20); ADD_BMSK_KV(kv21);
-	ADD_BMSK_KV(kv22); ADD_BMSK_KV(kv23); ADD_BMSK_KV(kv24);
-	ADD_BMSK_KV(kv25); ADD_BMSK_KV(kv26); ADD_BMSK_KV(kv27);
-	ADD_BMSK_KV(kv28); ADD_BMSK_KV(kv29); ADD_BMSK_KV(kv30);
-	ADD_BMSK_KV(kv31);
-done_adding_kv:
 
 	if (name == "") {
 		current_context.add_datatype(bitmask_ptr);
@@ -370,19 +335,8 @@ done_adding_kv:
 	return bitmask_ptr.get();
 }
 
-// see comment in utils.h
 pp_enum *
-ENUM(const string &name,
-	const kv_pair &kv0, const kv_pair &kv1,
-	const kv_pair &kv2, const kv_pair &kv3,
-	const kv_pair &kv4, const kv_pair &kv5,
-	const kv_pair &kv6, const kv_pair &kv7,
-	const kv_pair &kv8, const kv_pair &kv9,
-	const kv_pair &kv10, const kv_pair &kv11,
-	const kv_pair &kv12, const kv_pair &kv13,
-	const kv_pair &kv14, const kv_pair &kv15,
-	const kv_pair &kv16, const kv_pair &kv17,
-	const kv_pair &kv18, const kv_pair &kv19)
+ENUM_(const string &name, const kvpair_list &kvlist)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
@@ -390,22 +344,7 @@ ENUM(const string &name,
 	// sanity
 	DASSERT_MSG(current_context.is_valid(), "invalid current_context");
 
-	pp_enum_ptr enum_ptr = new_pp_enum();
-	enum_ptr->add_value(kv0.key, kv0.value);
-
-	#define ADD_ENUM_KV(kv) do { \
-		if (kv.key == "") goto done_adding_kv; \
-		enum_ptr->add_value(kv.key, kv.value); \
-	} while (0)
-	ADD_ENUM_KV(kv1); ADD_ENUM_KV(kv2); ADD_ENUM_KV(kv3);
-	ADD_ENUM_KV(kv4); ADD_ENUM_KV(kv5); ADD_ENUM_KV(kv6);
-	ADD_ENUM_KV(kv7); ADD_ENUM_KV(kv8); ADD_ENUM_KV(kv9);
-	ADD_ENUM_KV(kv10); ADD_ENUM_KV(kv11); ADD_ENUM_KV(kv12);
-	ADD_ENUM_KV(kv13); ADD_ENUM_KV(kv14); ADD_ENUM_KV(kv15);
-	ADD_ENUM_KV(kv16); ADD_ENUM_KV(kv17); ADD_ENUM_KV(kv18);
-	ADD_ENUM_KV(kv19);
-done_adding_kv:
-
+	pp_enum_ptr enum_ptr = new_pp_enum(kvlist);
 	if (name == "") {
 		current_context.add_datatype(enum_ptr);
 	} else {

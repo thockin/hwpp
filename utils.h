@@ -176,7 +176,7 @@ BITS(const string &regname, unsigned hi, unsigned lo);
  * Create a field and add it to the current scope.
  *
  * It can take an "unlimited" number of regbits, in the form:
- * 	COMPLEX_FIELD("name", "type", BITS("abc", 1, 0) + BITS("def", 7, 2))
+ * 	FIELD("name", "type", BITS("abc", 1, 0) + BITS("def", 7, 2))
  */
 extern void
 FIELD(const string &name, const pp_datatype *type, const pp_regbits &bits);
@@ -210,75 +210,77 @@ extern pp_int *
 INT(const string &name, const string &units="");
 #define ANON_INT(units) INT("", units)
 
-// This is a helper for type safety in pp_enum and pp_bitmask.
-struct kv_pair
+#include <vector>
+
+// These are helpers for type safety in pp_enum and pp_bitmask.
+struct kvpair
 {
-	kv_pair(): key(""), value(0) {}
-	kv_pair(const string &k, const pp_value &v): key(k), value(v) {}
-	string key;
-	pp_value value;
+    public:
+	kvpair(const string &k, const pp_value &v): m_key(k), m_value(v)
+	{}
+	const string &
+	key() const
+	{
+		return m_key;
+	}
+	const pp_value &
+	value() const
+	{
+		return m_value;
+	}
+
+    private:
+	string m_key;
+	pp_value m_value;
 };
-#define KV(k,v) kv_pair(k, v)
+#define KV(k,v) kvpair(k, v)
+typedef keyed_vector<string, pp_value> kvpair_list;
+inline kvpair_list
+operator,(const kvpair &lhs, const kvpair &rhs)
+{
+	kvpair_list tmp;
+	tmp.insert(lhs.key(), lhs.value());
+	tmp.insert(rhs.key(), rhs.value());
+	return tmp;
+}
+inline kvpair_list
+operator,(const kvpair_list &lhs, const kvpair &rhs)
+{
+	kvpair_list tmp(lhs);
+	tmp.insert(rhs.key(), rhs.value());
+	return tmp;
+}
 
 /*
- * BITMASK
- * A shortcut function for creating a pp_bitmask.
- * It can take an "unlimted" amount of arguments, in the form:
- * 	BITMASK("name", KV("abc", 1), KV("def", 2))
+ * Create a pp_bitmask.
  *
- * NOTE: If I could check this in under an assumed name, I would.  I am
- * embarrassed to put my name on this.  I just can't see a cleaner,
- * type-safe solution right now.  I'm sure one exists.  This will all go
- * away when we have a real language, and we can switch this to take a
- * vector or something.
+ * It can take an "unlimited" number of arguments, in the form:
+ * 	BITMASK("name", (KV("abc", 1), KV("def", 2)))
+ *
+ * NOTE: In calling this, the extra parens around the KV list are required.
+ * Why?  Well, C++ won't call operator,() on function arguments, so we force
+ * the arguments to be a single argument, which is an expression.
+ * Fortunately, a touch of macro magic makes it look like an unlimited
+ * argument list.  I wish I was less proud of this.
  */
 extern pp_bitmask *
-BITMASK_(const string &name, const string &dflt,
-	const kv_pair &kv0, const kv_pair &kv1=kv_pair(),
-	const kv_pair &kv2=kv_pair(), const kv_pair &kv3=kv_pair(),
-	const kv_pair &kv4=kv_pair(), const kv_pair &kv5=kv_pair(),
-	const kv_pair &kv6=kv_pair(), const kv_pair &kv7=kv_pair(),
-	const kv_pair &kv8=kv_pair(), const kv_pair &kv9=kv_pair(),
-	const kv_pair &kv10=kv_pair(), const kv_pair &kv11=kv_pair(),
-	const kv_pair &kv12=kv_pair(), const kv_pair &kv13=kv_pair(),
-	const kv_pair &kv14=kv_pair(), const kv_pair &kv15=kv_pair(),
-	const kv_pair &kv16=kv_pair(), const kv_pair &kv17=kv_pair(),
-	const kv_pair &kv18=kv_pair(), const kv_pair &kv19=kv_pair(),
-	const kv_pair &kv20=kv_pair(), const kv_pair &kv21=kv_pair(),
-	const kv_pair &kv22=kv_pair(), const kv_pair &kv23=kv_pair(),
-	const kv_pair &kv24=kv_pair(), const kv_pair &kv25=kv_pair(),
-	const kv_pair &kv26=kv_pair(), const kv_pair &kv27=kv_pair(),
-	const kv_pair &kv28=kv_pair(), const kv_pair &kv29=kv_pair(),
-	const kv_pair &kv30=kv_pair(), const kv_pair &kv31=kv_pair());
-#define BITMASK_DFLT(name, dflt, ...)	BITMASK_(name, dflt, __VA_ARGS__)
-#define BITMASK(name, ...)		BITMASK_(name, "", __VA_ARGS__)
-#define ANON_BITMASK(...)		BITMASK_("", "", __VA_ARGS__)
+BITMASK_(const string &name, const string &dflt, const kvpair_list &kvlist);
+#define BITMASK_DFLT(name, dflt, ...)	BITMASK_(name, dflt, (__VA_ARGS__))
+#define BITMASK(name, ...)		BITMASK_(name, "", (__VA_ARGS__))
+#define ANON_BITMASK(...)		BITMASK_("", "", (__VA_ARGS__))
 
 /*
- * ENUM
- * A shortcut function for creating a pp_enum.
- * It can take an "unlimted" amount of arguments, in the form:
- * 	ENUM("name", KV("abc", 1), KV("def", 2))
+ * Create a pp_enum.
  *
- * NOTE: If I could check this in under an assumed name, I would.  I am
- * embarrassed to put my name on this.  I just can't see a cleaner,
- * type-safe solution right now.  I'm sure one exists.  This will all go
- * away when we have a real language, and we can switch this to take a
- * vector or something.
+ * It can take an "unlimited" number of arguments, in the form:
+ * 	ENUM("name", (KV("abc", 1), KV("def", 2)))
+ *
+ * See the NOTE for BITMASK, above.
  */
 extern pp_enum *
-ENUM(const string &name,
-	const kv_pair &kv0, const kv_pair &kv1=kv_pair(),
-	const kv_pair &kv2=kv_pair(), const kv_pair &kv3=kv_pair(),
-	const kv_pair &kv4=kv_pair(), const kv_pair &kv5=kv_pair(),
-	const kv_pair &kv6=kv_pair(), const kv_pair &kv7=kv_pair(),
-	const kv_pair &kv8=kv_pair(), const kv_pair &kv9=kv_pair(),
-	const kv_pair &kv10=kv_pair(), const kv_pair &kv11=kv_pair(),
-	const kv_pair &kv12=kv_pair(), const kv_pair &kv13=kv_pair(),
-	const kv_pair &kv14=kv_pair(), const kv_pair &kv15=kv_pair(),
-	const kv_pair &kv16=kv_pair(), const kv_pair &kv17=kv_pair(),
-	const kv_pair &kv18=kv_pair(), const kv_pair &kv19=kv_pair());
-#define ANON_ENUM(...) ENUM("", __VA_ARGS__)
+ENUM_(const string &name, const kvpair_list &kvlist);
+#define ENUM(name, ...)			ENUM_(name, (__VA_ARGS__))
+#define ANON_ENUM(...)			ENUM_("", (__VA_ARGS__))
 
 /*
  * BOOL
