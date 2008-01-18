@@ -9,7 +9,20 @@
  * pp_regbits - a bit range from a register.
  *
  * Constructors:
- * 	(const pp_register *reg, const int shift, const pp_value &mask)
+ *	()
+ *	(const pp_register *reg)
+ *	(const pp_register *reg, unsigned bit)
+ *	(const pp_register *reg, unsigned hi_bit, unsigned lo_bit)
+ *
+ * Examples:
+ *	pp_regbits A(reg1, 15, 0);
+ *	cout << A.read() << endl;    // 0x1234
+ *
+ *	pp_regbits B(reg2, 15, 0);
+ *	cout << B.read() << endl;    // 0x5678
+ *
+ *	pp_regbits C = A + B;
+ *	cout << C.read() << endl;    // 0x12345678
  */
 class pp_regbits
 {
@@ -33,7 +46,15 @@ class pp_regbits
 		// use the specified bits
 		init(reg, hi_bit, lo_bit);
 	}
-	// add more bits onto a regbits (always adding at the LSB)
+	/*
+	 * Join two regbits.  We always append new regbits at teh LSB (the
+	 * right hand side in common notation).  This has the effect of
+	 * shifting the existing bits left in order to make room for the new
+	 * bits.  To be precise:
+	 * 	A = B + C
+	 * means:
+	 * 	A = ((B << C.width()) | C)
+	 */
 	pp_regbits
 	operator+(const pp_regbits &that) const
 	{
@@ -105,7 +126,7 @@ class pp_regbits
 			tmp |= myval;
 			m_register->write(tmp);
 		} else {
-			// complex (MSB first)
+			// complex (LSB first)
 			pp_value myval = value;
 			for (int i = m_sub_bits.size()-1; i >= 0; i--) {
 				m_sub_bits[i].write(myval);
