@@ -2,6 +2,7 @@
 #ifndef PP_PP_DATATYPES_H__
 #define PP_PP_DATATYPES_H__
 
+#include "pp.h"
 #include "pp_datatype.h"
 #include "keyed_vector.h"
 
@@ -16,8 +17,14 @@
 class pp_enum: public pp_datatype
 {
     public:
-	explicit pp_enum(): m_default("<!!unknown!!>") {}
-	virtual ~pp_enum() {}
+	pp_enum()
+	    : m_default("<!!unknown!!>")
+	{}
+	pp_enum(const keyed_vector<string, pp_value> &values)
+	    : m_default("<!!unknown!!>"), m_values(values)
+	{}
+	virtual ~pp_enum()
+	{}
 
 	/*
 	 * pp_enum::evaluate(value)
@@ -96,8 +103,8 @@ class pp_enum: public pp_datatype
 	}
 
     private:
-	keyed_vector<string, pp_value> m_values;
 	string m_default;
+	keyed_vector<string, pp_value> m_values;
 };
 typedef boost::shared_ptr<pp_enum> pp_enum_ptr;
 
@@ -149,7 +156,12 @@ typedef boost::shared_ptr<pp_bool> pp_bool_ptr;
 class pp_bitmask: public pp_datatype
 {
     public:
-	explicit pp_bitmask(): m_default("") {}
+	pp_bitmask()
+	    : m_default("")
+	{}
+	pp_bitmask(const keyed_vector<string, pp_value> &bits)
+	    : m_default(""), m_bits(bits)
+	{}
 	virtual ~pp_bitmask() {}
 
 	/*
@@ -268,8 +280,11 @@ typedef boost::shared_ptr<pp_bitmask> pp_bitmask_ptr;
 class pp_int: public pp_datatype
 {
     public:
-	explicit pp_int(const string &units = ""): m_units(units) {}
-	virtual ~pp_int() {}
+	pp_int(const string &units = "")
+	    : m_units(units)
+	{}
+	virtual ~pp_int()
+	{}
 
 	/*
 	 * pp_int::evaluate(value)
@@ -324,10 +339,11 @@ typedef boost::shared_ptr<pp_int> pp_int_ptr;
 class pp_hex: public pp_int
 {
     public:
-	explicit pp_hex(const pp_bitwidth width = BITS0,
-			const string &units = "")
-			: pp_int(units), m_width(width) {}
-	virtual ~pp_hex() {}
+	pp_hex(const pp_bitwidth width = BITS0, const string &units = "")
+	    : pp_int(units), m_width(width)
+	{}
+	virtual ~pp_hex()
+	{}
 
 	/*
 	 * pp_hex::evaluate(value)
