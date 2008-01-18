@@ -179,28 +179,6 @@ CLOSE_SCOPE()
 }
 
 /*
- * Define a regbits from a register name and bit range.
- */
-pp_regbits
-BITS(const string &regname)
-{
-	const pp_register *reg = GET_REGISTER(regname);
-	return pp_regbits(reg, reg->width()-1, 0);
-}
-pp_regbits
-BITS(const string &regname, unsigned bit)
-{
-	const pp_register *reg = GET_REGISTER(regname);
-	return pp_regbits(reg, bit, bit);
-}
-pp_regbits
-BITS(const string &regname, unsigned hi_bit, unsigned lo_bit)
-{
-	const pp_register *reg = GET_REGISTER(regname);
-	return pp_regbits(reg, hi_bit, lo_bit);
-}
-
-/*
  * Define a register.
  */
 void
@@ -226,26 +204,32 @@ REGN(const string &name, const pp_value &address, pp_bitwidth width)
 }
 
 /*
- * Define a simple direct_field from a single range of bits from a single
- * register.
+ * Define a regbits from a register name and bit range.
  */
-void
-SIMPLE_FIELD(const string &name, const pp_datatype *type,
-		const string &regname, unsigned hi_bit, unsigned lo_bit)
+pp_regbits
+BITS(const string &regname)
 {
-	COMPLEX_FIELD(name, type, BITS(regname.c_str(), hi_bit, lo_bit));
+	const pp_register *reg = GET_REGISTER(regname);
+	return pp_regbits(reg, reg->width()-1, 0);
 }
-void
-SIMPLE_FIELD(const string &name, const string &type_str,
-		const string &regname, unsigned hi_bit, unsigned lo_bit)
+pp_regbits
+BITS(const string &regname, unsigned bit)
 {
-	const pp_datatype *type = current_context.resolve_datatype(type_str);
-	SIMPLE_FIELD(name, type, regname, hi_bit, lo_bit);
+	const pp_register *reg = GET_REGISTER(regname);
+	return pp_regbits(reg, bit, bit);
+}
+pp_regbits
+BITS(const string &regname, unsigned hi_bit, unsigned lo_bit)
+{
+	const pp_register *reg = GET_REGISTER(regname);
+	return pp_regbits(reg, hi_bit, lo_bit);
 }
 
+/*
+ * Define a field.
+ */
 void
-COMPLEX_FIELD(const string &name, const pp_datatype *type,
-		const pp_regbits &bits)
+FIELD(const string &name, const pp_datatype *type, const pp_regbits &bits)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
@@ -263,10 +247,9 @@ COMPLEX_FIELD(const string &name, const pp_datatype *type,
 	current_context.add_dirent(name, field_ptr);
 }
 void
-COMPLEX_FIELD(const string &name, const string &type,
-		const pp_regbits &bits)
+FIELD(const string &name, const string &type, const pp_regbits &bits)
 {
-	COMPLEX_FIELD(name, current_context.resolve_datatype(type), bits);
+	FIELD(name, current_context.resolve_datatype(type), bits);
 }
 
 /*
@@ -280,7 +263,7 @@ REGFIELDN(const string &name, const pp_value &address, const pp_datatype *type,
 		"current_context is read-only");
 	string regname = "%" + name;
 	REGN(regname, address, width);
-	SIMPLE_FIELD(name, type, regname, width-1, 0);
+	FIELD(name, type, BITS(regname, width-1, 0));
 }
 void
 REGFIELDN(const string &name, const pp_value &address, const string &type,

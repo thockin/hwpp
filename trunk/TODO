@@ -22,5 +22,4 @@ write docs
 
 operator, for KV()
 put the magic regs into the platform, get rid of the externs in pp_fields
-single FIELD() function
 READ(field) and READ(register) and READ(pp_value regnum)
