@@ -160,25 +160,7 @@ REGN(const string &name, const pp_value &address, pp_bitwidth width);
 #define REG32(name, address) REGN(name, address, BITS32)
 #define REG64(name, address) REGN(name, address, BITS64)
 
-#include "pp_datatype.h"
-#include "pp_datatypes.h"
-
-/*
- * SIMPLE_FIELD
- * Create a simple field, give the name, type, register from which the
- * bits will be taken from, the hi and lo bits.  This is a simplified
- * macro function, and the field created will be added to the present
- * scope (as created with OPEN_SCOPE).
- */
-//FIXME: drop this in favor of simply an overloaded "FIELD()" function?
-extern void
-SIMPLE_FIELD(const string &name, const pp_datatype *type,
-		const string &regname, unsigned hi_bit, unsigned lo_bit);
-extern void
-SIMPLE_FIELD(const string &name, const string &type,
-		const string &regname, unsigned hi_bit, unsigned lo_bit);
-#define ONE_BIT_FIELD(name, type, regname, bit) \
-		SIMPLE_FIELD(name, type, regname, bit, bit)
+#include "pp_regbits.h"
 
 extern pp_regbits
 BITS(const string &regname);
@@ -187,20 +169,19 @@ BITS(const string &regname, unsigned bit);
 extern pp_regbits
 BITS(const string &regname, unsigned hi, unsigned lo);
 
+#include "pp_datatype.h"
+#include "pp_datatypes.h"
+
 /*
- * COMPLEX_FIELD
- * Create a complex field, give the name, type, registers from which the
- * bits will be taken.
+ * Create a field and add it to the current scope.
  *
- * It can take an "unlimted" amount of arguments, in the form:
+ * It can take an "unlimited" number of regbits, in the form:
  * 	COMPLEX_FIELD("name", "type", BITS("abc", 1, 0) + BITS("def", 7, 2))
  */
 extern void
-COMPLEX_FIELD(const string &name, const pp_datatype *type,
-		const pp_regbits &bits);
+FIELD(const string &name, const pp_datatype *type, const pp_regbits &bits);
 extern void
-COMPLEX_FIELD(const string &name, const string &type,
-		const pp_regbits &bits);
+FIELD(const string &name, const string &type, const pp_regbits &bits);
 
 //FIXME: comment
 extern void

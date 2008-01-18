@@ -14,32 +14,32 @@ BAR(const string &name, const pp_value &address)
 	OPEN_SCOPE(name);
 
 	REG32("%lower", address);
-	ONE_BIT_FIELD("type", ANON_ENUM(
+	FIELD("type", ANON_ENUM(
 				KV("mem", 0),
 				KV("io", 1)),
-			"%lower", 0);
+			BITS("%lower", 0));
 
 	if (FIELD_EQ("type", "mem")) {
-		SIMPLE_FIELD("width", ANON_ENUM(
+		FIELD("width", ANON_ENUM(
 					KV("bits32", 0),
 					KV("bits20", 1),
 					KV("bits64", 2)),
-				"%lower", 2, 1);
-		ONE_BIT_FIELD("prefetch", "yesno_t", "%lower", 3);
+				BITS("%lower", 2, 1));
+		FIELD("prefetch", "yesno_t", BITS("%lower", 3));
 	}
 
 	if (FIELD_EQ("type", "io")) {
-		COMPLEX_FIELD("address", "addr16_t",
+		FIELD("address", "addr16_t",
 				BITS("%lower", 15, 2) +
 				BITS("%0", 1, 0));
 	} else if (FIELD_EQ("width", "bits32")
 	    || FIELD_EQ("width", "bits20")) {
-		COMPLEX_FIELD("address", "addr32_t",
+		FIELD("address", "addr32_t",
 				BITS("%lower", 31, 4) +
 				BITS("%0", 3, 0));
 	} else {
 		REG32("%upper", address+4);
-		COMPLEX_FIELD("address", "addr64_t",
+		FIELD("address", "addr64_t",
 				BITS("%upper", 31, 0) +
 				BITS("%lower", 31, 4) +
 				BITS("%0", 3, 0));
@@ -53,19 +53,19 @@ ht_link_control(const pp_value &address)
 	REG16("%control", address);
 	OPEN_SCOPE("control");
 
-	ONE_BIT_FIELD("SrcIdEn", "yesno_t", "../%control", 0);
-	ONE_BIT_FIELD("CFIEn", "yesno_t", "../%control", 1);
-	ONE_BIT_FIELD("CST", "yesno_t", "../%control", 2);
-	ONE_BIT_FIELD("CFEr", "yesno_t", "../%control", 3);
-	ONE_BIT_FIELD("LinkFail", "yesno_t", "../%control", 4);
-	ONE_BIT_FIELD("InitCmp", "yesno_t", "../%control", 5);
-	ONE_BIT_FIELD("EOC", "yesno_t", "../%control", 6);
-	ONE_BIT_FIELD("TXOff", "yesno_t", "../%control", 7);
-	SIMPLE_FIELD("CRCErr", "hex4_t", "../%control", 11, 8);
-	ONE_BIT_FIELD("IsocEn", "yesno_t", "../%control", 12);
-	ONE_BIT_FIELD("LSEn", "yesno_t", "../%control", 13);
-	ONE_BIT_FIELD("ExtCTL", "yesno_t", "../%control", 14);
-	ONE_BIT_FIELD("64bEn", "yesno_t", "../%control", 15);
+	FIELD("SrcIdEn", "yesno_t", BITS("../%control", 0));
+	FIELD("CFIEn", "yesno_t", BITS("../%control", 1));
+	FIELD("CST", "yesno_t", BITS("../%control", 2));
+	FIELD("CFEr", "yesno_t", BITS("../%control", 3));
+	FIELD("LinkFail", "yesno_t", BITS("../%control", 4));
+	FIELD("InitCmp", "yesno_t", BITS("../%control", 5));
+	FIELD("EOC", "yesno_t", BITS("../%control", 6));
+	FIELD("TXOff", "yesno_t", BITS("../%control", 7));
+	FIELD("CRCErr", "hex4_t", BITS("../%control", 11, 8));
+	FIELD("IsocEn", "yesno_t", BITS("../%control", 12));
+	FIELD("LSEn", "yesno_t", BITS("../%control", 13));
+	FIELD("ExtCTL", "yesno_t", BITS("../%control", 14));
+	FIELD("64bEn", "yesno_t", BITS("../%control", 15));
 
 	CLOSE_SCOPE();
 }
@@ -84,15 +84,15 @@ ht_link_config(const pp_value &address)
 	REG16("%config", address);
 	OPEN_SCOPE("config");
 
-	SIMPLE_FIELD("MaxLinkWidthIn", "ht_link_width_t", "../%config", 2, 0);
-	ONE_BIT_FIELD("DwFcIn", "yesno_t", "../%config", 3);
-	SIMPLE_FIELD("MaxLinkWidthOut", "ht_link_width_t", "../%config", 6, 4);
-	ONE_BIT_FIELD("DwFcOut", "yesno_t", "../%config", 7);
+	FIELD("MaxLinkWidthIn", "ht_link_width_t", BITS("../%config", 2, 0));
+	FIELD("DwFcIn", "yesno_t", BITS("../%config", 3));
+	FIELD("MaxLinkWidthOut", "ht_link_width_t", BITS("../%config", 6, 4));
+	FIELD("DwFcOut", "yesno_t", BITS("../%config", 7));
 
-	SIMPLE_FIELD("LinkWidthIn", "ht_link_width_t", "../%config", 10, 8);
-	ONE_BIT_FIELD("DwFcInEn", "yesno_t", "../%config", 11);
-	SIMPLE_FIELD("LinkWidthOut", "ht_link_width_t", "../%config", 14, 12);
-	ONE_BIT_FIELD("DwFcOutEn", "yesno_t", "../%config", 15);
+	FIELD("LinkWidthIn", "ht_link_width_t", BITS("../%config", 10, 8));
+	FIELD("DwFcInEn", "yesno_t", BITS("../%config", 11));
+	FIELD("LinkWidthOut", "ht_link_width_t", BITS("../%config", 14, 12));
+	FIELD("DwFcOutEn", "yesno_t", BITS("../%config", 15));
 
 	CLOSE_SCOPE();
 }
@@ -118,11 +118,11 @@ ht_link_freq_err(const pp_value &address)
 			KV("mhz2600", 14));
 
 	REG8("%freq_err", address);
-	SIMPLE_FIELD("Freq", "ht_link_freq_t", "%freq_err", 3, 0);
-	ONE_BIT_FIELD("ProtoErr", "yesno_t", "%freq_err", 4);
-	ONE_BIT_FIELD("OverErr", "yesno_t", "%freq_err", 5);
-	ONE_BIT_FIELD("EOCErr", "yesno_t", "%freq_err", 6);
-	ONE_BIT_FIELD("CTLTimeout", "yesno_t", "%freq_err", 7);
+	FIELD("Freq", "ht_link_freq_t", BITS("%freq_err", 3, 0));
+	FIELD("ProtoErr", "yesno_t", BITS("%freq_err", 4));
+	FIELD("OverErr", "yesno_t", BITS("%freq_err", 5));
+	FIELD("EOCErr", "yesno_t", BITS("%freq_err", 6));
+	FIELD("CTLTimeout", "yesno_t", BITS("%freq_err", 7));
 }
 
 static void
@@ -146,7 +146,7 @@ ht_link_freq_cap(const pp_value &address)
 			KV("mhz2600", 14));
 
 	REG16("%freq_cap", address);
-	SIMPLE_FIELD("FreqCap", "ht_link_freq_cap_t", "%freq_cap", 14, 0);
+	FIELD("FreqCap", "ht_link_freq_cap_t", BITS("%freq_cap", 14, 0));
 }
 
 static void
@@ -155,22 +155,22 @@ ht_error_handling(const pp_value &address)
 	REG16("%error", address);
 	OPEN_SCOPE("error");
 
-	ONE_BIT_FIELD("proto_flood", "yesno_t", "../%error", 0);
-	ONE_BIT_FIELD("over_flood", "yesno_t", "../%error", 1);
-	ONE_BIT_FIELD("proto_fatal", "yesno_t", "../%error", 2);
-	ONE_BIT_FIELD("over_fatal", "yesno_t", "../%error", 3);
-	ONE_BIT_FIELD("eoc_fatal", "yesno_t", "../%error", 4);
-	ONE_BIT_FIELD("resp_fatal", "yesno_t", "../%error", 5);
-	ONE_BIT_FIELD("crc_fatal", "yesno_t", "../%error", 6);
-	ONE_BIT_FIELD("serr_fatal", "yesno_t", "../%error", 7);
-	ONE_BIT_FIELD("chain_fail", "yesno_t", "../%error", 8);
-	ONE_BIT_FIELD("resp_err", "yesno_t", "../%error", 9);
-	ONE_BIT_FIELD("proto_nonfatal", "yesno_t", "../%error", 10);
-	ONE_BIT_FIELD("over_nonfatal", "yesno_t", "../%error", 11);
-	ONE_BIT_FIELD("eoc_nonfatal", "yesno_t", "../%error", 12);
-	ONE_BIT_FIELD("resp_nonfatal", "yesno_t", "../%error", 13);
-	ONE_BIT_FIELD("crc_nonfatal", "yesno_t", "../%error", 14);
-	ONE_BIT_FIELD("serr_nonfatal", "yesno_t", "../%error", 15);
+	FIELD("proto_flood", "yesno_t", BITS("../%error", 0));
+	FIELD("over_flood", "yesno_t", BITS("../%error", 1));
+	FIELD("proto_fatal", "yesno_t", BITS("../%error", 2));
+	FIELD("over_fatal", "yesno_t", BITS("../%error", 3));
+	FIELD("eoc_fatal", "yesno_t", BITS("../%error", 4));
+	FIELD("resp_fatal", "yesno_t", BITS("../%error", 5));
+	FIELD("crc_fatal", "yesno_t", BITS("../%error", 6));
+	FIELD("serr_fatal", "yesno_t", BITS("../%error", 7));
+	FIELD("chain_fail", "yesno_t", BITS("../%error", 8));
+	FIELD("resp_err", "yesno_t", BITS("../%error", 9));
+	FIELD("proto_nonfatal", "yesno_t", BITS("../%error", 10));
+	FIELD("over_nonfatal", "yesno_t", BITS("../%error", 11));
+	FIELD("eoc_nonfatal", "yesno_t", BITS("../%error", 12));
+	FIELD("resp_nonfatal", "yesno_t", BITS("../%error", 13));
+	FIELD("crc_nonfatal", "yesno_t", BITS("../%error", 14));
+	FIELD("serr_nonfatal", "yesno_t", BITS("../%error", 15));
 	CLOSE_SCOPE();
 }
 
@@ -190,29 +190,29 @@ static void
 ht_slave_capability(const pp_value &address)
 {
 	REG16("%command", address + 2);
-	SIMPLE_FIELD("base_unit_id", "int_t", "%command", 4, 0);
-	SIMPLE_FIELD("unit_count", "int_t", "%command", 9, 5);
-	ONE_BIT_FIELD("master", "yesno_t", "%command", 10);
-	ONE_BIT_FIELD("default_direction", "yesno_t", "%command", 11);
-	ONE_BIT_FIELD("drop_on_uninit", "yesno_t", "%command", 12);
+	FIELD("base_unit_id", "int_t", BITS("%command", 4, 0));
+	FIELD("unit_count", "int_t", BITS("%command", 9, 5));
+	FIELD("master", "yesno_t", BITS("%command", 10));
+	FIELD("default_direction", "yesno_t", BITS("%command", 11));
+	FIELD("drop_on_uninit", "yesno_t", BITS("%command", 12));
 
 	ht_slave_link("link0", address + 0x04);
 	ht_slave_link("link1", address + 0x08);
 
 	//FIXME: clean up HT field names all over - inconsistent BumpyCaps
 	REG8("%rev", address + 0x0c);
-	SIMPLE_FIELD("MajorRev", "int_t", "%rev", 7, 5);
-	SIMPLE_FIELD("MinorRev", "int_t", "%rev", 4, 0);
+	FIELD("MajorRev", "int_t", BITS("%rev", 7, 5));
+	FIELD("MinorRev", "int_t", BITS("%rev", 4, 0));
 
 	REG8("%feature", address + 0x10);
 	OPEN_SCOPE("feature");
-	ONE_BIT_FIELD("iso_flow_ctrl", "yesno_t", "../%feature", 0);
-	ONE_BIT_FIELD("ldtstop", "yesno_t", "../%feature", 1);
-	ONE_BIT_FIELD("crc_test_mode", "yesno_t", "../%feature", 2);
-	ONE_BIT_FIELD("extended_ctl_time", "yesno_t", "../%feature", 3);
-	ONE_BIT_FIELD("64bit_addressing", "yesno_t", "../%feature", 4);
-	ONE_BIT_FIELD("unit_id_reorder_dis", "yesno_t", "../%feature", 5);
-	ONE_BIT_FIELD("source_id", "yesno_t", "../%feature", 6);
+	FIELD("iso_flow_ctrl", "yesno_t", BITS("../%feature", 0));
+	FIELD("ldtstop", "yesno_t", BITS("../%feature", 1));
+	FIELD("crc_test_mode", "yesno_t", BITS("../%feature", 2));
+	FIELD("extended_ctl_time", "yesno_t", BITS("../%feature", 3));
+	FIELD("64bit_addressing", "yesno_t", BITS("../%feature", 4));
+	FIELD("unit_id_reorder_dis", "yesno_t", BITS("../%feature", 5));
+	FIELD("source_id", "yesno_t", BITS("../%feature", 6));
 	CLOSE_SCOPE();
 
 	REGFIELD16("scratchpad", address + 0x14, "hex16_t");
@@ -239,32 +239,32 @@ static void
 ht_host_capability(const pp_value &address)
 {
 	REG16("%command", address + 2);
-	ONE_BIT_FIELD("warm_reset", "yesno_t", "%command", 0);
-	ONE_BIT_FIELD("dbl_ended", "yesno_t", "%command", 1);
-	SIMPLE_FIELD("device", "int_t", "%command", 6, 2);
-	ONE_BIT_FIELD("chain_side", "yesno_t", "%command", 7);
-	ONE_BIT_FIELD("host_hide", "yesno_t", "%command", 8);
-	ONE_BIT_FIELD("act_slave", "yesno_t", "%command", 10);
-	ONE_BIT_FIELD("in_eoc_err", "yesno_t", "%command", 11);
-	ONE_BIT_FIELD("drop_on_uninit", "yesno_t", "%command", 12);
+	FIELD("warm_reset", "yesno_t", BITS("%command", 0));
+	FIELD("dbl_ended", "yesno_t", BITS("%command", 1));
+	FIELD("device", "int_t", BITS("%command", 6, 2));
+	FIELD("chain_side", "yesno_t", BITS("%command", 7));
+	FIELD("host_hide", "yesno_t", BITS("%command", 8));
+	FIELD("act_slave", "yesno_t", BITS("%command", 10));
+	FIELD("in_eoc_err", "yesno_t", BITS("%command", 11));
+	FIELD("drop_on_uninit", "yesno_t", BITS("%command", 12));
 
 	ht_host_link("link", address + 0x04);
 
 	REG8("%rev", address + 0x08);
-	SIMPLE_FIELD("major_rev", "int_t", "%rev", 7, 5);
-	SIMPLE_FIELD("minor_rev", "int_t", "%rev", 4, 0);
+	FIELD("major_rev", "int_t", BITS("%rev", 7, 5));
+	FIELD("minor_rev", "int_t", BITS("%rev", 4, 0));
 
 	REG16("%feature", address + 0x0c);
 	OPEN_SCOPE("feature");
-	ONE_BIT_FIELD("iso_flow_ctrl", "yesno_t", "../%feature", 0);
-	ONE_BIT_FIELD("ldtstop", "yesno_t", "../%feature", 1);
-	ONE_BIT_FIELD("crc_test_mode", "yesno_t", "../%feature", 2);
-	ONE_BIT_FIELD("extended_ctl_time", "yesno_t", "../%feature", 3);
-	ONE_BIT_FIELD("64bit_addressing", "yesno_t", "../%feature", 4);
-	ONE_BIT_FIELD("unit_id_reorder_dis", "yesno_t", "../%feature", 5);
-	ONE_BIT_FIELD("source_id", "yesno_t", "../%feature", 6);
-	ONE_BIT_FIELD("ext_regs", "yesno_t", "../%feature", 8);
-	ONE_BIT_FIELD("upstream_cfg", "yesno_t", "../%feature", 9);
+	FIELD("iso_flow_ctrl", "yesno_t", BITS("../%feature", 0));
+	FIELD("ldtstop", "yesno_t", BITS("../%feature", 1));
+	FIELD("crc_test_mode", "yesno_t", BITS("../%feature", 2));
+	FIELD("extended_ctl_time", "yesno_t", BITS("../%feature", 3));
+	FIELD("64bit_addressing", "yesno_t", BITS("../%feature", 4));
+	FIELD("unit_id_reorder_dis", "yesno_t", BITS("../%feature", 5));
+	FIELD("source_id", "yesno_t", BITS("../%feature", 6));
+	FIELD("ext_regs", "yesno_t", BITS("../%feature", 8));
+	FIELD("upstream_cfg", "yesno_t", BITS("../%feature", 9));
 	CLOSE_SCOPE();
 
 	if (FIELD_BOOL("feature/ext_regs")) {
@@ -279,22 +279,22 @@ static void
 ht_revision_capability(const pp_value &address)
 {
 	REG8("%rev", address+2);
-	SIMPLE_FIELD("major_rev", "int_t", "%rev", 7, 5);
-	SIMPLE_FIELD("minor_rev", "int_t", "%rev", 4, 0);
+	FIELD("major_rev", "int_t", BITS("%rev", 7, 5));
+	FIELD("minor_rev", "int_t", BITS("%rev", 4, 0));
 }
 
 static void
 ht_extended_config_capability(const pp_value &address)
 {
 	REG32("%address", address+4);
-	ONE_BIT_FIELD("type", ANON_ENUM(
+	FIELD("type", ANON_ENUM(
 				KV("type0", 0),
 				KV("type1", 1)),
-			"%address", 28);
-	SIMPLE_FIELD("bus", "int_t", "%address", 27, 20);
-	SIMPLE_FIELD("device", "int_t", "%address", 19, 15);
-	SIMPLE_FIELD("function", "int_t", "%address", 14, 12);
-	COMPLEX_FIELD("register", "hex_t",
+			BITS("%address", 28));
+	FIELD("bus", "int_t", BITS("%address", 27, 20));
+	FIELD("device", "int_t", BITS("%address", 19, 15));
+	FIELD("function", "int_t", BITS("%address", 14, 12));
+	FIELD("register", "hex_t",
 			BITS("%address", 11, 2) +
 			BITS("%0", 1, 0));
 	REGFIELD32("data", address+8, "hex32_t");
@@ -304,33 +304,33 @@ static void
 ht_address_mapping_capability(const pp_value &address)
 {
 	REG16("%command", address + 0x02);
-	SIMPLE_FIELD("num_dma", "int_t", "%command", 3, 0);
-	SIMPLE_FIELD("io_size", "int_t", "%command", 8, 4);
-	SIMPLE_FIELD("map_type", ANON_ENUM(
+	FIELD("num_dma", "int_t", BITS("%command", 3, 0));
+	FIELD("io_size", "int_t", BITS("%command", 8, 4));
+	FIELD("map_type", ANON_ENUM(
 				KV("bits40", 0),
 				KV("bits64", 1)),
-			"%command", 10, 9);
+			BITS("%command", 10, 9));
 
 	if (FIELD_EQ("map_type", "bits40")) {
 		REG32("%sec_non_prefetch", address + 0x04);
 		OPEN_SCOPE("sec_non_prefetch");
-		ONE_BIT_FIELD("enable", "yesno_t", "../%sec_non_prefetch", 31);
-		ONE_BIT_FIELD("isoch", "yesno_t", "../%sec_non_prefetch", 30);
-		ONE_BIT_FIELD("noncoherent", "yesno_t",
-				"../%sec_non_prefetch", 29);
-		ONE_BIT_FIELD("compat", "yesno_t", "../%sec_non_prefetch", 28);
-		COMPLEX_FIELD("base", "addr64_t",
+		FIELD("enable", "yesno_t", BITS("../%sec_non_prefetch", 31));
+		FIELD("isoch", "yesno_t", BITS("../%sec_non_prefetch", 30));
+		FIELD("noncoherent", "yesno_t",
+			 BITS("../%sec_non_prefetch", 29));
+		FIELD("compat", "yesno_t", BITS("../%sec_non_prefetch", 28));
+		FIELD("base", "addr64_t",
 				BITS("../%sec_non_prefetch", 19, 0) +
 				BITS("%0", 19, 0));
 		CLOSE_SCOPE();
 
 		REG32("%sec_prefetch", address + 0x08);
 		OPEN_SCOPE("sec_prefetch");
-		ONE_BIT_FIELD("enable", "yesno_t", "../%sec_prefetch", 31);
-		ONE_BIT_FIELD("isochronous", "yesno_t", "../%sec_prefetch", 30);
-		ONE_BIT_FIELD("noncoherent", "yesno_t", "../%sec_prefetch", 29);
-		ONE_BIT_FIELD("compat", "yesno_t", "../%sec_prefetch", 28);
-		COMPLEX_FIELD("base", "addr64_t",
+		FIELD("enable", "yesno_t", BITS("../%sec_prefetch", 31));
+		FIELD("isochronous", "yesno_t", BITS("../%sec_prefetch", 30));
+		FIELD("noncoherent", "yesno_t", BITS("../%sec_prefetch", 29));
+		FIELD("compat", "yesno_t", BITS("../%sec_prefetch", 28));
+		FIELD("base", "addr64_t",
 				BITS("../%sec_prefetch", 19, 0) +
 				BITS("%0", 19, 0));
 		CLOSE_SCOPE();
@@ -341,17 +341,17 @@ ht_address_mapping_capability(const pp_value &address)
 			REG32("%lower", address + 0x0c + (8*i));
 			REG32("%upper", address + 0x10 + (8*i));
 
-			ONE_BIT_FIELD("enable", "yesno_t", "%lower", 31);
-			ONE_BIT_FIELD("isochronous", "yesno_t", "%lower", 30);
-			ONE_BIT_FIELD("noncoherent", "yesno_t", "%lower", 29);
+			FIELD("enable", "yesno_t", BITS("%lower", 31));
+			FIELD("isochronous", "yesno_t", BITS("%lower", 30));
+			FIELD("noncoherent", "yesno_t", BITS("%lower", 29));
 
-			COMPLEX_FIELD("pri_base", "addr64_t",
+			FIELD("pri_base", "addr64_t",
 					BITS("%lower", 15, 0) +
 					BITS("%0", 23, 0));
-			COMPLEX_FIELD("sec_base", "addr64_t",
+			FIELD("sec_base", "addr64_t",
 					BITS("%lower", 31, 16) +
 					BITS("%0", 23, 0));
-			COMPLEX_FIELD("sec_limit", "addr64_t",
+			FIELD("sec_limit", "addr64_t",
 					BITS("%lower", 15, 0) +
 					BITS("%1", 23, 0));
 			CLOSE_SCOPE();
@@ -365,12 +365,12 @@ static void
 ht_msi_mapping_capability(const pp_value &address)
 {
 	REG8("%flags", address+2);
-	ONE_BIT_FIELD("en", "yesno_t", "%flags", 0);
-	ONE_BIT_FIELD("fixed", "yesno_t", "%flags", 1);
+	FIELD("en", "yesno_t", BITS("%flags", 0));
+	FIELD("fixed", "yesno_t", BITS("%flags", 1));
 	if (!FIELD_BOOL("fixed")) {
 		REG32("%lower", address+4);
 		REG32("%upper", address+8);
-		COMPLEX_FIELD("address", "addr64_t",
+		FIELD("address", "addr64_t",
 				BITS("%upper", 31, 0) +
 				BITS("%lower", 31, 20) +
 				BITS("%0", 19, 0));
@@ -381,14 +381,14 @@ static void
 power_mgmt_capability(const pp_value &address)
 {
 	REG16("%pmc", address+2);
-	SIMPLE_FIELD("version", ANON_ENUM(
+	FIELD("version", ANON_ENUM(
 				KV("pcipm_v1_0", 1),
 				KV("pcipm_v1_1", 2),
 				KV("pcipm_v1_2", 3)),
-			"%pmc", 2, 0);
-	ONE_BIT_FIELD("clock", "yesno_t", "%pmc", 3);
-	ONE_BIT_FIELD("dsi", "yesno_t", "%pmc", 5);
-	SIMPLE_FIELD("aux_current", ANON_ENUM(
+			BITS("%pmc", 2, 0));
+	FIELD("clock", "yesno_t", BITS("%pmc", 3));
+	FIELD("dsi", "yesno_t", BITS("%pmc", 5));
+	FIELD("aux_current", ANON_ENUM(
 				KV("self", 0),
 				KV("mA_55", 1),
 				KV("mA_100", 2),
@@ -397,47 +397,47 @@ power_mgmt_capability(const pp_value &address)
 				KV("mA_270", 5),
 				KV("mA_320", 6),
 				KV("mA_375", 7)),
-			"%pmc", 8, 6);
-	ONE_BIT_FIELD("d1_support", "yesno_t", "%pmc", 9);
-	ONE_BIT_FIELD("d2_support", "yesno_t", "%pmc", 10);
-	SIMPLE_FIELD("pme_support", ANON_BITMASK(
+			BITS("%pmc", 8, 6));
+	FIELD("d1_support", "yesno_t", BITS("%pmc", 9));
+	FIELD("d2_support", "yesno_t", BITS("%pmc", 10));
+	FIELD("pme_support", ANON_BITMASK(
 				KV("d0", 0),
 				KV("d1", 1),
 				KV("d2", 2),
 				KV("d3hot", 3),
 				KV("d3cold", 4)),
-			"%pmc", 15, 11);
+			BITS("%pmc", 15, 11));
 
 	REG16("%pmcsr", address+4);
-	SIMPLE_FIELD("power_state", ANON_ENUM(
+	FIELD("power_state", ANON_ENUM(
 				KV("d0", 0),
 				KV("d1", 1),
 				KV("d2", 2),
 				KV("d3hot", 3)),
-			"%pmcsr", 1, 0);
-	ONE_BIT_FIELD("no_soft_reset", "yesno_t", "%pmcsr", 3);
-	ONE_BIT_FIELD("pme_en", "yesno_t", "%pmcsr", 8);
-	ONE_BIT_FIELD("pme_status", "yesno_t", "%pmcsr", 15);
+			BITS("%pmcsr", 1, 0));
+	FIELD("no_soft_reset", "yesno_t", BITS("%pmcsr", 3));
+	FIELD("pme_en", "yesno_t", BITS("%pmcsr", 8));
+	FIELD("pme_status", "yesno_t", BITS("%pmcsr", 15));
 
 	REG8("%pmcsr_bse", address+6);
-	ONE_BIT_FIELD("bpcc_en", "yesno_t", "%pmcsr_bse", 7);
+	FIELD("bpcc_en", "yesno_t", BITS("%pmcsr_bse", 7));
 	if (FIELD_BOOL("bpcc_en")) {
-		ONE_BIT_FIELD("b2_b3", "yesno_t", "%pmcsr_bse", 6);
+		FIELD("b2_b3", "yesno_t", BITS("%pmcsr_bse", 6));
 	}
 
 	//FIXME: this is really an index/data pair set of regs
-	SIMPLE_FIELD("data_select", "hex4_t", "%pmcsr", 12, 9);
-	SIMPLE_FIELD("data_scale", "hex4_t", "%pmcsr", 14, 13);
+	FIELD("data_select", "hex4_t", BITS("%pmcsr", 12, 9));
+	FIELD("data_scale", "hex4_t", BITS("%pmcsr", 14, 13));
 	REG8("%data", address+7);
-	SIMPLE_FIELD("data", "hex8_t", "%data", 7, 0);
+	FIELD("data", "hex8_t", BITS("%data", 7, 0));
 }
 
 static void
 slot_id_capability(const pp_value &address)
 {
 	REG8("%slot", address+2);
-	SIMPLE_FIELD("nslots", "int_t", "%slot", 4, 0);
-	ONE_BIT_FIELD("first", "yesno_t", "%slot", 5);
+	FIELD("nslots", "int_t", BITS("%slot", 4, 0));
+	FIELD("first", "yesno_t", BITS("%slot", 5));
 	REGFIELD8("chassis", address+3, "int_t");
 }
 
@@ -446,25 +446,25 @@ msi_capability(const pp_value &address)
 {
 	// message control
 	REG16("%msg_ctrl", address + 2);
-	ONE_BIT_FIELD("msi_enable", "yesno_t", "%msg_ctrl", 0);
-	SIMPLE_FIELD("multi_msg_cap", ANON_ENUM(
+	FIELD("msi_enable", "yesno_t", BITS("%msg_ctrl", 0));
+	FIELD("multi_msg_cap", ANON_ENUM(
 				KV("vec1", 0),
 				KV("vec2", 1),
 				KV("vec4", 2),
 				KV("vec8", 3),
 				KV("vec16", 4),
 				KV("vec32", 5)),
-			"%msg_ctrl", 3, 1);
-	SIMPLE_FIELD("multi_msg_en", ANON_ENUM(
+			BITS("%msg_ctrl", 3, 1));
+	FIELD("multi_msg_en", ANON_ENUM(
 				KV("vec1", 0),
 				KV("vec2", 1),
 				KV("vec4", 2),
 				KV("vec8", 3),
 				KV("vec16", 4),
 				KV("vec32", 5)),
-			"%msg_ctrl", 6, 4);
-	ONE_BIT_FIELD("cap64", "yesno_t", "%msg_ctrl", 7);
-	ONE_BIT_FIELD("mask_per_vec", "yesno_t", "%msg_ctrl", 8);
+			BITS("%msg_ctrl", 6, 4));
+	FIELD("cap64", "yesno_t", BITS("%msg_ctrl", 7));
+	FIELD("mask_per_vec", "yesno_t", BITS("%msg_ctrl", 8));
 
 	// message address
 	REG32("%msg_addr", address + 4);
@@ -472,7 +472,7 @@ msi_capability(const pp_value &address)
 	// is this 64 bit capable?
 	if (!FIELD_BOOL("cap64")) {
 		// no, just use the low address and define the data
-		COMPLEX_FIELD("msg_addr", "addr32_t",
+		FIELD("msg_addr", "addr32_t",
 				BITS("%msg_addr", 31, 2) +
 				BITS("%0", 1, 0));
 		REGFIELD16("msg_data", address + 8, "hex16_t");
@@ -485,7 +485,7 @@ msi_capability(const pp_value &address)
 	} else {
 		// add the high address and define the data
 		REG32("%msg_addr_hi",  address + 8);
-		COMPLEX_FIELD("msg_addr", "addr64_t",
+		FIELD("msg_addr", "addr64_t",
 				BITS("%msg_addr_hi", 31, 0) +
 				BITS("%msg_addr", 31, 2) +
 				BITS("%0", 1, 0));
@@ -501,10 +501,10 @@ msi_capability(const pp_value &address)
 	if (FIELD_BOOL("mask_per_vec")) {
 		pp_value vecs = 1 << GET_FIELD("multi_msg_cap")->read();
 		for (unsigned i = 0; i < vecs; i++) {
-			ONE_BIT_FIELD("mask["+to_string(i)+"]",
-					"yesno_t", "%mask", i);
-			ONE_BIT_FIELD("pend["+to_string(i)+"]",
-					"yesno_t", "%pending", i);
+			FIELD("mask["+to_string(i)+"]",
+					"yesno_t", BITS("%mask", i));
+			FIELD("pend["+to_string(i)+"]",
+					"yesno_t", BITS("%pending", i));
 		}
 	}
 }
@@ -513,10 +513,10 @@ static void
 msix_capability(const pp_value &address)
 {
 	REG16("%msg_ctrl", address + 2);
-	ONE_BIT_FIELD("msix_enable", "yesno_t", "%msg_ctrl", 15);
+	FIELD("msix_enable", "yesno_t", BITS("%msg_ctrl", 15));
 	//FIXME: procfield?  should be +1
-	SIMPLE_FIELD("table_size", "int_t", "%msg_ctrl", 10, 0);
-	ONE_BIT_FIELD("func_mask", "yesno_t", "%msg_ctrl", 14);
+	FIELD("table_size", "int_t", BITS("%msg_ctrl", 10, 0));
+	FIELD("func_mask", "yesno_t", BITS("%msg_ctrl", 14));
 
 	// these will be used a bit later
 	string bar;
@@ -527,15 +527,15 @@ msix_capability(const pp_value &address)
 
 	// the table is memory mapped through a BAR
 	REG32("%table_ptr", address + 4);
-	SIMPLE_FIELD("table_bir", ANON_ENUM(
+	FIELD("table_bir", ANON_ENUM(
 				KV("bar0", 0),
 				KV("bar1", 1),
 				KV("bar2", 2),
 				KV("bar3", 3),
 				KV("bar4", 4),
 				KV("bar5", 5)),
-			"%table_ptr", 2, 0);
-	COMPLEX_FIELD("table_offset", "hex_t",
+			BITS("%table_ptr", 2, 0));
+	FIELD("table_offset", "hex_t",
 			BITS("%table_ptr", 31, 3) +
 			BITS("%0", 2, 0));
 
@@ -550,29 +550,29 @@ msix_capability(const pp_value &address)
 			OPEN_SCOPE("entry[" + to_string(i) + "]"); {
 				REG32("%msg_addr", i*16 + 0);
 				REG32("%msg_upper_addr", i*16 + 4);
-				COMPLEX_FIELD("address", "addr64_t",
+				FIELD("address", "addr64_t",
 						BITS("%msg_upper_addr", 31, 0) +
 						BITS("%msg_addr", 31, 2) +
 						BITS("%0", 1, 0));
 				REGFIELD32("msg_data", i*16 + 8, "hex_t");
 				REG32("%vector_ctrl", i*16 + 12);
-				ONE_BIT_FIELD("mask", "yesno_t",
-						"%vector_ctrl", 0);
+				FIELD("mask", "yesno_t",
+						BITS("%vector_ctrl", 0));
 			} CLOSE_SCOPE();
 		}
 	} CLOSE_SCOPE();
 
 	// the pending bit array is memory mapped through a BAR
 	REG32("%pba_ptr", address + 8);
-	SIMPLE_FIELD("pba_bir", ANON_ENUM(
+	FIELD("pba_bir", ANON_ENUM(
 				KV("bar0", 0),
 				KV("bar1", 1),
 				KV("bar2", 2),
 				KV("bar3", 3),
 				KV("bar4", 4),
 				KV("bar5", 5)),
-			"%pba_ptr", 2, 0);
-	COMPLEX_FIELD("pba_offset", "hex_t",
+			BITS("%pba_ptr", 2, 0));
+	FIELD("pba_offset", "hex_t",
 			BITS("%pba_ptr", 31, 3) +
 			BITS("%0", 2, 0));
 
@@ -591,8 +591,8 @@ msix_capability(const pp_value &address)
 			for (size_t j = 0; j < 64; j++) {
 				if (j >= tmp_size)
 					break;
-				ONE_BIT_FIELD("pending" + to_string(i*64 + j),
-						"yesno_t", regname, j);
+				FIELD("pending" + to_string(i*64 + j),
+						"yesno_t", BITS(regname, j));
 			}
 			tmp_size -= 64;
 		}
@@ -608,13 +608,13 @@ ht_capability(const pp_value &address)
 	// block.  If they are non-zero, we have some other HT capability.
 	// This matters because they use different encodings of the
 	// capability type (3 bits vs 5 bits).
-	SIMPLE_FIELD("is_interface", ANON_BOOL("no", "yes"), "%subcap", 7, 6);
+	FIELD("is_interface", ANON_BOOL("no", "yes"), BITS("%subcap", 7, 6));
 	if (FIELD_EQ("is_interface", "yes")) {
 		// subtype is a 3 bit field
-		SIMPLE_FIELD("subtype", ANON_ENUM(
+		FIELD("subtype", ANON_ENUM(
 					KV("slave_primary", 0),
 					KV("host_secondary", 1)),
-				"%subcap", 7, 5);
+				BITS("%subcap", 7, 5));
 
 		if (FIELD_EQ("subtype", "slave_primary")) {
 			ht_slave_capability(address);
@@ -623,7 +623,7 @@ ht_capability(const pp_value &address)
 		}
 	} else {
 		// subtype is a 5 bit field
-		SIMPLE_FIELD("subtype", ANON_ENUM(
+		FIELD("subtype", ANON_ENUM(
 					KV("switch", 8),
 					KV("intr_discovery", 16),
 					KV("revision", 17),
@@ -638,7 +638,7 @@ ht_capability(const pp_value &address)
 					KV("gen3", 26),
 					KV("function_extend", 27),
 					KV("power_mgmt", 28)),
-				"%subcap", 7, 3);
+				BITS("%subcap", 7, 3));
 
 		if (FIELD_EQ("subtype", "switch")) {
 			//FIXME: not implemented yet
@@ -686,8 +686,8 @@ pcie_capability(const pp_value &address)
 {
 	// all PCI-E devices implement this block
 	REG16("%pcie_caps", address + 0x02);
-	SIMPLE_FIELD("version", "int_t", "%pcie_caps", 3, 0);
-	SIMPLE_FIELD("type", ANON_ENUM(
+	FIELD("version", "int_t", BITS("%pcie_caps", 3, 0));
+	FIELD("type", ANON_ENUM(
 				KV("endpoint", 0),
 				KV("legacy_endpoint", 1),
 				KV("root_port", 4),
@@ -697,13 +697,13 @@ pcie_capability(const pp_value &address)
 				KV("pci_pcie_bridge", 8),
 				KV("root_integrated_endpoint", 9),
 				KV("root_event_collector", 10)),
-			"%pcie_caps", 7, 4);
+			BITS("%pcie_caps", 7, 4));
 	if (FIELD_EQ("type", "root_port")
 	 || FIELD_EQ("type", "downstream_switch_port")) {
-		ONE_BIT_FIELD("slot_impl", "yesno_t", "%pcie_caps", 8);
+		FIELD("slot_impl", "yesno_t", BITS("%pcie_caps", 8));
 	}
-	SIMPLE_FIELD("intr_msg_num", "int_t", "%pcie_caps", 13, 9);
-	ONE_BIT_FIELD("tcs", "yesno_t", "%pcie_caps", 14);
+	FIELD("intr_msg_num", "int_t", BITS("%pcie_caps", 13, 9));
+	FIELD("tcs", "yesno_t", BITS("%pcie_caps", 14));
 
 	// common datatypes
 	ENUM("pcie_l0s_latency_t",
@@ -751,64 +751,64 @@ pcie_capability(const pp_value &address)
 			KV("b1024", 3),
 			KV("b2048", 4),
 			KV("b4096", 5));
-	SIMPLE_FIELD("max_payload_cap", "pcie_payload_size_t",
-			"%dev_caps", 2, 0);
-	SIMPLE_FIELD("max_payload", "pcie_payload_size_t",
-			"%dev_control", 7, 5);
-	SIMPLE_FIELD("max_read", "pcie_payload_size_t",
-			"%dev_control", 14, 12);
+	FIELD("max_payload_cap", "pcie_payload_size_t",
+			BITS("%dev_caps", 2, 0));
+	FIELD("max_payload", "pcie_payload_size_t",
+			BITS("%dev_control", 7, 5));
+	FIELD("max_read", "pcie_payload_size_t",
+			BITS("%dev_control", 14, 12));
 
-	SIMPLE_FIELD("phantom_funcs_cap", ANON_ENUM(
+	FIELD("phantom_funcs_cap", ANON_ENUM(
 				KV("phantom_0", 0),
 				KV("phantom_4", 1),
 				KV("phantom_6", 2),
 				KV("phantom_8", 3)),
-			"%dev_caps", 4, 3);
-	ONE_BIT_FIELD("phantom_funcs", "yesno_t", "%dev_control", 9);
+			BITS("%dev_caps", 4, 3));
+	FIELD("phantom_funcs", "yesno_t", BITS("%dev_control", 9));
 
-	ONE_BIT_FIELD("ext_tag_field_cap", ANON_ENUM(
+	FIELD("ext_tag_field_cap", ANON_ENUM(
 				KV("b5", 0),
 				KV("b8", 1)),
-			"%dev_caps", 5);
-	ONE_BIT_FIELD("ext_tag_field", "yesno_t", "%dev_control", 8);
+			BITS("%dev_caps", 5));
+	FIELD("ext_tag_field", "yesno_t", BITS("%dev_control", 8));
 
 	if (FIELD_EQ("../type", "endpoint")
 	 || FIELD_EQ("../type", "legacy_endpoint")
 	 || FIELD_EQ("../type", "root_integrated_endpoint")) {
-		SIMPLE_FIELD("max_l0s_lat", "pcie_l0s_latency_t",
-				"%dev_caps", 8, 6);
-		SIMPLE_FIELD("max_l1_lat", "pcie_l1_latency_t",
-				"%dev_caps", 11, 9);
-		ONE_BIT_FIELD("func_reset_cap", "yesno_t", "%dev_caps", 28);
-		ONE_BIT_FIELD("func_reset", "yesno_t", "%dev_control", 15);
+		FIELD("max_l0s_lat", "pcie_l0s_latency_t",
+				BITS("%dev_caps", 8, 6));
+		FIELD("max_l1_lat", "pcie_l1_latency_t",
+				BITS("%dev_caps", 11, 9));
+		FIELD("func_reset_cap", "yesno_t", BITS("%dev_caps", 28));
+		FIELD("func_reset", "yesno_t", BITS("%dev_control", 15));
 	}
 
 	if (FIELD_EQ("../type", "upstream_switch_port")) {
-		SIMPLE_FIELD("power_limit_value", "int_t", "%dev_caps", 25, 18);
-		SIMPLE_FIELD("power_limit_scale", ANON_ENUM(
+		FIELD("power_limit_value", "int_t", BITS("%dev_caps", 25, 18));
+		FIELD("power_limit_scale", ANON_ENUM(
 					KV("x1_0", 0),
 					KV("x0_1", 1),
 					KV("x0_01", 2),
 					KV("x0_001", 3)),
-				"%dev_caps", 27, 26);
+				BITS("%dev_caps", 27, 26));
 	}
-	ONE_BIT_FIELD("role_based_err_cap", "yesno_t", "%dev_caps", 15);
-	ONE_BIT_FIELD("corr_err_report", "yesno_t", "%dev_control", 0);
-	ONE_BIT_FIELD("corr_err_det", "yesno_t", "%dev_status", 0);
-	ONE_BIT_FIELD("nonfatal_err_report", "yesno_t", "%dev_control", 1);
-	ONE_BIT_FIELD("nonfatal_err_det", "yesno_t", "%dev_status", 1);
-	ONE_BIT_FIELD("fatal_err_report", "yesno_t", "%dev_control", 2);
-	ONE_BIT_FIELD("fatal_err_det", "yesno_t", "%dev_status", 2);
-	ONE_BIT_FIELD("unsup_req_report", "yesno_t", "%dev_control", 3);
-	ONE_BIT_FIELD("unsup_req_det", "yesno_t", "%dev_status", 3);
-	ONE_BIT_FIELD("relax", "yesno_t", "%dev_control", 4);
-	ONE_BIT_FIELD("aux_pm", "yesno_t", "%dev_control", 10);
-	ONE_BIT_FIELD("aux_pm_det", "yesno_t", "%dev_status", 4);
-	ONE_BIT_FIELD("en_no_snoop", "yesno_t", "%dev_control", 11);
+	FIELD("role_based_err_cap", "yesno_t", BITS("%dev_caps", 15));
+	FIELD("corr_err_report", "yesno_t", BITS("%dev_control", 0));
+	FIELD("corr_err_det", "yesno_t", BITS("%dev_status", 0));
+	FIELD("nonfatal_err_report", "yesno_t", BITS("%dev_control", 1));
+	FIELD("nonfatal_err_det", "yesno_t", BITS("%dev_status", 1));
+	FIELD("fatal_err_report", "yesno_t", BITS("%dev_control", 2));
+	FIELD("fatal_err_det", "yesno_t", BITS("%dev_status", 2));
+	FIELD("unsup_req_report", "yesno_t", BITS("%dev_control", 3));
+	FIELD("unsup_req_det", "yesno_t", BITS("%dev_status", 3));
+	FIELD("relax", "yesno_t", BITS("%dev_control", 4));
+	FIELD("aux_pm", "yesno_t", BITS("%dev_control", 10));
+	FIELD("aux_pm_det", "yesno_t", BITS("%dev_status", 4));
+	FIELD("en_no_snoop", "yesno_t", BITS("%dev_control", 11));
 	if (!DEFINED("func_reset") && FIELD_EQ("^/class", "bridge")) {
-		ONE_BIT_FIELD("bridge_retry_en", "yesno_t", "%dev_control", 15);
+		FIELD("bridge_retry_en", "yesno_t", BITS("%dev_control", 15));
 	}
-	ONE_BIT_FIELD("txn_pend", "yesno_t", "%dev_status", 5);
+	FIELD("txn_pend", "yesno_t", BITS("%dev_status", 5));
 
 	if (FIELD_GE("../version", 2)) {
 		REG32("%dev_caps2", address + 0x24);
@@ -821,17 +821,17 @@ pcie_capability(const pp_value &address)
 				KV("ms_250_s_4", 2),
 				KV("s_4_s_64", 3));
 
-		SIMPLE_FIELD("completion_timeout_ranges",
+		FIELD("completion_timeout_ranges",
 				"pcie_completion_timeout_t",
-				"%dev_caps2", 3, 0);
-		SIMPLE_FIELD("completion_timeout",
+				BITS("%dev_caps2", 3, 0));
+		FIELD("completion_timeout",
 				"pcie_completion_timeout_t",
-				"%dev_control2", 3, 0);
+				BITS("%dev_control2", 3, 0));
 
-		ONE_BIT_FIELD("completion_timeout_disable_en", "yesno_t",
-				"%dev_caps2", 4);
-		ONE_BIT_FIELD("completion_timeout_disable", "yesno_t",
-				"%dev_control2", 4);
+		FIELD("completion_timeout_disable_en", "yesno_t",
+				BITS("%dev_caps2", 4));
+		FIELD("completion_timeout_disable", "yesno_t",
+				BITS("%dev_control2", 4));
 	}
 
 	CLOSE_SCOPE(); // device
@@ -851,105 +851,105 @@ pcie_capability(const pp_value &address)
 		REG16("%link_control", address + 0x10);
 		REG16("%link_status", address + 0x12);
 
-		SIMPLE_FIELD("port_number", "int_t", "%link_caps", 31, 24);
+		FIELD("port_number", "int_t", BITS("%link_caps", 31, 24));
 
-		SIMPLE_FIELD("supported_speeds", ANON_ENUM(
+		FIELD("supported_speeds", ANON_ENUM(
 					KV("GTs_25", 1),
 					KV("GTs_50_25", 2)),
-				"%link_caps", 3, 0);
-		SIMPLE_FIELD("speed", "pcie_link_speed_t",
-				"%link_status", 3, 0);
-		SIMPLE_FIELD("max_width", "pcie_width_t", "%link_caps", 9, 4);
-		SIMPLE_FIELD("width", "pcie_width_t", "%link_status", 9, 4);
+				BITS("%link_caps", 3, 0));
+		FIELD("speed", "pcie_link_speed_t",
+				BITS("%link_status", 3, 0));
+		FIELD("max_width", "pcie_width_t", BITS("%link_caps", 9, 4));
+		FIELD("width", "pcie_width_t", BITS("%link_status", 9, 4));
 
-		SIMPLE_FIELD("aspm_support", ANON_BITMASK(
+		FIELD("aspm_support", ANON_BITMASK(
 					KV("l0s", 0),
 					KV("l1", 1)),
-				"%link_caps", 11, 10);
-		SIMPLE_FIELD("aspm_ctl", ANON_BITMASK(
+				BITS("%link_caps", 11, 10));
+		FIELD("aspm_ctl", ANON_BITMASK(
 					KV("l0s", 0),
 					KV("l1", 1)),
-				"%link_control", 1, 0);
+				BITS("%link_control", 1, 0));
 
-		SIMPLE_FIELD("l0s_exit_latency", "pcie_l0s_latency_t",
-				"%link_caps", 14, 12);
-		SIMPLE_FIELD("l1_exit_latency", "pcie_l1_latency_t",
-				"%link_caps", 17, 15);
+		FIELD("l0s_exit_latency", "pcie_l0s_latency_t",
+				BITS("%link_caps", 14, 12));
+		FIELD("l1_exit_latency", "pcie_l1_latency_t",
+				BITS("%link_caps", 17, 15));
 
-		ONE_BIT_FIELD("clock_pm_cap", "yesno_t", "%link_caps", 18);
-		ONE_BIT_FIELD("clock_pm_en", "yesno_t", "%link_control", 8);
+		FIELD("clock_pm_cap", "yesno_t", BITS("%link_caps", 18));
+		FIELD("clock_pm_en", "yesno_t", BITS("%link_control", 8));
 
-		ONE_BIT_FIELD("surprise_down_err_report_cap", "yesno_t",
-				"%link_caps", 19);
-		ONE_BIT_FIELD("data_link_active_report_cap", "yesno_t",
-				"%link_caps", 20);
+		FIELD("surprise_down_err_report_cap", "yesno_t",
+				BITS("%link_caps", 19));
+		FIELD("data_link_active_report_cap", "yesno_t",
+				BITS("%link_caps", 20));
 		if (FIELD_BOOL("data_link_active_report_cap")) {
-			ONE_BIT_FIELD("data_link_active", "yesno_t",
-					"%link_status", 13);
+			FIELD("data_link_active", "yesno_t",
+					BITS("%link_status", 13));
 		}
-		ONE_BIT_FIELD("link_bw_notify_cap", "yesno_t",
-				"%link_caps", 21);
+		FIELD("link_bw_notify_cap", "yesno_t",
+				BITS("%link_caps", 21));
 		if (FIELD_BOOL("link_bw_notify_cap")) {
-			ONE_BIT_FIELD("link_bw_status", "yesno_t",
-					"%link_status", 14);
-			ONE_BIT_FIELD("link_auto_bw_status", "yesno_t",
-					"%link_status", 15);
+			FIELD("link_bw_status", "yesno_t",
+					BITS("%link_status", 14));
+			FIELD("link_auto_bw_status", "yesno_t",
+					BITS("%link_status", 15));
 		}
 
-		ONE_BIT_FIELD("rcb", ANON_BOOL("b64", "b128"),
-				"%link_control", 3);
+		FIELD("rcb", ANON_BOOL("b64", "b128"),
+				BITS("%link_control", 3));
 		if (FIELD_EQ("../type", "root_port")
 		 || FIELD_EQ("../type", "downstream_switch_port")
 		 || FIELD_EQ("../type", "pci_pcie_bridge")) {
-			ONE_BIT_FIELD("link_disable", "yesno_t",
-					"%link_control", 4);
-			ONE_BIT_FIELD("link_retrain", "yesno_t",
-					"%link_control", 5);
-			ONE_BIT_FIELD("link_bw_mgmt_intr_en", "yesno_t",
-					"%link_control", 10);
-			ONE_BIT_FIELD("link_auto_bw_mgmt_intr_en", "yesno_t",
-					"%link_control", 11);
+			FIELD("link_disable", "yesno_t",
+					BITS("%link_control", 4));
+			FIELD("link_retrain", "yesno_t",
+					BITS("%link_control", 5));
+			FIELD("link_bw_mgmt_intr_en", "yesno_t",
+					BITS("%link_control", 10));
+			FIELD("link_auto_bw_mgmt_intr_en", "yesno_t",
+					BITS("%link_control", 11));
 		}
-		ONE_BIT_FIELD("common_clock", "yesno_t", "%link_control", 6);
-		ONE_BIT_FIELD("extended_sync", "yesno_t", "%link_control", 7);
-		ONE_BIT_FIELD("hw_auto_width_dis", "yesno_t",
-				"%link_control", 9);
+		FIELD("common_clock", "yesno_t", BITS("%link_control", 6));
+		FIELD("extended_sync", "yesno_t", BITS("%link_control", 7));
+		FIELD("hw_auto_width_dis", "yesno_t",
+				BITS("%link_control", 9));
 
 		if (FIELD_EQ("../type", "root_port")
 		 || FIELD_EQ("../type", "downstream_switch_port")
 		 || FIELD_EQ("../type", "pci_pcie_bridge")) {
-			ONE_BIT_FIELD("link_training", "yesno_t",
-					"%link_status", 11);
+			FIELD("link_training", "yesno_t",
+					BITS("%link_status", 11));
 		}
-		ONE_BIT_FIELD("slot_clock", "yesno_t", "%link_status", 12);
+		FIELD("slot_clock", "yesno_t", BITS("%link_status", 12));
 
 		if (FIELD_GE("../version", 2)) {
 			REG32("%link_caps2", address + 0x2c);
 			REG16("%link_control2", address + 0x30);
 			REG16("%link_status2", address + 0x32);
 
-			SIMPLE_FIELD("target_link_speed", "pcie_link_speed_t",
-					"%link_control2", 3, 0);
-			ONE_BIT_FIELD("enter_compliance", "yesno_t",
-					"%link_control2", 4);
-			ONE_BIT_FIELD("hw_auto_speed_dis", "yesno_t",
-					"%link_control2", 5);
-			ONE_BIT_FIELD("selecatble_deemphasis",
+			FIELD("target_link_speed", "pcie_link_speed_t",
+					BITS("%link_control2", 3, 0));
+			FIELD("enter_compliance", "yesno_t",
+					BITS("%link_control2", 4));
+			FIELD("hw_auto_speed_dis", "yesno_t",
+					BITS("%link_control2", 5));
+			FIELD("selecatble_deemphasis",
 					ANON_BOOL("dB_neg_6_0", "dB_neg_3_5"),
-					"%link_control2", 6);
-			SIMPLE_FIELD("transit_margin", "hex4_t",
-					"%link_control2", 9, 7);
-			ONE_BIT_FIELD("enter_mod_compliance", "yesno_t",
-					"%link_control2", 10);
-			ONE_BIT_FIELD("compliance_sos", "yesno_t",
-					"%link_control2", 11);
-			ONE_BIT_FIELD("compliance_deemphasis",
+					BITS("%link_control2", 6));
+			FIELD("transit_margin", "hex4_t",
+					BITS("%link_control2", 9, 7));
+			FIELD("enter_mod_compliance", "yesno_t",
+					BITS("%link_control2", 10));
+			FIELD("compliance_sos", "yesno_t",
+					BITS("%link_control2", 11));
+			FIELD("compliance_deemphasis",
 					ANON_BOOL("dB_neg_6_0", "dB_neg_3_5"),
-					"%link_control2", 12);
+					BITS("%link_control2", 12));
 
-			ONE_BIT_FIELD("current_deemphasis",
+			FIELD("current_deemphasis",
 					ANON_BOOL("dB_neg_6_0", "dB_neg_3_5"),
-					"%link_status2", 0);
+					BITS("%link_status2", 0));
 		}
 
 		CLOSE_SCOPE(); // link
@@ -961,98 +961,98 @@ pcie_capability(const pp_value &address)
 		REG16("%slot_control", address + 0x18);
 		REG16("%slot_status", address + 0x1a);
 
-		SIMPLE_FIELD("slot_number", "int_t", "%slot_caps", 31, 19);
+		FIELD("slot_number", "int_t", BITS("%slot_caps", 31, 19));
 
-		ONE_BIT_FIELD("attn_button", "yesno_t", "%slot_caps", 0);
+		FIELD("attn_button", "yesno_t", BITS("%slot_caps", 0));
 		if (FIELD_BOOL("attn_button")) {
-			ONE_BIT_FIELD("attn_button_en", "yesno_t",
-					"%slot_control", 0);
-			ONE_BIT_FIELD("attn_button_press", "yesno_t",
-					"%slot_status", 0);
+			FIELD("attn_button_en", "yesno_t",
+					BITS("%slot_control", 0));
+			FIELD("attn_button_press", "yesno_t",
+					BITS("%slot_status", 0));
 		}
 
-		ONE_BIT_FIELD("power_controller", "yesno_t", "%slot_caps", 1);
+		FIELD("power_controller", "yesno_t", BITS("%slot_caps", 1));
 		if (FIELD_BOOL("power_controller")) {
-			ONE_BIT_FIELD("power_controller_ctrl",
+			FIELD("power_controller_ctrl",
 					ANON_BOOL("on", "off"),
-					"%slot_control", 10);
-			ONE_BIT_FIELD("power_fault_en", "yesno_t",
-					"%slot_control", 1);
-			ONE_BIT_FIELD("power_fault_det", "yesno_t",
-					"%slot_status", 1);
+					BITS("%slot_control", 10));
+			FIELD("power_fault_en", "yesno_t",
+					BITS("%slot_control", 1));
+			FIELD("power_fault_det", "yesno_t",
+					BITS("%slot_status", 1));
 		}
 
-		ONE_BIT_FIELD("mrl_sensor", "yesno_t", "%slot_caps", 2);
+		FIELD("mrl_sensor", "yesno_t", BITS("%slot_caps", 2));
 		if (FIELD_BOOL("mrl_sensor")) {
-			ONE_BIT_FIELD("mrl_sensor_en", "yesno_t",
-					"%slot_control", 2);
-			ONE_BIT_FIELD("mrl_sensor_change", "yesno_t",
-					"%slot_status", 2);
-			ONE_BIT_FIELD("mrl_sensor_state",
+			FIELD("mrl_sensor_en", "yesno_t",
+					BITS("%slot_control", 2));
+			FIELD("mrl_sensor_change", "yesno_t",
+					BITS("%slot_status", 2));
+			FIELD("mrl_sensor_state",
 					ANON_BOOL("closed", "open"),
-					"%slot_status", 5);
+					BITS("%slot_status", 5));
 		}
 
-		ONE_BIT_FIELD("attn_indicator", "yesno_t", "%slot_caps", 3);
+		FIELD("attn_indicator", "yesno_t", BITS("%slot_caps", 3));
 		if (FIELD_BOOL("attn_indicator")) {
-			SIMPLE_FIELD("attn_indicator_ctrl", ANON_ENUM(
+			FIELD("attn_indicator_ctrl", ANON_ENUM(
 						KV("on", 1),
 						KV("blink", 2),
 						KV("off", 3)),
-					"%slot_control", 7, 6);
+					BITS("%slot_control", 7, 6));
 		}
 
-		ONE_BIT_FIELD("power_indicator", "yesno_t", "%slot_caps", 4);
+		FIELD("power_indicator", "yesno_t", BITS("%slot_caps", 4));
 		if (FIELD_BOOL("power_indicator")) {
-			SIMPLE_FIELD("power_indicator_ctrl", ANON_ENUM(
+			FIELD("power_indicator_ctrl", ANON_ENUM(
 						KV("on", 1),
 						KV("blink", 2),
 						KV("off", 3)),
-					"%slot_control", 9, 8);
+					BITS("%slot_control", 9, 8));
 		}
 
-		ONE_BIT_FIELD("hotplug_capable", "yesno_t", "%slot_caps", 6);
+		FIELD("hotplug_capable", "yesno_t", BITS("%slot_caps", 6));
 		if (FIELD_BOOL("hotplug_capable")) {
-			ONE_BIT_FIELD("hotplug_surprise", "yesno_t",
-					"%slot_caps", 5);
-			ONE_BIT_FIELD("presence_detect_en", "yesno_t",
-					"%slot_control", 3);
-			ONE_BIT_FIELD("presence_detect_change", "yesno_t",
-					"%slot_status", 3);
-			ONE_BIT_FIELD("presence_detect_state",
+			FIELD("hotplug_surprise", "yesno_t",
+					BITS("%slot_caps", 5));
+			FIELD("presence_detect_en", "yesno_t",
+					BITS("%slot_control", 3));
+			FIELD("presence_detect_change", "yesno_t",
+					BITS("%slot_status", 3));
+			FIELD("presence_detect_state",
 					ANON_BOOL("empty", "present"),
-					"%slot_status", 6);
-			ONE_BIT_FIELD("hot_plug_intr_en", "yesno_t",
-					"%slot_control", 5);
-			ONE_BIT_FIELD("no_cmd_complete", "yesno_t",
-					"%slot_caps", 18);
+					BITS("%slot_status", 6));
+			FIELD("hot_plug_intr_en", "yesno_t",
+					BITS("%slot_control", 5));
+			FIELD("no_cmd_complete", "yesno_t",
+					BITS("%slot_caps", 18));
 			if (FIELD_BOOL("no_cmd_complete") == 0) {
-				ONE_BIT_FIELD("cmd_complete_intr_en",
-						"yesno_t", "%slot_control", 4);
-				ONE_BIT_FIELD("cmd_completed", "yesno_t",
-						"%slot_status", 4);
+				FIELD("cmd_complete_intr_en",
+						"yesno_t", BITS("%slot_control", 4));
+				FIELD("cmd_completed", "yesno_t",
+						BITS("%slot_status", 4));
 
 			}
 		}
 
-		ONE_BIT_FIELD("electromech_lock", "yesno_t", "%slot_caps", 17);
+		FIELD("electromech_lock", "yesno_t", BITS("%slot_caps", 17));
 		if (FIELD_BOOL("electromech_lock")) {
-			ONE_BIT_FIELD("electromech_lock_ctrl", "int_t",
-					"%slot_control", 11);
-			ONE_BIT_FIELD("electromech_lock_status",
+			FIELD("electromech_lock_ctrl", "int_t",
+					BITS("%slot_control", 11));
+			FIELD("electromech_lock_status",
 					ANON_BOOL("disengaged", "engaged"),
-					"%slot_status", 7);
+					BITS("%slot_status", 7));
 		}
 
 		//FIXME: better as a procfield?
-		SIMPLE_FIELD("slot_power_limit", "int_t", "%slot_caps", 14, 7);
-		SIMPLE_FIELD("slot_power_scale", "int_t", "%slot_caps", 16, 15);
+		FIELD("slot_power_limit", "int_t", BITS("%slot_caps", 14, 7));
+		FIELD("slot_power_scale", "int_t", BITS("%slot_caps", 16, 15));
 
 		if (FIELD_BOOL("../link/data_link_active_report_cap")) {
-			ONE_BIT_FIELD("data_link_state_change_en", "yesno_t",
-					"%slot_control", 12);
-			ONE_BIT_FIELD("data_link_state_change", "yesno_t",
-					"%slot_status", 8);
+			FIELD("data_link_state_change_en", "yesno_t",
+					BITS("%slot_control", 12));
+			FIELD("data_link_state_change", "yesno_t",
+					BITS("%slot_status", 8));
 		}
 
 		if (FIELD_GE("../version", 2)) {
@@ -1070,17 +1070,17 @@ pcie_capability(const pp_value &address)
 		REG16("%root_caps", address + 0x1e);
 		REG32("%root_status", address + 0x20);
 
-		ONE_BIT_FIELD("serr_on_cerr", "yesno_t", "%root_control", 0);
-		ONE_BIT_FIELD("serr_on_nferr", "yesno_t", "%root_control", 1);
-		ONE_BIT_FIELD("serr_on_ferr", "yesno_t", "%root_control", 2);
-		ONE_BIT_FIELD("pme_intr_en", "yesno_t", "%root_control", 3);
+		FIELD("serr_on_cerr", "yesno_t", BITS("%root_control", 0));
+		FIELD("serr_on_nferr", "yesno_t", BITS("%root_control", 1));
+		FIELD("serr_on_ferr", "yesno_t", BITS("%root_control", 2));
+		FIELD("pme_intr_en", "yesno_t", BITS("%root_control", 3));
 
-		ONE_BIT_FIELD("crs_visible_cap", "yesno_t", "%root_caps", 0);
-		ONE_BIT_FIELD("crs_visible_en", "yesno_t", "%root_control", 4);
+		FIELD("crs_visible_cap", "yesno_t", BITS("%root_caps", 0));
+		FIELD("crs_visible_en", "yesno_t", BITS("%root_control", 4));
 
-		ONE_BIT_FIELD("pme_status", "yesno_t", "%root_status", 16);
-		ONE_BIT_FIELD("pme_pending", "yesno_t", "%root_status", 17);
-		SIMPLE_FIELD("pme_requester", "hex16_t", "%root_status", 15, 0);
+		FIELD("pme_status", "yesno_t", BITS("%root_status", 16));
+		FIELD("pme_pending", "yesno_t", BITS("%root_status", 17));
+		FIELD("pme_requester", "hex16_t", BITS("%root_status", 15, 0));
 
 		CLOSE_SCOPE(); // root
 	}
@@ -1170,19 +1170,19 @@ create_pci_bridge()
 	// Secondary status
 	REG16("%sec_status", 0x1e);
 	OPEN_SCOPE("sec_status");
-		ONE_BIT_FIELD("cap66", "yesno_t", "../%sec_status", 5);
-		ONE_BIT_FIELD("fbb", "yesno_t", "../%sec_status", 7);
-		ONE_BIT_FIELD("mdperr", "yesno_t", "../%sec_status", 8);
-		SIMPLE_FIELD("devsel", ANON_ENUM(
+		FIELD("cap66", "yesno_t", BITS("../%sec_status", 5));
+		FIELD("fbb", "yesno_t", BITS("../%sec_status", 7));
+		FIELD("mdperr", "yesno_t", BITS("../%sec_status", 8));
+		FIELD("devsel", ANON_ENUM(
 					KV("FAST", 0),
 					KV("MEDIUM", 1),
 					KV("SLOW", 2)),
-				"../%sec_status", 10, 9);
-		ONE_BIT_FIELD("sigtabort", "yesno_t", "../%sec_status", 11);
-		ONE_BIT_FIELD("rcvtabort", "yesno_t", "../%sec_status", 12);
-		ONE_BIT_FIELD("rcvmabort", "yesno_t", "../%sec_status", 13);
-		ONE_BIT_FIELD("rcvserr", "yesno_t", "../%sec_status", 14);
-		ONE_BIT_FIELD("perr", "yesno_t", "../%sec_status", 15);
+			 BITS("../%sec_status", 10, 9));
+		FIELD("sigtabort", "yesno_t", BITS("../%sec_status", 11));
+		FIELD("rcvtabort", "yesno_t", BITS("../%sec_status", 12));
+		FIELD("rcvmabort", "yesno_t", BITS("../%sec_status", 13));
+		FIELD("rcvserr", "yesno_t", BITS("../%sec_status", 14));
+		FIELD("perr", "yesno_t", BITS("../%sec_status", 15));
 	CLOSE_SCOPE();
 
 	// IO decode window
@@ -1192,24 +1192,24 @@ create_pci_bridge()
 		REG8("%limit_lo", 0x1d);
 		REG16("%limit_hi", 0x32);
 
-		SIMPLE_FIELD("width", ANON_ENUM(
+		FIELD("width", ANON_ENUM(
 					KV("bits16", 0),
 					KV("bits32", 1)),
-				"%base_lo", 3, 0);
+				BITS("%base_lo", 3, 0));
 
 		if (FIELD_EQ("width", "bits16")) {
-			COMPLEX_FIELD("base", "addr16_t",
+			FIELD("base", "addr16_t",
 					BITS("%base_lo", 7, 4) +
 					BITS("%0", 11, 0));
-			COMPLEX_FIELD("limit", "addr16_t",
+			FIELD("limit", "addr16_t",
 					BITS("%limit_lo", 7, 4) +
 					BITS("%1", 11, 0));
 		} else if (FIELD_EQ("width", "bits32")) {
-			COMPLEX_FIELD("base", "addr32_t",
+			FIELD("base", "addr32_t",
 					BITS("%base_hi", 15, 0) +
 					BITS("%base_lo", 7, 4) +
 					BITS("%0", 11, 0));
-			COMPLEX_FIELD("limit", "addr32_t",
+			FIELD("limit", "addr32_t",
 					BITS("%limit_hi", 15, 0) +
 					BITS("%limit_lo", 7, 4) +
 					BITS("%1", 11, 0));
@@ -1221,10 +1221,10 @@ create_pci_bridge()
 		REG16("%base", 0x20);
 		REG16("%limit", 0x22);
 
-		COMPLEX_FIELD("base", "addr32_t",
+		FIELD("base", "addr32_t",
 				BITS("%base", 15, 4) +
 				BITS("%0", 19, 0));
-		COMPLEX_FIELD("limit", "addr32_t",
+		FIELD("limit", "addr32_t",
 				BITS("%limit", 15, 4) +
 				BITS("%1", 19, 0));
 	CLOSE_SCOPE();
@@ -1236,24 +1236,24 @@ create_pci_bridge()
 		REG16("%limit_lo", 0x26);
 		REG32("%limit_hi", 0x2c);
 
-		SIMPLE_FIELD("width", ANON_ENUM(
+		FIELD("width", ANON_ENUM(
 					KV("bits32", 0),
 					KV("bits64", 1)),
-				"%base_lo", 3, 0);
+				BITS("%base_lo", 3, 0));
 
 		if (FIELD_EQ("width", "bits32")) {
-			COMPLEX_FIELD("base", "addr32_t",
+			FIELD("base", "addr32_t",
 					BITS("%base_lo", 15, 4) +
 					BITS("%0", 19, 0));
-			COMPLEX_FIELD("limit", "addr32_t",
+			FIELD("limit", "addr32_t",
 					BITS("%limit_lo", 15, 4) +
 					BITS("%1", 19, 0));
 		} else if (FIELD_EQ("width", "bits64")) {
-			COMPLEX_FIELD("base", "addr64_t",
+			FIELD("base", "addr64_t",
 					BITS("%base_hi", 31, 0) +
 					BITS("%base_lo", 15, 4) +
 					BITS("%0", 19, 0));
-			COMPLEX_FIELD("limit", "addr64_t",
+			FIELD("limit", "addr64_t",
 					BITS("%limit_hi", 31, 0) +
 					BITS("%limit_lo", 15, 4) +
 					BITS("%1", 19, 0));
@@ -1266,8 +1266,8 @@ create_pci_bridge()
 	// Expansion ROM
 	REG32("%rombase", 0x38);
 	OPEN_SCOPE("rombase");
-		ONE_BIT_FIELD("enabled", "yesno_t", "../%rombase", 0);
-		COMPLEX_FIELD("address", "addr32_t",
+		FIELD("enabled", "yesno_t", BITS("../%rombase", 0));
+		FIELD("address", "addr32_t",
 				BITS("../%rombase", 31, 11) +
 				BITS("%0", 10, 0));
 	CLOSE_SCOPE();
@@ -1275,18 +1275,18 @@ create_pci_bridge()
 	// Bridge control
 	REG16("%bridge_ctrl", 0x3e);
 	OPEN_SCOPE("bridge_ctrl");
-		ONE_BIT_FIELD("perr", "yesno_t", "../%bridge_ctrl", 0);
-		ONE_BIT_FIELD("serr", "yesno_t", "../%bridge_ctrl", 1);
-		ONE_BIT_FIELD("isa", "yesno_t", "../%bridge_ctrl", 2);
-		ONE_BIT_FIELD("vga", "yesno_t", "../%bridge_ctrl", 3);
-		ONE_BIT_FIELD("vga16", "yesno_t", "../%bridge_ctrl", 4);
-		ONE_BIT_FIELD("mst_abort", "yesno_t", "../%bridge_ctrl", 5);
-		ONE_BIT_FIELD("sec_reset", "yesno_t", "../%bridge_ctrl", 6);
-		ONE_BIT_FIELD("fbb", "yesno_t", "../%bridge_ctrl", 7);
-		ONE_BIT_FIELD("pri_discard", "yesno_t", "../%bridge_ctrl", 8);
-		ONE_BIT_FIELD("sec_discard", "yesno_t", "../%bridge_ctrl", 9);
-		ONE_BIT_FIELD("discard_status", "yesno_t", "../%bridge_ctrl", 10);
-		ONE_BIT_FIELD("discard_serr", "yesno_t", "../%bridge_ctrl", 11);
+		FIELD("perr", "yesno_t", BITS("../%bridge_ctrl", 0));
+		FIELD("serr", "yesno_t", BITS("../%bridge_ctrl", 1));
+		FIELD("isa", "yesno_t", BITS("../%bridge_ctrl", 2));
+		FIELD("vga", "yesno_t", BITS("../%bridge_ctrl", 3));
+		FIELD("vga16", "yesno_t", BITS("../%bridge_ctrl", 4));
+		FIELD("mst_abort", "yesno_t", BITS("../%bridge_ctrl", 5));
+		FIELD("sec_reset", "yesno_t", BITS("../%bridge_ctrl", 6));
+		FIELD("fbb", "yesno_t", BITS("../%bridge_ctrl", 7));
+		FIELD("pri_discard", "yesno_t", BITS("../%bridge_ctrl", 8));
+		FIELD("sec_discard", "yesno_t", BITS("../%bridge_ctrl", 9));
+		FIELD("discard_status", "yesno_t", BITS("../%bridge_ctrl", 10));
+		FIELD("discard_serr", "yesno_t", BITS("../%bridge_ctrl", 11));
 	CLOSE_SCOPE();
 }
 
@@ -1337,8 +1337,8 @@ create_device()
 	// Expansion ROM
 	REG32("%rombase", 0x30);
 	OPEN_SCOPE("rombase");
-		ONE_BIT_FIELD("enabled", "yesno_t", "../%rombase", 0);
-		COMPLEX_FIELD("address", "addr32_t",
+		FIELD("enabled", "yesno_t", BITS("../%rombase", 0));
+		FIELD("address", "addr32_t",
 				BITS("../%rombase", 31, 11) +
 				BITS("%0", 10, 0));
 	CLOSE_SCOPE();
@@ -1360,37 +1360,37 @@ pci_generic_device()
 
 	REG16("%command", 0x04);
 	OPEN_SCOPE("command");
-		ONE_BIT_FIELD("io", "yesno_t", "../%command", 0);
-		ONE_BIT_FIELD("mem", "yesno_t", "../%command", 1);
-		ONE_BIT_FIELD("bm", "yesno_t", "../%command", 2);
-		ONE_BIT_FIELD("special", "yesno_t", "../%command", 3);
-		ONE_BIT_FIELD("mwinv", "yesno_t", "../%command", 4);
-		ONE_BIT_FIELD("vgasnoop", "yesno_t", "../%command", 5);
-		ONE_BIT_FIELD("perr", "yesno_t", "../%command", 6);
-		ONE_BIT_FIELD("step", "yesno_t", "../%command", 7);
-		ONE_BIT_FIELD("serr", "yesno_t", "../%command", 8);
-		ONE_BIT_FIELD("fbb", "yesno_t", "../%command", 9);
-		ONE_BIT_FIELD("intr", "yesno_t", "../%command", 10);
+		FIELD("io", "yesno_t", BITS("../%command", 0));
+		FIELD("mem", "yesno_t", BITS("../%command", 1));
+		FIELD("bm", "yesno_t", BITS("../%command", 2));
+		FIELD("special", "yesno_t", BITS("../%command", 3));
+		FIELD("mwinv", "yesno_t", BITS("../%command", 4));
+		FIELD("vgasnoop", "yesno_t", BITS("../%command", 5));
+		FIELD("perr", "yesno_t", BITS("../%command", 6));
+		FIELD("step", "yesno_t", BITS("../%command", 7));
+		FIELD("serr", "yesno_t", BITS("../%command", 8));
+		FIELD("fbb", "yesno_t", BITS("../%command", 9));
+		FIELD("intr", "yesno_t", BITS("../%command", 10));
 	CLOSE_SCOPE();
 
 	REG16("%status", 0x06);
 	OPEN_SCOPE("status");
-		ONE_BIT_FIELD("intr", "yesno_t", "../%status", 3);
-		ONE_BIT_FIELD("caps", "yesno_t", "../%status", 4);
-		ONE_BIT_FIELD("cap66", "yesno_t", "../%status", 5);
-		ONE_BIT_FIELD("user", "yesno_t", "../%status", 6);
-		ONE_BIT_FIELD("fbb", "yesno_t", "../%status", 7);
-		ONE_BIT_FIELD("mdperr", "yesno_t", "../%status", 8);
-		SIMPLE_FIELD("devsel", ANON_ENUM(
+		FIELD("intr", "yesno_t", BITS("../%status", 3));
+		FIELD("caps", "yesno_t", BITS("../%status", 4));
+		FIELD("cap66", "yesno_t", BITS("../%status", 5));
+		FIELD("user", "yesno_t", BITS("../%status", 6));
+		FIELD("fbb", "yesno_t", BITS("../%status", 7));
+		FIELD("mdperr", "yesno_t", BITS("../%status", 8));
+		FIELD("devsel", ANON_ENUM(
 					KV("FAST", 0),
 					KV("MEDIUM", 1),
 					KV("SLOW", 2)),
-				"../%status", 10, 9);
-		ONE_BIT_FIELD("sigtabort", "yesno_t", "../%status", 11);
-		ONE_BIT_FIELD("rcvtabort", "yesno_t", "../%status", 12);
-		ONE_BIT_FIELD("rcvmabort", "yesno_t", "../%status", 13);
-		ONE_BIT_FIELD("sigserr", "yesno_t", "../%status", 14);
-		ONE_BIT_FIELD("perr", "yesno_t", "../%status", 15);
+			 BITS("../%status", 10, 9));
+		FIELD("sigtabort", "yesno_t", BITS("../%status", 11));
+		FIELD("rcvtabort", "yesno_t", BITS("../%status", 12));
+		FIELD("rcvmabort", "yesno_t", BITS("../%status", 13));
+		FIELD("sigserr", "yesno_t", BITS("../%status", 14));
+		FIELD("perr", "yesno_t", BITS("../%status", 15));
 	CLOSE_SCOPE();
 
 	REGFIELD8("class", 0x0b, "pci_class_t");
@@ -1445,18 +1445,18 @@ pci_generic_device()
 	REGFIELD8("cacheline", 0x0c, ANON_INT("DWORDs"));
 
 	REG8("%hdrtype", 0x0e);
-	COMPLEX_FIELD("hdrtype", ANON_ENUM(
+	FIELD("hdrtype", ANON_ENUM(
 				KV("device", 0),
 				KV("pci_bridge", 1),
 				KV("cardbus_bridge", 2)),
 			BITS("%hdrtype", 6, 0));
-	ONE_BIT_FIELD("multifunc", "yesno_t", "%hdrtype", 7);
+	FIELD("multifunc", "yesno_t", BITS("%hdrtype", 7));
 
 	REG8("%bist", 0x0f);
 	OPEN_SCOPE("bist");
-		ONE_BIT_FIELD("capable", "yesno_t", "../%bist", 7);
-		ONE_BIT_FIELD("start", "yesno_t", "../%bist", 6);
-		COMPLEX_FIELD("code", "hex8_t", BITS("../%bist", 3, 0));
+		FIELD("capable", "yesno_t", BITS("../%bist", 7));
+		FIELD("start", "yesno_t", BITS("../%bist", 6));
+		FIELD("code", "hex8_t", BITS("../%bist", 3, 0));
 	CLOSE_SCOPE();
 
 	REGFIELD8("intline", 0x3c, "int_t");
