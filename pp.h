@@ -11,6 +11,7 @@ using std::string;
 #include <iostream>
 #include <limits>
 #include <climits>
+using std::size_t;
 #include <boost/format.hpp>
 #include <boost/smart_ptr.hpp>
 #include "bignum.h"
@@ -76,20 +77,23 @@ typedef bignum pp_value;
 /*
  * pp_bitwidth - how wide something is, in bits.
  */
-typedef enum pp_bitwidth {
-	BITS0  = 0,
-	BITS4  = 4,
-	BITS8  = 8,
-	BITS16 = 16,
-	BITS32 = 32,
-	BITS64 = 64,
-	BITS128 = 128,
-} pp_bitwidth;
+typedef unsigned long pp_bitwidth;
+static const pp_bitwidth BITS0   = 0;
+static const pp_bitwidth BITS4   = 4;
+static const pp_bitwidth BITS8   = 8;
+static const pp_bitwidth BITS12  = 12;
+static const pp_bitwidth BITS16  = 16;
+static const pp_bitwidth BITS20  = 20;
+static const pp_bitwidth BITS32  = 32;
+static const pp_bitwidth BITS64  = 64;
+static const pp_bitwidth BITS128 = 128;
 #define PP_BITWIDTH_MAX BITS128
+#define BYTES TO_BITS(bytes) pp_bitwidth((bytes) * CHAR_BIT)
+#define BITS_TO_BYTES(bits)  size_t(((bits)+(CHAR_BIT-1)) / CHAR_BIT)
 
 /* generate a bitmask of n bits */
 static inline pp_value
-PP_MASK(int nbits)
+PP_MASK(pp_bitwidth nbits)
 {
 	pp_value val(1);
 	val <<= nbits;

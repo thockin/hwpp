@@ -140,7 +140,7 @@ class pp_regbits
 	 *
 	 * Return the width of this regbits, in bits.
 	 */
-	unsigned long
+	pp_bitwidth
 	width() const
 	{
 		unsigned long result = 0;
@@ -174,7 +174,7 @@ class pp_regbits
 			    + to_string(hi_bit) + ":"
 			    + to_string(lo_bit) + "]");
 		}
-		if (hi_bit >= (unsigned)reg->width()) {
+		if (hi_bit >= reg->width()) {
 			throw std::out_of_range("bad bit range: ["
 			    + to_string(hi_bit) + ":"
 			    + to_string(lo_bit) + "]: register is only "

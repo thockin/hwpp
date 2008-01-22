@@ -165,9 +165,9 @@ REGN(const string &name, const pp_value &address, pp_bitwidth width);
 extern pp_regbits
 BITS(const string &regname);
 extern pp_regbits
-BITS(const string &regname, unsigned bit);
+BITS(const string &regname, pp_bitwidth bit);
 extern pp_regbits
-BITS(const string &regname, unsigned hi, unsigned lo);
+BITS(const string &regname, pp_bitwidth hi_bit, pp_bitwidth lo_bit);
 
 #include "pp_datatype.h"
 #include "pp_datatypes.h"

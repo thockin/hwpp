@@ -81,6 +81,25 @@ main(void)
 			"bitbuffer::get(int)");
 	}
 
+	// test fills
+	{
+		bitbuffer bb(8, 0x5a);
+		ret += PP_TEST_ASSERT(bb.size_bits() == 8,
+			"bitbuffer::bitbuffer(int, unsigned char)");
+		ret += PP_TEST_ASSERT(bb.size_bytes() == 1,
+			"bitbuffer::bitbuffer(int, unsigned char)");
+		ret += PP_TEST_ASSERT(bb.get()[0] == 0x5a,
+			"bitbuffer::bitbuffer(int, unsigned char)");
+		bb.fill(0x96);
+		ret += PP_TEST_ASSERT(bb.get()[0] == 0x96,
+			"bitbuffer::fill(unsigned char)");
+		bb.reset(16, 0x81);
+		ret += PP_TEST_ASSERT(bb.get()[0] == 0x81,
+			"bitbuffer::reset(int, unsigned char)");
+		ret += PP_TEST_ASSERT(bb.get()[1] == 0x81,
+			"bitbuffer::reset(int, unsigned char)");
+	}
+
 	// test byte_at()
 	{
 		bitbuffer bb(2);

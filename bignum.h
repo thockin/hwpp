@@ -24,7 +24,8 @@ class bignum: public mpz_class
 	template <class T, class U>
 	bignum(const __gmp_expr<T, U> &expr): mpz_class(expr) {}
 	explicit bignum(const char *str, int base=0): mpz_class(str, base) {}
-	explicit bignum(const string &str, int base=0): mpz_class(str, base) {}
+	explicit bignum(const std::string &str, int base=0)
+	    : mpz_class(str, base) {}
 	bignum(signed char value): mpz_class(value) {}
 	bignum(unsigned char value): mpz_class(value) {}
 	bignum(signed short value): mpz_class(value) {}
@@ -60,7 +61,7 @@ class bignum: public mpz_class
 	operator=(const __gmp_expr<T, U> &that)
 	{ mpz_class::operator=(that); return *this; }
 	bignum &
-	operator=(const string &that)
+	operator=(const std::string &that)
 	{ mpz_class::operator=(that); return *this; }
 	bignum &
 	operator=(const char *that)
@@ -145,7 +146,7 @@ class bignum: public mpz_class
 	{
 		// mpz_import() seems to not work.
 		*this = 0;
-		for (unsigned i = bitbuf.size_bytes(); i > 0; i--) {
+		for (std::size_t i = bitbuf.size_bytes(); i > 0; i--) {
 			*this <<= CHAR_BIT;
 			*this += bitbuf.byte_at(i-1);
 		}
@@ -213,10 +214,10 @@ class bignum: public mpz_class
 	}
 
 	bitbuffer
-	get_bitbuffer(unsigned bits=0) const
+	get_bitbuffer(unsigned long bits=0) const
 	{
 		// mpz_export() seems to not work.
-		unsigned bytes = 0;
+		std::size_t bytes = 0;
 		bignum tmp(*this);
 		while (tmp != 0) {
 			bytes++;
@@ -228,7 +229,7 @@ class bignum: public mpz_class
 		bitbuffer bitbuf(bits ? bits : (bytes * CHAR_BIT));
 
 		bignum myval(*this);
-		for (unsigned i = 0; i < bytes; i++) {
+		for (std::size_t i = 0; i < bytes; i++) {
 			bitbuf.byte_at(i) = myval.get_uint() & 0xff;
 			myval >>= CHAR_BIT;
 		}

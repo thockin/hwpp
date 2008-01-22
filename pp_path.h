@@ -351,7 +351,7 @@ class pp_path
 		}
 
 		/* add each non-empty part to the list */
-		for (std::size_t i = 0; i < parts.size(); i++) {
+		for (size_t i = 0; i < parts.size(); i++) {
 			if (parts[i].length() != 0) {
 				m_list.push_back(parts[i]);
 			}
