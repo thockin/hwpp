@@ -13,6 +13,43 @@ void dump_keyed_vector(const keyed_vector<Tkey, Tval> &kv, ostream &out) {
 }
 
 int
+test_keyed_vector_ctors()
+{
+	int ret = 0;
+	typedef keyed_vector<string, int> si_keyvec;
+
+	// default ctor
+	si_keyvec keyvec;
+	if (keyvec.size() != 0) {
+		ERROR("keyed_vector::keyed_vector()");
+		ret++;
+	}
+
+	// copy ctor
+	si_keyvec *kvp;
+	{
+		si_keyvec keyvec;
+		keyvec.insert("one", 1);
+		keyvec.insert("two", 2);
+		kvp = new si_keyvec(keyvec);
+		if (kvp->size() != 2) {
+			ERROR("keyed_vector::keyed_vector(keyed_vector)");
+			ret++;
+		}
+	}
+	if (kvp->size() != 2) {
+		ERROR("keyed_vector::keyed_vector(keyed_vector)");
+		ret++;
+	}
+	if (kvp->key_at(0) != "one") {
+		ERROR("keyed_vector::keyed_vector(keyed_vector)");
+		ret++;
+	}
+
+	return ret;
+}
+
+int
 test_keyed_vector_int()
 {
 	int ret = 0;
@@ -446,12 +483,12 @@ test_keyed_vector_xypair()
 int
 main()
 {
-	int r;
+	int r = 0;
 
-	r = test_keyed_vector_int();
-	if (r) return EXIT_FAILURE;
-	r = test_keyed_vector_xypair();
-	if (r) return EXIT_FAILURE;
+	r += test_keyed_vector_ctors();
+	r += test_keyed_vector_int();
+	r += test_keyed_vector_xypair();
 
+	if (r) return EXIT_FAILURE;
 	return EXIT_SUCCESS;
 }
