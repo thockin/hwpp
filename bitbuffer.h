@@ -89,13 +89,17 @@ inline std::ostream &
 operator<<(std::ostream& o, const bitbuffer &bitbuf)
 {
 	o << "0x";
-	std::size_t i = bitbuf.size_bytes()-1;
+	// This is signed on purpose.
+	signed long i = bitbuf.size_bytes()-1;
 	if (i >= 0) {
+		// skip leading zeros
 		while (i > 0 && bitbuf.get()[i] == 0) {
 			i--;
 		}
+		// print the most-significant non-zero byte
 		o << boost::format("%x") %(int)bitbuf.get()[i];
 		i--;
+		// print the rest
 		for (i=i; i >= 0; i--) {
 			o << boost::format("%02x") %(int)bitbuf.get()[i];
 		}
