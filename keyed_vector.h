@@ -168,18 +168,18 @@ class keyed_vector
 	}
 	// copy ctor
 	keyed_vector(const keyed_vector &other)
-	    : m_keys(other.m_keys),
-	      m_values(other.m_values),
-	      m_keyptrs(other.m_keyptrs)
 	{
+		*this = other;
 	}
 	// assignment operator
 	keyed_vector &
 	operator=(const keyed_vector &other)
 	{
-		m_keys = other.m_keys;
-		m_values = other.m_values;
-		m_keyptrs = other.m_keyptrs;
+		// We can't just copy each element, because m_keyptrs
+		// holds iterators into m_keys.
+		for (size_type i = 0; i < other.size(); i++) {
+			insert(other.key_at(i), other.at(i));
+		}
 		return *this;
 	}
 	// swap data
