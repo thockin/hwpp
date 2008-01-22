@@ -219,13 +219,13 @@ BITS(const string &regname)
 	return pp_regbits(reg, reg->width()-1, 0);
 }
 pp_regbits
-BITS(const string &regname, unsigned bit)
+BITS(const string &regname, pp_bitwidth bit)
 {
 	const pp_register *reg = GET_REGISTER(regname);
 	return pp_regbits(reg, bit, bit);
 }
 pp_regbits
-BITS(const string &regname, unsigned hi_bit, unsigned lo_bit)
+BITS(const string &regname, pp_bitwidth hi_bit, pp_bitwidth lo_bit)
 {
 	const pp_register *reg = GET_REGISTER(regname);
 	return pp_regbits(reg, hi_bit, lo_bit);

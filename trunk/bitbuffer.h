@@ -21,17 +21,17 @@ class bitbuffer
     private:
 	typedef boost::shared_array<uint8_t> uint8_array;
 	uint8_array m_array;
-	unsigned m_bits;
-	unsigned m_bytes;
+	unsigned long m_bits;
+	std::size_t m_bytes;
 
     public:
-	bitbuffer(unsigned bits = 0)
+	bitbuffer(unsigned long bits = 0, uint8_t pattern = 0)
 	{
-		reset(bits);
+		reset(bits, pattern);
 	}
 
 	void
-	reset(unsigned bits = 0)
+	reset(unsigned long bits = 0, uint8_t pattern = 0)
 	{
 		m_bits = bits;
 		m_bytes = (m_bits+(CHAR_BIT-1))/CHAR_BIT;
@@ -39,9 +39,15 @@ class bitbuffer
 		uint8_array tmp(NULL);
 		if (bits) {
 			tmp = uint8_array(new uint8_t[m_bytes]);
-			memset(tmp.get(), 0, m_bytes);
+			memset(tmp.get(), pattern, m_bytes);
 		}
 		m_array = tmp;
+	}
+
+	void
+	fill(uint8_t pattern)
+	{
+		memset(m_array.get(), pattern, m_bytes);
 	}
 
 	uint8_t *
@@ -55,7 +61,7 @@ class bitbuffer
 		return m_array.get();
 	}
 
-	std::size_t
+	unsigned long
 	size_bits() const
 	{
 		return m_bits;
@@ -83,7 +89,7 @@ inline std::ostream &
 operator<<(std::ostream& o, const bitbuffer &bitbuf)
 {
 	o << "0x";
-	int i = bitbuf.size_bytes()-1;
+	std::size_t i = bitbuf.size_bytes()-1;
 	if (i >= 0) {
 		while (i > 0 && bitbuf.get()[i] == 0) {
 			i--;
