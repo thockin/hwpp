@@ -25,6 +25,9 @@
 
 namespace fs {
 
+using std::size_t;
+using ::off_t;
+
 class not_found_error: public std::runtime_error
 {
     public:
@@ -83,7 +86,7 @@ class file_mapping
 
     private:
 	/* constructors - private to prevent abuse, defined later */
-	file_mapping(const_file_ptr file, ::off_t offset, std::size_t length,
+	file_mapping(const_file_ptr file, off_t offset, size_t length,
 			int prot = PROT_READ, int flags = MAP_SHARED);
 
     public:
@@ -126,13 +129,13 @@ class file_mapping
 		return (void *)m_address;
 	}
 
-	::off_t
+	off_t
 	offset() const
 	{
 		return m_offset;
 	}
 
-	std::size_t
+	size_t
 	length() const
 	{
 		return m_length;
@@ -153,12 +156,12 @@ class file_mapping
     private:
 	const_file_ptr m_file;
 	/* these are the file offset and map length that were requested */
-	::off_t m_offset;
-	std::size_t m_length;
+	off_t m_offset;
+	size_t m_length;
 	uint8_t *m_address;
 	/* these are the aligned file offset and map length */
-	::off_t m_real_offset;
-	std::size_t m_real_length;
+	off_t m_real_offset;
+	size_t m_real_length;
 	uint8_t *m_real_address;
 	/* flags for the mapping */
 	int m_prot;
@@ -342,8 +345,8 @@ class file
 		unlink(m_path);
 	}
 
-	std::size_t
-	read(void *buf, std::size_t size) const
+	size_t
+	read(void *buf, size_t size) const
 	{
 		int r;
 
@@ -378,8 +381,8 @@ class file
 		return s;
 	}
 
-	std::size_t
-	write(void *buf, std::size_t size) const
+	size_t
+	write(void *buf, size_t size) const
 	{
 		int r;
 
@@ -394,7 +397,7 @@ class file
 	}
 
 	file_mapping_ptr
-	mmap(::off_t offset, std::size_t length, int prot = -1,
+	mmap(off_t offset, size_t length, int prot = -1,
 			int flags = MAP_SHARED) const
 	{
 		if (prot == -1) {
@@ -412,10 +415,10 @@ class file
 				offset, length, prot, flags));
 	}
 
-	::off_t
-	seek(::off_t offset, int whence) const
+	off_t
+	seek(off_t offset, int whence) const
 	{
-		::off_t r;
+		off_t r;
 
 		r = ::lseek(m_fd, offset, whence);
 		if (r == (off_t)-1) {
@@ -427,7 +430,7 @@ class file
 		return r;
 	}
 
-	static ::off_t
+	static off_t
 	size(const std::string &path)
 	{
 		int r;
@@ -443,7 +446,7 @@ class file
 		return st.st_size;
 	}
 
-	::off_t
+	off_t
 	size() const
 	{
 		int r;
@@ -523,15 +526,15 @@ class file
 
 inline
 file_mapping::file_mapping(const_file_ptr file,
-    ::off_t offset, std::size_t length, int prot, int flags)
+    off_t offset, size_t length, int prot, int flags)
     : m_file(file),
       m_offset(offset), m_length(length), m_address(NULL),
       m_real_offset(0), m_real_length(0), m_real_address(NULL),
       m_prot(prot), m_flags(flags)
 {
-	std::size_t pgsize;
-	std::size_t pgmask;
-	::off_t ptr_off;
+	size_t pgsize;
+	size_t pgmask;
+	off_t ptr_off;
 
 	/* maps need to be page aligned */
 	pgsize = getpagesize();
