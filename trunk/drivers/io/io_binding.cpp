@@ -32,22 +32,16 @@ io_io::address() const
 pp_value
 io_io::read(const pp_value &address, const pp_bitwidth width) const
 {
-	switch (width) {
-	    case BITS8:
-	    case BITS16:
-	    case BITS32:
-	    case BITS64:
-		break;
-	    default:
-		throw do_io_error(to_string(
-		    boost::format("unsupported register width %d") %width));
-	}
+	/* make sure this is a valid access */
+	check_width(width);
+	check_bounds(address, BITS_TO_BYTES(width));
 
 	seek(address);
 	bitbuffer bb(width);
 	if (m_file->read(bb.get(), bb.size_bytes()) != bb.size_bytes()) {
-		throw do_io_error(to_string(
-		    boost::format("can't read register 0x%x") %address));
+		// We already did bounds checking, so this must be bad.
+		do_io_error(to_string(
+		    boost::format("error reading register 0x%x") %address));
 	}
 
 	return pp_value(bb);
@@ -57,16 +51,9 @@ void
 io_io::write(const pp_value &address, const pp_bitwidth width,
     const pp_value &value) const
 {
-	switch (width) {
-	    case BITS8:
-	    case BITS16:
-	    case BITS32:
-	    case BITS64:
-		break;
-	    default:
-		throw do_io_error(to_string(
-		    boost::format("unsupported register width %d") %width));
-	}
+	/* make sure this is a valid access */
+	check_width(width);
+	check_bounds(address, BITS_TO_BYTES(width));
 
 	/* see if we are already open RW or can change to RW */
 	if (m_file->mode() == O_RDONLY) {
@@ -76,15 +63,16 @@ io_io::write(const pp_value &address, const pp_bitwidth width,
 	seek(address);
 	bitbuffer bb = value.get_bitbuffer(width);
 	if (m_file->write(bb.get(), bb.size_bytes()) != bb.size_bytes()) {
-		throw do_io_error(to_string(
-		    boost::format("can't write register 0x%x") %address));
+		// We already did bounds checking, so this must be bad.
+		do_io_error(to_string(
+		    boost::format("error writing register 0x%x") %address));
 	}
 }
 
-pp_driver_io_error
+void
 io_io::do_io_error(const string &str) const
 {
-	return pp_driver_io_error(to_string(m_address) + ": " + str);
+	throw pp_driver_io_error(to_string(m_address) + ": " + str);
 }
 
 void
@@ -98,17 +86,38 @@ io_io::open_device(string device)
 		return;
 	} catch (std::exception &e) {
 		/* the device seems to not exist */
-		throw do_io_error("can't open device " + device);
+		do_io_error("can't open device " + device);
+	}
+}
+
+void
+io_io::check_width(pp_bitwidth width) const
+{
+	switch (width) {
+	    case BITS8:
+	    case BITS16:
+	    case BITS32:
+	    case BITS64:
+		break;
+	    default:
+		do_io_error(to_string(
+		    boost::format("unsupported register width %d")
+		    %width));
+	}
+}
+
+void
+io_io::check_bounds(const pp_value &offset, unsigned bytes) const
+{
+	if (offset < 0 || (offset+bytes) > m_address.size) {
+		do_io_error(to_string(
+		    boost::format("invalid register: %d bytes @ 0x%x")
+		    %bytes %offset));
 	}
 }
 
 void
 io_io::seek(const pp_value &offset) const
 {
-	if (offset >= m_address.size) {
-		throw do_io_error(to_string(
-		    boost::format("can't access register 0x%x") %offset));
-	}
-
 	m_file->seek(m_address.base+offset.get_uint(), SEEK_SET);
 }

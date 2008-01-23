@@ -29,6 +29,19 @@ test_msr_io()
 			PP_TEST_ERROR("msr_io::read()");
 			ret++;
 		}
+		/* test read() around the bounds */
+		try {
+			io1.read(0xffffffff, BITS64);
+			PP_TEST_ERROR("msr_io::read(BITS16)");
+			ret++;
+		} catch (exception &e) {
+		}
+		try {
+			io1.read(0x100000000ULL, BITS64);
+			PP_TEST_ERROR("msr_io::read(BITS8)");
+			ret++;
+		} catch (exception &e) {
+		}
 
 		/* test the write() method */
 		io1.write(0, BITS64, pp_value("0xffeeddccbbaa9988"));

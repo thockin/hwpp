@@ -65,11 +65,17 @@ class msr_io
 	msr_address m_address;
 	fs::file_ptr m_file;
 
-	pp_driver_io_error
+	void
 	do_io_error(const string &str) const;
 
 	void
 	open_device(string devdir, int major, int minor);
+
+	void
+	check_bounds(const pp_value &offset, unsigned bytes) const;
+
+	void
+	check_width(pp_bitwidth width) const;
 
 	void
 	seek(const pp_value &offset) const;

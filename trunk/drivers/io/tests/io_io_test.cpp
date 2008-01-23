@@ -10,7 +10,7 @@ test_io_io()
 	int ret = 0;
 
 	system("mkdir -p test_data");
-	system("echo -n \"01234567\" > test_data/dev_port");
+	system("echo -n \"01234567890123456789\" > test_data/dev_port");
 
 	try {
 		/* test ctors (for a dev file that exists) and address() */
@@ -36,6 +36,25 @@ test_io_io()
 		if (io1.read(0, BITS64) != pp_value("0x3736353433323130")) {
 			PP_TEST_ERROR("io_io::read(BITS64)");
 			ret++;
+		}
+		/* test read() around the bounds */
+		try {
+			io1.read(19, BITS8);
+		} catch (exception &e) {
+			PP_TEST_ERROR("io_io::read(BITS8)");
+			ret++;
+		}
+		try {
+			io1.read(19, BITS16);
+			PP_TEST_ERROR("io_io::read(BITS16)");
+			ret++;
+		} catch (exception &e) {
+		}
+		try {
+			io1.read(20, BITS8);
+			PP_TEST_ERROR("io_io::read(BITS8)");
+			ret++;
+		} catch (exception &e) {
 		}
 
 		/* test the write() method */
