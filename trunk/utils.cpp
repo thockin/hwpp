@@ -232,7 +232,7 @@ BITS(const string &regname, pp_bitwidth hi_bit, pp_bitwidth lo_bit)
 }
 
 /*
- * Define a field.
+ * Define a field as a set of register-bits.
  */
 void
 FIELD(const string &name, const pp_datatype *type, const pp_regbits &bits)
@@ -257,6 +257,23 @@ FIELD(const string &name, const string &type, const pp_regbits &bits)
 {
 	FIELD(name, current_context.resolve_datatype(type), bits);
 }
+/*
+ * Define a field as a constant value.
+ */
+void
+FIELD(const string &name, const pp_datatype *type, const pp_value &value)
+{
+	DASSERT_MSG(!current_context.is_readonly(),
+		"current_context is read-only");
+	pp_constant_field_ptr field_ptr = new_pp_constant_field(type, value);
+	current_context.add_dirent(name, field_ptr);
+}
+void
+FIELD(const string &name, const string &type, const pp_value &value)
+{
+	FIELD(name, current_context.resolve_datatype(type), value);
+}
+
 
 /*
  * Define a register and a field that consumes that register.
@@ -276,24 +293,6 @@ REGFIELDN(const string &name, const pp_value &address, const string &type,
 		pp_bitwidth width)
 {
 	REGFIELDN(name, address, current_context.resolve_datatype(type), width);
-}
-
-/*
- * Define a constant-value field.
- */
-void
-CONSTANT_FIELD(const string &name, const pp_datatype *type,
-		const pp_value &value)
-{
-	DASSERT_MSG(!current_context.is_readonly(),
-		"current_context is read-only");
-	pp_constant_field_ptr field_ptr = new_pp_constant_field(type, value);
-	current_context.add_dirent(name, field_ptr);
-}
-void
-CONSTANT_FIELD(const string &name, const string &type, const pp_value &value)
-{
-	CONSTANT_FIELD(name, current_context.resolve_datatype(type), value);
 }
 
 
