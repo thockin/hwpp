@@ -183,7 +183,17 @@ FIELD(const string &name, const pp_datatype *type, const pp_regbits &bits);
 extern void
 FIELD(const string &name, const string &type, const pp_regbits &bits);
 
-//FIXME: comment
+/*
+ * Create a field with a constant value.
+ */
+extern void
+FIELD(const string &name, const pp_datatype *type, const pp_value &value);
+extern void
+FIELD(const string &name, const string &type, const pp_value &value);
+
+/*
+ * Create a register and a field that consumes it.
+ */
 extern void
 REGFIELDN(const string &name, const pp_value &address,
 		const pp_datatype *type, pp_bitwidth width);
@@ -194,12 +204,6 @@ REGFIELDN(const string &name, const pp_value &address,
 #define REGFIELD16(name, address, type) REGFIELDN(name, address, type, BITS16)
 #define REGFIELD32(name, address, type) REGFIELDN(name, address, type, BITS32)
 #define REGFIELD64(name, address, type) REGFIELDN(name, address, type, BITS64)
-
-extern void
-CONSTANT_FIELD(const string &name, const pp_datatype *type,
-		const pp_value &value);
-extern void
-CONSTANT_FIELD(const string &name, const string &type, const pp_value &value);
 
 
 /*

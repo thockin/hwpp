@@ -1098,7 +1098,7 @@ explore_capabilities()
 		while (ptr != 0 && ptr != 0xff) {
 			OPEN_SCOPE("capability[" + to_string(i) + "]");
 
-			CONSTANT_FIELD("offset", "hex8_t", ptr);
+			FIELD("offset", "hex8_t", ptr);
 			REGFIELD8("id", ptr, "pci_capability_t");
 			REGFIELD8("next", ptr+1, "hex8_t");
 
