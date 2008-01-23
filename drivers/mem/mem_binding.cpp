@@ -52,7 +52,7 @@ mem_io::read(const pp_value &address, const pp_bitwidth width) const
 		/* we already did bounds and width checking */
 		break;
 	}
-	do_io_error("can'tt get here");
+	do_io_error("can't get here");
 	return -1;
 }
 
