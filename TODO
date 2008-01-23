@@ -20,4 +20,10 @@ write DEFS and other stuff to a dotfile and make that a makefile dependency
 
 write docs
 
-READ(field) and READ(register) and READ(pp_value regnum)
+READ(field) and READ(register) and READ(pp_regbits)
+
+strerror() in driver read/write errors
+drivers: add do_error() for non-io-errors
+use one comment style everywhere
+unify CONSTANT_FIELD and PROC_FIELD with FIELD
+
