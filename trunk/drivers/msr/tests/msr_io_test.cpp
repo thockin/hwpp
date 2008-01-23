@@ -32,13 +32,13 @@ test_msr_io()
 		/* test read() around the bounds */
 		try {
 			io1.read(0xffffffff, BITS64);
-			PP_TEST_ERROR("msr_io::read(BITS16)");
+			PP_TEST_ERROR("msr_io::read(BITS64)");
 			ret++;
 		} catch (exception &e) {
 		}
 		try {
 			io1.read(0x100000000ULL, BITS64);
-			PP_TEST_ERROR("msr_io::read(BITS8)");
+			PP_TEST_ERROR("msr_io::read(BITS64)");
 			ret++;
 		} catch (exception &e) {
 		}
