@@ -42,24 +42,21 @@ pci_io::address() const
 pp_value
 pci_io::read(const pp_value &address, const pp_bitwidth width) const
 {
-	switch (width) {
-	    case BITS8:
-	    case BITS16:
-	    case BITS32:
-	    case BITS64:
-		break;
-	    default:
-		throw do_io_error(to_string(
-		    boost::format("unsupported register width %d")
-		    %width));
-	}
+	/* make sure this is a valid access */
+	check_width(width);
+	check_bounds(address, BITS_TO_BYTES(width));
 
 	seek(address);
-	bitbuffer bb(width);
+	bitbuffer bb(width, 0xff);
 	if (m_file->read(bb.get(), bb.size_bytes()) != bb.size_bytes()) {
-		throw do_io_error(to_string(
-		    boost::format("error reading register 0x%x")
-		    %address));
+		// We already did bounds checking, but we might hit EOF on
+		// a 256 B PCI config space.  That's still valid, since the
+		// 4 KB space conceptually exists, but is all 0xff.
+		if (!m_file->is_eof()) {
+			do_io_error(to_string(
+			    boost::format("error reading register 0x%x")
+			    %address));
+		}
 	}
 
 	return pp_value(bb);
@@ -69,17 +66,9 @@ void
 pci_io::write(const pp_value &address, const pp_bitwidth width,
     const pp_value &value) const
 {
-	switch (width) {
-	    case BITS8:
-	    case BITS16:
-	    case BITS32:
-	    case BITS64:
-		break;
-	    default:
-		throw do_io_error(to_string(
-		    boost::format("unsupported register width %d")
-		    %width));
-	}
+	/* make sure this is a valid access */
+	check_width(width);
+	check_bounds(address, BITS_TO_BYTES(width));
 
 	/* see if we are already open RW or can change to RW */
 	if (m_file->mode() == O_RDONLY) {
@@ -89,9 +78,14 @@ pci_io::write(const pp_value &address, const pp_bitwidth width,
 	seek(address);
 	bitbuffer bb = value.get_bitbuffer(width);
 	if (m_file->write(bb.get(), bb.size_bytes()) != bb.size_bytes()) {
-		throw do_io_error(to_string(
-		    boost::format("error writing register 0x%x")
-		    %address));
+		// We already did bounds checking, but we might hit EOF on
+		// a 256 B PCI config space.  That's still valid, since the
+		// 4 KB space conceptually exists, but is all 0xff.
+		if (!m_file->is_eof()) {
+			do_io_error(to_string(
+			    boost::format("error writing register 0x%x")
+			    %address));
+		}
 	}
 }
 
@@ -106,10 +100,10 @@ pci_io::enumerate(std::vector<pci_address> *addresses)
 	std::sort(addresses->begin(), addresses->end());
 }
 
-pp_driver_io_error
+void
 pci_io::do_io_error(const string &str) const
 {
-	return pp_driver_io_error(to_string(m_address) + ": " + str);
+	throw pp_driver_io_error(to_string(m_address) + ": " + str);
 }
 
 void
@@ -150,20 +144,40 @@ pci_io::open_device(string devdir)
 		return;
 	} catch (std::exception &e) {
 		/* nothing seems to have worked */
-		throw do_io_error("can't open PCI");
+		do_io_error("can't open PCI");
+	}
+}
+
+void
+pci_io::check_width(pp_bitwidth width) const
+{
+	switch (width) {
+	    case BITS8:
+	    case BITS16:
+	    case BITS32:
+	    case BITS64:
+		break;
+	    default:
+		do_io_error(to_string(
+		    boost::format("unsupported register width %d")
+		    %width));
+	}
+}
+
+void
+pci_io::check_bounds(const pp_value &offset, size_t bytes) const
+{
+	/* we support 4 KB config space */
+	if (offset < 0 || (offset+bytes) > 4096) {
+		do_io_error(to_string(
+		    boost::format("invalid register: %d bytes @ 0x%x")
+		    %bytes %offset));
 	}
 }
 
 void
 pci_io::seek(const pp_value &offset) const
 {
-	/* we only support 4KB config space */
-	if (offset >= 4096) {
-		throw do_io_error(to_string(
-		    boost::format("can't access register 0x%x")
-		    %offset));
-	}
-
 	m_file->seek(offset.get_uint(), SEEK_SET);
 }
 

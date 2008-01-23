@@ -29,9 +29,16 @@ mem_io::address() const
 	return m_address;
 }
 
+// We do this differently than most other drivers because we are using
+// mmap() under the covers, and we want to use single exact-width memory
+// accesses.
 pp_value
 mem_io::read(const pp_value &address, const pp_bitwidth width) const
 {
+	/* make sure this is a valid access */
+	check_width(width);
+	check_bounds(address, BITS_TO_BYTES(width));
+
 	switch (width) {
 	    case BITS8:
 		return do_read<uint8_t>(address);
@@ -42,17 +49,24 @@ mem_io::read(const pp_value &address, const pp_bitwidth width) const
 	    case BITS64:
 		return do_read<uint64_t>(address);
 	    default:
+		/* we already did bounds and width checking */
 		break;
 	}
-	throw do_io_error(to_string(
-	    boost::format("unsupported register width %d")
-	    %width));
+	do_io_error("can'tt get here");
+	return -1;
 }
 
+// We do this differently than most other drivers because we are using
+// mmap() under the covers, and we want to use single exact-width memory
+// accesses.
 void
 mem_io::write(const pp_value &address, const pp_bitwidth width,
     const pp_value &value) const
 {
+	/* make sure this is a valid access */
+	check_width(width);
+	check_bounds(address, BITS_TO_BYTES(width));
+
 	switch (width) {
 	    case BITS8:
 		return do_write<uint8_t>(address, value);
@@ -63,17 +77,15 @@ mem_io::write(const pp_value &address, const pp_bitwidth width,
 	    case BITS64:
 		return do_write<uint64_t>(address, value);
 	    default:
+		/* we already did bounds and width checking */
 		break;
 	}
-	throw do_io_error(to_string(
-	    boost::format("unsupported register width %d")
-	    %width));
 }
 
-pp_driver_io_error
+void
 mem_io::do_io_error(const string &str) const
 {
-	return pp_driver_io_error(to_string(m_address) + ": " + str);
+	throw pp_driver_io_error(to_string(m_address) + ": " + str);
 }
 
 void
@@ -87,20 +99,46 @@ mem_io::open_device(string device)
 		return;
 	} catch (std::exception &e) {
 		/* the device seems to not exist */
-		throw do_io_error("can't open device " + device);
+		do_io_error("can't open device " + device);
 	}
 }
 
 fs::file_mapping_ptr
-mem_io::map(const pp_value &offset, std::size_t length) const
+mem_io::map(const pp_value &offset, size_t length) const
 {
 	if (offset.get_uint()+length > m_address.size) {
-		throw do_io_error(to_string(
-		    boost::format("can't access register 0x%x")
-		    %offset));
+		do_io_error(to_string(
+		    boost::format("can't access register 0x%x") %offset));
 	}
 
 	return m_file->mmap(m_address.base+offset.get_uint(), length);
+}
+
+void
+mem_io::check_width(pp_bitwidth width) const
+{
+	switch (width) {
+	    case BITS8:
+	    case BITS16:
+	    case BITS32:
+	    case BITS64:
+		break;
+	    default:
+		do_io_error(to_string(
+		    boost::format("unsupported register width %d")
+		    %width));
+	}
+}
+
+void
+mem_io::check_bounds(const pp_value &offset, size_t bytes) const
+{
+	/* we support 64 bit memory */
+	if (offset < 0 || (offset+bytes) > PP_MASK(64)) {
+		do_io_error(to_string(
+		    boost::format("invalid register: %d bytes @ 0x%x")
+		    %bytes %offset));
+	}
 }
 
 template<typename Tdata>

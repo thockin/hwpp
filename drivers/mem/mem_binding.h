@@ -63,7 +63,7 @@ class mem_io
 	mem_address m_address;
 	fs::file_ptr m_file;
 
-	pp_driver_io_error
+	void
 	do_io_error(const string &str) const;
 
 	void
@@ -71,6 +71,12 @@ class mem_io
 
 	fs::file_mapping_ptr
 	map(const pp_value &offset, std::size_t length) const;
+
+	void
+	check_bounds(const pp_value &offset, size_t bytes) const;
+
+	void
+	check_width(pp_bitwidth width) const;
 
 	template<typename Tdata>
 	pp_value

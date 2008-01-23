@@ -53,6 +53,36 @@ test_pci_io()
 			PP_TEST_ERROR("pci_io::read(BITS64)");
 			ret++;
 		}
+		/* test read() around EOF, but < 4 KB */
+		if (io1.read(7, BITS16) != 0xff37) {
+			PP_TEST_ERROR("pci_io::read(BITS16)");
+			ret++;
+		}
+		if (io1.read(7, BITS32) != 0xffffff37) {
+			PP_TEST_ERROR("pci_io::read(BITS32)");
+			ret++;
+		}
+		if (io1.read(8, BITS16) != 0xffff) {
+			PP_TEST_ERROR("pci_io::read(BITS16)");
+			ret++;
+		}
+		/* test read() around 4 KB */
+		if (io1.read(4095, BITS8) != 0xff) {
+			PP_TEST_ERROR("pci_io::read(BITS8)");
+			ret++;
+		}
+		try {
+			io1.read(4095, BITS16);
+			PP_TEST_ERROR("pci_io::read(BITS16)");
+			ret++;
+		} catch (exception &e) {
+		}
+		try {
+			io1.read(4096, BITS8);
+			PP_TEST_ERROR("pci_io::read(BITS8)");
+			ret++;
+		} catch (exception &e) {
+		}
 
 		/* test the write() method */
 		io1.write(0, BITS64, pp_value("0xffeeddccbbaa9988"));
