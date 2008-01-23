@@ -17,6 +17,8 @@
 #include <string.h>
 #include <errno.h>
 #include <dirent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/mman.h>
 
 #include "pp.h"
@@ -425,10 +427,48 @@ class file
 		return r;
 	}
 
+	static ::off_t
+	size(const std::string &path)
+	{
+		int r;
+		struct stat st;
+
+		r = ::stat(path.c_str(), &st);
+		if (r < 0) {
+			throw io_error(
+			    std::string("fs::file::size(") + path + "): "
+			    + strerror(errno));
+		}
+
+		return st.st_size;
+	}
+
+	::off_t
+	size() const
+	{
+		int r;
+		struct stat st;
+
+		r = ::fstat(m_fd, &st);
+		if (r < 0) {
+			throw io_error(
+			    std::string("fs::file::size(") + m_path + "): "
+			    + strerror(errno));
+		}
+
+		return st.st_size;
+	}
+
 	off_t
 	tell() const
 	{
 		return seek(0, SEEK_CUR);
+	}
+
+	bool
+	is_eof() const
+	{
+		return (tell() >= size());
 	}
 
 	bool

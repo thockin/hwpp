@@ -24,14 +24,58 @@ test_file()
 		PP_TEST_ERROR("fs::direntry::exists()");
 		ret++;
 	}
-	char buf[16];
-	int r;
+
+	if (file::size("file.exists") != 6) {
+		PP_TEST_ERROR("fs::file::size(string)");
+		ret++;
+	}
+
 	file_ptr f = file::open("file.exists", O_RDONLY);
 	if (!f->is_open()) {
 		PP_TEST_ERROR("fs::direntry::is_open()");
 		ret++;
 	}
 
+	if (f->size() != 6) {
+		PP_TEST_ERROR("fs::file::size()");
+		ret++;
+	}
+
+	if (f->tell() != 0) {
+		PP_TEST_ERROR("fs::file::tell()");
+		ret++;
+	}
+
+	f->seek(2, SEEK_SET);
+	if (f->tell() != 2) {
+		PP_TEST_ERROR("fs::file::seek()");
+		ret++;
+	}
+	f->seek(2, SEEK_CUR);
+	if (f->tell() != 4) {
+		PP_TEST_ERROR("fs::file::seek()");
+		ret++;
+	}
+	f->seek(-3, SEEK_END);
+	if (f->tell() != 3) {
+		PP_TEST_ERROR("fs::file::seek()");
+		ret++;
+	}
+
+	f->seek(7, SEEK_SET);
+	if (!f->is_eof()) {
+		PP_TEST_ERROR("fs::file::is_eof()");
+		ret++;
+	}
+
+	f->seek(0, SEEK_SET);
+	if (f->tell() != 0) {
+		PP_TEST_ERROR("fs::file::seek()");
+		ret++;
+	}
+
+	char buf[16];
+	int r;
 	r = f->read(buf, 16);
 	buf[r] = '\0';
 	if (string(buf) != "exists") {
