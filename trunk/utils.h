@@ -14,6 +14,7 @@
 #include "pp_scope.h"
 #include "pp_context.h"
 #include "pp_binding.h"
+#include "drivers.h"
 
 /*
  * Get/set the current active context.
@@ -31,14 +32,23 @@ SET_CURRENT_CONTEXT(const pp_context &new_context);
 #include "pp_fields.h"
 
 //FIXME: comments
+extern const pp_dirent *
+GET_DIRENT(const pp_path &path);
 extern const pp_field *
 GET_FIELD(const pp_path &path);
-
 extern const pp_register *
 GET_REGISTER(const pp_path &path);
-
 extern bool
 DEFINED(const pp_path &path);
+
+extern pp_value
+READ(const pp_path &path);
+extern void
+WRITE(const pp_path &path, const pp_value &value);
+extern pp_value
+READ(const pp_regbits &bits);
+extern void
+WRITE(const pp_regbits &bits, const pp_value &value);
 
 inline int
 FIELD_COMPARE(const string &field, const pp_value &comparator)
@@ -191,6 +201,7 @@ FIELD(const string &name, const pp_datatype *type, const pp_value &value);
 extern void
 FIELD(const string &name, const string &type, const pp_value &value);
 
+
 /*
  * Create a register and a field that consumes it.
  */
@@ -205,6 +216,46 @@ REGFIELDN(const string &name, const pp_value &address,
 #define REGFIELD32(name, address, type) REGFIELDN(name, address, type, BITS32)
 #define REGFIELD64(name, address, type) REGFIELDN(name, address, type, BITS64)
 
+// These are helpers for BIND()
+struct driver_arg {
+	driver_arg(const pp_value &val): m_val(val) {}
+	pp_value m_val;
+};
+typedef std::vector<pp_value> driver_arg_list;
+inline driver_arg_list
+operator,(const driver_arg &lhs, const pp_value &rhs)
+{
+	driver_arg_list tmp;
+	tmp.push_back(lhs.m_val);
+	tmp.push_back(rhs);
+	return tmp;
+}
+inline driver_arg_list
+operator,(const driver_arg_list &lhs, const pp_value &rhs)
+{
+	driver_arg_list tmp(lhs);
+	tmp.push_back(rhs);
+	return tmp;
+}
+#define ARGS(...) ((driver_arg)__VA_ARGS__)
+/*
+ * Create a new binding.
+ *
+ * This can take an arbitrary list of arguments, such as:
+ * 	BIND("mem", ARGS(1, 2, 3, 4));
+ */
+inline pp_const_binding_ptr
+BIND(const string &driver, const driver_arg_list &args)
+{
+	return find_driver(driver)->new_binding(args);
+}
+inline pp_const_binding_ptr
+BIND(const std::string &driver, const driver_arg &arg)
+{
+	driver_arg_list al;
+	al.push_back(arg.m_val);
+	return BIND(driver, al);
+}
 
 /*
  * INT
@@ -217,7 +268,7 @@ INT(const string &name, const string &units="");
 #include <vector>
 
 // These are helpers for type safety in pp_enum and pp_bitmask.
-struct kvpair
+class kvpair
 {
     public:
 	kvpair(const string &k, const pp_value &v): m_key(k), m_value(v)
