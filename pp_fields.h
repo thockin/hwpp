@@ -6,6 +6,7 @@
 #include "pp_datatype.h"
 #include "pp_register.h"
 #include "pp_regbits.h"
+#include "pp_context.h"
 #include <vector>
 
 /*
@@ -67,10 +68,12 @@ class proc_field_accessor
 	virtual pp_value read() const = 0;
 	virtual void write(const pp_value &value) const = 0;
 };
-typedef boost::shared_ptr<proc_field_accessor> proc_field_accessor_ptr;
+typedef boost::shared_ptr<const proc_field_accessor> proc_field_accessor_ptr;
+
+#include "utils.h"
 
 /*
- * pp_proc_field - a field that is a procedure
+ * pp_proc_field - a field that is a procedure.
  *
  * Constructors:
  * 	(const pp_datatype *datatype, proc_field_accessor_ptr access)
@@ -82,7 +85,8 @@ class pp_proc_field: public pp_field
     public:
 	pp_proc_field(const pp_datatype *datatype,
 	    proc_field_accessor_ptr access)
-	    : pp_field(datatype), m_access(access)
+	    : pp_field(datatype), m_access(access),
+	      m_context(GET_CURRENT_CONTEXT())
 	{}
 	virtual ~pp_proc_field()
 	{}
@@ -97,6 +101,7 @@ class pp_proc_field: public pp_field
 	virtual pp_value
 	read() const
 	{
+		pp_saved_context old_ctxt = SET_CURRENT_CONTEXT(m_context);
 		return m_access->read();
 	}
 
@@ -110,11 +115,13 @@ class pp_proc_field: public pp_field
 	virtual void
 	write(const pp_value &value) const
 	{
+		pp_saved_context old_ctxt = SET_CURRENT_CONTEXT(m_context);
 		m_access->write(value);
 	}
 
     private:
 	proc_field_accessor_ptr m_access;
+	pp_context m_context;
 };
 typedef boost::shared_ptr<pp_proc_field> pp_proc_field_ptr;
 

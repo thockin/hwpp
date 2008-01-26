@@ -357,7 +357,7 @@ ht_address_mapping_capability(const pp_value &address)
 			CLOSE_SCOPE();
 		}
 	} else if (FIELD_EQ("map_type", "bits64")) {
-		//FIXME: this requires index/data pair access within PCI
+		//FIXME: procfields index/data pair access within PCI
 	}
 }
 
@@ -425,7 +425,7 @@ power_mgmt_capability(const pp_value &address)
 		FIELD("b2_b3", "yesno_t", BITS("%pmcsr_bse", 6));
 	}
 
-	//FIXME: this is really an index/data pair set of regs
+	//FIXME: procfield: this is really an index/data pair set of regs
 	FIELD("data_select", "hex4_t", BITS("%pmcsr", 12, 9));
 	FIELD("data_scale", "hex4_t", BITS("%pmcsr", 14, 13));
 	REG8("%data", address+7);
@@ -509,21 +509,31 @@ msi_capability(const pp_value &address)
 	}
 }
 
+// this has to be out-of-line, to make C++ happy.
+class msix_table_size_procs: public proc_field_accessor
+{
+	pp_value
+	read() const
+	{
+		return READ(BITS("%msg_ctrl", 9, 0)) + 1;
+	}
+	void
+	write(const pp_value &value) const
+	{
+		WRITE(BITS("%msg_ctrl", 9, 0), value-1);
+	}
+};
 static void
 msix_capability(const pp_value &address)
 {
 	REG16("%msg_ctrl", address + 2);
 	FIELD("msix_enable", "yesno_t", BITS("%msg_ctrl", 15));
-	//FIXME: procfield?  should be +1
-	FIELD("table_size", "int_t", BITS("%msg_ctrl", 10, 0));
+	FIELD("table_size", "int_t", PROCS(new msix_table_size_procs()));
 	FIELD("func_mask", "yesno_t", BITS("%msg_ctrl", 14));
 
 	// these will be used a bit later
 	string bar;
-	pp_value base;
-	std::vector<pp_value> args;
-	pp_const_binding_ptr bind;
-	pp_value table_size = READ("table_size") + 1;
+	pp_value base, size;
 
 	// the table is memory mapped through a BAR
 	REG32("%table_ptr", address + 4);
@@ -542,11 +552,9 @@ msix_capability(const pp_value &address)
 	//FIXME: a better way to do this?
 	bar = "^/" + GET_FIELD("table_bir")->evaluate() + "/address";
 	base = READ(bar) + READ("table_offset");
-	args.push_back(base);
-	args.push_back(table_size * 16);
-	bind = find_driver("mem")->new_binding(args);
-	OPEN_SCOPE("table", bind); {
-		for (unsigned i = 0; i < table_size; i++) {
+	size = READ("table_size") * 16;
+	OPEN_SCOPE("table", BIND("mem", ARGS(base, size))); {
+		for (unsigned i = 0; i < READ("../table_size"); i++) {
 			OPEN_SCOPE("entry[" + to_string(i) + "]"); {
 				REG32("%msg_addr", i*16 + 0);
 				REG32("%msg_upper_addr", i*16 + 4);
@@ -576,16 +584,14 @@ msix_capability(const pp_value &address)
 			BITS("%pba_ptr", 31, 3) +
 			BITS("%0", 2, 0));
 
-	args.clear();
+	//FIXME: a better way to do this?
 	bar = "^/" + GET_FIELD("pba_bir")->evaluate() + "/address";
 	base = READ(bar) + READ("table_offset");
-	args.push_back(base);
-	args.push_back(((table_size+63)/64) * 8);
-	bind = find_driver("mem")->new_binding(args);
-	OPEN_SCOPE("pba", bind); {
-		pp_value tmp_size = table_size;
+	size = ((READ("table_size")+63)/64) * 8;
+	OPEN_SCOPE("pba", BIND("mem", ARGS(base, size))); {
+		pp_value tmp_size = READ("../table_size");
 		// loop for each PBA QWORD
-		for (unsigned i = 0; i < (table_size+63)/64; i++) {
+		for (unsigned i = 0; i < (READ("../table_size")+63)/64; i++) {
 			string regname = "%pending[" + to_string(i) + "]";
 			REG64(regname, i);
 			for (size_t j = 0; j < 64; j++) {
@@ -644,7 +650,7 @@ ht_capability(const pp_value &address)
 			//FIXME: not implemented yet
 		} else if (FIELD_EQ("subtype", "intr_discovery")) {
 			//FIXME: not implemented yet
-			//This requires index/data accesses within PCI space
+			//procfields: index/data accesses within PCI space
 		} else if (FIELD_EQ("subtype", "revision")) {
 			ht_revision_capability(address);
 		} else if (FIELD_EQ("subtype", "unit_id_clump")) {
@@ -669,7 +675,7 @@ ht_capability(const pp_value &address)
 			//FIXME: not implemented yet
 		} else if (FIELD_EQ("subtype", "power_mgmt")) {
 			//FIXME: not implemented yet
-			//this requires index/data pairs in PCI space
+			//procfields: index/data pairs in PCI space
 		}
 	}
 }

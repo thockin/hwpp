@@ -324,6 +324,24 @@ FIELD(const string &name, const string &type, const pp_value &value)
 {
 	FIELD(name, current_context.resolve_datatype(type), value);
 }
+/*
+ * Define a field as a set of procedures.
+ */
+void
+FIELD(const string &name, const pp_datatype *type,
+		const proc_field_accessor_ptr &access)
+{
+	DASSERT_MSG(!current_context.is_readonly(),
+		"current_context is read-only");
+	pp_proc_field_ptr field_ptr = new_pp_proc_field(type, access);
+	current_context.add_dirent(name, field_ptr);
+}
+void
+FIELD(const string &name, const string &type,
+		const proc_field_accessor_ptr &access)
+{
+	FIELD(name, current_context.resolve_datatype(type), access);
+}
 
 /*
  * Define a register and a field that consumes that register.
