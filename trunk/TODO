@@ -20,8 +20,7 @@ write DEFS and other stuff to a dotfile and make that a makefile dependency
 
 write docs
 
-READ(field) and READ(register) and READ(pp_regbits)
-
+filter_field(regbits, procs) or maybe filter_type(real_type, procs)
 strerror() in driver read/write errors
 drivers: add do_error() for non-io-errors
 use one comment style everywhere

@@ -203,6 +203,17 @@ FIELD(const string &name, const string &type, const pp_value &value);
 
 
 /*
+ * Create a field which triggers procedures on read/write.
+ */
+extern void
+FIELD(const string &name, const pp_datatype *type,
+    const proc_field_accessor_ptr &access);
+extern void
+FIELD(const string &name, const string &type,
+    const proc_field_accessor_ptr &access);
+#define PROCS(ptr) proc_field_accessor_ptr(ptr)
+
+/*
  * Create a register and a field that consumes it.
  */
 extern void
