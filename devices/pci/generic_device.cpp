@@ -335,7 +335,7 @@ ht_address_mapping_capability(const pp_value &address)
 				BITS("%0", 19, 0));
 		CLOSE_SCOPE();
 
-		pp_value value = GET_FIELD("num_dma")->read();
+		pp_value value = READ("num_dma");
 		for (unsigned i = 0; i < value; i++) {
 			OPEN_SCOPE("dma[" + to_string(i+1) + "]");
 			REG32("%lower", address + 0x0c + (8*i));
@@ -499,7 +499,7 @@ msi_capability(const pp_value &address)
 	}
 
 	if (FIELD_BOOL("mask_per_vec")) {
-		pp_value vecs = 1 << GET_FIELD("multi_msg_cap")->read();
+		pp_value vecs = 1 << READ("multi_msg_cap");
 		for (unsigned i = 0; i < vecs; i++) {
 			FIELD("mask["+to_string(i)+"]",
 					"yesno_t", BITS("%mask", i));
@@ -523,7 +523,7 @@ msix_capability(const pp_value &address)
 	pp_value base;
 	std::vector<pp_value> args;
 	pp_const_binding_ptr bind;
-	pp_value table_size = GET_FIELD("table_size")->read() + 1;
+	pp_value table_size = READ("table_size") + 1;
 
 	// the table is memory mapped through a BAR
 	REG32("%table_ptr", address + 4);
@@ -541,7 +541,7 @@ msix_capability(const pp_value &address)
 
 	//FIXME: a better way to do this?
 	bar = "^/" + GET_FIELD("table_bir")->evaluate() + "/address";
-	base = GET_FIELD(bar)->read() + GET_FIELD("table_offset")->read();
+	base = READ(bar) + READ("table_offset");
 	args.push_back(base);
 	args.push_back(table_size * 16);
 	bind = find_driver("mem")->new_binding(args);
@@ -578,7 +578,7 @@ msix_capability(const pp_value &address)
 
 	args.clear();
 	bar = "^/" + GET_FIELD("pba_bir")->evaluate() + "/address";
-	base = GET_FIELD(bar)->read() + GET_FIELD("table_offset")->read();
+	base = READ(bar) + READ("table_offset");
 	args.push_back(base);
 	args.push_back(((table_size+63)/64) * 8);
 	bind = find_driver("mem")->new_binding(args);
@@ -1093,7 +1093,7 @@ explore_capabilities()
 	if (FIELD_BOOL("status/caps")) {
 		REGFIELD8("capptr", 0x34, "hex8_t");
 
-		pp_value ptr = GET_FIELD("capptr")->read();
+		pp_value ptr = READ("capptr");
 		unsigned i = 0;
 		while (ptr != 0 && ptr != 0xff) {
 			OPEN_SCOPE("capability[" + to_string(i) + "]");
@@ -1150,8 +1150,7 @@ explore_capabilities()
 			}
 			CLOSE_SCOPE();
 
-			ptr = GET_FIELD("capability["
-					+ to_string(i) + "]/next")->read();
+			ptr = READ("capability[" + to_string(i) + "]/next");
 			i++;
 		}
 	}

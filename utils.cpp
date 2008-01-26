@@ -65,6 +65,16 @@ SET_CURRENT_CONTEXT(const pp_context &new_ctxt)
 	return old_ctxt;
 }
 
+/*
+ * Resolve a path to a dirent, relative to the current scope.  If the
+ * specified path does not exist, throw std::out_of_range.
+ */
+const pp_dirent *
+GET_DIRENT(const pp_path &path)
+{
+	DASSERT_MSG(current_context.is_valid(), "invalid current_context");
+	return current_context.lookup_dirent(path);
+}
 
 /*
  * Resolve a path to a field, relative to the current scope.  If the specified
@@ -108,8 +118,49 @@ DEFINED(const pp_path &path)
 	if (!current_context.is_valid()) {
 		return false;
 	}
-
 	return current_context.dirent_defined(path);
+}
+
+/*
+ * Read and write a field or register.
+ */
+pp_value
+READ(const pp_path &path)
+{
+	const pp_dirent *de = GET_DIRENT(path);
+	if (de->is_register()) {
+		return pp_register_from_dirent(de)->read();
+	} else if (de->is_field()) {
+		return pp_field_from_dirent(de)->read();
+	}
+	throw std::out_of_range("path is not a register nor field: "
+	    + to_string(path));
+}
+void
+WRITE(const pp_path &path, const pp_value &value)
+{
+	const pp_dirent *de = GET_DIRENT(path);
+	if (de->is_register()) {
+		pp_register_from_dirent(de)->write(value);
+	} else if (de->is_field()) {
+		pp_field_from_dirent(de)->write(value);
+	}
+	throw std::out_of_range("path is not a register nor field: "
+	    + to_string(path));
+}
+
+/*
+ * Read and wite regbits.
+ */
+pp_value
+READ(const pp_regbits &bits)
+{
+	return bits.read();
+}
+void
+WRITE(const pp_regbits &bits, const pp_value &value)
+{
+	bits.write(value);
 }
 
 /*
@@ -273,7 +324,6 @@ FIELD(const string &name, const string &type, const pp_value &value)
 {
 	FIELD(name, current_context.resolve_datatype(type), value);
 }
-
 
 /*
  * Define a register and a field that consumes that register.
