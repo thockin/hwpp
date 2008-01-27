@@ -13,18 +13,12 @@
  */
 struct msr_address
 {
-	/* constructor */
-	msr_address()
-	    : cpu(-1)
-	{
-	}
 	explicit
 	msr_address(int c)
 	    : cpu(c)
 	{
 	}
-
-	int cpu;
+	unsigned cpu;
 };
 
 inline bool

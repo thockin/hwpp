@@ -40,11 +40,12 @@ io_driver::new_binding(const std::vector<pp_value> &args) const
 	base = args[0];
 	size = args[1];
 
-	if (base >= IO_SPACE_SIZE) {
+	if (base < 0 || base >= IO_SPACE_SIZE) {
 		throw pp_driver_args_error("io<>: invalid base");
 	}
-	if (base + size > IO_SPACE_SIZE) {
+	if (size < 0 || base + size > IO_SPACE_SIZE) {
 		throw pp_driver_args_error("io<>: invalid size");
 	}
+
 	return new_io_binding(io_address(base.get_uint(), size.get_uint()));
 }

@@ -14,23 +14,18 @@
 struct pci_address
 {
 	/* constructors */
-	pci_address()
-	    : segment(-1), bus(-1), device(-1), function(-1)
-	{
-	}
-	pci_address(int s, int b, int d, int f)
+	pci_address(unsigned s, unsigned b, unsigned d, unsigned f)
 	    : segment(s), bus(b), device(d), function(f)
 	{
 	}
-	pci_address(int b, int d, int f)
+	pci_address(unsigned b, unsigned d, unsigned f)
 	    : segment(0), bus(b), device(d), function(f)
 	{
 	}
-
-	int segment;
-	int bus;
-	int device;
-	int function;
+	unsigned segment;
+	unsigned bus;
+	unsigned device;
+	unsigned function;
 };
 
 inline bool

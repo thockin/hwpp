@@ -29,51 +29,49 @@ pci_driver::name() const
 pp_binding_ptr
 pci_driver::new_binding(const std::vector<pp_value> &args) const
 {
-	pp_value seg, bus, dev, func;
-	int i = 0;
-
 	if (args.size() < 3 || args.size() > 4) {
 		throw pp_driver_args_error(
-		    "PCI binding: <seg=0, bus, dev, func>");
+		    "pci<>: <seg=0, bus, dev, func>");
 	}
 
+	pp_value seg;
+	int i = 0;
 	if (args.size() == 3) {
 		seg = 0;
 	} else {
 		seg = args[i++];
 	}
-	bus = args[i++];
-	dev = args[i++];
-	func = args[i++];
+	pp_value bus = args[i++];
+	pp_value dev = args[i++];
+	pp_value func = args[i++];
 
-	if (seg > UINT32_MAX) {
-		throw pp_driver_args_error("PCI binding: invalid segment");
+	if (seg < 0 || seg > UINT32_MAX) {
+		throw pp_driver_args_error("pci<>: invalid segment");
 	}
-	if (bus >= 256) {
-		throw pp_driver_args_error("PCI binding: invalid bus");
+	if (bus < 0 || bus >= 256) {
+		throw pp_driver_args_error("pci<>: invalid bus");
 	}
-	if (dev >= 32) {
-		throw pp_driver_args_error("PCI binding: invalid device");
+	if (dev < 0 || dev >= 32) {
+		throw pp_driver_args_error("pci<>: invalid device");
 	}
-	if (func >= 8) {
-		throw pp_driver_args_error("PCI binding: invalid function");
+	if (func < 0 || func >= 8) {
+		throw pp_driver_args_error("pci<>: invalid function");
 	}
-	return new_pci_binding(pci_address(seg.get_int(), bus.get_int(),
-		dev.get_int(), func.get_int()));
+	return new_pci_binding(pci_address(seg.get_uint(), bus.get_uint(),
+		dev.get_uint(), func.get_uint()));
 }
 
 void
 pci_driver::discover(pp_scope *platform) const
 {
 	std::vector<pci_address> addresses;
-	std::vector<pci_address>::iterator it;
 
 	/* find all PCI addresses */
 	pci_io::enumerate(&addresses);
 
 	/* for each PCI device in the system */
-	it = addresses.begin();
-	while (it != addresses.end()) {
+	std::vector<pci_address>::iterator it;
+	for (it = addresses.begin(); it != addresses.end(); it++) {
 		/* check if anyone registered for this vendor/device */
 		const discovery_request *dr = find_discovery_request(*it);
 		std::vector<pp_value> args;
@@ -88,7 +86,6 @@ pci_driver::discover(pp_scope *platform) const
 			/* call the catchall */
 			m_catchall(args);
 		}
-		it++;
 	}
 }
 
@@ -99,7 +96,7 @@ pci_driver::register_discovery(const std::vector<pp_value> &args,
 	if (args.size() == 0) {
 		if (m_catchall) {
 			throw pp_driver_args_error(
-			    "PCI discovery: catchall already defined");
+			    "pci discovery: catchall already defined");
 		}
 		m_catchall = function;
 		return;
@@ -107,7 +104,7 @@ pci_driver::register_discovery(const std::vector<pp_value> &args,
 
 	if (args.size() != 2) {
 		throw pp_driver_args_error(
-		    "PCI discovery: <vendor, device>");
+		    "pci discovery: <vendor, device>");
 	}
 
 	discovery_request dr;

@@ -78,14 +78,13 @@ cpuid_io::enumerate(std::vector<cpuid_address> *addresses)
 			continue;
 
 		/* parse the file name */
-		cpuid_address addr;
 		std::istringstream iss(de->name());
 		char c;
-		iss >> c >> c >> c
-		    >> addr.cpu;
-		addr.function = 0;
+		unsigned cpu;
+		// name comes in as "cpuN", but all we care about is N
+		iss >> c >> c >> c >> cpu;
 
-		addresses->push_back(addr);
+		addresses->push_back(cpuid_address(cpu, 0));
 	}
 	std::sort(addresses->begin(), addresses->end());
 }
