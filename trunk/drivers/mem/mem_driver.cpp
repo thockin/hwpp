@@ -38,5 +38,12 @@ mem_driver::new_binding(const std::vector<pp_value> &args) const
 	base = args[0];
 	size = args[1];
 
+	if (base < 0) {
+		throw pp_driver_args_error("mem<>: invalid base");
+	}
+	if (size < 0) {
+		throw pp_driver_args_error("mem<>: invalid size");
+	}
+
 	return new_mem_binding(mem_address(base.get_uint(), size.get_uint()));
 }

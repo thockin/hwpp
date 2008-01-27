@@ -14,16 +14,11 @@
 struct cpuid_address
 {
 	/* constructors */
-	cpuid_address()
-	    : cpu(-1), function(0)
-	{
-	}
 	cpuid_address(int c, uint32_t f)
 	    : cpu(c), function(f)
 	{
 	}
-
-	int cpu;
+	unsigned cpu;
 	uint32_t function;
 };
 

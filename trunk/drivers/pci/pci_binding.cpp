@@ -193,19 +193,20 @@ enumerate_sysfs(std::vector<pci_address> *addresses)
 			continue;
 
 		/* parse the file name */
-		pci_address addr;
 		std::istringstream iss(de->name());
 		char c;
+		unsigned seg, bus, dev, func;
+		// name comes in as "ssss:bb:dd.f"
 		iss >> std::hex
-		    >> addr.segment
+		    >> seg
 		    >> c
-		    >> addr.bus
+		    >> bus
 		    >> c
-		    >> addr.device
+		    >> dev
 		    >> c
-		    >> addr.function;
+		    >> func;
 
-		addresses->push_back(addr);
+		addresses->push_back(pci_address(seg, bus, dev, func));
 	}
 }
 
@@ -234,19 +235,20 @@ enumerate_procfs(std::vector<pci_address> *addresses)
 					continue;
 
 				/* parse the file name */
-				pci_address addr;
-				addr.segment = 0;
-
 				std::istringstream bus_iss(de->name());
-				bus_iss >> std::hex >> addr.bus;
+				// name comes in as "bb/dd.f"
+				unsigned bus;
+				bus_iss >> std::hex >> bus;
 				std::istringstream devfn_iss(subde->name());
 				char c;
+				unsigned dev, func;
 				devfn_iss >> std::hex
-				    >> addr.device
+				    >> dev
 				    >> c
-				    >> addr.function;
+				    >> func;
 
-				addresses->push_back(addr);
+				addresses->push_back(
+					pci_address(bus, dev, func));
 			}
 		}
 	}

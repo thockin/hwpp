@@ -31,13 +31,15 @@ msr_driver::name() const
 pp_binding_ptr
 msr_driver::new_binding(const std::vector<pp_value> &args) const
 {
-	pp_value cpu;
-
 	if (args.size() != 1) {
-		throw pp_driver_args_error("MSR binding: <cpu>");
+		throw pp_driver_args_error("msr<>: <cpu>");
 	}
 
-	cpu = args[0];
+	pp_value cpu = args[0];
 
-	return new_msr_binding(msr_address(cpu.get_int()));
+	if (cpu < 0) {
+		throw pp_driver_args_error("msr<>: invalid cpu");
+	}
+
+	return new_msr_binding(msr_address(cpu.get_uint()));
 }

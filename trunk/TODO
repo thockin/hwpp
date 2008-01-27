@@ -24,5 +24,9 @@ filter_field(regbits, procs) or maybe filter_type(real_type, procs)
 strerror() in driver read/write errors
 drivers: add do_error() for non-io-errors
 use one comment style everywhere
-unify PROC_FIELD with FIELD
 
+allow anonymous registers, such as READ(BITS(REG32(0x100)))
+  - maybe change everything to
+  	EXPORT("%foo", REG32(0x100))
+  or
+  	NAME("%foo", REG32(0x100))

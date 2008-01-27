@@ -31,33 +31,35 @@ cpuid_driver::name() const
 pp_binding_ptr
 cpuid_driver::new_binding(const std::vector<pp_value> &args) const
 {
-	pp_value cpu;
-	pp_value function;
-
 	if (args.size() != 2) {
-		throw pp_driver_args_error(
-		    "CPUID binding: <cpu,function>");
+		throw pp_driver_args_error("cpuid<>: <cpu,function>");
 	}
 
-	cpu = args[0];
-	function = args[1];
+	pp_value cpu = args[0];
+	pp_value function = args[1];
+
+	if (cpu < 0) {
+		throw pp_driver_args_error("cpuid<>: invalid cpu");
+	}
+	if (function < 0) {
+		throw pp_driver_args_error("cpuid<>: invalid function");
+	}
 
 	return new_cpuid_binding(
-		cpuid_address(cpu.get_int(), function.get_uint()));
+		cpuid_address(cpu.get_uint(), function.get_uint()));
 }
 
 void
 cpuid_driver::discover(pp_scope *platform) const
 {
 	std::vector<cpuid_address> addresses;
-	std::vector<cpuid_address>::iterator it;
 
 	/* find all CPUID addresses */
 	cpuid_io::enumerate(&addresses);
 
 	/* for each CPUID device in the system */
-	it = addresses.begin();
-	while (it != addresses.end()) {
+	std::vector<cpuid_address>::iterator it;
+	for (it = addresses.begin(); it != addresses.end(); it++) {
 		/* check if anyone registered for this device */
 		const discovery_request *dr = find_discovery_request(*it);
 		std::vector<pp_value> args;
@@ -70,7 +72,6 @@ cpuid_driver::discover(pp_scope *platform) const
 			/* call the catchall */
 			m_catchall(args);
 		}
-		it++;
 	}
 }
 
@@ -81,7 +82,7 @@ cpuid_driver::register_discovery(const std::vector<pp_value> &args,
 	if (args.size() == 0) {
 		if (m_catchall) {
 			throw pp_driver_args_error(
-			    "CPUID discovery: catchall already defined");
+			    "cpuid discovery: catchall already defined");
 		}
 		m_catchall = function;
 		return;
@@ -89,7 +90,7 @@ cpuid_driver::register_discovery(const std::vector<pp_value> &args,
 
 	if (args.size() != 7) {
 		throw pp_driver_args_error(
-		    "CPUID discovery: <vendor, family_min, family_max, "
+		    "cpuid discovery: <vendor, family_min, family_max, "
 		    "model_min, model_max, stepping_min, stepping_max>");
 	}
 
@@ -108,18 +109,19 @@ cpuid_driver::register_discovery(const std::vector<pp_value> &args,
 const cpuid_driver::discovery_request *
 cpuid_driver::find_discovery_request(const cpuid_address &addr) const
 {
-	cpuid_io dev(addr);
 	pp_value vendor;
 	pp_value family;
 	pp_value model;
 	pp_value stepping;
 
 	// This is the ordering the CPU vendors use.  I don't know why.
+	cpuid_io dev(cpuid_address(addr.cpu, 0));
 	vendor = dev.read(1, BITS32)
 		| (dev.read(3, BITS32)<<32)
 		| (dev.read(2, BITS32)<<64);
 
 	//FIXME: This might have to be different per vendor.  This is AMD.
+	dev = cpuid_io(cpuid_address(addr.cpu, 1));
 	pp_value tmp = dev.read(1, BITS32);
 	family = ((tmp & pp_value(0xf00)) >> 8)
 	    + ((tmp & pp_value(0xff00000)) >> 20);

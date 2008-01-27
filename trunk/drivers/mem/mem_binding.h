@@ -14,15 +14,10 @@
 struct mem_address
 {
 	/* constructors */
-	mem_address()
-	    : base((typeof(base))-1ULL), size((typeof(size))-1ULL)
-	{
-	}
 	mem_address(uint64_t b, uint64_t s)
 	    : base(b), size(s)
 	{
 	}
-
 	uint64_t base;
 	uint64_t size;
 };

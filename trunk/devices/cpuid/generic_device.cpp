@@ -22,11 +22,28 @@ class cpuid_family_procs: public proc_field_accessor
 	pp_value
 	read() const
 	{
-		pp_value tmp = READ(BITS("%eax", 11, 8));
-		if (tmp == 0xf) {
+		pp_value base_family = READ(BITS("%eax", 11, 8));
+		if (base_family == 0xf) {
 			return READ(BITS("%eax", 27, 20)) + 0xf;
 		}
-		return tmp;
+		return base_family;
+	}
+	void
+	write(const pp_value &value) const
+	{
+		// not supported
+	}
+};
+class cpuid_model_procs: public proc_field_accessor
+{
+	pp_value
+	read() const
+	{
+		pp_value base_family = READ(BITS("%eax", 11, 8));
+		if (base_family == 0xf) {
+			return READ(BITS("%eax", 19, 16) + BITS("%eax", 7, 4));
+		}
+		return READ(BITS("%eax", 7, 4));
 	}
 	void
 	write(const pp_value &value) const
@@ -48,9 +65,7 @@ cpuid_generic_device(const pp_value &cpu)
 	if (FIELD_GE("cpuid[0]/largest_std_fn", 1)) {
 		CPUID_SCOPE("cpuid[1]" , cpu, 1);
 		FIELD("family", "int_t", PROCS(new cpuid_family_procs));
-		FIELD("model", "int_t",
-				BITS("%eax", 19, 16) +
-				BITS("%eax", 7, 4));
+		FIELD("model", "int_t", PROCS(new cpuid_model_procs));
 		FIELD("stepping", "int_t", BITS("%eax", 3, 0));
 		//FIXME: more
 		CLOSE_SCOPE();
