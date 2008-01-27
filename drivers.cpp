@@ -27,6 +27,7 @@ driver_list()
 		extern void load_io_driver(); load_io_driver();
 		extern void load_mem_driver(); load_mem_driver();
 		extern void load_msr_driver(); load_msr_driver();
+		extern void load_cpuid_driver(); load_cpuid_driver();
 	}
 
 	return the_driver_list;

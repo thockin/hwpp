@@ -180,6 +180,7 @@ NEW_PLATFORM()
 
 	// FIXME: take these out when we have a real language
 	pci_datatypes_init();
+	cpuid_datatypes_init();
 
 	DASSERT_MSG(current_context.is_valid(), "invalid current_context");
 	return current_context.scope();
