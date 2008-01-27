@@ -119,11 +119,9 @@ pci_datatypes_init()
 }
 
 static void
-pci_discovered(pp_scope *platform, const pp_driver *driver,
-		const std::vector<pp_value> &args)
+pci_discovered(const std::vector<pp_value> &args)
 {
-	pp_const_binding_ptr bind_ptr = driver->new_binding(args);
-	OPEN_SCOPE(bind_ptr->to_string(), bind_ptr);
+	OPEN_SCOPE(BIND("pci", args));
 	pci_generic_device();
 	CLOSE_SCOPE();
 }

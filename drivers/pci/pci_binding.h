@@ -93,10 +93,10 @@ class pci_io
 	open_device(string devdir);
 
 	void
-	check_bounds(const pp_value &offset, size_t bytes) const;
+	check_width(pp_bitwidth width) const;
 
 	void
-	check_width(pp_bitwidth width) const;
+	check_bounds(const pp_value &offset, size_t bytes) const;
 
 	void
 	seek(const pp_value &offset) const;

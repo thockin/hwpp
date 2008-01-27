@@ -528,7 +528,7 @@ msix_capability(const pp_value &address)
 {
 	REG16("%msg_ctrl", address + 2);
 	FIELD("msix_enable", "yesno_t", BITS("%msg_ctrl", 15));
-	FIELD("table_size", "int_t", PROCS(new msix_table_size_procs()));
+	FIELD("table_size", "int_t", PROCS(new msix_table_size_procs));
 	FIELD("func_mask", "yesno_t", BITS("%msg_ctrl", 14));
 
 	// these will be used a bit later

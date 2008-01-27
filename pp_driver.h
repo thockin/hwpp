@@ -89,9 +89,7 @@ class pp_driver
 	 * registered device (via register_discovery()), the
 	 * discovery_callback is called.
 	 */
-	typedef void (*discovery_callback)(pp_scope *platform,
-			const pp_driver *driver,
-			const std::vector<pp_value> &args);
+	typedef void (*discovery_callback)(const std::vector<pp_value> &args);
 
 	/*
 	 * pp_driver::register_discovery(args, function)

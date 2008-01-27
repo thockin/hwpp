@@ -73,10 +73,10 @@ class mem_io
 	map(const pp_value &offset, std::size_t length) const;
 
 	void
-	check_bounds(const pp_value &offset, size_t bytes) const;
+	check_width(pp_bitwidth width) const;
 
 	void
-	check_width(pp_bitwidth width) const;
+	check_bounds(const pp_value &offset, size_t bytes) const;
 
 	template<typename Tdata>
 	pp_value
