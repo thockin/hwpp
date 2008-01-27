@@ -1,7 +1,7 @@
 TOPDIR = ..
 include $(TOPDIR)/rules.mk
 
-DRIVERS = io mem pci msr
+DRIVERS = io mem pci msr cpuid
 DRIVER_LIB = libdrivers.a
 
 DRIVER_MOD_SFX = _driver_module.o

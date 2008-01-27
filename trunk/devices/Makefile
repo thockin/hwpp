@@ -3,7 +3,9 @@ include $(TOPDIR)/rules.mk
 
 SRCS = global.cpp \
 	pci/pci.cpp \
-	pci/generic_device.cpp
+	pci/generic_device.cpp \
+	cpuid/cpuid.cpp \
+	cpuid/generic_device.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 
