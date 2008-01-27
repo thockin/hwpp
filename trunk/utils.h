@@ -149,6 +149,11 @@ NEW_PLATFORM();
  */
 extern void
 OPEN_SCOPE(const string &name, pp_const_binding_ptr binding = pp_binding_ptr());
+inline void
+OPEN_SCOPE(pp_const_binding_ptr binding)
+{
+	OPEN_SCOPE(binding->to_string(), binding);
+}
 
 /*
  * CLOSE_SCOPE
@@ -165,10 +170,11 @@ CLOSE_SCOPE();
  */
 extern void
 REGN(const string &name, const pp_value &address, pp_bitwidth width);
-#define REG8(name, address)  REGN(name, address, BITS8)
-#define REG16(name, address) REGN(name, address, BITS16)
-#define REG32(name, address) REGN(name, address, BITS32)
-#define REG64(name, address) REGN(name, address, BITS64)
+#define REG8(name, address)   REGN(name, address, BITS8)
+#define REG16(name, address)  REGN(name, address, BITS16)
+#define REG32(name, address)  REGN(name, address, BITS32)
+#define REG64(name, address)  REGN(name, address, BITS64)
+#define REG128(name, address) REGN(name, address, BITS128)
 
 #include "pp_regbits.h"
 
@@ -222,10 +228,11 @@ REGFIELDN(const string &name, const pp_value &address,
 extern void
 REGFIELDN(const string &name, const pp_value &address,
 		const string &type, pp_bitwidth width);
-#define REGFIELD8(name, address, type)  REGFIELDN(name, address, type, BITS8)
-#define REGFIELD16(name, address, type) REGFIELDN(name, address, type, BITS16)
-#define REGFIELD32(name, address, type) REGFIELDN(name, address, type, BITS32)
-#define REGFIELD64(name, address, type) REGFIELDN(name, address, type, BITS64)
+#define REGFIELD8(name, address, type)   REGFIELDN(name, address, type, BITS8)
+#define REGFIELD16(name, address, type)  REGFIELDN(name, address, type, BITS16)
+#define REGFIELD32(name, address, type)  REGFIELDN(name, address, type, BITS32)
+#define REGFIELD64(name, address, type)  REGFIELDN(name, address, type, BITS64)
+#define REGFIELD128(name, address, type) REGFIELDN(name, address, type, BITS128)
 
 // These are helpers for BIND()
 struct driver_arg {

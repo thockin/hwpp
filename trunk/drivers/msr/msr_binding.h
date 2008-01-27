@@ -72,10 +72,10 @@ class msr_io
 	open_device(string devdir, int major, int minor);
 
 	void
-	check_bounds(const pp_value &offset, unsigned bytes) const;
+	check_width(pp_bitwidth width) const;
 
 	void
-	check_width(pp_bitwidth width) const;
+	check_bounds(const pp_value &offset, unsigned bytes) const;
 
 	void
 	seek(const pp_value &offset) const;

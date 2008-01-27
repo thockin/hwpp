@@ -1,4 +1,5 @@
 #include "pp.h"
+#include "stdlib.h"
 #include "drivers.h"
 #include "pp_datatypes.h"
 #include "msr_driver.h"
@@ -13,6 +14,7 @@ load_msr_driver()
 
 msr_driver::msr_driver()
 {
+	system("modprobe msr >/dev/null 2>&1");
 	register_driver(this);
 }
 

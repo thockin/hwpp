@@ -83,10 +83,10 @@ pci_driver::discover(pp_scope *platform) const
 		args.push_back(it->function);
 		if (dr) {
 			/* call the callback */
-			dr->function(platform, this, args);
+			dr->function(args);
 		} else if (m_catchall) {
 			/* call the catchall */
-			m_catchall(platform, this, args);
+			m_catchall(args);
 		}
 		it++;
 	}
