@@ -22,7 +22,7 @@ msr_io::msr_io(const msr_address &address,
 /* destructor */
 msr_io::~msr_io()
 {
-	m_file->close();
+	// m_file will close() when it's last reference goes away
 }
 
 const msr_address &

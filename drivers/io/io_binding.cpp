@@ -20,7 +20,7 @@ io_io::io_io(const io_address &address, const string &device)
 /* destructor */
 io_io::~io_io()
 {
-	m_file->close();
+	// m_file will close() when it's last reference goes away
 }
 
 const io_address &

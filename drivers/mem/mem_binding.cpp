@@ -20,7 +20,7 @@ mem_io::mem_io(const mem_address &address, const string &device)
 /* destructor */
 mem_io::~mem_io()
 {
-	m_file->close();
+	// m_file will close() when it's last reference goes away
 }
 
 const mem_address &
