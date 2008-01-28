@@ -25,7 +25,7 @@ cpuid_io::cpuid_io(const cpuid_address &address, const string &devdir,
 /* destructor */
 cpuid_io::~cpuid_io()
 {
-	m_file->close();
+	// m_file will close() when it's last reference goes away
 }
 
 const cpuid_address &

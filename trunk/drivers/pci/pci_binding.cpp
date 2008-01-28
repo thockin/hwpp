@@ -30,7 +30,7 @@ pci_io::pci_io(const pci_address &address, const string &devdir)
 /* destructor */
 pci_io::~pci_io()
 {
-	m_file->close();
+	// m_file will close() when it's last reference goes away
 }
 
 const pci_address &
