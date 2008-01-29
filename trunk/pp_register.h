@@ -23,8 +23,12 @@ class pp_register: public pp_dirent
 	explicit pp_register(const pp_binding *binding,
 	    const pp_value &address, const pp_bitwidth width)
 	    : pp_dirent(PP_DIRENT_REGISTER),
-	      m_binding(binding), m_address(address), m_width(width) {}
-	virtual ~pp_register() {}
+	      m_binding(binding), m_address(address), m_width(width)
+	{
+	}
+	virtual ~pp_register()
+	{
+	}
 
 	/*
 	 * pp_register::address()
