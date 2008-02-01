@@ -115,7 +115,7 @@ class pp_path
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 	/* default constructor */
-	explicit pp_path()
+	pp_path()
 	    : m_list(), m_absolute(false)
 	{
 	}
