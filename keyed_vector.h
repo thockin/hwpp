@@ -16,9 +16,6 @@
 #include "pp.h"
 #include "debug.h"
 
-/* forward declare */
-template<typename Tkey, typename Tval> class keyed_vector;
-
 /*
  * This template class is a thin wrapper to make iterators work for
  * keyed_vector objects.  This is largely based on the boost example
