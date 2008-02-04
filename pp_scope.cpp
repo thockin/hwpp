@@ -244,7 +244,7 @@ pp_scope::lookup_dirent_internal(pp_path &path) const
 	}
 
 	/* grab first element of path */
-	string path_front = path.pop_front();
+	pp_path::element path_front = path.pop_front();
 
 	/*
 	 * Look up the dirent of the next element.  This can throw
@@ -254,7 +254,7 @@ pp_scope::lookup_dirent_internal(pp_path &path) const
 	if (path_front == "..") {
 		de = parent();
 	} else {
-		de = dirent(path_front);
+		de = dirent(path_front.to_string());
 	}
 
 	/* did we find the dirent? */

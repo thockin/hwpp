@@ -13,16 +13,13 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/iterator_adaptors.hpp>
 
-/* forward declaration */
-class pp_path;
-
-/*
- * This template class is a thin wrapper to make iterators work for
- * pp_path objects.  This is largely based on the boost example
- * code for boost::iterator_facade.
- *
- * Borrowed from keyed_vector.h
- */
+//
+// This template class is a thin wrapper to make iterators work for
+// pp_path objects.  This is largely based on the boost example
+// code for boost::iterator_facade.
+//
+// Borrowed from keyed_vector.h
+//
 template<typename Titer, typename Tval>
 class pp_path_iterator
     : public boost::iterator_facade<pp_path_iterator<Titer, Tval>, Tval,
@@ -32,18 +29,18 @@ class pp_path_iterator
 	template<class,class> friend class pp_path_iterator;
 
     public:
-	/* default constructor */
+	// default constructor
 	pp_path_iterator() {}
 
-	/* implicit conversion from the underlying iterator */
+	// implicit conversion from the underlying iterator
 	pp_path_iterator(Titer it): m_it(it) {}
 
-	/* implicit conversion from non-const to const_iterator */
+	// implicit conversion from non-const to const_iterator
 	template<class Tother>
 	pp_path_iterator(const pp_path_iterator<Titer, Tother> &other)
 	    : m_it(other.m_it), m_trap(other.m_trap) {}
 
-	/* get the underlying iterator */
+	// get the underlying iterator
 	const Titer&
 	get() const
 	{
@@ -51,7 +48,7 @@ class pp_path_iterator
 	}
 
     private:
-	/* check for equality */
+	// check for equality
 	template<typename Tthat>
 	bool
 	equal(const pp_path_iterator<Titer, Tthat> &that) const
@@ -59,28 +56,28 @@ class pp_path_iterator
 		return(this->m_it == that.m_it);
 	}
 
-	/* move the iterator forward by one */
+	// move the iterator forward by one
 	void
 	increment()
 	{
 		++m_it;
 	}
 
-	/* move the iterator backward by one */
+	// move the iterator backward by one
 	void
 	decrement()
 	{
 		--m_it;
 	}
 
-	/* move the iterator forward or backward by n */
+	// move the iterator forward or backward by n
 	void
 	advance(const std::ptrdiff_t n)
 	{
 		m_it += n;
 	}
 
-	/* figure out the distance to another iterator */
+	// figure out the distance to another iterator
 	template<typename Tthere>
 	std::ptrdiff_t
 	distance_to(const pp_path_iterator<Titer, Tthere> &there) const
@@ -88,7 +85,7 @@ class pp_path_iterator
 		return there.m_it - this->m_it;
 	}
 
-	/* get at the referent */
+	// get at the referent
 	Tval &
 	dereference() const
 	{
@@ -96,74 +93,98 @@ class pp_path_iterator
 	}
 
     private:
-	/* the actual underlying iterator */
+	// the actual underlying iterator
 	Titer m_it;
 
-	/* a trap to catch const_iterator to iterator assignment */
+	// a trap to catch const_iterator to iterator assignment
 	Tval *m_trap;
 };
 
 class pp_path
 {
-	typedef std::list<string> Tlist;
+    public:
+	// a single path element
+	class element
+	{
+	    public:
+		explicit
+		element(const string &str)
+		{
+			//FIXME: should do better parsing
+			m_string = str;
+		}
+
+		string
+		to_string() const
+		{
+			return m_string;
+		}
+
+		bool
+		equals(const element &other) const
+		{
+			return (m_string == other.m_string);
+		}
+
+	    private:
+		string m_string;
+	};
+
+    private:
+	typedef std::list<element> Tlist;
 	typedef Tlist::iterator Titer;
 
     public:
-	typedef pp_path_iterator<Titer, string> iterator;
-	typedef pp_path_iterator<Titer, const string> const_iterator;
+	typedef pp_path_iterator<Titer, element> iterator;
+	typedef pp_path_iterator<Titer, const element> const_iterator;
 	typedef std::reverse_iterator<iterator> reverse_iterator;
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-	/* default constructor */
+	// default constructor
 	pp_path()
 	    : m_list(), m_absolute(false)
 	{
 	}
-
-	/* copy constructor */
-	pp_path(const pp_path &that)
-	    : m_list(that.m_list), m_absolute(that.m_absolute)
-	{
-	}
-
-	/* implicit conversion from string */
+	// implicit conversion from string
 	pp_path(const string &path)
 	    : m_list(), m_absolute(false)
 	{
 		append(path);
 	}
-	/* implicit conversion from char* */
+	// implicit conversion from char* (for string-literal conversion)
 	pp_path(const char *path)
 	    : m_list(), m_absolute(false)
 	{
 		append(path);
 	}
+	// copy constructor
+	pp_path(const pp_path &that)
+	    : m_list(that.m_list), m_absolute(that.m_absolute)
+	{
+	}
 
-	/* destructor */
+	// destructor
 	~pp_path()
 	{
 	}
 
-	/* iterator functionality */
+	// iterator functionality
 	iterator
 	begin()
 	{
 		return m_list.begin();
 	}
-
 	iterator
 	end()
 	{
 		return m_list.end();
 	}
-
 	const_iterator
 	begin() const
 	{
 		pp_path *p = const_cast<pp_path *>(this);
 		return p->begin();
 	}
-
 	const_iterator
 	end() const
 	{
@@ -176,20 +197,17 @@ class pp_path
 	{
 		return m_list.rbegin();
 	}
-
 	reverse_iterator
 	rend()
 	{
 		return m_list.rend();
 	}
-
 	const_reverse_iterator
 	rbegin() const
 	{
 		pp_path *p = const_cast<pp_path *>(this);
 		return p->rbegin();
 	}
-
 	const_reverse_iterator
 	rend() const
 	{
@@ -197,46 +215,42 @@ class pp_path
 		return p->rend();
 	}
 
-	/* size functionality */
+	// size functionality
 	Tlist::size_type
 	size() const
 	{
 		return m_list.size();
 	}
-
 	Tlist::size_type
 	max_size() const
 	{
 		return m_list.max_size();
 	}
 
-	/* check if the list is empty */
+	// check if the list is empty
 	bool
 	empty() const
 	{
 		return m_list.empty();
 	}
 
-	/* access the first/last values */
-	string &
+	// access the first/last values
+	element &
 	front()
 	{
 		return m_list.front();
 	}
-
-	string &
+	element &
 	back()
 	{
 		return m_list.back();
 	}
-
-	const string &
+	const element &
 	front() const
 	{
 		return m_list.front();
 	}
-
-	const string &
+	const element &
 	back() const
 	{
 		return m_list.back();
@@ -251,23 +265,23 @@ class pp_path
 			it++;
 		}
 	}
-
-	string
+	element
 	pop_front()
 	{
-		string old_front = m_list.front();
+		element old_front = m_list.front();
 		m_list.pop_front();
 		m_absolute = false;
 		return old_front;
 	}
-
-	void
+	element
 	pop_back()
 	{
+		element old_back = m_list.back();
 		m_list.pop_back();
+		return old_back;
 	}
 
-	/* reset everything */
+	// reset everything
 	void
 	clear()
 	{
@@ -275,7 +289,7 @@ class pp_path
 		m_list.clear();
 	}
 
-	/* handle absolute vs relative paths */
+	// handle absolute vs relative paths
 	bool
 	is_absolute() const
 	{
@@ -287,29 +301,47 @@ class pp_path
 		return !m_absolute;
 	}
 
-	/* test if two paths are equal */
-	bool
-	equals(const pp_path &that) const
+	string
+	to_string() const
 	{
-		/* if they are different lengths they cannot be equal */
-		if (m_list.size() != that.size()) {
+		string result;
+
+		if (is_absolute()) {
+			result += "/";
+		}
+
+		pp_path::const_iterator it = begin();
+		while (it != end()) {
+			result += it->to_string();
+			it++;
+			if (it != end()) {
+				result += "/";
+			}
+		}
+
+		return result;
+	}
+
+	bool
+	equals(const pp_path &other) const
+	{
+		// if they are different lengths they cannot be equal
+		if (m_list.size() != other.size()) {
 			return false;
 		}
-		/* if only one is absolute, they cannot be equal */
-		if (is_absolute() != that.is_absolute()) {
+		// if only one is absolute, they cannot be equal
+		if (is_absolute() != other.is_absolute()) {
 			return false;
 		}
 
-		/*
-		 * Iterate through both lists at the same rate comparing
-		 * each element.
-		 */
+		// Iterate through both lists at the same rate comparing
+		// each element.
 		const_iterator my_iter = begin();
-		const_iterator your_iter = that.begin();
+		const_iterator your_iter = other.begin();
 
 		while (my_iter != end()) {
-			/* if any elements are non-equal, return false */
-			if (my_iter->compare(*your_iter) != 0) {
+			// if any elements are non-equal, return false
+			if (!my_iter->equals(*your_iter)) {
 				return false;
 			}
 			my_iter++;
@@ -326,81 +358,153 @@ class pp_path
 	void
 	append(const string &str)
 	{
-		/* special case for "" */
+		// special case for ""
 		if (str.size() == 0)
 			return;
 
 		std::vector<string> parts;
 
-		/*
-		 * Note: this function will self-correct excess '/',
-		 * for example: given "/red/orange/yellow/", it does not
-		 * create an empty part after the final '/'.  Given
-		 * the path "//red//orange", it will compact the duplicate
-		 * '/'.
-		 */
+		// Note: this function will self-correct excess '/',
+		// for example: given "/red/orange/yellow/", it does not
+		// create an empty part after the final '/'.  Given
+		// the path "//red//orange", it will compact the duplicate
+		// '/'.
 		boost::split(parts, str, boost::is_any_of("/"));
 
-		/*
-		 * Determine if the path is relative or absolute by the first
-		 * element of the vector. If it is an empty string, then the
-		 * path is absolute.
-		 */
+		// Determine if the path is relative or absolute by the first
+		// element of the vector. If it is an empty string, then the
+		// path is absolute.
 		if (parts.size() > 0 && parts[0].length() == 0) {
 			m_absolute = true;
 		}
 
-		/* add each non-empty part to the list */
+		// add each non-empty part to the list
 		for (size_t i = 0; i < parts.size(); i++) {
 			if (parts[i].length() != 0) {
-				m_list.push_back(parts[i]);
+				m_list.push_back(element(parts[i]));
 			}
 		}
 	}
 };
 
+// Stream out a path element.
+inline std::ostream &
+operator<<(std::ostream& o, const pp_path::element &element)
+{
+	return o << element.to_string();
+}
+
+// Allow comparison of path elements.
+inline bool
+operator==(const pp_path::element &left, const pp_path::element &right)
+{
+	return left.equals(right);
+}
+inline bool
+operator!=(const pp_path::element &left, const pp_path::element &right)
+{
+	return !(left == right);
+}
+// Allow comparison between path elements and strings, without converting
+// the strings to elements.  Comparison to char* will work because the
+// char* will be converted to string.
+inline bool
+operator==(const pp_path::element &left, const string &right)
+{
+	return (left.to_string() == right);
+}
+inline bool
+operator==(const string &left, const pp_path::element &right)
+{
+	return (right == left);
+}
+inline bool
+operator!=(const pp_path::element &left, const string &right)
+{
+	return !(left == right);
+}
+inline bool
+operator!=(const string &left, const pp_path::element &right)
+{
+	return !(left == right);
+}
+
+// Stream out a path.
 inline std::ostream &
 operator<<(std::ostream& o, const pp_path &path)
 {
-	if (path.is_absolute()) {
-		o << "/";
-	}
-
-	pp_path::const_iterator it = path.begin();
-	while (it != path.end()) {
-		o << *it;
-		it++;
-		if (it != path.end()) {
-			o << "/";
-		}
-	}
-	return o;
+	return o << path.to_string();
 }
 
+// Allow comparison of paths.
 inline bool
 operator==(const pp_path &left, const pp_path &right)
 {
 	return left.equals(right);
 }
-
 inline bool
 operator!=(const pp_path &left, const pp_path &right)
 {
 	return !(left == right);
 }
+// Allow comparison between paths and strings, without converting the
+// strings to paths.
+inline bool
+operator==(const pp_path &left, const string &right)
+{
+	return to_string(left) == right;
+}
+inline bool
+operator==(const string &left, const pp_path &right)
+{
+	return (right == left);
+}
+inline bool
+operator!=(const pp_path &left, const string &right)
+{
+	return !(left == right);
+}
+inline bool
+operator!=(const string &left, const pp_path &right)
+{
+	return !(left == right);
+}
+// Allow comparison between paths and char* (string literals), without
+// converting the strings to paths.  This is needed because there is an
+// implicit ctor for pp_path from char*, which makes some ambiguous calls.
+inline bool
+operator==(const pp_path &left, const char *right)
+{
+	return (left == string(right));
+}
+inline bool
+operator==(const char *left, const pp_path &right)
+{
+	return (right == left);
+}
+inline bool
+operator!=(const pp_path &left, const char *right)
+{
+	return !(left == right);
+}
+inline bool
+operator!=(const char *left, const pp_path &right)
+{
+	return !(left == right);
+}
 
+// Allow simple path appending and catenation.
 inline pp_path &
 operator+=(pp_path &left, const pp_path &right)
 {
-	/* return the original pp_path, the arg here is a reference */
+	// return the original pp_path, the arg here is a reference
 	left.push_back(right);
 	return left;
 }
-
 inline pp_path
 operator+(pp_path left, const pp_path &right)
 {
-	/* return a new pp_path, the arg here is a copy */
+	// return a new pp_path, the arg here is a copy
 	left.push_back(right);
 	return left;
 }
