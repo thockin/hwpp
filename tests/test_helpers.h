@@ -7,15 +7,8 @@
  */
 
 #include "pp.h"
+#include "pp_scope.h"
 #include "pp_test.h"
-
-/*
- * generate_random_platform()
- *
- * Randomly generate a platform tree.  The distribution of items can be
- * controlled via MAX_X values defined in the corresponding .cpp file.
- */
-pp_scope_ptr generate_random_platform();
 
 /*
  * display_tree()
