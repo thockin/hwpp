@@ -207,6 +207,9 @@ class pp_scope: public pp_dirent
 	keyed_vector<string, pp_const_dirent_ptr> m_dirents;
 	keyed_vector<string, pp_const_datatype_ptr> m_datatypes;
 	std::vector<pp_const_datatype_ptr> m_anon_datatypes;
+
+	const pp_dirent *
+	lookup_dirent_internal(pp_path &path) const;
 };
 typedef boost::shared_ptr<pp_scope> pp_scope_ptr;
 typedef boost::shared_ptr<const pp_scope> pp_const_scope_ptr;
