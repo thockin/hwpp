@@ -235,27 +235,42 @@ class pp_path
 	}
 
 	// access the first/last values
+	// throws:
+	// 	std::out_of_range
 	element &
 	front()
 	{
+		if (m_list.empty()) {
+			throw std::out_of_range("path is empty");
+		}
 		return m_list.front();
 	}
 	element &
 	back()
 	{
+		if (m_list.empty()) {
+			throw std::out_of_range("path is empty");
+		}
 		return m_list.back();
 	}
 	const element &
 	front() const
 	{
+		if (m_list.empty()) {
+			throw std::out_of_range("path is empty");
+		}
 		return m_list.front();
 	}
 	const element &
 	back() const
 	{
+		if (m_list.empty()) {
+			throw std::out_of_range("path is empty");
+		}
 		return m_list.back();
 	}
 
+	// add elements onto a path
 	void
 	push_back(const pp_path &path)
 	{
@@ -265,10 +280,14 @@ class pp_path
 			it++;
 		}
 	}
+
+	// remove items from the front or back
+	// throws:
+	// 	std::out_of_range
 	element
 	pop_front()
 	{
-		element old_front = m_list.front();
+		element old_front = front();
 		m_list.pop_front();
 		m_absolute = false;
 		return old_front;
@@ -276,7 +295,7 @@ class pp_path
 	element
 	pop_back()
 	{
-		element old_back = m_list.back();
+		element old_back = back();
 		m_list.pop_back();
 		return old_back;
 	}

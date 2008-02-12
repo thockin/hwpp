@@ -10,423 +10,549 @@
 using namespace std;
 
 int
-test_push_pop()
+test_element()
 {
-	int return_value = 0;
-	pp_path path;
+	int ret = 0;
 
-	/* Generate pp_path Information */
-	path.push_back("One");
-	path.push_back("Two");
-	path.push_back("Three");
-
-	/* create a path iterator */
-	pp_path::iterator my_iterator;
-	my_iterator = path.begin ();
-
-	/* test created path */
-	if ((*my_iterator) != "One") {
-		PP_TEST_ERROR("pp_path::equals()");
-		return_value++;
+	{
+		pp_path::element e("foo");
+		ret += PP_TEST_ASSERT(e.to_string() == "foo",
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.equals(pp_path::element("foo")),
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(!e.equals(pp_path::element("bar")),
+			"pp_path::element::element()");
+	}
+	{
+		pp_path::element e("%foo");
+		ret += PP_TEST_ASSERT(e.to_string() == "%foo",
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.equals(pp_path::element("%foo")),
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(!e.equals(pp_path::element("%bar")),
+			"pp_path::element::element()");
+	}
+	{
+		pp_path::element e("foo_123");
+		ret += PP_TEST_ASSERT(e.to_string() == "foo_123",
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.equals(pp_path::element("foo_123")),
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(!e.equals(pp_path::element("foo_456")),
+			"pp_path::element::element()");
+	}
+	{
+		pp_path::element e("foo[]");
+		ret += PP_TEST_ASSERT(e.to_string() == "foo[]",
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.equals(pp_path::element("foo[]")),
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(!e.equals(pp_path::element("foo")),
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(!e.equals(pp_path::element("bar[]")),
+			"pp_path::element::element()");
+	}
+	{
+		pp_path::element e("foo[0]");
+		ret += PP_TEST_ASSERT(e.to_string() == "foo[0]",
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.equals(pp_path::element("foo[0]")),
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(!e.equals(pp_path::element("foo")),
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(!e.equals(pp_path::element("bar[0]")),
+			"pp_path::element::element()");
 	}
 
-	my_iterator++;
-
-	if ((*my_iterator) != "Two") {
-		PP_TEST_ERROR("pp_path::equals()");
-		return_value++;
-	}
-
-	my_iterator++;
-
-	if ((*my_iterator) != "Three") {
-		PP_TEST_ERROR("pp_path::equals()");
-		return_value++;
-	}
-
-	if (path.size() != 3) {
-		PP_TEST_ERROR("pp_path::size()");
-		return_value++;
-	}
-
-	/* pop items */
-	path.pop_back();
-	path.pop_back();
-	path.pop_back();
-
-	if (!path.empty()) {
-		PP_TEST_ERROR("pp_path::empty()");
-		return_value++;
-	}
-
-	return return_value;
+	return ret;
 }
 
 int
-test_const()
+test_ctors()
 {
-	int return_value = 0;
-	pp_path path;
-	const pp_path &const_path = path;
-	path.push_back("One");
-	path.push_back("Two");
-	path.push_back("Three");
+	int ret = 0;
 
-	if (const_path.empty()) {
-		PP_TEST_ERROR("pp_path::empty()");
-		return_value++;
+	// test the default ctor
+	{
+		pp_path path;
+		ret += PP_TEST_ASSERT(path == "",
+		    "pp_path::pp_path()");
+		ret += PP_TEST_ASSERT(!path.is_absolute(),
+		    "pp_path::pp_path()");
 	}
 
-	if (path.size() != 3) {
-		PP_TEST_ERROR("pp_path::size()");
-		return_value++;
+	// test construction from a string
+	{
+		pp_path path("");
+		ret += PP_TEST_ASSERT(path == "",
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.size() == 0,
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(!path.is_absolute(),
+			"pp_path::pp_path(char *)");
+	}
+	{
+		pp_path path(string(""));
+		ret += PP_TEST_ASSERT(path == "",
+			"pp_path::pp_path(string)");
+		ret += PP_TEST_ASSERT(path.size() == 0,
+			"pp_path::pp_path(string)");
+		ret += PP_TEST_ASSERT(!path.is_absolute(),
+			"pp_path::pp_path(string)");
+	}
+	{
+		pp_path path("/");
+		ret += PP_TEST_ASSERT(path == "/",
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.size() == 0,
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.is_absolute(),
+			"pp_path::pp_path(char *)");
+	}
+	{
+		pp_path path(string("/"));
+		ret += PP_TEST_ASSERT(path == "/",
+			"pp_path::pp_path(string)");
+		ret += PP_TEST_ASSERT(path.size() == 0,
+			"pp_path::pp_path(string)");
+		ret += PP_TEST_ASSERT(path.is_absolute(),
+			"pp_path::pp_path(string)");
 	}
 
-	if (const_path.size() != 3) {
-		PP_TEST_ERROR("pp_path::size()");
-		return_value++;
+	{
+		pp_path path("a");
+		ret += PP_TEST_ASSERT(path == "a",
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.size() == 1,
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(!path.is_absolute(),
+			"pp_path::pp_path(char *)");
+	}
+	{
+		pp_path path(string("a"));
+		ret += PP_TEST_ASSERT(path == "a",
+			"pp_path::pp_path(string)");
+		ret += PP_TEST_ASSERT(path.size() == 1,
+			"pp_path::pp_path(string)");
+		ret += PP_TEST_ASSERT(!path.is_absolute(),
+			"pp_path::pp_path(string)");
+	}
+	{
+		pp_path path("/a");
+		ret += PP_TEST_ASSERT(path == "/a",
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.size() == 1,
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.is_absolute(),
+			"pp_path::pp_path(char *)");
+	}
+	{
+		pp_path path(string("/a"));
+		ret += PP_TEST_ASSERT(path == "/a",
+			"pp_path::pp_path(string)");
+		ret += PP_TEST_ASSERT(path.size() == 1,
+			"pp_path::pp_path(string)");
+		ret += PP_TEST_ASSERT(path.is_absolute(),
+			"pp_path::pp_path(string)");
 	}
 
-	pp_path::iterator my_iterator;
-	pp_path::const_iterator const_iterator;
-	my_iterator = path.begin();
-	const_iterator = const_path.begin();
-
-	if (!my_iterator->equals(*const_iterator)) {
-		PP_TEST_ERROR("first item incorrect");
-		return_value++;
+	{
+		pp_path path("a/b");
+		ret += PP_TEST_ASSERT(path == "a/b",
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.size() == 2,
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(!path.is_absolute(),
+			"pp_path::pp_path(char *)");
+	}
+	{
+		pp_path path(string("a/b"));
+		ret += PP_TEST_ASSERT(path == "a/b",
+			"pp_path::pp_path(string)");
+		ret += PP_TEST_ASSERT(path.size() == 2,
+			"pp_path::pp_path(string)");
+		ret += PP_TEST_ASSERT(!path.is_absolute(),
+			"pp_path::pp_path(string)");
+	}
+	{
+		pp_path path("/a/b");
+		ret += PP_TEST_ASSERT(path == "/a/b",
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.size() == 2,
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.is_absolute(),
+			"pp_path::pp_path(char *)");
+	}
+	{
+		pp_path path(string("/a/b"));
+		ret += PP_TEST_ASSERT(path == "/a/b",
+			"pp_path::pp_path(string)");
+		ret += PP_TEST_ASSERT(path.size() == 2,
+			"pp_path::pp_path(string)");
+		ret += PP_TEST_ASSERT(path.is_absolute(),
+			"pp_path::pp_path(string)");
 	}
 
-	my_iterator++;
-	const_iterator++;
-
-	if (!my_iterator->equals(*const_iterator)) {
-		PP_TEST_ERROR("pp_path::iterator::equals()");
-		return_value++;
+	{
+		pp_path path("a/b/c");
+		ret += PP_TEST_ASSERT(path == "a/b/c",
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.size() == 3,
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(!path.is_absolute(),
+			"pp_path::pp_path(char *)");
+	}
+	{
+		pp_path path(string("a/b/c"));
+		ret += PP_TEST_ASSERT(path == "a/b/c",
+			"pp_path::pp_path(string)");
+		ret += PP_TEST_ASSERT(path.size() == 3,
+			"pp_path::pp_path(string)");
+		ret += PP_TEST_ASSERT(!path.is_absolute(),
+			"pp_path::pp_path(string)");
+	}
+	{
+		pp_path path("/a/b/c");
+		ret += PP_TEST_ASSERT(path == "/a/b/c",
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.size() == 3,
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.is_absolute(),
+			"pp_path::pp_path(char *)");
+	}
+	{
+		pp_path path(string("/a/b/c"));
+		ret += PP_TEST_ASSERT(path == "/a/b/c",
+			"pp_path::pp_path(string)");
+		ret += PP_TEST_ASSERT(path.size() == 3,
+			"pp_path::pp_path(string)");
+		ret += PP_TEST_ASSERT(path.is_absolute(),
+			"pp_path::pp_path(string)");
 	}
 
-	my_iterator++;
-	const_iterator++;
-
-	if (!my_iterator->equals(*const_iterator)) {
-		PP_TEST_ERROR("pp_path::iterator::equals()");
-		return_value++;
+	// test whitespace chomping
+	{
+		pp_path path("   ");
+		ret += PP_TEST_ASSERT(path == "",
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.size() == 0,
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(!path.is_absolute(),
+			"pp_path::pp_path(char *)");
+	}
+	{
+		pp_path path("/  ");
+		ret += PP_TEST_ASSERT(path == "/",
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.size() == 0,
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.is_absolute(),
+			"pp_path::pp_path(char *)");
+	}
+	{
+		pp_path path("  /  ");
+		ret += PP_TEST_ASSERT(path == "/",
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.size() == 0,
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.is_absolute(),
+			"pp_path::pp_path(char *)");
+	}
+	{
+		pp_path path("  /");
+		ret += PP_TEST_ASSERT(path == "/",
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.size() == 0,
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.is_absolute(),
+			"pp_path::pp_path(char *)");
+	}
+	{
+		pp_path path("  a/b  ");
+		ret += PP_TEST_ASSERT(path == "a/b",
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.size() == 2,
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(!path.is_absolute(),
+			"pp_path::pp_path(char *)");
 	}
 
-	path.pop_front();
-
-	if (const_path.size() != 2) {
-		PP_TEST_ERROR("pp_path::size()");
-		return_value++;
+	// test delimiter collapsing
+	{
+		pp_path path("////");
+		ret += PP_TEST_ASSERT(path == "/",
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.size() == 0,
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.is_absolute(),
+			"pp_path::pp_path(char *)");
 	}
+	{
+		pp_path path("a////b");
+		ret += PP_TEST_ASSERT(path == "a/b",
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.size() == 2,
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(!path.is_absolute(),
+			"pp_path::pp_path(char *)");
+	}
+	{
+		pp_path path("////a////b");
+		ret += PP_TEST_ASSERT(path == "/a/b",
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.size() == 2,
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.is_absolute(),
+			"pp_path::pp_path(char *)");
+	}
+	//FIXME: test pp_path::invalid_error throw
 
-	return return_value;
+	// test copy construction
+	{
+		pp_path path("a/b");
+		pp_path path2(path);
+		ret += PP_TEST_ASSERT(path2 == "a/b",
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path2.size() == 2,
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(!path2.is_absolute(),
+			"pp_path::pp_path(char *)");
+	}
+	//FIXME: test pp_path::invalid_error throw
+
+	return ret;
 }
 
 int
 test_comparisons()
 {
-	pp_path pathA, pathB, pathC, pathD, pathE;
+	int ret = 0;
 
-	int return_value = 0;
-
-	pathA.push_back("One");
-	pathA.push_back("Two");
-	pathA.push_back("Three");
-
-	pathB.push_back("One");
-	pathB.push_back("Two");
-
-	pathC.push_back("One");
-	pathC.push_back("Two");
-	pathC.push_back("Three");
-	pathC.push_back("Four");
-
-	pathD.push_back("One");
-	pathD.push_back("Seven");
-	pathD.push_back("Three");
-
-	pathE.push_back("One");
-	pathE.push_back("Two");
-	pathE.push_back("Three");
-
-	if (pathA.equals(pathB) == false) {
-	} else {
-		PP_TEST_ERROR("patha == pathb");
-		return_value++;
+	{
+		pp_path left("a/b/c");
+		pp_path right("a/b/c");
+		ret += PP_TEST_ASSERT(left.equals(right), "pp_path::equals()");
+		ret += PP_TEST_ASSERT(left == right, "pp_path::operator==()");
 	}
-
-	if (pathA.equals(pathC) == false) {
-	} else {
-		PP_TEST_ERROR("patha == pathc");
-		return_value++;
+	{
+		pp_path left("a/b/c");
+		pp_path right("d/e/f");
+		ret += PP_TEST_ASSERT(!left.equals(right), "pp_path::equals()");
+		ret += PP_TEST_ASSERT(left != right, "pp_path::operator!=()");
 	}
-
-	if (pathA.equals(pathD) == false) {
-	} else {
-		PP_TEST_ERROR("patha == pathd");
-		return_value++;
+	{
+		pp_path left("a/b/c");
+		string right("a/b/c");
+		ret += PP_TEST_ASSERT(left == right, "pp_path::operator==()");
+	}
+	{
+		pp_path left("a/b/c");
+		string right("d/e/f");
+		ret += PP_TEST_ASSERT(left != right, "pp_path::operator!=()");
+	}
+	{
+		string left("a/b/c");
+		pp_path right("a/b/c");
+		ret += PP_TEST_ASSERT(left == right, "pp_path::operator==()");
+	}
+	{
+		string left("a/b/c");
+		pp_path right("d/e/f");
+		ret += PP_TEST_ASSERT(left != right, "pp_path::operator!=()");
 	}
 
-	if (pathA.equals(pathE) == true) {
-	} else {
-		PP_TEST_ERROR("patha != pathe");
-		return_value++;
-	}
-
-	return return_value;
-}
-
-int test_ctors()
-{
-	int return_value = 0;
-	pp_path path;
-
-	/* test construction from a string */
-	path = pp_path("a");
-	if (path != "a" || path.is_absolute()) {
-		PP_TEST_ERROR("pp_path::pp_path(string)");
-		return_value++;
-	}
-	path = pp_path(string("a"));
-	if (path != "a" || path.is_absolute()) {
-		PP_TEST_ERROR("pp_path::pp_path(string)");
-		return_value++;
-	}
-	path = pp_path("a/b/c");
-	if (path != "a/b/c" || path.is_absolute()) {
-		PP_TEST_ERROR("pp_path::pp_path(string)");
-		return_value++;
-	}
-	path = pp_path("  a/b/c  ");
-	if (path != "a/b/c" || path.is_absolute()) {
-		PP_TEST_ERROR("pp_path::pp_path(string)");
-		return_value++;
-	}
-	path = pp_path("/a/b/c/");
-	if (path != "/a/b/c" || !path.is_absolute()) {
-		PP_TEST_ERROR("pp_path::pp_path(string)");
-		return_value++;
-	}
-	path = pp_path("////a////b////c////");
-	if (path != "/a/b/c" || !path.is_absolute()) {
-		PP_TEST_ERROR("pp_path::pp_path(string)");
-		return_value++;
-	}
-	path = pp_path("");
-	if (path != "" || path.is_absolute()) {
-		PP_TEST_ERROR("pp_path::pp_path(string)");
-		return_value++;
-	}
-	path = pp_path("   ");
-	if (path != "" || path.is_absolute()) {
-		PP_TEST_ERROR("pp_path::pp_path(string)");
-		return_value++;
-	}
-	path = pp_path("/");
-	if (path != "/" || !path.is_absolute()) {
-		PP_TEST_ERROR("pp_path::pp_path(string)");
-		return_value++;
-	}
-	path = pp_path("   /");
-	if (path != "/" || !path.is_absolute()) {
-		PP_TEST_ERROR("pp_path::pp_path(string)");
-		return_value++;
-	}
-	path = pp_path("////");
-	if (path != "/" || !path.is_absolute()) {
-		PP_TEST_ERROR("pp_path::pp_path(string)");
-		return_value++;
-	}
-
-	/* test default constructor */
-	path = pp_path();
-	if (path != "" || path.is_absolute()) {
-		PP_TEST_ERROR("pp_path::pp_path()");
-		return_value++;
-	}
-
-	/* test copy construction */
-	path = pp_path("a/b/c");
-	path = pp_path(path);
-	if (path != "a/b/c" || path.is_absolute()) {
-		PP_TEST_ERROR("pp_path::operator=(pp_path)");
-		return_value++;
-	}
-
-	return return_value;
+	return ret;
 }
 
 int
-test_operators()
+test_iters()
 {
-	int return_value = 0;
-	string str;
+	int ret = 0;
+
+	pp_path path("a/b/c");
+
+	pp_path::iterator it = path.begin();
+	ret += PP_TEST_ASSERT(it != path.end(), "pp_path::end()");
+	ret += PP_TEST_ASSERT(*it == "a", "pp_path::begin()");
+	it++;
+	ret += PP_TEST_ASSERT(it != path.end(), "pp_path::end()");
+	ret += PP_TEST_ASSERT(*it == "b", "pp_path::iterator::operator++()");
+	it++;
+	ret += PP_TEST_ASSERT(it != path.end(), "pp_path::end()");
+	ret += PP_TEST_ASSERT(*it == "c", "pp_path::iterator::operator++()");
+	it++;
+	ret += PP_TEST_ASSERT(it == path.end(), "pp_path::end()");
+	it--;
+	ret += PP_TEST_ASSERT(it != path.end(), "pp_path::end()");
+	ret += PP_TEST_ASSERT(*it == "c", "pp_path::iterator::operator--()");
+	it--;
+	ret += PP_TEST_ASSERT(it != path.end(), "pp_path::end()");
+	ret += PP_TEST_ASSERT(*it == "b", "pp_path::iterator::operator--()");
+	it--;
+	ret += PP_TEST_ASSERT(it != path.end(), "pp_path::end()");
+	ret += PP_TEST_ASSERT(it == path.begin(), "pp_path::end()");
+	ret += PP_TEST_ASSERT(*it == "a", "pp_path::iterator::operator--()");
+
+	pp_path::reverse_iterator rit = path.rbegin();
+	ret += PP_TEST_ASSERT(rit != path.rend(), "pp_path::rend()");
+	ret += PP_TEST_ASSERT(*rit == "c", "pp_path::rbegin()");
+	rit++;
+	ret += PP_TEST_ASSERT(rit != path.rend(), "pp_path::rend()");
+	ret += PP_TEST_ASSERT(*rit == "b", "pp_path::iterator::operator++()");
+	rit++;
+	ret += PP_TEST_ASSERT(rit != path.rend(), "pp_path::rend()");
+	ret += PP_TEST_ASSERT(*rit == "a", "pp_path::iterator::operator++()");
+	rit++;
+	ret += PP_TEST_ASSERT(rit == path.rend(), "pp_path::rend()");
+	rit--;
+	ret += PP_TEST_ASSERT(rit != path.rend(), "pp_path::rend()");
+	ret += PP_TEST_ASSERT(*rit == "a", "pp_path::iterator::operator--()");
+	rit--;
+	ret += PP_TEST_ASSERT(rit != path.rend(), "pp_path::rend()");
+	ret += PP_TEST_ASSERT(*rit == "b", "pp_path::iterator::operator--()");
+	rit--;
+	ret += PP_TEST_ASSERT(rit != path.rend(), "pp_path::rend()");
+	ret += PP_TEST_ASSERT(rit == path.rbegin(), "pp_path::rend()");
+	ret += PP_TEST_ASSERT(*rit == "c", "pp_path::iterator::operator--()");
+
+	return ret;
+}
+
+int
+test_contents()
+{
+	int ret = 0;
 	pp_path path;
 
-	// to_string()
-	str = pp_path("a/b/c").to_string();
-	if (str != "a/b/c") {
-		PP_TEST_ERROR("pp_path::to_string()");
-		return_value++;
+	// create a path
+	path.push_back("a");
+	path.push_back("b");
+	path.push_back("c");
+	ret += PP_TEST_ASSERT(path.size() == 3, "pp_path::size()");
+
+	pp_path::iterator it = path.begin();
+	ret += PP_TEST_ASSERT(*it == "a", "pp_path::begin()");
+	it++;
+	ret += PP_TEST_ASSERT(*it == "b", "pp_path::iterator::operator++()");
+	it++;
+	ret += PP_TEST_ASSERT(*it == "c", "pp_path::iterator::operator++()");
+	it++;
+	ret += PP_TEST_ASSERT(it == path.end(), "pp_path::end()");
+
+	// test front() and back()
+	ret += PP_TEST_ASSERT(path.front() == "a", "pp_path::front()");
+	ret += PP_TEST_ASSERT(path.back() == "c", "pp_path::back()");
+
+	// pop items
+	ret += PP_TEST_ASSERT(path.pop_front() == "a", "pp_path::pop_front()");
+	ret += PP_TEST_ASSERT(path.pop_back() == "c", "pp_path::pop_back()");
+	ret += PP_TEST_ASSERT(path.size() == 1, "pp_path::size()");
+	ret += PP_TEST_ASSERT(path.front() == "b", "pp_path::front()");
+	ret += PP_TEST_ASSERT(path.back() == "b", "pp_path::back()");
+	path.pop_back();
+	ret += PP_TEST_ASSERT(path.size() == 0, "pp_path::size()");
+
+	// cause exceptions
+	try {
+		path.pop_front();
+		PP_TEST_ERROR("pp_path::pop_front()");
+		ret++;
+	} catch (std::out_of_range &e) {
 	}
-	// <<
-	str = to_string(pp_path("a/b/c"));
-	if (str != "a/b/c") {
-		PP_TEST_ERROR("pp_path::operator<<()");
-		return_value++;
+	try {
+		path.pop_back();
+		PP_TEST_ERROR("pp_path::pop_back()");
+		ret++;
+	} catch (std::out_of_range &e) {
 	}
-	str = to_string(pp_path("/a/b/c"));
-	if (str != "/a/b/c") {
-		PP_TEST_ERROR("pp_path::operator<<()");
-		return_value++;
+	try {
+		path.front();
+		PP_TEST_ERROR("pp_path::front()");
+		ret++;
+	} catch (std::out_of_range &e) {
+	}
+	try {
+		path.back();
+		PP_TEST_ERROR("pp_path::back()");
+		ret++;
+	} catch (std::out_of_range &e) {
 	}
 
-	// path == path
-	if (pp_path("a/b/c") == pp_path("d/e/f")) {
-		PP_TEST_ERROR("pp_path::operator==(pp_path, pp_path)");
-		return_value++;
-	}
-	if (!(pp_path("a/b/c") == pp_path("a/b/c"))) {
-		PP_TEST_ERROR("pp_path::operator==(pp_path, pp_path)");
-		return_value++;
-	}
+	// test clear()
+	path = pp_path("a/b/c");
+	ret += PP_TEST_ASSERT(path.size() == 3, "pp_path::size()");
+	path.clear();
+	ret += PP_TEST_ASSERT(path.size() == 0, "pp_path::size()");
 
-	// path == string
-	if (!(pp_path("a/b/c") == "a/b/c")) {
-		PP_TEST_ERROR("pp_path::operator==(pp_path, string)");
-		return_value++;
-	}
-	if (pp_path("a/b/c") == "d/e/f") {
-		PP_TEST_ERROR("pp_path::operator==(pp_path, string)");
-		return_value++;
-	}
-	if (!(pp_path("/a/b/c") == "/a/b/c")) {
-		PP_TEST_ERROR("pp_path::operator==(pp_path, string)");
-		return_value++;
-	}
-	if (pp_path("/a/b/c") == "/d/e/f") {
-		PP_TEST_ERROR("pp_path::operator==(pp_path, string)");
-		return_value++;
-	}
+	//test to_string()
+	path = pp_path("a/b/c");
+	ret += PP_TEST_ASSERT(path.to_string() == "a/b/c",
+	    "pp_path::to_string()");
+	path = pp_path("/a/b/c");
+	ret += PP_TEST_ASSERT(path.to_string() == "/a/b/c",
+	    "pp_path::to_string()");
 
-	// string == path
-	if (!("a/b/c" == pp_path("a/b/c"))) {
-		PP_TEST_ERROR("pp_path::operator==(string, pp_path)");
-		return_value++;
-	}
-	if ("a/b/c" == pp_path("d/e/f")) {
-		PP_TEST_ERROR("pp_path::operator==(string, pp_path)");
-		return_value++;
-	}
-	if (!("/a/b/c" == pp_path("/a/b/c"))) {
-		PP_TEST_ERROR("pp_path::operator==(string, pp_path)");
-		return_value++;
-	}
-	if ("/a/b/c" == pp_path("/d/e/f")) {
-		PP_TEST_ERROR("pp_path::operator==(string, pp_path)");
-		return_value++;
-	}
-
-	// path != path
-	if (pp_path("a/b/c") != pp_path("a/b/c")) {
-		PP_TEST_ERROR("pp_path::operator!=(pp_path, pp_path)");
-		return_value++;
-	}
-	if (!(pp_path("a/b/c") != pp_path("d/e/f"))) {
-		PP_TEST_ERROR("pp_path::operator!=(pp_path, pp_path)");
-		return_value++;
-	}
-
-	// path != string
-	if (pp_path("a/b/c") != "a/b/c") {
-		PP_TEST_ERROR("pp_path::operator!=(pp_path, string)");
-		return_value++;
-	}
-	if (!(pp_path("a/b/c") != "d/e/f")) {
-		PP_TEST_ERROR("pp_path::operator!=(pp_path, string)");
-		return_value++;
-	}
-	if (pp_path("/a/b/c") != "/a/b/c") {
-		PP_TEST_ERROR("pp_path::operator!=(pp_path, string)");
-		return_value++;
-	}
-	if (!(pp_path("/a/b/c") != "/d/e/f")) {
-		PP_TEST_ERROR("pp_path::operator!=(pp_path, string)");
-		return_value++;
-	}
-
-	// string != path
-	if ("a/b/c" != pp_path("a/b/c")) {
-		PP_TEST_ERROR("pp_path::operator!=(string, pp_path)");
-		return_value++;
-	}
-	if (!("a/b/c" != pp_path("d/e/f"))) {
-		PP_TEST_ERROR("pp_path::operator!=(string, pp_path)");
-		return_value++;
-	}
-	if ("/a/b/c" != pp_path("/a/b/c")) {
-		PP_TEST_ERROR("pp_path::operator!=(string, pp_path)");
-		return_value++;
-	}
-	if (!("/a/b/c" != pp_path("/d/e/f"))) {
-		PP_TEST_ERROR("pp_path::operator!=(string, pp_path)");
-		return_value++;
-	}
-
+	// test catenation operators
 	// path += path
-	path = "a/b/c";
+	path = pp_path("a/b/c");
 	path += pp_path("d/e/f");
-	if (path != "a/b/c/d/e/f") {
-		PP_TEST_ERROR("pp_path::operator+=(pp_path, pp_path)");
-		return_value++;
-	}
-
+	ret += PP_TEST_ASSERT(path == "a/b/c/d/e/f",
+	    "pp_path::operator+=(pp_path, pp_path)");
 	// path += string
-	path = "a/b/c";
+	path = pp_path("a/b/c");
 	path += "d";
-	if (path != "a/b/c/d") {
-		PP_TEST_ERROR("pp_path::operator+=(pp_path, string)");
-		return_value++;
-	}
-	path = "a/b/c";
+	ret += PP_TEST_ASSERT(path == "a/b/c/d",
+	    "pp_path::operator+=(pp_path, string)");
+	path = pp_path("a/b/c");
 	path += "d/e/f";
-	if (path != "a/b/c/d/e/f") {
-		PP_TEST_ERROR("pp_path::operator+=(pp_path, string)");
-		return_value++;
-	}
-
-
+	ret += PP_TEST_ASSERT(path == "a/b/c/d/e/f",
+	    "pp_path::operator+=(pp_path, string)");
 	// path + path
 	path = pp_path("a/b/c") + pp_path("d/e/f");
-	if (path != "a/b/c/d/e/f") {
-		PP_TEST_ERROR("pp_path::operator+=(pp_path, pp_path)");
-		return_value++;
-	}
-
+	ret += PP_TEST_ASSERT(path == "a/b/c/d/e/f",
+	    "pp_path::operator+=(pp_path, pp_path)");
 	// path + string
 	path = pp_path("a/b/c") + "d";
-	if (path != "a/b/c/d") {
-		PP_TEST_ERROR("pp_path::operator+(pp_path, string)");
-		return_value++;
-	}
+	ret += PP_TEST_ASSERT(path == "a/b/c/d",
+	    "pp_path::operator+(pp_path, string)");
 	path = pp_path("a/b/c") + "d/e/f";
-	if (path != "a/b/c/d/e/f") {
-		PP_TEST_ERROR("pp_path::operator+(pp_path, string)");
-		return_value++;
-	}
+	ret += PP_TEST_ASSERT(path == "a/b/c/d/e/f",
+	    "pp_path::operator+(pp_path, string)");
 
-	return return_value;
+	return ret;
+}
+
+int
+test_const()
+{
+	int ret = 0;
+
+	pp_path path("a/b/c");
+	const pp_path &const_path = path;
+	ret += PP_TEST_ASSERT(const_path.size() == 3, "pp_path::size()");
+
+	pp_path::iterator it = path.begin();
+	pp_path::const_iterator cit = const_path.begin();
+	ret += PP_TEST_ASSERT(*it == *cit, "pp_path::begin()");
+	it++;
+	cit++;
+	ret += PP_TEST_ASSERT(*it == *cit, "pp_path::iterator::operator++()");
+	it++;
+	cit++;
+	ret += PP_TEST_ASSERT(*it == *cit, "pp_path::iterator::operator++()");
+
+	return ret;
 }
 
 int
 main()
 {
 	int error_count = 0;
+	error_count += test_element();
 	error_count += test_ctors();
-	error_count += test_push_pop();
-	error_count += test_const();
 	error_count += test_comparisons();
-	error_count += test_operators();
+	error_count += test_iters();
+	error_count += test_contents();
+	error_count += test_const();
 	return error_count;
 }
