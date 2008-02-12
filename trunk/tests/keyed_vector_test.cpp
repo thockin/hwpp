@@ -13,7 +13,7 @@ void dump_keyed_vector(const keyed_vector<Tkey, Tval> &kv, ostream &out) {
 }
 
 int
-test_keyed_vector_ctors()
+test_ctors()
 {
 	int ret = 0;
 	typedef keyed_vector<string, int> si_keyvec;
@@ -50,7 +50,77 @@ test_keyed_vector_ctors()
 }
 
 int
-test_keyed_vector_int()
+test_exceptions()
+{
+	int ret = 0;
+	typedef keyed_vector<string, int> si_keyvec;
+
+	si_keyvec keyvec;
+	if (keyvec.size() != 0) {
+		ERROR("keyed_vector::size()");
+		ret++;
+	}
+
+	try {
+		keyvec.at(0);
+		ERROR("keyed_vector::at(int)");
+		ret++;
+	} catch (std::out_of_range &e) {
+	}
+	try {
+		keyvec[0];
+		ERROR("keyed_vector::operator[](int)");
+		ret++;
+	} catch (std::out_of_range &e) {
+	}
+	try {
+		keyvec.key_at(0);
+		ERROR("keyed_vector::key_at(int)");
+		ret++;
+	} catch (std::out_of_range &e) {
+	}
+	try {
+		keyvec.at("foo");
+		ERROR("keyed_vector::at(Tkey)");
+		ret++;
+	} catch (std::out_of_range &e) {
+	}
+	try {
+		keyvec["foo"];
+		ERROR("keyed_vector::operator[](Tkey)");
+		ret++;
+	} catch (std::out_of_range &e) {
+	}
+	try {
+		keyvec.front();
+		ERROR("keyed_vector::front()");
+		ret++;
+	} catch (std::out_of_range &e) {
+	}
+	try {
+		keyvec.back();
+		ERROR("keyed_vector::back()");
+		ret++;
+	} catch (std::out_of_range &e) {
+	}
+	try {
+		keyvec.pop_front();
+		ERROR("keyed_vector::pop_front()");
+		ret++;
+	} catch (std::out_of_range &e) {
+	}
+	try {
+		keyvec.pop_back();
+		ERROR("keyed_vector::pop_back()");
+		ret++;
+	} catch (std::out_of_range &e) {
+	}
+
+	return ret;
+}
+
+int
+test_int()
 {
 	int ret = 0;
 
@@ -280,7 +350,7 @@ ostream &operator<<(ostream &lhs, const xypair &rhs)
 }
 
 int
-test_keyed_vector_xypair()
+test_xypair()
 {
 	int ret = 0;
 
@@ -485,9 +555,10 @@ main()
 {
 	int r = 0;
 
-	r += test_keyed_vector_ctors();
-	r += test_keyed_vector_int();
-	r += test_keyed_vector_xypair();
+	r += test_ctors();
+	r += test_exceptions();
+	r += test_int();
+	r += test_xypair();
 
 	if (r) return EXIT_FAILURE;
 	return EXIT_SUCCESS;
