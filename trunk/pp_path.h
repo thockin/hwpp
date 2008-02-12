@@ -358,8 +358,11 @@ class pp_path
 	void
 	append(const string &str)
 	{
+		// discard leading and trailing whitespace
+		string my_str = boost::algorithm::trim_copy(str);
+
 		// special case for ""
-		if (str.size() == 0)
+		if (my_str.size() == 0)
 			return;
 
 		std::vector<string> parts;
@@ -369,7 +372,7 @@ class pp_path
 		// create an empty part after the final '/'.  Given
 		// the path "//red//orange", it will compact the duplicate
 		// '/'.
-		boost::split(parts, str, boost::is_any_of("/"));
+		boost::split(parts, my_str, boost::is_any_of("/"));
 
 		// Determine if the path is relative or absolute by the first
 		// element of the vector. If it is an empty string, then the
