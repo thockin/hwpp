@@ -258,25 +258,29 @@ class keyed_vector
 		return m_values.empty();
 	}
 
-	// get the first or last value
+	// get the first or last value - can throw std::out_of_range
 	reference
 	front()
 	{
+		bounds_check(0);
 		return m_values.front();
 	}
 	reference
 	back()
 	{
+		bounds_check(0);
 		return m_values.back();
 	}
 	const_reference
 	front() const
 	{
+		bounds_check(0);
 		return m_values.front();
 	}
 	const_reference
 	back() const
 	{
+		bounds_check(0);
 		return m_values.back();
 	}
 
@@ -284,11 +288,8 @@ class keyed_vector
 	reference
 	at(size_type index)
 	{
-		if (index < size()) {
-			return m_values[index];
-		}
-		throw std::out_of_range("index out of range: "
-			+ to_string(index));
+		bounds_check(index);
+		return m_values[index];
 	}
 	reference
 	operator[](size_type index)
@@ -315,8 +316,7 @@ class keyed_vector
 		if (it != end()) {
 			return *it;
 		}
-		throw std::out_of_range("key not found: "
-			+ to_string(index));
+		throw std::out_of_range("key not found: " + to_string(index));
 	}
 	reference
 	operator[](const Tkey &index)
@@ -339,6 +339,7 @@ class keyed_vector
 	const Tkey &
 	key_at(size_type index) const
 	{
+		bounds_check(index);
 		return m_keyptrs[index]->first;
 	}
 
@@ -374,10 +375,17 @@ class keyed_vector
 		insert(key, value);
 	}
 
-	// remove the last item
+	// remove the first or last item - can throw std::out_of_range
+	void
+	pop_front()
+	{
+		bounds_check(0);
+		erase(m_keyptrs.front()->first);
+	}
 	void
 	pop_back()
 	{
+		bounds_check(0);
 		erase(m_keyptrs.back()->first);
 	}
 
@@ -445,7 +453,18 @@ class keyed_vector
 	}
 
     private:
-	// get various iterators by index
+	// check index bounds
+	void
+	bounds_check(size_type index) const
+	{
+		if (index >= size()) {
+			throw std::out_of_range("index out of range: "
+			    + to_string(index));
+		}
+	}
+
+	// get various iterators by index - these are internal, so no
+	// bounds checking is needed
 	iterator
 	iter_at(size_type index)
 	{
