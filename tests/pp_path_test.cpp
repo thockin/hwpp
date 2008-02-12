@@ -199,7 +199,7 @@ int test_ctors()
 		return_value++;
 	}
 	path = pp_path("  a/b/c  ");
-	if (path != "  a/b/c  " || path.is_absolute()) {
+	if (path != "a/b/c" || path.is_absolute()) {
 		PP_TEST_ERROR("pp_path::pp_path(string)");
 		return_value++;
 	}
@@ -219,7 +219,7 @@ int test_ctors()
 		return_value++;
 	}
 	path = pp_path("   ");
-	if (path != "   " || path.is_absolute()) {
+	if (path != "" || path.is_absolute()) {
 		PP_TEST_ERROR("pp_path::pp_path(string)");
 		return_value++;
 	}
@@ -229,7 +229,7 @@ int test_ctors()
 		return_value++;
 	}
 	path = pp_path("   /");
-	if (path != "   " || path.is_absolute()) {
+	if (path != "/" || !path.is_absolute()) {
 		PP_TEST_ERROR("pp_path::pp_path(string)");
 		return_value++;
 	}
