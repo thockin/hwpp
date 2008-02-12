@@ -77,6 +77,8 @@ test_ctors()
 		pp_path path;
 		ret += PP_TEST_ASSERT(path == "",
 		    "pp_path::pp_path()");
+		ret += PP_TEST_ASSERT(!path.is_initialized(),
+		    "pp_path::pp_path()");
 		ret += PP_TEST_ASSERT(!path.is_absolute(),
 		    "pp_path::pp_path()");
 	}
@@ -85,6 +87,8 @@ test_ctors()
 	{
 		pp_path path("");
 		ret += PP_TEST_ASSERT(path == "",
+			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(!path.is_initialized(),
 			"pp_path::pp_path(char *)");
 		ret += PP_TEST_ASSERT(path.size() == 0,
 			"pp_path::pp_path(char *)");
@@ -95,6 +99,8 @@ test_ctors()
 		pp_path path(string(""));
 		ret += PP_TEST_ASSERT(path == "",
 			"pp_path::pp_path(string)");
+		ret += PP_TEST_ASSERT(!path.is_initialized(),
+			"pp_path::pp_path(string)");
 		ret += PP_TEST_ASSERT(path.size() == 0,
 			"pp_path::pp_path(string)");
 		ret += PP_TEST_ASSERT(!path.is_absolute(),
@@ -104,6 +110,8 @@ test_ctors()
 		pp_path path("/");
 		ret += PP_TEST_ASSERT(path == "/",
 			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.is_initialized(),
+			"pp_path::pp_path(char *)");
 		ret += PP_TEST_ASSERT(path.size() == 0,
 			"pp_path::pp_path(char *)");
 		ret += PP_TEST_ASSERT(path.is_absolute(),
@@ -112,6 +120,8 @@ test_ctors()
 	{
 		pp_path path(string("/"));
 		ret += PP_TEST_ASSERT(path == "/",
+			"pp_path::pp_path(string)");
+		ret += PP_TEST_ASSERT(path.is_initialized(),
 			"pp_path::pp_path(string)");
 		ret += PP_TEST_ASSERT(path.size() == 0,
 			"pp_path::pp_path(string)");
@@ -123,6 +133,8 @@ test_ctors()
 		pp_path path("a");
 		ret += PP_TEST_ASSERT(path == "a",
 			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.is_initialized(),
+			"pp_path::pp_path(char *)");
 		ret += PP_TEST_ASSERT(path.size() == 1,
 			"pp_path::pp_path(char *)");
 		ret += PP_TEST_ASSERT(!path.is_absolute(),
@@ -131,6 +143,8 @@ test_ctors()
 	{
 		pp_path path(string("a"));
 		ret += PP_TEST_ASSERT(path == "a",
+			"pp_path::pp_path(string)");
+		ret += PP_TEST_ASSERT(path.is_initialized(),
 			"pp_path::pp_path(string)");
 		ret += PP_TEST_ASSERT(path.size() == 1,
 			"pp_path::pp_path(string)");
@@ -141,6 +155,8 @@ test_ctors()
 		pp_path path("/a");
 		ret += PP_TEST_ASSERT(path == "/a",
 			"pp_path::pp_path(char *)");
+		ret += PP_TEST_ASSERT(path.is_initialized(),
+			"pp_path::pp_path(char *)");
 		ret += PP_TEST_ASSERT(path.size() == 1,
 			"pp_path::pp_path(char *)");
 		ret += PP_TEST_ASSERT(path.is_absolute(),
@@ -149,6 +165,8 @@ test_ctors()
 	{
 		pp_path path(string("/a"));
 		ret += PP_TEST_ASSERT(path == "/a",
+			"pp_path::pp_path(string)");
+		ret += PP_TEST_ASSERT(path.is_initialized(),
 			"pp_path::pp_path(string)");
 		ret += PP_TEST_ASSERT(path.size() == 1,
 			"pp_path::pp_path(string)");
@@ -483,6 +501,7 @@ test_contents()
 	ret += PP_TEST_ASSERT(path.size() == 3, "pp_path::size()");
 	path.clear();
 	ret += PP_TEST_ASSERT(path.size() == 0, "pp_path::size()");
+	ret += PP_TEST_ASSERT(path.is_initialized() == 0, "pp_path::size()");
 
 	//test to_string()
 	path = pp_path("a/b/c");
