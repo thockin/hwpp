@@ -241,10 +241,10 @@ test_dirents()
 
 		// search for a non-field, existing
 		try {
-			root->lookup_field("scope0/register1");
+			root->lookup_field("scope0/reg1");
 			PP_TEST_ERROR("pp_scope::lookup_field()");
 			ret++;
-		} catch (std::out_of_range &e) {
+		} catch (pp_dirent::conversion_error &e) {
 		}
 
 		// search for an item that is not a leaf node
@@ -252,13 +252,13 @@ test_dirents()
 			root->lookup_field("scope0/field1/foo");
 			PP_TEST_ERROR("pp_scope::lookup_field()");
 			ret++;
-		} catch (std::out_of_range &e) {
+		} catch (pp_dirent::conversion_error &e) {
 		}
 		try {
-			root->lookup_field("scope0/register1/foo");
+			root->lookup_field("scope0/reg1/foo");
 			PP_TEST_ERROR("pp_scope::lookup_field()");
 			ret++;
-		} catch (std::out_of_range &e) {
+		} catch (pp_dirent::conversion_error &e) {
 		}
 
 		// search for an item through a path with ".."
@@ -288,7 +288,7 @@ test_dirents()
 			root->lookup_register("scope0/field1");
 			PP_TEST_ERROR("pp_scope::lookup_register()");
 			ret++;
-		} catch (std::out_of_range &e) {
+		} catch (pp_dirent::conversion_error &e) {
 		}
 
 		// search for an item that is not a leaf node
@@ -296,13 +296,13 @@ test_dirents()
 			root->lookup_register("scope0/reg1/foo");
 			PP_TEST_ERROR("pp_scope::lookup_register()");
 			ret++;
-		} catch (std::out_of_range &e) {
+		} catch (pp_dirent::conversion_error &e) {
 		}
 		try {
 			root->lookup_register("scope0/field1/foo");
 			PP_TEST_ERROR("pp_scope::lookup_register()");
 			ret++;
-		} catch (std::out_of_range &e) {
+		} catch (pp_dirent::conversion_error &e) {
 		}
 
 		// search for an item through a path with ".."
@@ -332,7 +332,7 @@ test_dirents()
 			root->lookup_scope("scope0/field1");
 			PP_TEST_ERROR("pp_scope::lookup_scope()");
 			ret++;
-		} catch (std::out_of_range &e) {
+		} catch (pp_dirent::conversion_error &e) {
 		}
 
 		// search for an item through a path with ".."
@@ -372,7 +372,7 @@ test_dirents()
 			root->lookup_dirent("scope0/reg1/foo");
 			PP_TEST_ERROR("pp_scope::lookup_dirent()");
 			ret++;
-		} catch (std::out_of_range &e) {
+		} catch (pp_dirent::conversion_error &e) {
 		}
 
 		// search for an item through a path with ".."
@@ -401,9 +401,12 @@ test_dirents()
 		ret += PP_TEST_ASSERT(!found, "pp_scope::dirent_defined()");
 
 		// search for an item that is not a leaf node
-		// FIXME: I am not sure this is right - should throw
-		found = root->dirent_defined("scope0/reg1/foo");
-		ret += PP_TEST_ASSERT(!found, "pp_scope::dirent_defined()");
+		try {
+			found = root->dirent_defined("scope0/reg1/foo");
+			PP_TEST_ERROR("pp_scope::dirent_defined()");
+			ret++;
+		} catch (pp_dirent::conversion_error &e) {
+		}
 
 		// search for an item through a path with ".."
 		found = root->dirent_defined("scope0/scope1/../scope1");

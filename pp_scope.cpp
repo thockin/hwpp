@@ -269,9 +269,8 @@ pp_scope::lookup_dirent_internal(pp_path &path) const
 	}
 
 	/* error */
-	throw std::out_of_range("path element is not a scope: "
-			+ to_string(path)
-			+ "(" + to_string(de->dirent_type()) + ")");
+	throw pp_dirent::conversion_error("path element is not a scope: "
+	    + to_string(path) + " (" + to_string(de->dirent_type()) + ")");
 }
 
 /*
@@ -295,9 +294,10 @@ pp_scope::dirent_defined(const pp_path &path) const
 /*
  * pp_scope::lookup_register(path)
  *
- * Return a pointer to the specified register.  If the dirent at the
- * end of the path is not a register, or if the some element of the
- * path does not exist, throw std::out_of_range.
+ * Return a pointer to the specified register.
+ * Throws:
+ * 	pp_dirent::conversion_error	- path is not a register
+ *	std::out_of_range		- path not found
  */
 const pp_register *
 pp_scope::lookup_register(const pp_path &path) const
@@ -306,16 +306,17 @@ pp_scope::lookup_register(const pp_path &path) const
 	if (de->is_register()) {
 		return pp_register_from_dirent(de);
 	}
-	throw std::out_of_range("path is not a register: "
+	throw pp_dirent::conversion_error("path is not a register: "
 			+ to_string(path));
 }
 
 /*
  * pp_scope::lookup_field(path)
  *
- * Return a pointer to the specified field.  If the dirent at the
- * end of the path is not a field, or if the some element of the
- * path does not exist, throw std::out_of_range.
+ * Return a pointer to the specified field.
+ * Throws:
+ * 	pp_dirent::conversion_error	- path is not a field
+ *	std::out_of_range		- path not found
  */
 const pp_field *
 pp_scope::lookup_field(const pp_path &path) const
@@ -324,16 +325,17 @@ pp_scope::lookup_field(const pp_path &path) const
 	if (de->is_field()) {
 		return pp_field_from_dirent(de);
 	}
-	throw std::out_of_range("path is not a field: "
+	throw pp_dirent::conversion_error("path is not a field: "
 			+ to_string(path));
 }
 
 /*
  * pp_scope::lookup_scope(path)
  *
- * Return a pointer to the specified scope.  If the dirent at the
- * end of the path is not a scope, or if the some element of the
- * path does not exist, throw std::out_of_range.
+ * Return a pointer to the specified scope.
+ * Throws:
+ * 	pp_dirent::conversion_error	- path is not a scope
+ *	std::out_of_range		- path not found
  */
 const pp_scope *
 pp_scope::lookup_scope(const pp_path &path) const
@@ -342,6 +344,6 @@ pp_scope::lookup_scope(const pp_path &path) const
 	if (de->is_scope()) {
 		return pp_scope_from_dirent(de);
 	}
-	throw std::out_of_range("path is not a scope: "
+	throw pp_dirent::conversion_error("path is not a scope: "
 			+ to_string(path));
 }
