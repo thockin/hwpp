@@ -121,10 +121,10 @@ typedef boost::shared_ptr<const pp_field> pp_const_field_ptr;
 inline const pp_field *
 pp_field_from_dirent(const pp_dirent *dirent)
 {
-	if (dirent->dirent_type() != PP_DIRENT_FIELD) {
-		throw std::runtime_error("non-field dirent used as field");
+	if (dirent->is_field()) {
+		return static_cast<const pp_field *>(dirent);
 	}
-	return static_cast<const pp_field *>(dirent);
+	throw pp_dirent::conversion_error("non-field dirent used as field");
 }
 
 #endif // PP_PP_FIELD_H__
