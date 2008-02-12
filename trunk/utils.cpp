@@ -66,8 +66,7 @@ SET_CURRENT_CONTEXT(const pp_context &new_ctxt)
 }
 
 /*
- * Resolve a path to a dirent, relative to the current scope.  If the
- * specified path does not exist, throw std::out_of_range.
+ * Resolve a path to a dirent, relative to the current scope.
  */
 const pp_dirent *
 GET_DIRENT(const pp_path &path)
@@ -77,8 +76,7 @@ GET_DIRENT(const pp_path &path)
 }
 
 /*
- * Resolve a path to a field, relative to the current scope.  If the specified
- * path does not exist or is not a field, throw std::out_of_range.
+ * Resolve a path to a field, relative to the current scope.
  */
 const pp_field *
 GET_FIELD(const pp_path &path)
@@ -94,9 +92,7 @@ extern pp_register *magic_zeros;
 extern pp_register *magic_ones;
 
 /*
- * Resolve a path to a register, relative to the current scope.  If the
- * specified path does not exist or is not a register, throw
- * std::out_of_range.
+ * Resolve a path to a register, relative to the current scope.
  */
 const pp_register *
 GET_REGISTER(const pp_path &path)
@@ -133,8 +129,8 @@ READ(const pp_path &path)
 	} else if (de->is_field()) {
 		return pp_field_from_dirent(de)->read();
 	}
-	throw std::out_of_range("path is not a register nor field: "
-	    + to_string(path));
+	throw pp_dirent::conversion_error("path is not a register nor field: "
+	    + to_string(path) + " (" + to_string(de->dirent_type()) + ")");
 }
 void
 WRITE(const pp_path &path, const pp_value &value)
@@ -145,8 +141,8 @@ WRITE(const pp_path &path, const pp_value &value)
 	} else if (de->is_field()) {
 		pp_field_from_dirent(de)->write(value);
 	}
-	throw std::out_of_range("path is not a register nor field: "
-	    + to_string(path));
+	throw pp_dirent::conversion_error("path is not a register nor field: "
+	    + to_string(path) + " (" + to_string(de->dirent_type()) + ")");
 }
 
 /*
