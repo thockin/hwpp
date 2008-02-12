@@ -219,10 +219,11 @@ typedef boost::shared_ptr<const pp_scope> pp_const_scope_ptr;
 inline const pp_scope *
 pp_scope_from_dirent(const pp_dirent *dirent)
 {
-	if (dirent->dirent_type() != PP_DIRENT_SCOPE) {
-		throw std::runtime_error("non-scope dirent used as scope");
+	if (dirent->is_scope()) {
+		return static_cast<const pp_scope *>(dirent);
 	}
-	return static_cast<const pp_scope *>(dirent);
+	throw pp_dirent::conversion_error(
+	    "non-scope dirent used as scope");
 }
 
 #endif // PP_PP_SCOPE_H__

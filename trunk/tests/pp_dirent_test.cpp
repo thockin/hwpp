@@ -1,6 +1,8 @@
 #include "pp_dirent.h"
 #include "pp.h"
 #include "pp_fields.h"
+#include "pp_register.h"
+#include "pp_scope.h"
 #include "pp_datatypes.h"
 #include "pp_test.h"
 using namespace std;
@@ -42,6 +44,26 @@ test_pp_dirent()
 	if (dirent->is_register()) {
 		PP_TEST_ERROR("pp_dirent::is_register()");
 		ret++;
+	}
+
+	/* test up-casting */
+	try {
+		pp_field_from_dirent(dirent.get());
+	} catch (pp_dirent::conversion_error &e) {
+		PP_TEST_ERROR("pp_field_from_dirent()");
+		ret++;
+	}
+	try {
+		pp_register_from_dirent(dirent.get());
+		PP_TEST_ERROR("pp_register_from_dirent()");
+		ret++;
+	} catch (pp_dirent::conversion_error &e) {
+	}
+	try {
+		pp_scope_from_dirent(dirent.get());
+		PP_TEST_ERROR("pp_scope_from_dirent()");
+		ret++;
+	} catch (pp_dirent::conversion_error &e) {
 	}
 
 	return ret;

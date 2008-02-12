@@ -23,6 +23,15 @@ typedef enum {
  */
 class pp_dirent {
     public:
+	// a dirent conversion error
+	struct conversion_error: public std::runtime_error
+	{
+		conversion_error(const std::string &str)
+		    : runtime_error(str)
+		{
+		}
+	};
+
 	explicit pp_dirent(pp_dirent_type type): m_type(type) {}
 	virtual ~pp_dirent() {}
 
