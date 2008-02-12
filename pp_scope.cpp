@@ -219,7 +219,7 @@ pp_scope::dirent_name(int index) const
 const pp_dirent *
 pp_scope::lookup_dirent(pp_path path) const
 {
-	if (!path.empty() && path.front() == "^") {
+	if (path.size() != 0 && path.front() == "^") {
 		const pp_scope *s = this;
 		while (!s->is_bound() && !s->is_root()) {
 			s = s->parent();
@@ -228,7 +228,7 @@ pp_scope::lookup_dirent(pp_path path) const
 		return s->lookup_dirent(path);
 	}
 
-	if (path.empty()) {
+	if (path.size() == 0) {
 		return this;
 	}
 
@@ -238,7 +238,7 @@ pp_scope::lookup_dirent(pp_path path) const
 const pp_dirent *
 pp_scope::lookup_dirent_internal(pp_path &path) const
 {
-	if (path.empty()) {
+	if (path.size() == 0) {
 		throw std::out_of_range("path not found: "
 				+ to_string(path));
 	}
@@ -258,7 +258,7 @@ pp_scope::lookup_dirent_internal(pp_path &path) const
 	}
 
 	/* did we find the dirent? */
-	if (path.empty()) {
+	if (path.size() == 0) {
 		return de;
 	}
 

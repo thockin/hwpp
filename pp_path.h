@@ -1,14 +1,11 @@
 // Copyright 2007 Google Inc. All Rights Reserved.
-// Author: lesleyn@google.com(Lesley Northam)
 
 #ifndef PP_PATH_HPP__
 #define PP_PATH_HPP__
 
 #include "pp.h"
-#include <iostream>
 #include <list>
 #include <stdexcept>
-#include <string>
 #include <vector>
 #include <boost/algorithm/string.hpp>
 #include <boost/iterator_adaptors.hpp>
@@ -17,8 +14,6 @@
 // This template class is a thin wrapper to make iterators work for
 // pp_path objects.  This is largely based on the boost example
 // code for boost::iterator_facade.
-//
-// Borrowed from keyed_vector.h
 //
 template<typename Titer, typename Tval>
 class pp_path_iterator
@@ -215,23 +210,18 @@ class pp_path
 		return p->rend();
 	}
 
-	// size functionality
+	// get the number of elements
 	Tlist::size_type
 	size() const
 	{
 		return m_list.size();
 	}
-	Tlist::size_type
-	max_size() const
-	{
-		return m_list.max_size();
-	}
 
-	// check if the list is empty
+	// check if the path is initialized (i.e. holds a valid path)
 	bool
-	empty() const
+	is_initialized() const
 	{
-		return m_list.empty();
+		return (m_absolute || !m_list.empty());
 	}
 
 	// access the first/last values
@@ -344,8 +334,8 @@ class pp_path
 	bool
 	equals(const pp_path &other) const
 	{
-		// if they are different lengths they cannot be equal
-		if (m_list.size() != other.size()) {
+		// if they are different lengths, they cannot be equal
+		if (size() != other.size()) {
 			return false;
 		}
 		// if only one is absolute, they cannot be equal
