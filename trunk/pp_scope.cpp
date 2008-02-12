@@ -225,7 +225,7 @@ pp_scope::lookup_dirent(pp_path path) const
 			s = s->parent();
 		}
 		path.pop_front();
-		return s->lookup_dirent(path);
+		return s->lookup_dirent_internal(path);
 	}
 
 	if (path.size() == 0) {
@@ -238,23 +238,23 @@ pp_scope::lookup_dirent(pp_path path) const
 const pp_dirent *
 pp_scope::lookup_dirent_internal(pp_path &path) const
 {
-	if (path.size() == 0) {
-		throw std::out_of_range("path not found: "
-				+ to_string(path));
-	}
-
 	/* grab first element of path */
 	pp_path::element path_front = path.pop_front();
 
 	/*
-	 * Look up the dirent of the next element.  This can throw
+	 * Look up the dirent of the next element.  This will throw
 	 * std::out_of_range if the dirent does not exist.
 	 */
 	const pp_dirent *de;
 	if (path_front == "..") {
 		de = parent();
 	} else {
-		de = dirent(path_front.to_string());
+		try {
+			de = dirent(path_front.to_string());
+		} catch (std::out_of_range &e) {
+			throw std::out_of_range(
+			    "path element not found: " + path_front.to_string());
+		}
 	}
 
 	/* did we find the dirent? */
@@ -263,9 +263,9 @@ pp_scope::lookup_dirent_internal(pp_path &path) const
 	}
 
 	/* keep looking */
-	if (de->dirent_type() == PP_DIRENT_SCOPE) {
+	if (de->is_scope()) {
 		const pp_scope *s = pp_scope_from_dirent(de);
-		return s->lookup_dirent(path);
+		return s->lookup_dirent_internal(path);
 	}
 
 	/* error */
@@ -303,7 +303,7 @@ const pp_register *
 pp_scope::lookup_register(const pp_path &path) const
 {
 	const pp_dirent *de = lookup_dirent(path);
-	if (de->dirent_type() == PP_DIRENT_REGISTER) {
+	if (de->is_register()) {
 		return pp_register_from_dirent(de);
 	}
 	throw std::out_of_range("path is not a register: "
@@ -321,7 +321,7 @@ const pp_field *
 pp_scope::lookup_field(const pp_path &path) const
 {
 	const pp_dirent *de = lookup_dirent(path);
-	if (de->dirent_type() == PP_DIRENT_FIELD) {
+	if (de->is_field()) {
 		return pp_field_from_dirent(de);
 	}
 	throw std::out_of_range("path is not a field: "
@@ -339,7 +339,7 @@ const pp_scope *
 pp_scope::lookup_scope(const pp_path &path) const
 {
 	const pp_dirent *de = lookup_dirent(path);
-	if (de->dirent_type() == PP_DIRENT_SCOPE) {
+	if (de->is_scope()) {
 		return pp_scope_from_dirent(de);
 	}
 	throw std::out_of_range("path is not a scope: "
