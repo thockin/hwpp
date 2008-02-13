@@ -166,6 +166,7 @@ test_exceptions()
 		ret ++;
 	} catch (std::out_of_range &e) {
 	}
+	//FIXME: test pp_path::invalid_error throw
 
 	return ret;
 }
@@ -236,7 +237,7 @@ test_dirents()
 			root->lookup_field("scope0/foo");
 			PP_TEST_ERROR("pp_scope::lookup_field()");
 			ret++;
-		} catch (std::out_of_range &e) {
+		} catch (pp_path::not_found_error &e) {
 		}
 
 		// search for a non-field, existing
@@ -280,7 +281,7 @@ test_dirents()
 			root->lookup_register("scope0/foo");
 			PP_TEST_ERROR("pp_scope::lookup_register()");
 			ret++;
-		} catch (std::out_of_range &e) {
+		} catch (pp_path::not_found_error &e) {
 		}
 
 		// search for a non-register, existing
@@ -324,7 +325,7 @@ test_dirents()
 			root->lookup_scope("scope0/foo");
 			PP_TEST_ERROR("pp_scope::lookup_scope()");
 			ret++;
-		} catch (std::out_of_range &e) {
+		} catch (pp_path::not_found_error &e) {
 		}
 
 		// search for a non-scope, existing
@@ -364,7 +365,7 @@ test_dirents()
 			root->lookup_dirent("scope0/foo");
 			PP_TEST_ERROR("pp_scope::lookup_dirent()");
 			ret++;
-		} catch (std::out_of_range &e) {
+		} catch (pp_path::not_found_error &e) {
 		}
 
 		// search for an item that is not a leaf node

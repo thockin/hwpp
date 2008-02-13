@@ -102,6 +102,9 @@ class pp_path
 	class element
 	{
 	    public:
+		// explicit ctor from string
+		// throws:
+		// 	pp_path::invalid_error
 		explicit
 		element(const string &str)
 		{
@@ -125,6 +128,24 @@ class pp_path
 		string m_string;
 	};
 
+	// a path not found error
+	struct not_found_error: public std::runtime_error
+	{
+		not_found_error(const std::string &str)
+		    : runtime_error(str)
+		{
+		}
+	};
+
+	// an invalid path error
+	struct invalid_error: public std::runtime_error
+	{
+		invalid_error(const std::string &str)
+		    : runtime_error(str)
+		{
+		}
+	};
+
     private:
 	typedef std::list<element> Tlist;
 	typedef Tlist::iterator Titer;
@@ -141,12 +162,16 @@ class pp_path
 	{
 	}
 	// implicit conversion from string
+	// throws:
+	// 	pp_path::invalid_error
 	pp_path(const string &path)
 	    : m_list(), m_absolute(false)
 	{
 		append(path);
 	}
 	// implicit conversion from char* (for string-literal conversion)
+	// throws:
+	// 	pp_path::invalid_error
 	pp_path(const char *path)
 	    : m_list(), m_absolute(false)
 	{
