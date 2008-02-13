@@ -60,7 +60,7 @@ class pp_field: public pp_dirent
 	 * Lookup the numeric value of a (potentially valid) evaluation for
 	 * this field.
 	 *
-	 * This can throw pp_datatype_invalid_error.
+	 * This can throw pp_datatype::invalid_error.
 	 */
 	virtual pp_value
 	lookup(const string &str) const
@@ -82,7 +82,7 @@ class pp_field: public pp_dirent
 	 * whether the lhs is less than, equal to, or greater than the rhs
 	 * (negative, zero, positive return code, respectively).
 	 *
-	 * This can throw pp_datatype_invalid_error.
+	 * This can throw pp_datatype::invalid_error.
 	 */
 	virtual int
 	compare(const string &comparator) const
