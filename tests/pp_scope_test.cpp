@@ -166,7 +166,38 @@ test_exceptions()
 		ret ++;
 	} catch (std::out_of_range &e) {
 	}
-	//FIXME: test pp_path::invalid_error throw
+
+	// test invalid path elements
+	try {
+		scope->add_dirent("123", pp_field_ptr());
+		PP_TEST_ERROR("pp_scope::add_dirent()");
+		ret++;
+	} catch (pp_path::invalid_error &e) {
+	}
+	try {
+		scope->lookup_dirent("foo/123");
+		PP_TEST_ERROR("pp_scope::lookup_dirent()");
+		ret++;
+	} catch (pp_path::invalid_error &e) {
+	}
+	try {
+		scope->lookup_field("foo/123");
+		PP_TEST_ERROR("pp_scope::lookup_field()");
+		ret++;
+	} catch (pp_path::invalid_error &e) {
+	}
+	try {
+		scope->lookup_register("foo/123");
+		PP_TEST_ERROR("pp_scope::lookup_register()");
+		ret++;
+	} catch (pp_path::invalid_error &e) {
+	}
+	try {
+		scope->lookup_scope("foo/123");
+		PP_TEST_ERROR("pp_scope::lookup_scope()");
+		ret++;
+	} catch (pp_path::invalid_error &e) {
+	}
 
 	return ret;
 }
