@@ -46,6 +46,19 @@ test_pp_dirent()
 		ret++;
 	}
 
+	if (to_string(PP_DIRENT_FIELD) != "pp_field") {
+		PP_TEST_ERROR("pp_dirent::operator<<(ostream)");
+		ret++;
+	}
+	if (to_string(PP_DIRENT_REGISTER) != "pp_register") {
+		PP_TEST_ERROR("pp_dirent::operator<<(ostream)");
+		ret++;
+	}
+	if (to_string(PP_DIRENT_SCOPE) != "pp_scope") {
+		PP_TEST_ERROR("pp_dirent::operator<<(ostream)");
+		ret++;
+	}
+
 	/* test up-casting */
 	try {
 		pp_field_from_dirent(dirent.get());
