@@ -172,6 +172,16 @@ pp_scope::n_dirents() const
 /*
  * Provide access to the dirents vector.
  */
+pp_dirent *
+pp_scope::dirent(int index)
+{
+	return m_dirents[index].get();
+}
+pp_dirent *
+pp_scope::dirent(string index)
+{
+	return m_dirents[index].get();
+}
 const pp_dirent *
 pp_scope::dirent(int index) const
 {
