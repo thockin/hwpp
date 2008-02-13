@@ -11,8 +11,6 @@
 #include "pp_field.h"
 
 /*
- * pp_scope::parent()
- *
  * Get a pointer to the parent scope of this object.  If this
  * scope is the top of the hierarchy, this method returns a
  * pointer to this object.
@@ -27,8 +25,6 @@ pp_scope::parent() const
 }
 
 /*
- * pp_scope::set_parent()
- *
  * Set the parent scope of this object.
  */
 void
@@ -38,8 +34,6 @@ pp_scope::set_parent(const pp_scope *parent)
 }
 
 /*
- * pp_scope::is_root()
- *
  * Return a boolean indicating whether this object is the top of the
  * containership hierarchy or not.  This is the same as checking
  * for:
@@ -52,8 +46,6 @@ pp_scope::is_root() const
 }
 
 /*
- * pp_scope::binding()
- *
  * Get the binding of this scope.  If this scope is not bound,
  * climb the scope hierarchy until you find a binding.  If no
  * scope in the hierarchy is bound, return NULL.
@@ -74,8 +66,6 @@ pp_scope::is_bound() const
 }
 
 /*
- * pp_scope::add_datatype(name, datatype)
- *
  * Add a named or unnamed datatype to this scope.
  */
 void
@@ -90,8 +80,6 @@ pp_scope::add_datatype(pp_const_datatype_ptr datatype)
 }
 
 /*
- * pp_scope::n_datatypes()
- *
  * Return the number of named datatypes in this scope.
  */
 size_t
@@ -101,8 +89,6 @@ pp_scope::n_datatypes() const
 }
 
 /*
- * pp_scope::datatype()
- *
  * Provide access to the datatypes vector.
  */
 const pp_datatype *
@@ -117,8 +103,6 @@ pp_scope::datatype(string index) const
 }
 
 /*
- * pp_scope::datatype_name(index)
- *
  * Return the name of the indexed datatype.
  */
 string
@@ -128,8 +112,6 @@ pp_scope::datatype_name(int index) const
 }
 
 /*
- * pp_scope::resolve_datatype(name)
- *
  * Look up a datatype by name.
  */
 const pp_datatype *
@@ -155,23 +137,25 @@ pp_scope::resolve_datatype(const string &name) const
 }
 
 /*
- * pp_scope::add_dirent(name, dirent)
- *
  * Add a named dirent to this scope.
  */
 void
 pp_scope::add_dirent(const string &name, pp_dirent_ptr dirent)
 {
+	// convert name to a path element, which will validate and parse it
+	pp_path::element elem(name);
+
+	// if we're adding a scope, we need to link it into the tree
 	if (dirent->is_scope()) {
 		pp_scope *scope = static_cast<pp_scope*>(dirent.get());
 		scope->set_parent(this);
 	}
+
+	// add it to the list of named dirents
 	m_dirents.insert(name, dirent);
 }
 
 /*
- * pp_scope::n_dirents()
- *
  * Return the number of dirents in this scope.
  */
 size_t
@@ -181,8 +165,6 @@ pp_scope::n_dirents() const
 }
 
 /*
- * pp_scope::dirent()
- *
  * Provide access to the dirents vector.
  */
 const pp_dirent *
@@ -197,8 +179,6 @@ pp_scope::dirent(string index) const
 }
 
 /*
- * pp_scope::dirent_name(index)
- *
  * Return the name of the indexed dirent.
  */
 string
@@ -208,12 +188,7 @@ pp_scope::dirent_name(int index) const
 }
 
 /*
- * pp_scope::lookup_dirent(path)
- *
- * Return a pointer to the specified dirent.  If the dirent at the
- * end of the path is not a field, or if the some element of the
- * path does not exist, throw std::out_of_range.
- *
+ * Return a pointer to the specified dirent.
  * NOTE: This takes path as a copy.
  */
 const pp_dirent *
@@ -252,7 +227,7 @@ pp_scope::lookup_dirent_internal(pp_path &path) const
 		try {
 			de = dirent(path_front.to_string());
 		} catch (std::out_of_range &e) {
-			throw std::out_of_range(
+			throw pp_path::not_found_error(
 			    "path element not found: " + path_front.to_string());
 		}
 	}
@@ -274,10 +249,7 @@ pp_scope::lookup_dirent_internal(pp_path &path) const
 }
 
 /*
- * pp_scope::dirent_defined(path)
- *
- * Tests whether the path resolves to a defined dirent.  Does not
- * throw.
+ * Test whether the path resolves to a defined dirent.
  */
 bool
 pp_scope::dirent_defined(const pp_path &path) const
@@ -285,16 +257,15 @@ pp_scope::dirent_defined(const pp_path &path) const
 	const pp_dirent *de = NULL;
 	try {
 		de = lookup_dirent(path);
-	} catch (std::out_of_range &e) {
+	} catch (pp_path::not_found_error &e) {
 	}
 
 	return (de != NULL);
 }
 
 /*
- * pp_scope::lookup_register(path)
- *
  * Return a pointer to the specified register.
+ *
  * Throws:
  * 	pp_dirent::conversion_error	- path is not a register
  *	std::out_of_range		- path not found
@@ -307,16 +278,15 @@ pp_scope::lookup_register(const pp_path &path) const
 		return pp_register_from_dirent(de);
 	}
 	throw pp_dirent::conversion_error("path is not a register: "
-			+ to_string(path));
+	    + to_string(path));
 }
 
 /*
- * pp_scope::lookup_field(path)
- *
  * Return a pointer to the specified field.
+ *
  * Throws:
  * 	pp_dirent::conversion_error	- path is not a field
- *	std::out_of_range		- path not found
+ * 	std::out_of_range		- path not found
  */
 const pp_field *
 pp_scope::lookup_field(const pp_path &path) const
@@ -326,13 +296,12 @@ pp_scope::lookup_field(const pp_path &path) const
 		return pp_field_from_dirent(de);
 	}
 	throw pp_dirent::conversion_error("path is not a field: "
-			+ to_string(path));
+	    + to_string(path));
 }
 
 /*
- * pp_scope::lookup_scope(path)
- *
  * Return a pointer to the specified scope.
+ *
  * Throws:
  * 	pp_dirent::conversion_error	- path is not a scope
  *	std::out_of_range		- path not found
@@ -345,5 +314,5 @@ pp_scope::lookup_scope(const pp_path &path) const
 		return pp_scope_from_dirent(de);
 	}
 	throw pp_dirent::conversion_error("path is not a scope: "
-			+ to_string(path));
+	    + to_string(path));
 }

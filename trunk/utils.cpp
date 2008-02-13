@@ -18,7 +18,6 @@
 #include "device_init.h"
 
 #include <stdexcept>
-using namespace std;
 
 //FIXME: need tests
 

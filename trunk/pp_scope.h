@@ -32,8 +32,6 @@ class pp_scope: public pp_dirent
 	}
 
 	/*
-	 * pp_scope::parent()
-	 *
 	 * Get a pointer to the parent scope of this object.  If this
 	 * scope is the top of the hierarchy, this method returns a
 	 * pointer to this object.
@@ -42,16 +40,12 @@ class pp_scope: public pp_dirent
 	parent() const;
 
 	/*
-	 * pp_scope::set_parent()
-	 *
 	 * Set the parent scope of this object.
 	 */
 	void
 	set_parent(const pp_scope *parent);
 
 	/*
-	 * pp_scope::is_root()
-	 *
 	 * Return a boolean indicating whether this object is the top of the
 	 * containership hierarchy or not.  This is the same as checking
 	 * for:
@@ -61,8 +55,6 @@ class pp_scope: public pp_dirent
 	is_root() const;
 
 	/*
-	 * pp_scope::binding()
-	 *
 	 * Get the binding of this scope.  If this scope is not bound,
 	 * climb the scope hierarchy until you find a binding.  If no
 	 * scope in the hierarchy is bound, return NULL.
@@ -73,8 +65,6 @@ class pp_scope: public pp_dirent
 	is_bound() const;
 
 	/*
-	 * pp_scope::add_datatype(name, datatype)
-	 *
 	 * Add a named or unnamed datatype to this scope.
 	 */
 	void
@@ -83,16 +73,12 @@ class pp_scope: public pp_dirent
 	add_datatype(pp_const_datatype_ptr datatype);
 
 	/*
-	 * pp_scope::n_datatypes()
-	 *
 	 * Return the number of named datatypes in this scope.
 	 */
 	size_t
 	n_datatypes() const;
 
 	/*
-	 * pp_scope::datatype()
-	 *
 	 * Provide access to the datatypes vector.
 	 */
 	const pp_datatype *
@@ -101,41 +87,37 @@ class pp_scope: public pp_dirent
 	datatype(string index) const;
 
 	/*
-	 * pp_scope::datatype_name(index)
-	 *
 	 * Return the name of the indexed datatype.
 	 */
 	string
 	datatype_name(int index) const;
 
 	/*
-	 * pp_scope::resolve_datatype(name)
-	 *
 	 * Look up a datatype by name.
 	 */
 	const pp_datatype *
 	resolve_datatype(const string &name) const;
 
 	/*
-	 * pp_scope::add_dirent(name, dirent)
-	 *
 	 * Add a named dirent to this scope.
+	 *
+	 * Throws:
+	 * 	pp_path::invalid_error
 	 */
 	void
 	add_dirent(const string &name, pp_dirent_ptr dirent);
 
 	/*
-	 * pp_scope::n_dirents()
-	 *
 	 * Return the number of dirents in this scope.
 	 */
 	size_t
 	n_dirents() const;
 
 	/*
-	 * pp_scope::dirent()
-	 *
 	 * Provide access to the dirents vector.
+	 *
+	 * Throws:
+	 * 	std::out_of_range
 	 */
 	const pp_dirent *
 	dirent(int index) const;
@@ -143,16 +125,15 @@ class pp_scope: public pp_dirent
 	dirent(string index) const;
 
 	/*
-	 * pp_scope::dirent_name(index)
-	 *
 	 * Return the name of the indexed dirent.
+	 *
+	 * Throws:
+	 * 	std::out_of_range
 	 */
 	string
 	dirent_name(int index) const;
 
 	/*
-	 * pp_scope::lookup_dirent(path)
-	 *
 	 * Return a pointer to the specified dirent.
 	 * NOTE: This takes path as a copy.
 	 */
@@ -160,32 +141,24 @@ class pp_scope: public pp_dirent
 	lookup_dirent(pp_path path) const;
 
 	/*
-	 * pp_scope::dirent_defined(path)
-	 *
 	 * Tests whether the path resolves to a defined dirent.
 	 */
 	bool
 	dirent_defined(const pp_path &path) const;
 
 	/*
-	 * pp_scope::lookup_register(path)
-	 *
 	 * Return a pointer to the specified register.
 	 */
 	const pp_register *
 	lookup_register(const pp_path &path) const;
 
 	/*
-	 * pp_scope::lookup_field(path)
-	 *
 	 * Return a pointer to the specified field.
 	 */
 	const pp_field *
 	lookup_field(const pp_path &path) const;
 
 	/*
-	 * pp_scope::lookup_scope(path)
-	 *
 	 * Return a pointer to the specified scope.
 	 */
 	const pp_scope *
