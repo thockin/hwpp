@@ -69,12 +69,12 @@ pp_scope::is_bound() const
  * Add a named or unnamed datatype to this scope.
  */
 void
-pp_scope::add_datatype(const string &name, pp_const_datatype_ptr datatype)
+pp_scope::add_datatype(const string &name, pp_datatype_ptr datatype)
 {
 	m_datatypes.insert(name, datatype);
 }
 void
-pp_scope::add_datatype(pp_const_datatype_ptr datatype)
+pp_scope::add_datatype(pp_datatype_ptr datatype)
 {
 	m_anon_datatypes.push_back(datatype);
 }
@@ -223,7 +223,7 @@ pp_scope::lookup_dirent(pp_path path) const
 const pp_dirent *
 pp_scope::lookup_dirent_internal(pp_path &path) const
 {
-	/* grab first element of path */
+	/* get the next element of the path */
 	pp_path::element path_front = path.pop_front();
 
 	/*

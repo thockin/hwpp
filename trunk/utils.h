@@ -148,9 +148,9 @@ NEW_PLATFORM();
  * operations, eg ONE_BIT_FIELD) will be placed on this scope.
  */
 extern void
-OPEN_SCOPE(const string &name, pp_const_binding_ptr binding = pp_binding_ptr());
+OPEN_SCOPE(const string &name, pp_binding_ptr binding = pp_binding_ptr());
 inline void
-OPEN_SCOPE(pp_const_binding_ptr binding)
+OPEN_SCOPE(pp_binding_ptr binding)
 {
 	OPEN_SCOPE(binding->to_string(), binding);
 }
@@ -262,12 +262,12 @@ operator,(const driver_arg_list &lhs, const pp_value &rhs)
  * This can take an arbitrary list of arguments, such as:
  * 	BIND("mem", ARGS(1, 2, 3, 4));
  */
-inline pp_const_binding_ptr
+inline pp_binding_ptr
 BIND(const string &driver, const driver_arg_list &args)
 {
 	return find_driver(driver)->new_binding(args);
 }
-inline pp_const_binding_ptr
+inline pp_binding_ptr
 BIND(const string &driver, const driver_arg &arg)
 {
 	driver_arg_list al;

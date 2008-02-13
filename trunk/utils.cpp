@@ -185,7 +185,7 @@ NEW_PLATFORM()
  * Start a new scope.
  */
 void
-OPEN_SCOPE(const string &name, pp_const_binding_ptr binding)
+OPEN_SCOPE(const string &name, pp_binding_ptr binding)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
