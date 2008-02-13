@@ -11,7 +11,24 @@ typedef enum {
 	PP_DIRENT_REGISTER,
 	PP_DIRENT_FIELD,
 	PP_DIRENT_SCOPE,
+	PP_DIRENT_MAX,
 } pp_dirent_type;
+
+static const char *dirent_type_strings[] = {
+	"pp_register",
+	"pp_field",
+	"pp_scope",
+};
+
+inline std::ostream &
+operator<<(std::ostream& o, const pp_dirent_type &type)
+{
+	if (type >= PP_DIRENT_MAX) {
+		throw std::out_of_range(
+		    "invalid pp_dirent_type: " + to_string((int)type));
+	}
+	return o << dirent_type_strings[type];
+}
 
 /*
  * pp_dirent - a directory entry in a scope
@@ -32,8 +49,13 @@ class pp_dirent {
 		}
 	};
 
-	explicit pp_dirent(pp_dirent_type type): m_type(type) {}
-	virtual ~pp_dirent() {}
+	explicit pp_dirent(pp_dirent_type type): m_type(type)
+	{
+		DASSERT_MSG(type < PP_DIRENT_MAX, "invalid pp_dirent_type");
+	}
+	virtual ~pp_dirent()
+	{
+	}
 
 	/*
 	 * pp_dirent::dirent_type()
