@@ -6,6 +6,7 @@ DRIVER_LIB = drivers/libdrivers.a
 SRCS = utils.cpp \
 	magic_regs.cpp \
 	drivers.cpp \
+	pp_path.cpp \
 	pp_scope.cpp
 OBJS = $(SRCS:.cpp=.o)
 
