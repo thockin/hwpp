@@ -53,7 +53,7 @@ class pp_enum: public pp_datatype
 	 * it's corresponding value, or validating that a numeric value is
 	 * a valid option.
 	 *
-	 * This will throw pp_datatype_invalid_error if the lookup is not a
+	 * This will throw pp_datatype::invalid_error if the lookup is not a
 	 * valid value for this enum.
 	 */
 	virtual pp_value
@@ -64,7 +64,7 @@ class pp_enum: public pp_datatype
 				return m_values[i];
 			}
 		}
-		throw pp_datatype_invalid_error(str);
+		throw pp_datatype::invalid_error(str);
 	}
 	virtual pp_value
 	lookup(const pp_value &value) const
@@ -74,7 +74,7 @@ class pp_enum: public pp_datatype
 				return m_values[i];
 			}
 		}
-		throw pp_datatype_invalid_error(to_string(value));
+		throw pp_datatype::invalid_error(to_string(value));
 	}
 
 	/*
@@ -215,7 +215,7 @@ class pp_bitmask: public pp_datatype
 	 * datatype.  For a bitmask type, this means converting a string to
 	 * it's corresponding bit value.
 	 *
-	 * This will throw pp_datatype_invalid_error if the string is not a
+	 * This will throw pp_datatype::invalid_error if the string is not a
 	 * valid value in this bitmask.
 	 */
 	virtual pp_value
@@ -227,7 +227,7 @@ class pp_bitmask: public pp_datatype
 				return m_bits[i];
 			}
 		}
-		throw pp_datatype_invalid_error(str);
+		throw pp_datatype::invalid_error(str);
 	}
 	virtual pp_value
 	lookup(const pp_value &value) const

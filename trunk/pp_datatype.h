@@ -5,12 +5,6 @@
 #include "pp.h"
 #include <stdexcept>
 
-class pp_datatype_invalid_error: public std::runtime_error
-{
-    public:
-	pp_datatype_invalid_error(const string &str): runtime_error(str) {}
-};
-
 /*
  * pp_datatype - abstract base class for all datatypes.
  *
@@ -22,6 +16,16 @@ class pp_datatype_invalid_error: public std::runtime_error
 class pp_datatype
 {
     public:
+	// an invalid value error
+	class invalid_error: public std::runtime_error
+	{
+	    public:
+		invalid_error(const string &str)
+		    : runtime_error(str)
+		{
+		}
+	};
+
 	virtual ~pp_datatype() {}
 
 	/*
@@ -41,7 +45,7 @@ class pp_datatype
 	 * Lookup the value of a (potentially valid) evaluation for this
 	 * datatype.  Each specific subclass will override these.
 	 *
-	 * This can throw pp_datatype_invalid_error.
+	 * This can throw pp_datatype::invalid_error.
 	 */
 	virtual pp_value
 	lookup(const string &str) const = 0;
@@ -59,7 +63,7 @@ class pp_datatype
 	 * whether the lhs is less than, equal to, or greater than the rhs
 	 * (negative, zero, positive return code, respectively).
 	 *
-	 * This can throw pp_datatype_invalid_error.
+	 * This can throw pp_datatype::invalid_error.
 	 */
 	virtual int
 	compare(const pp_value &lhs, const string &rhs) const
