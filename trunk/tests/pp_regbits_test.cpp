@@ -137,12 +137,44 @@ test_complex_regbits()
 }
 
 int
+test_exceptions()
+{
+	int ret = 0;
+
+	try {
+		pp_regbits rb(NULL);
+		PP_TEST_ERROR("pp_regbits::pp_regbits(NULL)");
+		ret++;
+	} catch (pp_regbits::range_error &e) {
+	}
+	try {
+		pp_binding_ptr bind = new_test_binding();
+		pp_register_ptr reg = new_pp_register(bind.get(), 0, BITS16);
+		pp_regbits rb(reg.get(), 0, 15);
+		PP_TEST_ERROR("pp_regbits::pp_regbits(r, lo, hi)");
+		ret++;
+	} catch (pp_regbits::range_error &e) {
+	}
+	try {
+		pp_binding_ptr bind = new_test_binding();
+		pp_register_ptr reg = new_pp_register(bind.get(), 0, BITS16);
+		pp_regbits rb(reg.get(), 16);
+		PP_TEST_ERROR("pp_regbits::pp_regbits(r, too_hi)");
+		ret++;
+	} catch (pp_regbits::range_error &e) {
+	}
+
+	return ret;
+}
+
+int
 main()
 {
 	int r = 0;
 
 	r += test_simple_regbits();
 	r += test_complex_regbits();
+	r += test_exceptions();
 
 	if (r) return EXIT_FAILURE;
 	return EXIT_SUCCESS;

@@ -27,6 +27,15 @@
 class pp_regbits
 {
     public:
+	// a bitrange error
+	struct range_error: public std::runtime_error
+	{
+		range_error(const string &str)
+		    : runtime_error(str)
+		{
+		}
+	};
+
 	// create an empty regbits
 	pp_regbits(): m_register(NULL), m_mask(0)
 	{}
@@ -34,7 +43,7 @@ class pp_regbits
 	pp_regbits(const pp_register *reg)
 	{
 		// use the full register
-		init(reg, reg->width() - 1, 0);
+		init(reg, reg ? reg->width()-1 : 0, 0);
 	}
 	pp_regbits(const pp_register *reg, unsigned bit)
 	{
@@ -168,14 +177,16 @@ class pp_regbits
 	init(const pp_register *reg, unsigned hi_bit, unsigned lo_bit)
 	{
 		// sanity checks first
-		DASSERT_MSG(reg, "NULL register");
+		if (reg == NULL) {
+			throw range_error("NULL register");
+		}
 		if (hi_bit < lo_bit) {
-			throw std::out_of_range("bad bit range: ["
+			throw range_error("bad bitrange: ["
 			    + to_string(hi_bit) + ":"
 			    + to_string(lo_bit) + "]");
 		}
 		if (hi_bit >= reg->width()) {
-			throw std::out_of_range("bad bit range: ["
+			throw range_error("bad bitrange: ["
 			    + to_string(hi_bit) + ":"
 			    + to_string(lo_bit) + "]: register is only "
 			    + to_string(reg->width()) + " bits");
