@@ -88,6 +88,7 @@ typedef boost::shared_ptr<const pp_register> pp_const_register_ptr;
 
 #define new_pp_register(...) pp_register_ptr(new pp_register(__VA_ARGS__))
 
+// const
 inline const pp_register *
 pp_register_from_dirent(const pp_dirent *dirent)
 {
@@ -96,6 +97,13 @@ pp_register_from_dirent(const pp_dirent *dirent)
 	}
 	throw pp_dirent::conversion_error(
 	    "non-register dirent used as register");
+}
+// non-const
+inline pp_register *
+pp_register_from_dirent(pp_dirent *dirent)
+{
+	const pp_dirent *const_dirent = dirent;
+	return const_cast<pp_register *>(pp_register_from_dirent(const_dirent));
 }
 
 #endif // PP_PP_REGISTER_H__

@@ -118,6 +118,7 @@ class pp_field: public pp_dirent
 typedef boost::shared_ptr<pp_field> pp_field_ptr;
 typedef boost::shared_ptr<const pp_field> pp_const_field_ptr;
 
+// const
 inline const pp_field *
 pp_field_from_dirent(const pp_dirent *dirent)
 {
@@ -125,6 +126,13 @@ pp_field_from_dirent(const pp_dirent *dirent)
 		return static_cast<const pp_field *>(dirent);
 	}
 	throw pp_dirent::conversion_error("non-field dirent used as field");
+}
+// non-const
+inline pp_field *
+pp_field_from_dirent(pp_dirent *dirent)
+{
+	const pp_dirent *const_dirent = dirent;
+	return const_cast<pp_field *>(pp_field_from_dirent(const_dirent));
 }
 
 #endif // PP_PP_FIELD_H__

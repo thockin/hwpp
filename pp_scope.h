@@ -121,6 +121,10 @@ class pp_scope: public pp_dirent
 	 * Throws:
 	 * 	std::out_of_range
 	 */
+	pp_dirent *
+	dirent(int index);
+	pp_dirent *
+	dirent(string index);
 	const pp_dirent *
 	dirent(int index) const;
 	const pp_dirent *
@@ -190,7 +194,7 @@ class pp_scope: public pp_dirent
     private:
 	const pp_scope *m_parent;
 	pp_const_binding_ptr m_binding;
-	keyed_vector<string, pp_const_dirent_ptr> m_dirents;
+	keyed_vector<string, pp_dirent_ptr> m_dirents;
 	keyed_vector<string, pp_const_datatype_ptr> m_datatypes;
 	std::vector<pp_const_datatype_ptr> m_anon_datatypes;
 
@@ -202,14 +206,21 @@ typedef boost::shared_ptr<const pp_scope> pp_const_scope_ptr;
 
 #define new_pp_scope(...) pp_scope_ptr(new pp_scope(__VA_ARGS__))
 
+// const
 inline const pp_scope *
 pp_scope_from_dirent(const pp_dirent *dirent)
 {
 	if (dirent->is_scope()) {
 		return static_cast<const pp_scope *>(dirent);
 	}
-	throw pp_dirent::conversion_error(
-	    "non-scope dirent used as scope");
+	throw pp_dirent::conversion_error("non-scope dirent used as scope");
+}
+// non-const
+inline pp_scope *
+pp_scope_from_dirent(pp_dirent *dirent)
+{
+	const pp_dirent *const_dirent = dirent;
+	return const_cast<pp_scope *>(pp_scope_from_dirent(const_dirent));
 }
 
 #endif // PP_PP_SCOPE_H__
