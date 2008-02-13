@@ -102,7 +102,9 @@ class pp_scope: public pp_dirent
 	 * Add a named dirent to this scope.
 	 *
 	 * Throws:
-	 * 	pp_path::invalid_error
+	 * 	pp_path::not_found_error	- path not found
+	 * 	pp_path::invalid_error		- invalid path element
+	 * 	pp_dirent::conversion_error	- path element is not a scope
 	 */
 	void
 	add_dirent(const string &name, pp_dirent_ptr dirent);
@@ -136,6 +138,12 @@ class pp_scope: public pp_dirent
 	/*
 	 * Return a pointer to the specified dirent.
 	 * NOTE: This takes path as a copy.
+	 *
+	 * Throws:
+	 * 	pp_path::not_found_error	- path not found
+	 * 	pp_path::invalid_error		- invalid path element
+	 * 	pp_dirent::conversion_error	- path element is not a scope
+	 *
 	 */
 	const pp_dirent *
 	lookup_dirent(pp_path path) const;
@@ -148,18 +156,33 @@ class pp_scope: public pp_dirent
 
 	/*
 	 * Return a pointer to the specified register.
+	 *
+	 * Throws:
+	 * 	pp_path::not_found_error	- path not found
+	 * 	pp_path::invalid_error		- invalid path element
+	 * 	pp_dirent::conversion_error	- path element is not a scope
 	 */
 	const pp_register *
 	lookup_register(const pp_path &path) const;
 
 	/*
 	 * Return a pointer to the specified field.
+	 *
+	 * Throws:
+	 * 	pp_path::not_found_error	- path not found
+	 * 	pp_path::invalid_error		- invalid path element
+	 * 	pp_dirent::conversion_error	- path element is not a scope
 	 */
 	const pp_field *
 	lookup_field(const pp_path &path) const;
 
 	/*
 	 * Return a pointer to the specified scope.
+	 *
+	 * Throws:
+	 * 	pp_path::not_found_error	- path not found
+	 * 	pp_path::invalid_error		- invalid path element
+	 * 	pp_dirent::conversion_error	- path element is not a scope
 	 */
 	const pp_scope *
 	lookup_scope(const pp_path &path) const;

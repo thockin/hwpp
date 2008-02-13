@@ -22,6 +22,8 @@ test_element()
 			"pp_path::element::element()");
 		ret += PP_TEST_ASSERT(!e.equals(pp_path::element("bar")),
 			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.is_array() == false,
+			"pp_path::element::element()");
 	}
 	{
 		pp_path::element e("%foo");
@@ -31,6 +33,8 @@ test_element()
 			"pp_path::element::element()");
 		ret += PP_TEST_ASSERT(!e.equals(pp_path::element("%bar")),
 			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.is_array() == false,
+			"pp_path::element::element()");
 	}
 	{
 		pp_path::element e("foo_123");
@@ -39,6 +43,8 @@ test_element()
 		ret += PP_TEST_ASSERT(e.equals(pp_path::element("foo_123")),
 			"pp_path::element::element()");
 		ret += PP_TEST_ASSERT(!e.equals(pp_path::element("foo_456")),
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.is_array() == false,
 			"pp_path::element::element()");
 	}
 	{
@@ -51,6 +57,10 @@ test_element()
 			"pp_path::element::element()");
 		ret += PP_TEST_ASSERT(!e.equals(pp_path::element("bar[]")),
 			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.is_array() == true,
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.array_index() == -1,
+			"pp_path::element::element()");
 	}
 	{
 		pp_path::element e("foo[0]");
@@ -62,6 +72,56 @@ test_element()
 			"pp_path::element::element()");
 		ret += PP_TEST_ASSERT(!e.equals(pp_path::element("bar[0]")),
 			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.is_array() == true,
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.array_index() == 0,
+			"pp_path::element::element()");
+	}
+	{
+		pp_path::element e("foo[010]");
+		ret += PP_TEST_ASSERT(e.to_string() == "foo[8]",
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.equals(pp_path::element("foo[010]")),
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(!e.equals(pp_path::element("foo")),
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(!e.equals(pp_path::element("bar[010]")),
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.equals(pp_path::element("foo[8]")),
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(!e.equals(pp_path::element("bar[8]")),
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.is_array() == true,
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.array_index() == 8,
+			"pp_path::element::element()");
+	}
+	{
+		pp_path::element e("foo[0x10]");
+		ret += PP_TEST_ASSERT(e.to_string() == "foo[16]",
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.equals(pp_path::element("foo[0x10]")),
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(!e.equals(pp_path::element("foo")),
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(!e.equals(pp_path::element("bar[0x10]")),
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.equals(pp_path::element("foo[16]")),
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(!e.equals(pp_path::element("bar[16]")),
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.is_array() == true,
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.array_index() == 16,
+			"pp_path::element::element()");
+	}
+	{
+		try {
+			pp_path::element e("123");
+			PP_TEST_ERROR("pp_path::pp_path()");
+			ret++;
+		} catch (pp_path::invalid_error &e) {
+		}
 	}
 
 	return ret;
@@ -323,7 +383,14 @@ test_ctors()
 		ret += PP_TEST_ASSERT(path.is_absolute(),
 			"pp_path::pp_path(char *)");
 	}
-	//FIXME: test pp_path::invalid_error throw
+	{
+		try {
+			pp_path path("123");
+			PP_TEST_ERROR("pp_path::pp_path()");
+			ret++;
+		} catch (pp_path::invalid_error &e) {
+		}
+	}
 
 	// test copy construction
 	{
@@ -336,7 +403,6 @@ test_ctors()
 		ret += PP_TEST_ASSERT(!path2.is_absolute(),
 			"pp_path::pp_path(char *)");
 	}
-	//FIXME: test pp_path::invalid_error throw
 
 	return ret;
 }

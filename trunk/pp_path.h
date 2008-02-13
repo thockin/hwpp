@@ -105,9 +105,9 @@ class pp_path
 		// 	pp_path::invalid_error
 		explicit
 		element(const string &str)
+		    : m_name(), m_is_array(false), m_index(-1)
 		{
-			//FIXME: should do better parsing
-			m_string = str;
+			parse(str);
 		}
 
 		string
@@ -116,8 +116,25 @@ class pp_path
 		bool
 		equals(const element &other) const;
 
+		const string &
+		name() const;
+
+		bool
+		is_array() const;
+
+		int
+		array_index() const;
+
 	    private:
-		string m_string;
+		string m_name;
+		bool m_is_array;
+		int m_index;
+
+		void
+		parse(const string &input);
+
+		void
+		parse_error(const string &name);
 	};
 
 	// a path not found error

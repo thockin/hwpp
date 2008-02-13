@@ -138,6 +138,11 @@ pp_scope::resolve_datatype(const string &name) const
 
 /*
  * Add a named dirent to this scope.
+ *
+ * Throws:
+ * 	pp_path::not_found_error	- path not found
+ * 	pp_path::invalid_error		- invalid path element
+ * 	pp_dirent::conversion_error	- path element is not a scope
  */
 void
 pp_scope::add_dirent(const string &name, pp_dirent_ptr dirent)
@@ -190,6 +195,11 @@ pp_scope::dirent_name(int index) const
 /*
  * Return a pointer to the specified dirent.
  * NOTE: This takes path as a copy.
+ *
+ * Throws:
+ * 	pp_path::not_found_error	- path not found
+ * 	pp_path::invalid_error		- invalid path element
+ * 	pp_dirent::conversion_error	- path element is not a scope
  */
 const pp_dirent *
 pp_scope::lookup_dirent(pp_path path) const
@@ -267,8 +277,9 @@ pp_scope::dirent_defined(const pp_path &path) const
  * Return a pointer to the specified register.
  *
  * Throws:
- * 	pp_dirent::conversion_error	- path is not a register
- *	std::out_of_range		- path not found
+ * 	pp_path::not_found_error	- path not found
+ * 	pp_path::invalid_error		- invalid path element
+ * 	pp_dirent::conversion_error	- path element is not a scope
  */
 const pp_register *
 pp_scope::lookup_register(const pp_path &path) const
@@ -285,8 +296,9 @@ pp_scope::lookup_register(const pp_path &path) const
  * Return a pointer to the specified field.
  *
  * Throws:
- * 	pp_dirent::conversion_error	- path is not a field
- * 	std::out_of_range		- path not found
+ * 	pp_path::not_found_error	- path not found
+ * 	pp_path::invalid_error		- invalid path element
+ * 	pp_dirent::conversion_error	- path element is not a scope
  */
 const pp_field *
 pp_scope::lookup_field(const pp_path &path) const
@@ -303,8 +315,9 @@ pp_scope::lookup_field(const pp_path &path) const
  * Return a pointer to the specified scope.
  *
  * Throws:
- * 	pp_dirent::conversion_error	- path is not a scope
- *	std::out_of_range		- path not found
+ * 	pp_path::not_found_error	- path not found
+ * 	pp_path::invalid_error		- invalid path element
+ * 	pp_dirent::conversion_error	- path element is not a scope
  */
 const pp_scope *
 pp_scope::lookup_scope(const pp_path &path) const
