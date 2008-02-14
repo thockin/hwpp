@@ -11,6 +11,7 @@ typedef enum {
 	PP_DIRENT_REGISTER,
 	PP_DIRENT_FIELD,
 	PP_DIRENT_SCOPE,
+	PP_DIRENT_ARRAY,
 	PP_DIRENT_MAX,
 } pp_dirent_type;
 
@@ -18,6 +19,7 @@ static const char *dirent_type_strings[] = {
 	"pp_register",
 	"pp_field",
 	"pp_scope",
+	"pp_array",
 };
 
 inline std::ostream &
@@ -76,17 +78,22 @@ class pp_dirent {
 	bool
 	is_register() const
 	{
-		return m_type == PP_DIRENT_REGISTER;
+		return (m_type == PP_DIRENT_REGISTER);
 	}
 	bool
 	is_field() const
 	{
-		return m_type == PP_DIRENT_FIELD;
+		return (m_type == PP_DIRENT_FIELD);
 	}
 	bool
 	is_scope() const
 	{
-		return m_type == PP_DIRENT_SCOPE;
+		return (m_type == PP_DIRENT_SCOPE);
+	}
+	bool
+	is_array() const
+	{
+		return (m_type == PP_DIRENT_ARRAY);
 	}
 
     private:

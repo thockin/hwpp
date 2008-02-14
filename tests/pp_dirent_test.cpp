@@ -58,6 +58,10 @@ test_pp_dirent()
 		PP_TEST_ERROR("pp_dirent::operator<<(ostream)");
 		ret++;
 	}
+	if (to_string(PP_DIRENT_ARRAY) != "pp_array") {
+		PP_TEST_ERROR("pp_dirent::operator<<(ostream)");
+		ret++;
+	}
 
 	/* test up-casting */
 	try {
