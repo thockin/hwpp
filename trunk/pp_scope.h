@@ -11,6 +11,7 @@
 #include "pp_datatype.h"
 #include "pp_register.h"
 #include "pp_field.h"
+#include "pp_array.h"
 
 /*
  * pp_scope - a lexical scope.
@@ -190,6 +191,17 @@ class pp_scope: public pp_dirent
 	 */
 	const pp_scope *
 	lookup_scope(const pp_path &path) const;
+
+	/*
+	 * Return a pointer to the specified array.
+	 *
+	 * Throws:
+	 * 	pp_path::not_found_error	- path not found
+	 * 	pp_path::invalid_error		- invalid path element
+	 * 	pp_dirent::conversion_error	- path element is not a scope
+	 */
+	const pp_array *
+	lookup_array(const pp_path &path) const;
 
     private:
 	const pp_scope *m_parent;

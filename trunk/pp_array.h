@@ -29,6 +29,8 @@ class pp_array: public pp_dirent
 
 	//
 	// Add a dirent to this array.
+	// Throws:
+	// 	pp_dirent::conversion_error	- wrong pp_dirent_type
 	//
 	void
 	append(pp_dirent_ptr dirent)
@@ -52,11 +54,13 @@ class pp_array: public pp_dirent
 
 	//
 	// Provide access to the dirent at an index.
+	// Throws:
+	// 	std::out_of_range	- index is out of range
 	//
 	const pp_dirent *
 	at(size_t index) const
 	{
-		return m_vector[index].get();
+		return m_vector.at(index).get();
 	}
 	const pp_dirent *
 	operator[](size_t index) const

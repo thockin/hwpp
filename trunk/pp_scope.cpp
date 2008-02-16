@@ -9,6 +9,7 @@
 #include "pp_datatype.h"
 #include "pp_register.h"
 #include "pp_field.h"
+#include "pp_array.h"
 
 /*
  * Get a pointer to the parent scope of this object.  If this
@@ -145,19 +146,42 @@ pp_scope::resolve_datatype(const string &name) const
  * 	pp_dirent::conversion_error	- path element is not a scope
  */
 void
-pp_scope::add_dirent(const string &name, pp_dirent_ptr dirent)
+pp_scope::add_dirent(const string &name, pp_dirent_ptr new_dirent)
 {
 	// convert name to a path element, which will validate and parse it
 	pp_path::element elem(name);
 
-	// if we're adding a scope, we need to link it into the tree
-	if (dirent->is_scope()) {
-		pp_scope *scope = static_cast<pp_scope*>(dirent.get());
-		scope->set_parent(this);
+	// is the name an array access?
+	if (elem.is_array()) {
+		// if so, we don't support direct indexed writes, just appends
+		if (elem.array_index() != -1) {
+			throw pp_path::invalid_error(
+			    "array write is not an append: "
+			    + elem.to_string());
+		}
+		// does the array already exist?
+		try {
+			// if so, append the new dirent
+			pp_dirent *de = dirent(elem.name());
+			pp_array *ar = pp_array_from_dirent(de);
+			ar->append(new_dirent);
+		} catch (std::out_of_range &e) {
+			// if not, add the array and append the new diren
+			pp_array_ptr ar =
+			    new_pp_array(new_dirent->dirent_type());
+			m_dirents.insert(elem.name(), ar);
+			ar->append(new_dirent);
+		}
+	} else {
+		// if not, just add the new dirent
+		m_dirents.insert(elem.name(), new_dirent);
 	}
 
-	// add it to the list of named dirents
-	m_dirents.insert(name, dirent);
+	// if we're adding a scope, we need to link it into the tree
+	if (new_dirent->is_scope()) {
+		pp_scope *scope = pp_scope_from_dirent(new_dirent.get());
+		scope->set_parent(this);
+	}
 }
 
 /*
@@ -236,19 +260,44 @@ pp_scope::lookup_dirent_internal(pp_path &path) const
 	/* get the next element of the path */
 	pp_path::element path_front = path.pop_front();
 
-	/*
-	 * Look up the dirent of the next element.  This will throw
-	 * std::out_of_range if the dirent does not exist.
-	 */
+	// look up the dirent of the next element
 	const pp_dirent *de;
 	if (path_front == "..") {
+		// go up one level in the tree
 		de = parent();
 	} else {
 		try {
-			de = dirent(path_front.to_string());
+			// get the next dirent
+			de = dirent(path_front.name());
+		} catch (std::out_of_range &e) {
+			// dirent was not found
+			throw pp_path::not_found_error(
+			    "path element not found: " + path_front.name());
+		}
+	}
+
+	// handle arrays
+	if (path_front.is_array()) {
+		// if path is array and dirent is not array: error
+		if (!de->is_array()) {
+			throw pp_dirent::conversion_error(
+			    "path element is not an array: "
+			    + path_front.to_string());
+		}
+		// if path is array[], return not_found
+		if (path_front.array_index() == -1) {
+			throw pp_path::not_found_error(
+			    "array append is not a dirent: "
+			    + path_front.name());
+		}
+		// if path is array[n], index into the array
+		try {
+			const pp_array *ar = pp_array_from_dirent(de);
+			de = ar->at(path_front.array_index());
 		} catch (std::out_of_range &e) {
 			throw pp_path::not_found_error(
-			    "path element not found: " + path_front.to_string());
+			    "path element not found: "
+			    + path_front.to_string());
 		}
 	}
 
@@ -337,5 +386,24 @@ pp_scope::lookup_scope(const pp_path &path) const
 		return pp_scope_from_dirent(de);
 	}
 	throw pp_dirent::conversion_error("path is not a scope: "
+	    + to_string(path));
+}
+
+/*
+ * Return a pointer to the specified array.
+ *
+ * Throws:
+ * 	pp_path::not_found_error	- path not found
+ * 	pp_path::invalid_error		- invalid path element
+ * 	pp_dirent::conversion_error	- path element is not a scope
+ */
+const pp_array *
+pp_scope::lookup_array(const pp_path &path) const
+{
+	const pp_dirent *de = lookup_dirent(path);
+	if (de->is_array()) {
+		return pp_array_from_dirent(de);
+	}
+	throw pp_dirent::conversion_error("path is not an array: "
 	    + to_string(path));
 }

@@ -167,6 +167,15 @@ test_exceptions()
 	} catch (std::out_of_range &e) {
 	}
 
+	// add a field
+	pp_datatype_ptr dt = new_pp_int();
+	pp_constant_field_ptr field = new_pp_constant_field(dt.get(), 0);
+	scope->add_dirent("field", field);
+
+	// add an array
+	pp_array_ptr array = new_pp_array(PP_DIRENT_FIELD);
+	scope->add_dirent("array", array);
+
 	// test invalid path elements
 	try {
 		scope->add_dirent("123", pp_field_ptr());
@@ -195,6 +204,32 @@ test_exceptions()
 	try {
 		scope->lookup_scope("foo/123");
 		PP_TEST_ERROR("pp_scope::lookup_scope()");
+		ret++;
+	} catch (pp_path::invalid_error &e) {
+	}
+	try {
+		scope->lookup_array("foo/123");
+		PP_TEST_ERROR("pp_scope::lookup_array()");
+		ret++;
+	} catch (pp_path::invalid_error &e) {
+	}
+
+	// test array screwups
+	try {
+		scope->lookup_dirent("field[0]");
+		PP_TEST_ERROR("pp_scope::lookup_dirent()");
+		ret++;
+	} catch (pp_dirent::conversion_error &e) {
+	}
+	try {
+		scope->lookup_dirent("array[0]");
+		PP_TEST_ERROR("pp_scope::lookup_dirent()");
+		ret++;
+	} catch (pp_path::not_found_error &e) {
+	}
+	try {
+		scope->add_dirent("array[0]", new_pp_scope());
+		PP_TEST_ERROR("pp_scope::add_dirent()");
 		ret++;
 	} catch (pp_path::invalid_error &e) {
 	}
@@ -235,6 +270,30 @@ test_dirents()
 	pp_scope_ptr scope1 = new_pp_scope();
 	scope0->add_dirent("scope1", scope1);
 	ret += PP_TEST_ASSERT(scope0->n_dirents() == 3,
+	    "pp_scope::n_dirents()");
+
+	// create an array
+	pp_array_ptr array1 = new_pp_array(PP_DIRENT_FIELD);
+	// create a field and add it to array1
+	pp_constant_field_ptr field2 = new_pp_constant_field(dt.get(), 0);
+	array1->append(field2);
+	// add array1 to scope0
+	scope0->add_dirent("array1", array1);
+	ret += PP_TEST_ASSERT(scope0->n_dirents() == 4,
+	    "pp_scope::n_dirents()");
+
+	// create an array of fields in scope0
+	pp_constant_field_ptr field3 = new_pp_constant_field(dt.get(), 0);
+	scope0->add_dirent("array2[]", field3);
+	ret += PP_TEST_ASSERT(scope0->n_dirents() == 5,
+	    "pp_scope::n_dirents()");
+	ret += PP_TEST_ASSERT(scope0->lookup_array("array2")->size() == 1,
+	    "pp_scope::n_dirents()");
+	pp_constant_field_ptr field4 = new_pp_constant_field(dt.get(), 0);
+	scope0->add_dirent("array2[]", field4);
+	ret += PP_TEST_ASSERT(scope0->n_dirents() == 5,
+	    "pp_scope::n_dirents()");
+	ret += PP_TEST_ASSERT(scope0->lookup_array("array2")->size() == 2,
 	    "pp_scope::n_dirents()");
 
 	// test dirent()
@@ -296,6 +355,11 @@ test_dirents()
 		// search for an item through a path with ".."
 		f = root->lookup_field("scope0/scope1/../field1");
 		ret += PP_TEST_ASSERT(f == field1.get(),
+		    "pp_scope::lookup_field()");
+
+		// search for an array-held item
+		f = root->lookup_field("scope0/array1[0]");
+		ret += PP_TEST_ASSERT(f == field2.get(),
 		    "pp_scope::lookup_field()");
 	}
 	// test lookup_register()
@@ -372,6 +436,36 @@ test_dirents()
 		ret += PP_TEST_ASSERT(s == scope1.get(),
 		    "pp_scope::lookup_scope()");
 	}
+	// test lookup_array()
+	{
+		const pp_array *a;
+
+		// search for an array, exists
+		a = root->lookup_array("scope0/array1");
+		ret += PP_TEST_ASSERT(a == array1.get(),
+		    "pp_scope::lookup_array()");
+
+		// search for a array, non-existing
+		try {
+			root->lookup_array("scope0/foo");
+			PP_TEST_ERROR("pp_scope::lookup_array()");
+			ret++;
+		} catch (pp_path::not_found_error &e) {
+		}
+
+		// search for a non-array, existing
+		try {
+			root->lookup_array("scope0/field1");
+			PP_TEST_ERROR("pp_scope::lookup_array()");
+			ret++;
+		} catch (pp_dirent::conversion_error &e) {
+		}
+
+		// search for an item through a path with ".."
+		a = root->lookup_array("scope0/scope1/../array1");
+		ret += PP_TEST_ASSERT(a == array1.get(),
+		    "pp_scope::lookup_array()");
+	}
 	// test lookup_dirent()
 	{
 		const pp_dirent *de;
@@ -411,6 +505,14 @@ test_dirents()
 		de = root->lookup_dirent("scope0/scope1/../scope1");
 		ret += PP_TEST_ASSERT(pp_scope_from_dirent(de) == scope1.get(),
 		    "pp_scope::lookup_dirent()");
+
+		// search for an array-held item
+		de = root->lookup_dirent("scope0/array1");
+		ret += PP_TEST_ASSERT(pp_array_from_dirent(de) == array1.get(),
+		    "pp_scope::lookup_dirent()");
+		de = root->lookup_dirent("scope0/array1[0]");
+		ret += PP_TEST_ASSERT(pp_field_from_dirent(de) == field2.get(),
+		    "pp_scope::lookup_dirent()");
 	}
 	// test dirent_defined()
 	{
@@ -444,6 +546,16 @@ test_dirents()
 		found = root->dirent_defined("scope0/scope1/../scope1");
 		ret += PP_TEST_ASSERT(found, "pp_scope::dirent_defined()");
 		found = root->dirent_defined("scope0/scope1/../foo");
+		ret += PP_TEST_ASSERT(!found, "pp_scope::dirent_defined()");
+
+		// search for an array-held item
+		found = root->dirent_defined("scope0/array1");
+		ret += PP_TEST_ASSERT(found, "pp_scope::dirent_defined()");
+		found = root->dirent_defined("scope0/array1[]");
+		ret += PP_TEST_ASSERT(!found, "pp_scope::dirent_defined()");
+		found = root->dirent_defined("scope0/array1[0]");
+		ret += PP_TEST_ASSERT(found, "pp_scope::dirent_defined()");
+		found = root->dirent_defined("scope0/array1[1]");
 		ret += PP_TEST_ASSERT(!found, "pp_scope::dirent_defined()");
 	}
 
