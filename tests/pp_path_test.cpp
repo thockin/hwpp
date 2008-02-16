@@ -116,6 +116,29 @@ test_element()
 			"pp_path::element::element()");
 	}
 	{
+		pp_path::element e("^");
+		ret += PP_TEST_ASSERT(e.to_string() == "^",
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.is_array() == false,
+			"pp_path::element::element()");
+	}
+	{
+		try {
+			pp_path::element e("^foo");
+			PP_TEST_ERROR("pp_path::pp_path()");
+			ret++;
+		} catch (pp_path::invalid_error &e) {
+		}
+	}
+	{
+		try {
+			pp_path::element e("^^");
+			PP_TEST_ERROR("pp_path::pp_path()");
+			ret++;
+		} catch (pp_path::invalid_error &e) {
+		}
+	}
+	{
 		try {
 			pp_path::element e("123");
 			PP_TEST_ERROR("pp_path::pp_path()");
@@ -390,6 +413,33 @@ test_ctors()
 			ret++;
 		} catch (pp_path::invalid_error &e) {
 		}
+	}
+
+	// test carats
+	{
+		pp_path path("^");
+		ret += PP_TEST_ASSERT(path == "^",
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(!path.is_absolute(),
+			"pp_path::is_absolute()");
+	}
+	{
+		pp_path path("^/foo");
+		ret += PP_TEST_ASSERT(path == "^/foo",
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(path != pp_path("^/bar"),
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(!path.is_absolute(),
+			"pp_path::is_absolute()");
+	}
+	{
+		pp_path path("/^/foo");
+		ret += PP_TEST_ASSERT(path == "/^/foo",
+			"pp_path::pp_path()");
+		ret += PP_TEST_ASSERT(path != pp_path("/^/bar"),
+			"pp_path::pp_path()");
+		ret += PP_TEST_ASSERT(path.is_absolute(),
+			"pp_path::is_absolute()");
 	}
 
 	// test copy construction

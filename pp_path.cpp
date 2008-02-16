@@ -52,8 +52,6 @@ pp_path::element::array_index() const
 void
 pp_path::element::parse(const string &input)
 {
-	int i = 0;
-	bool done = false;
 	enum {
 		ST_START,
 		ST_PERCENT,
@@ -66,7 +64,7 @@ pp_path::element::parse(const string &input)
 	} state = ST_START;
 	int idx_base = 10;
 
-	for (i = 0; !done; i++) {
+	for (size_t i = 0; i < input.size(); i++) {
 		char c = input[i];
 
 		switch (state) {
@@ -74,6 +72,9 @@ pp_path::element::parse(const string &input)
 			if (c == '%') {
 				m_name += c;
 				state = ST_PERCENT;
+			} else if (c == '^') {
+				m_name += c;
+				state = ST_DONE;
 			} else if (isalpha(c) || c == '_') {
 				m_name += c;
 				state = ST_BODY;
@@ -101,8 +102,6 @@ pp_path::element::parse(const string &input)
 			} else if (c == '[') {
 				m_is_array = true;
 				state = ST_ARRAY;
-			} else if (c == '\0') {
-				done = 1;
 			} else {
 				parse_error(input);
 				return;
@@ -174,12 +173,8 @@ pp_path::element::parse(const string &input)
 			}
 			break;
 		    case ST_DONE:
-			if (c == '\0') {
-				done = 1;
-			} else {
-				parse_error(input);
-				return;
-			}
+			parse_error(input);
+			return;
 		}
 	}
 }
