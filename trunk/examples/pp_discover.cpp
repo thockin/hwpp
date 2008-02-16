@@ -3,13 +3,59 @@
 #include "pp_register.h"
 #include "pp_datatypes.h"
 #include "pp_fields.h"
+#include "pp_array.h"
 #include "utils.h"
 
 using namespace std;
 
 void
-dump_scope(const pp_scope *scope, string indent = "")
+dump_field(const string &name, const pp_field *field, const string &indent="");
+void
+dump_scope(const string &name, const pp_scope *scope, const string &indent="");
+void
+dump_array(const string &name, const pp_array *array, const string &indent="");
+
+void
+dump_field(const string &name, const pp_field *field, const string &indent)
 {
+	cout << indent;
+	cout << name << ": "
+	     << field->evaluate()
+	     << std::hex
+	     << " (0x" << field->read() << ")"
+	     << endl;
+}
+
+void
+dump_array(const string &name, const pp_array *array, const string &indent)
+{
+	for (size_t i = 0; i < array->size(); i++) {
+		string subname = name + "[" + to_string(i) + "]";
+		if (array->array_type() == PP_DIRENT_FIELD) {
+			const pp_field *field;
+			field = pp_field_from_dirent(array->at(i));
+			dump_field(subname, field, indent+"    ");
+		} else if (array->array_type() == PP_DIRENT_SCOPE) {
+			const pp_scope *scope;
+			scope = pp_scope_from_dirent(array->at(i));
+			dump_scope(subname, scope, indent+"    ");
+		} else if (array->array_type() == PP_DIRENT_ARRAY) {
+			const pp_array *array;
+			array = pp_array_from_dirent(array->at(i));
+			dump_array(subname, array, indent+"    ");
+		}
+	}
+}
+
+void
+dump_scope(const string &name, const pp_scope *scope, const string &indent)
+{
+	cout << indent << name;
+	if (scope->is_bound()) {
+		cout << " (@" << *scope->binding() << ")";
+	}
+	cout << " {" << endl;
+
 	#if 0
 	for (size_t i = 0; i < scope->n_datatypes(); i++) {
 		cout << indent;
@@ -18,51 +64,24 @@ dump_scope(const pp_scope *scope, string indent = "")
 		     << endl;
 	}
 	#endif
+
 	for (size_t i = 0; i < scope->n_dirents(); i++) {
-		#if 0
-		if (scope->dirent(i)->is_register()) {
-			cout << indent;
-			cout << "register "
-			     << scope->dirent_name(i)
-			     << ": (0x"
-			     << std::hex
-			     << pp_register_from_dirent(
-			        scope->dirent(i))->read()
-			     << ")"
-			     << endl;
-		}
-		#endif
 		if (scope->dirent(i)->is_field()) {
-			cout << indent;
-			cout << scope->dirent_name(i)
-			     << ": "
-			     << pp_field_from_dirent(
-			        scope->dirent(i))->evaluate()
-			     << " (0x"
-			     << std::hex
-			     << pp_field_from_dirent(
-			        scope->dirent(i))->read()
-			     << ")"
-			     << endl;
-		}
-		if (scope->dirent(i)->is_scope()) {
-			const pp_scope *sub;
-			sub = pp_scope_from_dirent(scope->dirent(i));
-
-			cout << indent;
-			cout << scope->dirent_name(i);
-			if (sub->is_bound()) {
-				cout << " (@" << *sub->binding() << ")";
-			}
-			cout << " {"
-			     << endl;
-
-			dump_scope(sub, indent+"    ");
-			cout << indent;
-			cout << "}"
-			     << endl;
+			dump_field(scope->dirent_name(i),
+			    pp_field_from_dirent(scope->dirent(i)),
+			    indent+"    ");
+		} else if (scope->dirent(i)->is_scope()) {
+			dump_scope(scope->dirent_name(i),
+			    pp_scope_from_dirent(scope->dirent(i)),
+			    indent+"    ");
+		} else if (scope->dirent(i)->is_array()) {
+			dump_array(scope->dirent_name(i),
+			    pp_array_from_dirent(scope->dirent(i)),
+			    indent+"    ");
 		}
 	}
+
+	cout << indent << "}" << endl;
 }
 
 int
@@ -70,6 +89,6 @@ main()
 {
 	pp_scope *platform = NEW_PLATFORM();
 	do_discovery(platform);
-	dump_scope(platform);
+	dump_scope("", platform);
 	return 0;
 }
