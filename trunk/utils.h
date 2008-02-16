@@ -33,18 +33,18 @@ SET_CURRENT_CONTEXT(const pp_context &new_context);
 
 //FIXME: comments
 extern const pp_dirent *
-GET_DIRENT(const pp_path &path);
+GET_DIRENT(const string &path);
 extern const pp_field *
-GET_FIELD(const pp_path &path);
+GET_FIELD(const string &path);
 extern const pp_register *
-GET_REGISTER(const pp_path &path);
+GET_REGISTER(const string &path);
 extern bool
-DEFINED(const pp_path &path);
+DEFINED(const string &path);
 
 extern pp_value
-READ(const pp_path &path);
+READ(const string &path);
 extern void
-WRITE(const pp_path &path, const pp_value &value);
+WRITE(const string &path, const pp_value &value);
 extern pp_value
 READ(const pp_regbits &bits);
 extern void
@@ -149,11 +149,6 @@ NEW_PLATFORM();
  */
 extern void
 OPEN_SCOPE(const string &name, pp_binding_ptr binding = pp_binding_ptr());
-inline void
-OPEN_SCOPE(pp_binding_ptr binding)
-{
-	OPEN_SCOPE(binding->to_string(), binding);
-}
 
 /*
  * CLOSE_SCOPE

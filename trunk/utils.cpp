@@ -68,7 +68,7 @@ SET_CURRENT_CONTEXT(const pp_context &new_ctxt)
  * Resolve a path to a dirent, relative to the current scope.
  */
 const pp_dirent *
-GET_DIRENT(const pp_path &path)
+GET_DIRENT(const string &path)
 {
 	DASSERT_MSG(current_context.is_valid(), "invalid current_context");
 	return current_context.lookup_dirent(path);
@@ -78,7 +78,7 @@ GET_DIRENT(const pp_path &path)
  * Resolve a path to a field, relative to the current scope.
  */
 const pp_field *
-GET_FIELD(const pp_path &path)
+GET_FIELD(const string &path)
 {
 	DASSERT_MSG(current_context.is_valid(), "invalid current_context");
 	return current_context.lookup_field(path);
@@ -94,7 +94,7 @@ extern pp_register *magic_ones;
  * Resolve a path to a register, relative to the current scope.
  */
 const pp_register *
-GET_REGISTER(const pp_path &path)
+GET_REGISTER(const string &path)
 {
 	DASSERT_MSG(current_context.is_valid(), "invalid current_context");
 	if (path == "%0")
@@ -108,7 +108,7 @@ GET_REGISTER(const pp_path &path)
  * Check whether a path resolves successfully.
  */
 bool
-DEFINED(const pp_path &path)
+DEFINED(const string &path)
 {
 	if (!current_context.is_valid()) {
 		return false;
@@ -120,7 +120,7 @@ DEFINED(const pp_path &path)
  * Read and write a field or register.
  */
 pp_value
-READ(const pp_path &path)
+READ(const string &path)
 {
 	const pp_dirent *de = GET_DIRENT(path);
 	if (de->is_register()) {
@@ -132,7 +132,7 @@ READ(const pp_path &path)
 	    + to_string(path) + " (" + to_string(de->dirent_type()) + ")");
 }
 void
-WRITE(const pp_path &path, const pp_value &value)
+WRITE(const string &path, const pp_value &value)
 {
 	const pp_dirent *de = GET_DIRENT(path);
 	if (de->is_register()) {
