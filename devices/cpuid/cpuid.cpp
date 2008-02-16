@@ -31,7 +31,7 @@ cpuid_discovered(const std::vector<pp_value> &args)
 	pp_value cpu = args[0];
 
 	//FIXME: include standard MSRs?
-	OPEN_SCOPE("cpu[" + to_string(cpu) + "]");
+	OPEN_SCOPE("cpu." + to_string(cpu));
 	cpuid_generic_device(cpu);
 	CLOSE_SCOPE();
 }

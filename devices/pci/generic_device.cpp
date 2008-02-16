@@ -65,7 +65,7 @@ ht_link_control(const pp_value &address)
 	FIELD("IsocEn", "yesno_t", BITS("../%control", 12));
 	FIELD("LSEn", "yesno_t", BITS("../%control", 13));
 	FIELD("ExtCTL", "yesno_t", BITS("../%control", 14));
-	FIELD("64bEn", "yesno_t", BITS("../%control", 15));
+	FIELD("b64En", "yesno_t", BITS("../%control", 15));
 
 	CLOSE_SCOPE();
 }
@@ -210,7 +210,7 @@ ht_slave_capability(const pp_value &address)
 	FIELD("ldtstop", "yesno_t", BITS("../%feature", 1));
 	FIELD("crc_test_mode", "yesno_t", BITS("../%feature", 2));
 	FIELD("extended_ctl_time", "yesno_t", BITS("../%feature", 3));
-	FIELD("64bit_addressing", "yesno_t", BITS("../%feature", 4));
+	FIELD("bits64_addressing", "yesno_t", BITS("../%feature", 4));
 	FIELD("unit_id_reorder_dis", "yesno_t", BITS("../%feature", 5));
 	FIELD("source_id", "yesno_t", BITS("../%feature", 6));
 	CLOSE_SCOPE();
@@ -260,7 +260,7 @@ ht_host_capability(const pp_value &address)
 	FIELD("ldtstop", "yesno_t", BITS("../%feature", 1));
 	FIELD("crc_test_mode", "yesno_t", BITS("../%feature", 2));
 	FIELD("extended_ctl_time", "yesno_t", BITS("../%feature", 3));
-	FIELD("64bit_addressing", "yesno_t", BITS("../%feature", 4));
+	FIELD("bits64_addressing", "yesno_t", BITS("../%feature", 4));
 	FIELD("unit_id_reorder_dis", "yesno_t", BITS("../%feature", 5));
 	FIELD("source_id", "yesno_t", BITS("../%feature", 6));
 	FIELD("ext_regs", "yesno_t", BITS("../%feature", 8));
@@ -337,7 +337,7 @@ ht_address_mapping_capability(const pp_value &address)
 
 		pp_value value = READ("num_dma");
 		for (unsigned i = 0; i < value; i++) {
-			OPEN_SCOPE("dma[" + to_string(i+1) + "]");
+			OPEN_SCOPE("dma[]");
 			REG32("%lower", address + 0x0c + (8*i));
 			REG32("%upper", address + 0x10 + (8*i));
 
@@ -501,10 +501,8 @@ msi_capability(const pp_value &address)
 	if (FIELD_BOOL("mask_per_vec")) {
 		pp_value vecs = 1 << READ("multi_msg_cap");
 		for (unsigned i = 0; i < vecs; i++) {
-			FIELD("mask["+to_string(i)+"]",
-					"yesno_t", BITS("%mask", i));
-			FIELD("pend["+to_string(i)+"]",
-					"yesno_t", BITS("%pending", i));
+			FIELD("mask[]", "yesno_t", BITS("%mask", i));
+			FIELD("pend[]", "yesno_t", BITS("%pending", i));
 		}
 	}
 }
@@ -555,7 +553,7 @@ msix_capability(const pp_value &address)
 	size = READ("table_size") * 16;
 	OPEN_SCOPE("table", BIND("mem", ARGS(base, size))); {
 		for (unsigned i = 0; i < READ("../table_size"); i++) {
-			OPEN_SCOPE("entry[" + to_string(i) + "]"); {
+			OPEN_SCOPE("entry[]"); {
 				REG32("%msg_addr", i*16 + 0);
 				REG32("%msg_upper_addr", i*16 + 4);
 				FIELD("address", "addr64_t",
@@ -592,7 +590,7 @@ msix_capability(const pp_value &address)
 		pp_value tmp_size = READ("../table_size");
 		// loop for each PBA QWORD
 		for (unsigned i = 0; i < (READ("../table_size")+63)/64; i++) {
-			string regname = "%pending[" + to_string(i) + "]";
+			string regname = "%pending[]";
 			REG64(regname, i);
 			for (size_t j = 0; j < 64; j++) {
 				if (j >= tmp_size)
@@ -1102,7 +1100,7 @@ explore_capabilities()
 		pp_value ptr = READ("capptr");
 		unsigned i = 0;
 		while (ptr != 0 && ptr != 0xff) {
-			OPEN_SCOPE("capability[" + to_string(i) + "]");
+			OPEN_SCOPE("capability[]");
 
 			FIELD("offset", "hex8_t", ptr);
 			REGFIELD8("id", ptr, "pci_capability_t");
@@ -1154,9 +1152,8 @@ explore_capabilities()
 			} else if (FIELD_EQ("id", "secure")) {
 				//FIXME: not implemented yet
 			}
+			ptr = READ("next");
 			CLOSE_SCOPE();
-
-			ptr = READ("capability[" + to_string(i) + "]/next");
 			i++;
 		}
 	}
@@ -1357,7 +1354,7 @@ void
 pci_generic_device()
 {
 	for (unsigned i = 0; i < 4096; i += 4) {
-		REG32(to_string(boost::format("%%PCI[%04x]") %i), i);
+		REG32(to_string(boost::format("%%PCI.%04x") %i), i);
 	}
 
 	REGFIELD16("vendor", 0x00, "pci_vendor_t");

@@ -121,7 +121,18 @@ pci_datatypes_init()
 static void
 pci_discovered(const std::vector<pp_value> &args)
 {
-	OPEN_SCOPE(BIND("pci", args));
+	pp_value seg = args[0];
+	pp_value bus = args[1];
+	pp_value dev = args[2];
+	pp_value func = args[3];
+
+	string name = "pci."
+	    + to_string(seg) + "."
+	    + to_string(bus) + "."
+	    + to_string(dev) + "."
+	    + to_string(func);
+
+	OPEN_SCOPE(name, BIND("pci", args));
 	pci_generic_device();
 	CLOSE_SCOPE();
 }
