@@ -30,3 +30,12 @@ allow anonymous registers, such as READ(BITS(REG32(0x100)))
   	EXPORT("%foo", REG32(0x100))
   or
   	NAME("%foo", REG32(0x100))
+
+Make drivers be .so files
+
+// comments for pp_scope and pp_path
+better errors on datatypes
+parse datatype names
+parse enum and bitmask stings
+
+are carats allowed mid-path?  not currently
