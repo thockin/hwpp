@@ -177,6 +177,10 @@ pp_path::element::parse(const string &input)
 			return;
 		}
 	}
+
+	if (m_name == "") {
+		parse_error(input);
+	}
 }
 
 void
