@@ -4,8 +4,9 @@ Fix and finish PCI subclass and progintf stuff
 
 preserve/set/clear flags for registers
 
+create and use namespace pp::
 test lookup() methods
-capitalize PP_container_ptr for types?
+capitalize PP_foo for types?
 scope merge for anon scopes
 space::bind() method?
 pp_enum -> pp_enum_type, etc
@@ -35,7 +36,11 @@ Make drivers be .so files
 
 // comments for pp_scope and pp_path
 better errors on datatypes
-parse datatype names
-parse enum and bitmask stings
+parse datatype names (boost::regex)
+parse enum and bitmask stings (boost::regex)
 
 are carats allowed mid-path?  not currently
+
+make a pp_platform
+make a pp_exception with a custom what()
+clean up utils.h - no reason as to what is inline
