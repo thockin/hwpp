@@ -15,7 +15,7 @@ load_msr_driver()
 msr_driver::msr_driver()
 {
 	system("modprobe msr >/dev/null 2>&1");
-	register_driver(this);
+	pp_register_driver(this);
 }
 
 msr_driver::~msr_driver()

@@ -86,7 +86,7 @@ class pp_driver
 	 *
 	 * This is the functional signature of a driver discovery event.
 	 * When a driver's discover() routine finds a device that matches a
-	 * registered device (via register_discovery()), the
+	 * registered device (via pp_register_discovery()), the
 	 * discovery_callback is called.
 	 */
 	typedef void (*discovery_callback)(const std::vector<pp_value> &args);

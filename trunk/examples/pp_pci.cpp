@@ -95,7 +95,7 @@ int
 main()
 {
 	pp_scope *platform = NEW_PLATFORM();
-	const pp_driver *driver = find_driver("pci");
+	const pp_driver *driver = pp_find_driver("pci");
 	driver->discover(platform);
 	dump_scope("", platform);
 	return 0;

@@ -15,7 +15,7 @@ load_io_driver()
 
 io_driver::io_driver()
 {
-	register_driver(this);
+	pp_register_driver(this);
 }
 
 io_driver::~io_driver()

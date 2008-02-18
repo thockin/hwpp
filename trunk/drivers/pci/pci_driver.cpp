@@ -13,7 +13,7 @@ load_pci_driver()
 
 pci_driver::pci_driver()
 {
-	register_driver(this);
+	pp_register_driver(this);
 }
 
 pci_driver::~pci_driver()

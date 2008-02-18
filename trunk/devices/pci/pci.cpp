@@ -144,7 +144,7 @@ class pci_discovery {
 	{
 		// register a catch-all discovery rule
 		std::vector<pp_value> args;
-		register_discovery("pci", args, pci_discovered);
+		pp_register_discovery("pci", args, pci_discovered);
 	}
 };
 

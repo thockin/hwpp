@@ -15,7 +15,7 @@ load_cpuid_driver()
 cpuid_driver::cpuid_driver()
 {
 	system("modprobe cpuid >/dev/null 2>&1");
-	register_driver(this);
+	pp_register_driver(this);
 }
 
 cpuid_driver::~cpuid_driver()

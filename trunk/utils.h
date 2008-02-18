@@ -260,7 +260,7 @@ operator,(const driver_arg_list &lhs, const pp_value &rhs)
 inline pp_binding_ptr
 BIND(const string &driver, const driver_arg_list &args)
 {
-	return find_driver(driver)->new_binding(args);
+	return pp_find_driver(driver)->new_binding(args);
 }
 inline pp_binding_ptr
 BIND(const string &driver, const driver_arg &arg)
