@@ -14,11 +14,11 @@ pci_datatypes_init()
 	/* pci_vendor_t */
 	ENUM("pci_vendor_t",
 		KV("unknown", 0),
-		KV("Intel", 0x8086),
-		KV("AMD", 0x1022),
-		KV("NVidia", 0x10de),
-		KV("Broadcom", 0x14e4),
-		KV("Silicon Image", 0x1095));
+		KV("intel", 0x8086),
+		KV("amd", 0x1022),
+		KV("nvidia", 0x10de),
+		KV("broadcom", 0x14e4),
+		KV("silicon_image", 0x1095));
 		//FIXME: default?
 
 	/* pci_class_t */
@@ -50,49 +50,49 @@ pci_datatypes_init()
 	//unknown classes?
 	//FIXME: _t notation?
 	ENUM("pci_subclass_pre_classcode",
-			KV("non-VGA device", 0x00),
-			KV("VGA device", 0x01));
+			KV("non_vga_dev", 0x00),
+			KV("vga_dev", 0x01));
 	ENUM("pci_subclass_mass_storage",
-			KV("SCSI controller", 0x00),
-			KV("IDE controller", 0x01),
-			KV("floppy controller", 0x02),
-			KV("IPI bus controller", 0x03),
-			KV("RAID controller", 0x04),
-			KV("ATA controller with ADMA", 0x05),
-			KV("SATA controller", 0x06),
-			KV("SAS controller", 0x06),
+			KV("scsi_ctrlr", 0x00),
+			KV("ide_ctrlr", 0x01),
+			KV("floppy_ctrlr", 0x02),
+			KV("ipi_bus_ctrlr", 0x03),
+			KV("raid_ctrlr", 0x04),
+			KV("ata_ctrlr", 0x05),
+			KV("sata_ctrlr", 0x06),
+			KV("sas_ctrlr", 0x06),
 			KV("other", 0x80));
 	ENUM("pci_subclass_network",
-			KV("ethernet controller", 0x00),
-			KV("token Ring controller", 0x01),
-			KV("FDDI controller", 0x02),
-			KV("ATM controller", 0x03),
-			KV("ISDN controller", 0x04),
+			KV("ethernet_ctrlr", 0x00),
+			KV("token_ring_ctrlr", 0x01),
+			KV("fddi_ctrlr", 0x02),
+			KV("atm_ctrlr", 0x03),
+			KV("isdn_ctrlr", 0x04),
 			KV("other", 0x80));
 	ENUM("pci_subclass_display",
-			KV("VGA controller", 0x00),
-			KV("XGA controller", 0x01),
-			KV("3D controller", 0x02),
+			KV("vga_ctrlr", 0x00),
+			KV("xga_ctrlr", 0x01),
+			KV("3d_ctrlr", 0x02),
 			KV("other", 0x80));
 	ENUM("pci_subclass_multimedia",
-			KV("video device", 0x00),
-			KV("audio device", 0x01),
-			KV("computer telephony device", 0x02),
+			KV("video_dev", 0x00),
+			KV("audio_dev", 0x01),
+			KV("computer_telephony_dev", 0x02),
 			KV("other", 0x80));
 	ENUM("pci_subclass_memory",
-			KV("RAM", 0x00),
+			KV("ram", 0x00),
 			KV("flash", 0x01),
 			KV("other", 0x80));
 	ENUM("pci_subclass_bridge",
-			KV("host bridge", 0x00),
-			KV("ISA bridge", 0x01),
-			KV("EISA bridge", 0x02),
-			KV("MCA bridge", 0x03),
-			KV("PCI bridge", 0x04),
-			KV("PCMCIA bridge", 0x05),
-			KV("NuBus bridge", 0x06),
-			KV("CardBus bridge", 0x07),
-			KV("RACEway bridge", 0x08),
+			KV("host_bridge", 0x00),
+			KV("isa_bridge", 0x01),
+			KV("eisa_bridge", 0x02),
+			KV("mca_bridge", 0x03),
+			KV("pci_bridge", 0x04),
+			KV("pcmcia_bridge", 0x05),
+			KV("nubus_bridge", 0x06),
+			KV("cardbus_bridge", 0x07),
+			KV("raceway_bridge", 0x08),
 			KV("other", 0x80));
 	//FIXME: classes 0x07-0x11
 
