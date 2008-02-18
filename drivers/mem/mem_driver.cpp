@@ -13,7 +13,7 @@ load_mem_driver()
 
 mem_driver::mem_driver()
 {
-	register_driver(this);
+	pp_register_driver(this);
 }
 
 mem_driver::~mem_driver()

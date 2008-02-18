@@ -88,7 +88,7 @@ int
 main()
 {
 	pp_scope *platform = NEW_PLATFORM();
-	do_discovery(platform);
+	pp_do_discovery(platform);
 	dump_scope("", platform);
 	return 0;
 }

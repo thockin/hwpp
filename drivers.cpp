@@ -34,16 +34,16 @@ driver_list()
 }
 
 void
-register_driver(pp_driver *driver)
+pp_register_driver(pp_driver *driver)
 {
 	DTRACE(TRACE_DRIVER_UTILS, "register driver " + driver->name());
 	driver_list()[driver->name()] = driver;
 }
 
-//FIXME: unregister_driver
+//FIXME: pp_unregister_driver
 
 pp_driver *
-find_driver(const string &name)
+pp_find_driver(const string &name)
 {
 	DTRACE(TRACE_DRIVER_UTILS, "find driver " + name);
 	return driver_list()[name];
@@ -78,12 +78,12 @@ discovery_list()
 }
 
 void
-register_discovery(const string &driver_name,
+pp_register_discovery(const string &driver_name,
 		const std::vector<pp_value> &args,
 		pp_driver::discovery_callback function)
 {
 	try {
-		pp_driver *driver = find_driver(driver_name);
+		pp_driver *driver = pp_find_driver(driver_name);
 		driver->register_discovery(args, function);
 	} catch (std::exception &e) {
 		delayed_discovery d = {
@@ -96,14 +96,14 @@ register_discovery(const string &driver_name,
 }
 
 void
-do_discovery(pp_scope *platform)
+pp_do_discovery(pp_scope *platform)
 {
 	/* first finish any discovery registrations */
 	discovery_vector::iterator discovery_iter = discovery_list().begin();
 	while (discovery_iter != discovery_list().end()) {
 		try {
 			pp_driver *driver;
-			driver = find_driver(discovery_iter->driver_name);
+			driver = pp_find_driver(discovery_iter->driver_name);
 			driver->register_discovery(discovery_iter->args,
 					discovery_iter->function);
 		} catch (std::exception &e) {
