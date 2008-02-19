@@ -15,32 +15,32 @@ test_simple_regbits()
 		pp_binding_ptr bind = new_test_binding();
 		pp_register_ptr reg = new_pp_register(bind.get(), 0, BITS16);
 		pp_regbits rb;
-		ret += PP_TEST_ASSERT(rb.width() == 0,
+		ret += TEST_ASSERT(rb.width() == 0,
 			"pp_regbits::pp_regbits()");
 	}
 	{
 		pp_binding_ptr bind = new_test_binding();
 		pp_register_ptr reg = new_pp_register(bind.get(), 0, BITS16);
 		pp_regbits rb(reg.get());
-		ret += PP_TEST_ASSERT(rb.read() == 0xffff,
+		ret += TEST_ASSERT(rb.read() == 0xffff,
 			"pp_regbits::pp_regbits(pp_register)");
-		ret+= PP_TEST_ASSERT(rb.width() == 16, "pp_regbits::width()");
+		ret+= TEST_ASSERT(rb.width() == 16, "pp_regbits::width()");
 	}
 	{
 		pp_binding_ptr bind = new_test_binding();
 		pp_register_ptr reg = new_pp_register(bind.get(), 0, BITS16);
 		pp_regbits rb(reg.get(), 7);
-		ret += PP_TEST_ASSERT(rb.read() == 0x1,
+		ret += TEST_ASSERT(rb.read() == 0x1,
 			"pp_regbits::pp_regbits(pp_register, int)");
-		ret+= PP_TEST_ASSERT(rb.width() == 1, "pp_regbits::width()");
+		ret+= TEST_ASSERT(rb.width() == 1, "pp_regbits::width()");
 	}
 	{
 		pp_binding_ptr bind = new_test_binding();
 		pp_register_ptr reg = new_pp_register(bind.get(), 0, BITS16);
 		pp_regbits rb(reg.get(), 3, 0);
-		ret += PP_TEST_ASSERT(rb.read() == 0xf,
+		ret += TEST_ASSERT(rb.read() == 0xf,
 			"pp_regbits::pp_regbits(pp_register, int, int)");
-		ret+= PP_TEST_ASSERT(rb.width() == 4, "pp_regbits::width()");
+		ret+= TEST_ASSERT(rb.width() == 4, "pp_regbits::width()");
 	}
 
 	// test an overly-large shift
@@ -48,7 +48,7 @@ test_simple_regbits()
 		pp_binding_ptr bind = new_test_binding();
 		pp_register_ptr reg = new_pp_register(bind.get(), 0, BITS16);
 		pp_regbits rb(reg.get(), 32);
-		PP_TEST_ERROR("pp_regbits::pp_regbits()");
+		TEST_ERROR("pp_regbits::pp_regbits()");
 		ret++;
 	} catch (exception &e) {
 	}
@@ -59,9 +59,9 @@ test_simple_regbits()
 		pp_register_ptr reg = new_pp_register(bind.get(), 0, BITS16);
 		pp_regbits rb(reg.get());
 		rb.write(0x98);
-		ret += PP_TEST_ASSERT(rb.read() == 0x98,
+		ret += TEST_ASSERT(rb.read() == 0x98,
 		    "pp_regbits::write()");
-		ret += PP_TEST_ASSERT(reg->read() == 0x98,
+		ret += TEST_ASSERT(reg->read() == 0x98,
 		    "pp_regbits::write()");
 	}
 	{
@@ -69,9 +69,9 @@ test_simple_regbits()
 		pp_register_ptr reg = new_pp_register(bind.get(), 0, BITS16);
 		pp_regbits rb(reg.get(), 7);
 		rb.write(0x00);
-		ret += PP_TEST_ASSERT(rb.read() == 0x0,
+		ret += TEST_ASSERT(rb.read() == 0x0,
 		    "pp_regbits::write()");
-		ret += PP_TEST_ASSERT(reg->read() == 0xff7f,
+		ret += TEST_ASSERT(reg->read() == 0xff7f,
 		    "pp_regbits::write()");
 	}
 	{
@@ -79,9 +79,9 @@ test_simple_regbits()
 		pp_register_ptr reg = new_pp_register(bind.get(), 0, BITS16);
 		pp_regbits rb(reg.get(), 3, 0);
 		rb.write(0x98);
-		ret += PP_TEST_ASSERT(rb.read() == 0x8,
+		ret += TEST_ASSERT(rb.read() == 0x8,
 		    "pp_regbits::write()");
-		ret += PP_TEST_ASSERT(reg->read() == 0xfff8,
+		ret += TEST_ASSERT(reg->read() == 0xfff8,
 		    "pp_regbits::write()");
 	}
 
@@ -98,17 +98,17 @@ test_complex_regbits()
 		pp_binding_ptr bind = new_test_binding();
 		pp_register_ptr reg = new_pp_register(bind.get(), 0, BITS16);
 		reg->write(0x4321);
-		ret += PP_TEST_ASSERT(reg->read() == 0x4321,
+		ret += TEST_ASSERT(reg->read() == 0x4321,
 		    "pp_register::write()");
 
 		pp_regbits rb = pp_regbits(reg.get(), 11, 8)
 		    + pp_regbits(reg.get(), 3, 0);
-		ret += PP_TEST_ASSERT(rb.width() == 8, "pp_regbits::width()");
-		ret += PP_TEST_ASSERT(rb.read() == 0x31, "pp_regbits::write()");
+		ret += TEST_ASSERT(rb.width() == 8, "pp_regbits::width()");
+		ret += TEST_ASSERT(rb.read() == 0x31, "pp_regbits::write()");
 
 		rb.write(0x98);
-		ret += PP_TEST_ASSERT(rb.read() == 0x98, "pp_regbits::write()");
-		ret += PP_TEST_ASSERT(reg->read() == 0x4928,
+		ret += TEST_ASSERT(rb.read() == 0x98, "pp_regbits::write()");
+		ret += TEST_ASSERT(reg->read() == 0x4928,
 		    "pp_regbits::write()");
 	}
 
@@ -117,19 +117,19 @@ test_complex_regbits()
 		pp_binding_ptr bind = new_test_binding();
 		pp_register_ptr reg = new_pp_register(bind.get(), 0, BITS16);
 		reg->write(0x4321);
-		ret += PP_TEST_ASSERT(reg->read() == 0x4321,
+		ret += TEST_ASSERT(reg->read() == 0x4321,
 		    "pp_register::write()");
 
 		pp_regbits rb(reg.get(), 11, 8);
-		ret += PP_TEST_ASSERT(rb.width() == 4, "pp_regbits::width()");
-		ret += PP_TEST_ASSERT(rb.read() == 0x3, "pp_regbits::write()");
+		ret += TEST_ASSERT(rb.width() == 4, "pp_regbits::width()");
+		ret += TEST_ASSERT(rb.read() == 0x3, "pp_regbits::write()");
 		rb += pp_regbits(reg.get(), 3, 0);
-		ret += PP_TEST_ASSERT(rb.width() == 8, "pp_regbits::width()");
-		ret += PP_TEST_ASSERT(rb.read() == 0x31, "pp_regbits::write()");
+		ret += TEST_ASSERT(rb.width() == 8, "pp_regbits::width()");
+		ret += TEST_ASSERT(rb.read() == 0x31, "pp_regbits::write()");
 
 		rb.write(0x98);
-		ret += PP_TEST_ASSERT(rb.read() == 0x98, "pp_regbits::write()");
-		ret += PP_TEST_ASSERT(reg->read() == 0x4928,
+		ret += TEST_ASSERT(rb.read() == 0x98, "pp_regbits::write()");
+		ret += TEST_ASSERT(reg->read() == 0x4928,
 		    "pp_regbits::write()");
 	}
 
@@ -143,7 +143,7 @@ test_exceptions()
 
 	try {
 		pp_regbits rb(NULL);
-		PP_TEST_ERROR("pp_regbits::pp_regbits(NULL)");
+		TEST_ERROR("pp_regbits::pp_regbits(NULL)");
 		ret++;
 	} catch (pp_regbits::range_error &e) {
 	}
@@ -151,7 +151,7 @@ test_exceptions()
 		pp_binding_ptr bind = new_test_binding();
 		pp_register_ptr reg = new_pp_register(bind.get(), 0, BITS16);
 		pp_regbits rb(reg.get(), 0, 15);
-		PP_TEST_ERROR("pp_regbits::pp_regbits(r, lo, hi)");
+		TEST_ERROR("pp_regbits::pp_regbits(r, lo, hi)");
 		ret++;
 	} catch (pp_regbits::range_error &e) {
 	}
@@ -159,7 +159,7 @@ test_exceptions()
 		pp_binding_ptr bind = new_test_binding();
 		pp_register_ptr reg = new_pp_register(bind.get(), 0, BITS16);
 		pp_regbits rb(reg.get(), 16);
-		PP_TEST_ERROR("pp_regbits::pp_regbits(r, too_hi)");
+		TEST_ERROR("pp_regbits::pp_regbits(r, too_hi)");
 		ret++;
 	} catch (pp_regbits::range_error &e) {
 	}
