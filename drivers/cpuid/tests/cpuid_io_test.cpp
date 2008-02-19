@@ -20,40 +20,40 @@ test_cpuid_io()
 		cpuid_io io1(cpuid_address(93, 0), "test_data",
 				NULL_MAJOR, NULL_MINOR);
 		if (io1.address().cpu != 93) {
-			PP_TEST_ERROR("cpuid_io::cpuid_io(cpuid_address)");
+			TEST_ERROR("cpuid_io::cpuid_io(cpuid_address)");
 			ret++;
 		}
 
 		/* test the read() method */
 		if (io1.read(0, BITS32) != pp_value("0x33323130")) {
-			PP_TEST_ERROR("cpuid_io::read()");
+			TEST_ERROR("cpuid_io::read()");
 			ret++;
 		}
 		if (io1.read(1, BITS32) != pp_value("0x37363534")) {
-			PP_TEST_ERROR("cpuid_io::read()");
+			TEST_ERROR("cpuid_io::read()");
 			ret++;
 		}
 		try {
 			io1.read(0, BITS8);
-			PP_TEST_ERROR("cpuid_io::read()");
+			TEST_ERROR("cpuid_io::read()");
 			ret++;
 		} catch (exception &e) {
 		}
 		try {
 			io1.read(0, BITS16);
-			PP_TEST_ERROR("cpuid_io::read()");
+			TEST_ERROR("cpuid_io::read()");
 			ret++;
 		} catch (exception &e) {
 		}
 		try {
 			io1.read(0, BITS64);
-			PP_TEST_ERROR("cpuid_io::read()");
+			TEST_ERROR("cpuid_io::read()");
 			ret++;
 		} catch (exception &e) {
 		}
 		try {
 			io1.read(0, BITS128);
-			PP_TEST_ERROR("cpuid_io::read()");
+			TEST_ERROR("cpuid_io::read()");
 			ret++;
 		} catch (exception &e) {
 		}
@@ -61,12 +61,12 @@ test_cpuid_io()
 		try {
 			io1.read(3, BITS32);
 		} catch (exception &e) {
-			PP_TEST_ERROR("cpuid_io::read(BITS8)");
+			TEST_ERROR("cpuid_io::read(BITS8)");
 			ret++;
 		}
 		try {
 			io1.read(4, BITS32);
-			PP_TEST_ERROR("cpuid_io::read(BITS16)");
+			TEST_ERROR("cpuid_io::read(BITS16)");
 			ret++;
 		} catch (exception &e) {
 		}
@@ -74,7 +74,7 @@ test_cpuid_io()
 		/* test read for a bad offset */
 		try {
 			io1.read(5, BITS32);
-			PP_TEST_ERROR("cpuid_io::read()");
+			TEST_ERROR("cpuid_io::read()");
 			ret++;
 		} catch (exception &e) {
 		}
@@ -82,7 +82,7 @@ test_cpuid_io()
 		/* test the write() method, which should be a no-op */
 		io1.write(0, BITS32, 0xbbaa9988);
 		if (io1.read(0, BITS32) != 0x33323130) {
-			PP_TEST_ERROR("cpuid_io::write()");
+			TEST_ERROR("cpuid_io::write()");
 			ret++;
 		}
 
@@ -90,7 +90,7 @@ test_cpuid_io()
 		try {
 			cpuid_io io2(cpuid_address(76, 0),
 					"test_data", NULL_MAJOR, NULL_MINOR);
-			PP_TEST_ERROR("cpuid_io::cpuid_io()");
+			TEST_ERROR("cpuid_io::cpuid_io()");
 			ret++;
 		} catch (exception &e) {
 		}

@@ -20,66 +20,66 @@ test_pci_io()
 		pci_io io1(pci_address(0, 1, 2, 3), "test_data");
 		if (io1.address().segment != 0 || io1.address().bus != 1
 		 || io1.address().device != 2 || io1.address().function != 3) {
-			PP_TEST_ERROR("pci_io::pci_io(pci_address)");
+			TEST_ERROR("pci_io::pci_io(pci_address)");
 			ret++;
 		}
 		pci_io io2(pci_address(1, 2, 3), "test_data");
 		if (io2.address().segment != 0 || io2.address().bus != 1
 		 || io2.address().device != 2 || io2.address().function != 3) {
-			PP_TEST_ERROR("pci_io::pci_io(pci_address)");
+			TEST_ERROR("pci_io::pci_io(pci_address)");
 			ret++;
 		}
 		pci_io io3(pci_address(4, 5, 6), "test_data");
 		if (io3.address().segment != 0 || io3.address().bus != 4
 		 || io3.address().device != 5 || io3.address().function != 6) {
-			PP_TEST_ERROR("pci_io::pci_io(pci_address)");
+			TEST_ERROR("pci_io::pci_io(pci_address)");
 			ret++;
 		}
 
 		/* test the read() method */
 		if (io1.read(0, BITS8) != 0x30) {
-			PP_TEST_ERROR("pci_io::read(BITS8)");
+			TEST_ERROR("pci_io::read(BITS8)");
 			ret++;
 		}
 		if (io1.read(0, BITS16) != 0x3130) {
-			PP_TEST_ERROR("pci_io::read(BITS16)");
+			TEST_ERROR("pci_io::read(BITS16)");
 			ret++;
 		}
 		if (io1.read(0, BITS32) != 0x33323130) {
-			PP_TEST_ERROR("pci_io::read(BITS32)");
+			TEST_ERROR("pci_io::read(BITS32)");
 			ret++;
 		}
 		if (io1.read(0, BITS64) != pp_value("0x3736353433323130")) {
-			PP_TEST_ERROR("pci_io::read(BITS64)");
+			TEST_ERROR("pci_io::read(BITS64)");
 			ret++;
 		}
 		/* test read() around EOF, but < 4 KB */
 		if (io1.read(7, BITS16) != 0xff37) {
-			PP_TEST_ERROR("pci_io::read(BITS16)");
+			TEST_ERROR("pci_io::read(BITS16)");
 			ret++;
 		}
 		if (io1.read(7, BITS32) != 0xffffff37) {
-			PP_TEST_ERROR("pci_io::read(BITS32)");
+			TEST_ERROR("pci_io::read(BITS32)");
 			ret++;
 		}
 		if (io1.read(8, BITS16) != 0xffff) {
-			PP_TEST_ERROR("pci_io::read(BITS16)");
+			TEST_ERROR("pci_io::read(BITS16)");
 			ret++;
 		}
 		/* test read() around 4 KB */
 		if (io1.read(4095, BITS8) != 0xff) {
-			PP_TEST_ERROR("pci_io::read(BITS8)");
+			TEST_ERROR("pci_io::read(BITS8)");
 			ret++;
 		}
 		try {
 			io1.read(4095, BITS16);
-			PP_TEST_ERROR("pci_io::read(BITS16)");
+			TEST_ERROR("pci_io::read(BITS16)");
 			ret++;
 		} catch (exception &e) {
 		}
 		try {
 			io1.read(4096, BITS8);
-			PP_TEST_ERROR("pci_io::read(BITS8)");
+			TEST_ERROR("pci_io::read(BITS8)");
 			ret++;
 		} catch (exception &e) {
 		}
@@ -87,14 +87,14 @@ test_pci_io()
 		/* test the write() method */
 		io1.write(0, BITS64, pp_value("0xffeeddccbbaa9988"));
 		if (io1.read(0, BITS64) != pp_value("0xffeeddccbbaa9988")) {
-			PP_TEST_ERROR("pci_io::write()");
+			TEST_ERROR("pci_io::write()");
 			ret++;
 		}
 
 		/* test ctors (for a dev file that does not exist) */
 		try {
 			pci_io io4(pci_address(1, 0, 0, 0), "test_data");
-			PP_TEST_ERROR("pci_io::pci_io()");
+			TEST_ERROR("pci_io::pci_io()");
 			ret++;
 		} catch (exception &e) {
 		}

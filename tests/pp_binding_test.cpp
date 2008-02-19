@@ -12,14 +12,14 @@ test_pp_binding()
 	/* test the read() method */
 	pp_binding_ptr sp = new_test_binding();
 	if (sp->read(0, BITS8) != 0xff) {
-		PP_TEST_ERROR("pp_binding::read()");
+		TEST_ERROR("pp_binding::read()");
 		ret++;
 	}
 
 	/* test the write() method */
 	sp->write(0, BITS8, 0x11);
 	if (sp->read(0, BITS16) != 0xff11) {
-		PP_TEST_ERROR("pp_binding::write()");
+		TEST_ERROR("pp_binding::write()");
 		ret++;
 	}
 

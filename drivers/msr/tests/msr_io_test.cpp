@@ -20,25 +20,25 @@ test_msr_io()
 		msr_io io1(msr_address(93), "test_data",
 				NULL_MAJOR, NULL_MINOR);
 		if (io1.address().cpu != 93) {
-			PP_TEST_ERROR("msr_io::msr_io(msr_address)");
+			TEST_ERROR("msr_io::msr_io(msr_address)");
 			ret++;
 		}
 
 		/* test the read() method */
 		if (io1.read(0, BITS64) != pp_value("0x3736353433323130")) {
-			PP_TEST_ERROR("msr_io::read()");
+			TEST_ERROR("msr_io::read()");
 			ret++;
 		}
 		/* test read() around the bounds */
 		try {
 			io1.read(0xffffffff, BITS64);
-			PP_TEST_ERROR("msr_io::read(BITS64)");
+			TEST_ERROR("msr_io::read(BITS64)");
 			ret++;
 		} catch (exception &e) {
 		}
 		try {
 			io1.read(0x100000000ULL, BITS64);
-			PP_TEST_ERROR("msr_io::read(BITS64)");
+			TEST_ERROR("msr_io::read(BITS64)");
 			ret++;
 		} catch (exception &e) {
 		}
@@ -46,7 +46,7 @@ test_msr_io()
 		/* test the write() method */
 		io1.write(0, BITS64, pp_value("0xffeeddccbbaa9988"));
 		if (io1.read(0, BITS64) != pp_value("0xffeeddccbbaa9988")) {
-			PP_TEST_ERROR("msr_io::write()");
+			TEST_ERROR("msr_io::write()");
 			ret++;
 		}
 
@@ -54,7 +54,7 @@ test_msr_io()
 		try {
 			msr_io io2(msr_address(76), "test_data",
 					NULL_MAJOR, NULL_MINOR);
-			PP_TEST_ERROR("msr_io::msr_io()");
+			TEST_ERROR("msr_io::msr_io()");
 			ret++;
 		} catch (exception &e) {
 		}

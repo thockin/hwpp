@@ -21,23 +21,23 @@ magic_regs_test()
 	int ret = 0;
 
 	if (magic_zeros->read() != 0) {
-		PP_TEST_ERROR("magic_zeros->read()");
+		TEST_ERROR("magic_zeros->read()");
 		ret++;
 	}
 	magic_zeros->write(1);
 	if (magic_zeros->read() != 0) {
-		PP_TEST_ERROR("magic_zeros->write()");
+		TEST_ERROR("magic_zeros->write()");
 		ret++;
 	}
 
 	pp_value ones = pp_value("0xffffffffffffffffffffffffffffffff");
 	if (magic_ones->read() != ones) {
-		PP_TEST_ERROR("magic_ones->read()");
+		TEST_ERROR("magic_ones->read()");
 		ret++;
 	}
 	magic_ones->write(0);
 	if (magic_ones->read() != ones) {
-		PP_TEST_ERROR("magic_ones->write()");
+		TEST_ERROR("magic_ones->write()");
 		ret++;
 	}
 

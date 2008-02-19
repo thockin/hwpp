@@ -29,26 +29,26 @@ test_int_field()
 
 	/* test read() */
 	if (f1.read() != 8721) {
-		PP_TEST_ERROR("pp_direct_field::read()");
+		TEST_ERROR("pp_direct_field::read()");
 		ret++;
 	}
 	if (f1.evaluate() != "8721") {
-		PP_TEST_ERROR("pp_direct_field::evaluate()");
+		TEST_ERROR("pp_direct_field::evaluate()");
 		ret++;
 	}
 
 	/* test write */
 	f1.write(0x0102);
 	if (f1.read() != 0x0102) {
-		PP_TEST_ERROR("pp_direct_field::write()");
+		TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 	if (r1->read() != 0x1102) {
-		PP_TEST_ERROR("pp_direct_field::write()");
+		TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 	if (r2->read() != 0x2201) {
-		PP_TEST_ERROR("pp_direct_field::write()");
+		TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 
@@ -75,26 +75,26 @@ test_hex_field()
 
 	/* test read() */
 	if (f1.read() != 0x2211) {
-		PP_TEST_ERROR("pp_direct_field::read()");
+		TEST_ERROR("pp_direct_field::read()");
 		ret++;
 	}
 	if (f1.evaluate() != "0x2211") {
-		PP_TEST_ERROR("pp_direct_field::evaluate()");
+		TEST_ERROR("pp_direct_field::evaluate()");
 		ret++;
 	}
 
 	/* test write */
 	f1.write(0x0102);
 	if (f1.read() != 0x0102) {
-		PP_TEST_ERROR("pp_direct_field::write()");
+		TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 	if (r1->read() != 0x1102) {
-		PP_TEST_ERROR("pp_direct_field::write()");
+		TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 	if (r2->read() != 0x2201) {
-		PP_TEST_ERROR("pp_direct_field::write()");
+		TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 
@@ -125,11 +125,11 @@ test_enum_field()
 
 	/* test read() */
 	if (f1->read() != 0x2211) {
-		PP_TEST_ERROR("pp_direct_field::read()");
+		TEST_ERROR("pp_direct_field::read()");
 		ret++;
 	}
 	if (f1->evaluate() != "correct") {
-		PP_TEST_ERROR("pp_direct_field::evaluate()");
+		TEST_ERROR("pp_direct_field::evaluate()");
 		ret++;
 	}
 
@@ -137,15 +137,15 @@ test_enum_field()
 	//FIXME: write by string? or lookup by string?
 	f1->write(1);
 	if (f1->read() != 0x1) {
-		PP_TEST_ERROR("pp_direct_field::write()");
+		TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 	if (r1->read() != 0x1101) {
-		PP_TEST_ERROR("pp_direct_field::write()");
+		TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 	if (r2->read() != 0x2200) {
-		PP_TEST_ERROR("pp_direct_field::write()");
+		TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 
@@ -179,11 +179,11 @@ test_bitmask_field()
 
 	/* test read() */
 	if (f1->read() != 0x2211) {
-		PP_TEST_ERROR("pp_direct_field::read()");
+		TEST_ERROR("pp_direct_field::read()");
 		ret++;
 	}
 	if (f1->evaluate() != "zero four nine thirteen") {
-		PP_TEST_ERROR("pp_direct_field::evaluate()");
+		TEST_ERROR("pp_direct_field::evaluate()");
 		ret++;
 	}
 
@@ -191,15 +191,15 @@ test_bitmask_field()
 	//FIXME: write by string? or lookup by string?
 	f1->write(0x207);
 	if (f1->read() != 0x207) {
-		PP_TEST_ERROR("pp_direct_field::write()");
+		TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 	if (r1->read() != 0x1107) {
-		PP_TEST_ERROR("pp_direct_field::write()");
+		TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 	if (r2->read() != 0x2202) {
-		PP_TEST_ERROR("pp_direct_field::write()");
+		TEST_ERROR("pp_direct_field::write()");
 		ret++;
 	}
 
@@ -236,11 +236,11 @@ test_proc_field()
 	pp_proc_field f(hex, accessor);
 	f.write(0x12345678);
 	if (f.read() != 0x12345678) {
-		PP_TEST_ERROR("pp_proc_field::write()");
+		TEST_ERROR("pp_proc_field::write()");
 		ret++;
 	}
 	if (f.evaluate() != "0x12345678") {
-		PP_TEST_ERROR("pp_proc_field::write()");
+		TEST_ERROR("pp_proc_field::write()");
 		ret++;
 	}
 
@@ -255,16 +255,16 @@ test_constant_field()
 	pp_datatype *hex = new pp_hex();
 	pp_constant_field f(hex, 0x12345678);
 	if (f.read() != 0x12345678) {
-		PP_TEST_ERROR("pp_constant_field::read()");
+		TEST_ERROR("pp_constant_field::read()");
 		ret++;
 	}
 	if (f.evaluate() != "0x12345678") {
-		PP_TEST_ERROR("pp_constant_field::read()");
+		TEST_ERROR("pp_constant_field::read()");
 		ret++;
 	}
 	f.write(0);
 	if (f.read() != 0x12345678) {
-		PP_TEST_ERROR("pp_constant_field::write()");
+		TEST_ERROR("pp_constant_field::write()");
 		ret++;
 	}
 
