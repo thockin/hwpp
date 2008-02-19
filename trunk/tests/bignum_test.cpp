@@ -1370,6 +1370,609 @@ test_large_io()
 }
 
 int
+test_operators()
+{
+	int ret = 0;
+
+	// test operators with signed char
+	{
+		pp_value val = 1;
+		pp_value val2;
+
+		val2 = val + (signed char)1;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator+()");
+		val += (signed char)1;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator+=()");
+
+		val2 = val - (signed char)1;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator-()");
+		val -= (signed char)1;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator-=()");
+
+		val2 = val * (signed char)2;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator*()");
+		val *= (signed char)2;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator*=()");
+
+		val2 = val / (signed char)2;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator/()");
+		val /= (signed char)2;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator/=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val | (signed char)3;
+		//ret += PP_TEST_ASSERT(val2 == 3, "bignum::operator|()");
+		val |= (signed char)3;
+		ret += PP_TEST_ASSERT(val == 3, "bignum::operator|=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val & (signed char)2;
+		//ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator&()");
+		val &= (signed char)2;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator&=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val ^ (signed char)1;
+		//ret += PP_TEST_ASSERT(val2 == 3, "bignum::operator^()");
+		val ^= (signed char)1;
+		ret += PP_TEST_ASSERT(val == 3, "bignum::operator^=()");
+
+		val2 = val % (signed char)2;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator%()");
+		val %= (signed char)2;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator%=()");
+
+		val2 = val << (signed char)1;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator<<()");
+		val <<= (signed char)1;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator<<=()");
+
+		val2 = val >> (signed char)1;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator>>()");
+		val >>= (signed char)1;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator>>=()");
+	}
+
+	// test operators with unsigned char
+	{
+		pp_value val = 1;
+		pp_value val2;
+
+		val2 = val + (unsigned char)1;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator+()");
+		val += (unsigned char)1;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator+=()");
+
+		val2 = val - (unsigned char)1;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator-()");
+		val -= (unsigned char)1;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator-=()");
+
+		val2 = val * (unsigned char)2;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator*()");
+		val *= (unsigned char)2;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator*=()");
+
+		val2 = val / (unsigned char)2;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator/()");
+		val /= (unsigned char)2;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator/=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val | (unsigned char)3;
+		//ret += PP_TEST_ASSERT(val2 == 3, "bignum::operator|()");
+		val |= (unsigned char)3;
+		ret += PP_TEST_ASSERT(val == 3, "bignum::operator|=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val & (unsigned char)2;
+		//ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator&()");
+		val &= (unsigned char)2;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator&=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val ^ (unsigned char)1;
+		//ret += PP_TEST_ASSERT(val2 == 3, "bignum::operator^()");
+		val ^= (unsigned char)1;
+		ret += PP_TEST_ASSERT(val == 3, "bignum::operator^=()");
+
+		val2 = val % (unsigned char)2;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator%()");
+		val %= (unsigned char)2;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator%=()");
+
+		val2 = val << (unsigned char)1;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator<<()");
+		val <<= (unsigned char)1;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator<<=()");
+
+		val2 = val >> (unsigned char)1;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator>>()");
+		val >>= (unsigned char)1;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator>>=()");
+	}
+
+	// test operators with signed short
+	{
+		pp_value val = 1;
+		pp_value val2;
+
+		val2 = val + (signed short)1;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator+()");
+		val += (signed short)1;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator+=()");
+
+		val2 = val - (signed short)1;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator-()");
+		val -= (signed short)1;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator-=()");
+
+		val2 = val * (signed short)2;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator*()");
+		val *= (signed short)2;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator*=()");
+
+		val2 = val / (signed short)2;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator/()");
+		val /= (signed short)2;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator/=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val | (signed short)3;
+		//ret += PP_TEST_ASSERT(val2 == 3, "bignum::operator|()");
+		val |= (signed short)3;
+		ret += PP_TEST_ASSERT(val == 3, "bignum::operator|=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val & (signed short)2;
+		//ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator&()");
+		val &= (signed short)2;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator&=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val ^ (signed short)1;
+		//ret += PP_TEST_ASSERT(val2 == 3, "bignum::operator^()");
+		val ^= (signed short)1;
+		ret += PP_TEST_ASSERT(val == 3, "bignum::operator^=()");
+
+		val2 = val % (signed short)2;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator%()");
+		val %= (signed short)2;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator%=()");
+
+		val2 = val << (signed short)1;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator<<()");
+		val <<= (signed short)1;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator<<=()");
+
+		val2 = val >> (signed short)1;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator>>()");
+		val >>= (signed short)1;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator>>=()");
+	}
+
+	// test operators with unsigned short
+	{
+		pp_value val = 1;
+		pp_value val2;
+
+		val2 = val + (unsigned short)1;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator+()");
+		val += (unsigned short)1;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator+=()");
+
+		val2 = val - (unsigned short)1;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator-()");
+		val -= (unsigned short)1;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator-=()");
+
+		val2 = val * (unsigned short)2;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator*()");
+		val *= (unsigned short)2;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator*=()");
+
+		val2 = val / (unsigned short)2;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator/()");
+		val /= (unsigned short)2;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator/=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val | (unsigned short)3;
+		//ret += PP_TEST_ASSERT(val2 == 3, "bignum::operator|()");
+		val |= (unsigned short)3;
+		ret += PP_TEST_ASSERT(val == 3, "bignum::operator|=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val & (unsigned short)2;
+		//ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator&()");
+		val &= (unsigned short)2;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator&=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val ^ (unsigned short)1;
+		//ret += PP_TEST_ASSERT(val2 == 3, "bignum::operator^()");
+		val ^= (unsigned short)1;
+		ret += PP_TEST_ASSERT(val == 3, "bignum::operator^=()");
+
+		val2 = val % (unsigned short)2;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator%()");
+		val %= (unsigned short)2;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator%=()");
+
+		val2 = val << (unsigned short)1;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator<<()");
+		val <<= (unsigned short)1;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator<<=()");
+
+		val2 = val >> (unsigned short)1;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator>>()");
+		val >>= (unsigned short)1;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator>>=()");
+	}
+
+	// test operators with signed int
+	{
+		pp_value val = 1;
+		pp_value val2;
+
+		val2 = val + (signed int)1;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator+()");
+		val += (signed int)1;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator+=()");
+
+		val2 = val - (signed int)1;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator-()");
+		val -= (signed int)1;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator-=()");
+
+		val2 = val * (signed int)2;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator*()");
+		val *= (signed int)2;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator*=()");
+
+		val2 = val / (signed int)2;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator/()");
+		val /= (signed int)2;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator/=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val | (signed int)3;
+		//ret += PP_TEST_ASSERT(val2 == 3, "bignum::operator|()");
+		val |= (signed int)3;
+		ret += PP_TEST_ASSERT(val == 3, "bignum::operator|=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val & (signed int)2;
+		//ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator&()");
+		val &= (signed int)2;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator&=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val ^ (signed int)1;
+		//ret += PP_TEST_ASSERT(val2 == 3, "bignum::operator^()");
+		val ^= (signed int)1;
+		ret += PP_TEST_ASSERT(val == 3, "bignum::operator^=()");
+
+		val2 = val % (signed int)2;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator%()");
+		val %= (signed int)2;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator%=()");
+
+		val2 = val << (signed int)1;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator<<()");
+		val <<= (signed int)1;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator<<=()");
+
+		val2 = val >> (signed int)1;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator>>()");
+		val >>= (signed int)1;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator>>=()");
+	}
+
+	// test operators with unsigned int
+	{
+		pp_value val = 1;
+		pp_value val2;
+
+		val2 = val + (unsigned int)1;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator+()");
+		val += (unsigned int)1;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator+=()");
+
+		val2 = val - (unsigned int)1;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator-()");
+		val -= (unsigned int)1;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator-=()");
+
+		val2 = val * (unsigned int)2;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator*()");
+		val *= (unsigned int)2;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator*=()");
+
+		val2 = val / (unsigned int)2;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator/()");
+		val /= (unsigned int)2;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator/=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val | (unsigned int)3;
+		//ret += PP_TEST_ASSERT(val2 == 3, "bignum::operator|()");
+		val |= (unsigned int)3;
+		ret += PP_TEST_ASSERT(val == 3, "bignum::operator|=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val & (unsigned int)2;
+		//ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator&()");
+		val &= (unsigned int)2;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator&=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val ^ (unsigned int)1;
+		//ret += PP_TEST_ASSERT(val2 == 3, "bignum::operator^()");
+		val ^= (unsigned int)1;
+		ret += PP_TEST_ASSERT(val == 3, "bignum::operator^=()");
+
+		val2 = val % (unsigned int)2;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator%()");
+		val %= (unsigned int)2;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator%=()");
+
+		val2 = val << (unsigned int)1;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator<<()");
+		val <<= (unsigned int)1;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator<<=()");
+
+		val2 = val >> (unsigned int)1;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator>>()");
+		val >>= (unsigned int)1;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator>>=()");
+	}
+
+	// test operators with signed long
+	{
+		pp_value val = 1;
+		pp_value val2;
+
+		val2 = val + (signed long)1;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator+()");
+		val += (signed long)1;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator+=()");
+
+		val2 = val - (signed long)1;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator-()");
+		val -= (signed long)1;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator-=()");
+
+		val2 = val * (signed long)2;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator*()");
+		val *= (signed long)2;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator*=()");
+
+		val2 = val / (signed long)2;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator/()");
+		val /= (signed long)2;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator/=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val | (signed long)3;
+		//ret += PP_TEST_ASSERT(val2 == 3, "bignum::operator|()");
+		val |= (signed long)3;
+		ret += PP_TEST_ASSERT(val == 3, "bignum::operator|=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val & (signed long)2;
+		//ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator&()");
+		val &= (signed long)2;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator&=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val ^ (signed long)1;
+		//ret += PP_TEST_ASSERT(val2 == 3, "bignum::operator^()");
+		val ^= (signed long)1;
+		ret += PP_TEST_ASSERT(val == 3, "bignum::operator^=()");
+
+		val2 = val % (signed long)2;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator%()");
+		val %= (signed long)2;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator%=()");
+
+		val2 = val << (signed long)1;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator<<()");
+		val <<= (signed long)1;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator<<=()");
+
+		val2 = val >> (signed long)1;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator>>()");
+		val >>= (signed long)1;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator>>=()");
+	}
+
+	// test operators with unsigned long
+	{
+		pp_value val = 1;
+		pp_value val2;
+
+		val2 = val + (unsigned long)1;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator+()");
+		val += (unsigned long)1;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator+=()");
+
+		val2 = val - (unsigned long)1;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator-()");
+		val -= (unsigned long)1;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator-=()");
+
+		val2 = val * (unsigned long)2;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator*()");
+		val *= (unsigned long)2;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator*=()");
+
+		val2 = val / (unsigned long)2;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator/()");
+		val /= (unsigned long)2;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator/=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val | (unsigned long)3;
+		//ret += PP_TEST_ASSERT(val2 == 3, "bignum::operator|()");
+		val |= (unsigned long)3;
+		ret += PP_TEST_ASSERT(val == 3, "bignum::operator|=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val & (unsigned long)2;
+		//ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator&()");
+		val &= (unsigned long)2;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator&=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val ^ (unsigned long)1;
+		//ret += PP_TEST_ASSERT(val2 == 3, "bignum::operator^()");
+		val ^= (unsigned long)1;
+		ret += PP_TEST_ASSERT(val == 3, "bignum::operator^=()");
+
+		val2 = val % (unsigned long)2;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator%()");
+		val %= (unsigned long)2;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator%=()");
+
+		val2 = val << (unsigned long)1;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator<<()");
+		val <<= (unsigned long)1;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator<<=()");
+
+		val2 = val >> (unsigned long)1;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator>>()");
+		val >>= (unsigned long)1;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator>>=()");
+	}
+
+	// Most operators with (signd or unsigned) long long fail, because
+	// GMP does not natively support them.  There must be some hack to
+	// make this work  (and the above bugs with | & ^), but I can't be
+	// bothered to mess with it any further.
+	#if 0
+	{
+		pp_value val = 1;
+		pp_value val2;
+
+		val2 = val + (signed long long)1LL;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator+()");
+		val += (signed long long)1LL;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator+=()");
+
+		val2 = val - (signed long long)1LL;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator-()");
+		val -= (signed long long)1LL;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator-=()");
+
+		val2 = val * (signed long long)2LL;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator*()");
+		val *= (signed long long)2LL;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator*=()");
+
+		val2 = val / (signed long long)2LL;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator/()");
+		val /= (signed long long)2LL;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator/=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val | (signed long long)3LL;
+		//ret += PP_TEST_ASSERT(val2 == 3, "bignum::operator|()");
+		val |= (signed long long)3LL;
+		ret += PP_TEST_ASSERT(val == 3, "bignum::operator|=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val & (signed long long)2LL;
+		//ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator&()");
+		val &= (signed long long)2LL;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator&=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val ^ (signed long long)1LL;
+		//ret += PP_TEST_ASSERT(val2 == 3, "bignum::operator^()");
+		val ^= (signed long long)1LL;
+		ret += PP_TEST_ASSERT(val == 3, "bignum::operator^=()");
+
+		val2 = val % (signed long long)2LL;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator%()");
+		val %= (signed long long)2LL;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator%=()");
+
+		val2 = val << (signed long long)1LL;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator<<()");
+		val <<= (signed long long)1LL;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator<<=()");
+
+		val2 = val >> (signed long long)1LL;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator>>()");
+		val >>= (signed long long)1LL;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator>>=()");
+	}
+
+	// test operators with unsigned long long
+	{
+		pp_value val = 1;
+		pp_value val2;
+
+		val2 = val + (unsigned long long)1ULL;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator+()");
+		val += (unsigned long long)1ULL;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator+=()");
+
+		val2 = val - (unsigned long long)1ULL;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator-()");
+		val -= (unsigned long long)1ULL;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator-=()");
+
+		val2 = val * (unsigned long long)2ULL;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator*()");
+		val *= (unsigned long long)2ULL;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator*=()");
+
+		val2 = val / (unsigned long long)2ULL;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator/()");
+		val /= (unsigned long long)2ULL;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator/=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val | (unsigned long long)3ULL;
+		//ret += PP_TEST_ASSERT(val2 == 3, "bignum::operator|()");
+		val |= (unsigned long long)3ULL;
+		ret += PP_TEST_ASSERT(val == 3, "bignum::operator|=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val & (unsigned long long)2ULL;
+		//ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator&()");
+		val &= (unsigned long long)2ULL;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator&=()");
+
+		// a bug(?) in gmpxx prevents this from working
+		//val2 = val ^ (unsigned long long)1ULL;
+		//ret += PP_TEST_ASSERT(val2 == 3, "bignum::operator^()");
+		val ^= (unsigned long long)1ULL;
+		ret += PP_TEST_ASSERT(val == 3, "bignum::operator^=()");
+
+		val2 = val % (unsigned long long)2ULL;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator%()");
+		val %= (unsigned long long)2ULL;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator%=()");
+
+		val2 = val << (unsigned long long)1ULL;
+		ret += PP_TEST_ASSERT(val2 == 2, "bignum::operator<<()");
+		val <<= (unsigned long long)1ULL;
+		ret += PP_TEST_ASSERT(val == 2, "bignum::operator<<=()");
+
+		val2 = val >> (unsigned long long)1ULL;
+		ret += PP_TEST_ASSERT(val2 == 1, "bignum::operator>>()");
+		val >>= (unsigned long long)1ULL;
+		ret += PP_TEST_ASSERT(val == 1, "bignum::operator>>=()");
+	}
+	#endif // 0
+
+	return ret;
+}
+
+int
 main(void)
 {
 	int ret = 0;
@@ -1383,6 +1986,7 @@ main(void)
 	ret += test_large_logical();
 	ret += test_small_io();
 	ret += test_large_io();
+	ret += test_operators();
 
 	return ret;
 }

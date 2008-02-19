@@ -272,5 +272,23 @@ operator>>(const mpz_class &lhs, const mpz_class &rhs)
 {
 	return (lhs >> rhs.get_ui());
 }
+inline mpz_class &
+operator|=(mpz_class &lhs, const mpz_class &rhs)
+{
+	lhs = lhs | rhs;
+	return lhs;
+}
+inline mpz_class &
+operator&=(mpz_class &lhs, const mpz_class &rhs)
+{
+	lhs = lhs & rhs;
+	return lhs;
+}
+inline mpz_class &
+operator^=(mpz_class &lhs, const mpz_class &rhs)
+{
+	lhs = lhs ^ rhs;
+	return lhs;
+}
 
 #endif // PP_BIGNUM_H__
