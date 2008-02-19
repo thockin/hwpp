@@ -15,10 +15,12 @@ string
 pp_path::element::to_string() const
 {
 	string ret = m_name;
-	if (m_is_array) {
+	if (is_array()) {
 		ret += "[";
-		if (m_index >= 0) {
-			ret += ::to_string(m_index);
+		if (m_array_mode == pp_path::element::ARRAY_INDEX) {
+			ret += ::to_string(m_array_index);
+		} else if (m_array_mode == pp_path::element::ARRAY_TAIL) {
+			ret += "$";
 		}
 		ret += "]";
 	}
@@ -40,13 +42,19 @@ pp_path::element::name() const
 bool
 pp_path::element::is_array() const
 {
-	return m_is_array;
+	return !(m_array_mode == pp_path::element::ARRAY_NONE);
 }
 
-int
+enum pp_path::element::array_mode
+pp_path::element::array_mode() const
+{
+	return m_array_mode;
+}
+
+size_t
 pp_path::element::array_index() const
 {
-	return m_index;
+	return m_array_index;
 }
 
 void
@@ -57,7 +65,8 @@ pp_path::element::parse(const string &input)
 		ST_PERCENT,
 		ST_BODY,
 		ST_DOT,
-		ST_ARRAY,
+		ST_ARRAY_OPEN,
+		ST_ARRAY_CLOSE,
 		ST_ARRAY_INDEX_BASE,
 		ST_ARRAY_INDEX,
 		ST_DONE,
@@ -100,8 +109,7 @@ pp_path::element::parse(const string &input)
 				m_name += c;
 				state = ST_BODY;
 			} else if (c == '[') {
-				m_is_array = true;
-				state = ST_ARRAY;
+				state = ST_ARRAY_OPEN;
 			} else {
 				parse_error(input);
 				return;
@@ -116,17 +124,30 @@ pp_path::element::parse(const string &input)
 				return;
 			}
 			break;
-		    case ST_ARRAY:
+		    case ST_ARRAY_OPEN:
 			if (c == ']') {
-				m_index = -1;
+				m_array_mode = ARRAY_APPEND;
 				state = ST_DONE;
+			} else if (c == '$') {
+				m_array_mode = ARRAY_TAIL;
+				state = ST_ARRAY_CLOSE;
 			} else if (c == '0') {
-				m_index = 0;
+				m_array_index = 0;
+				m_array_mode = ARRAY_INDEX;
 				state = ST_ARRAY_INDEX_BASE;
 			} else if (isdigit(c)) {
 				idx_base = 10;
-				m_index = c - '0';
+				m_array_mode = ARRAY_INDEX;
+				m_array_index = c - '0';
 				state = ST_ARRAY_INDEX;
+			} else {
+				parse_error(input);
+				return;
+			}
+			break;
+		    case ST_ARRAY_CLOSE:
+			if (c == ']') {
+				state = ST_DONE;
 			} else {
 				parse_error(input);
 				return;
@@ -138,7 +159,7 @@ pp_path::element::parse(const string &input)
 				state = ST_ARRAY_INDEX;
 			} else if (isdigit(c) && c <= '7') {
 				idx_base = 8;
-				m_index += c - '0';
+				m_array_index += c - '0';
 				state = ST_ARRAY_INDEX;
 			} else if (c == ']') {
 				idx_base = 10;
@@ -150,19 +171,19 @@ pp_path::element::parse(const string &input)
 			break;
 		    case ST_ARRAY_INDEX:
 			if (idx_base == 10 && isdigit(c)) {
-				m_index *= idx_base;
-				m_index += c - '0';
+				m_array_index *= idx_base;
+				m_array_index += c - '0';
 				state = ST_ARRAY_INDEX;
 			} else if (idx_base == 8 && isdigit(c) && c <= '7') {
-				m_index *= idx_base;
-				m_index += c - '0';
+				m_array_index *= idx_base;
+				m_array_index += c - '0';
 				state = ST_ARRAY_INDEX;
 			} else if (idx_base == 16 && isxdigit(c)) {
-				m_index *= idx_base;
+				m_array_index *= idx_base;
 				if (c >= '0' && c <= '9') {
-					m_index += c - '0';
+					m_array_index += c - '0';
 				} else {
-					m_index += tolower(c) - 'a';
+					m_array_index += tolower(c) - 'a';
 				}
 				state = ST_ARRAY_INDEX;
 			} else if (c == ']') {

@@ -590,13 +590,12 @@ msix_capability(const pp_value &address)
 		pp_value tmp_size = READ("../table_size");
 		// loop for each PBA QWORD
 		for (unsigned i = 0; i < (READ("../table_size")+63)/64; i++) {
-			string regname = "%pending[]";
-			REG64(regname, i);
+			REG64("%pending[]", i);
 			for (size_t j = 0; j < 64; j++) {
 				if (j >= tmp_size)
 					break;
 				FIELD("pending" + to_string(i*64 + j),
-						"yesno_t", BITS(regname, j));
+				    "yesno_t", BITS("%pending[$]", j));
 			}
 			tmp_size -= 64;
 		}

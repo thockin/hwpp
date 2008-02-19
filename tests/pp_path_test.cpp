@@ -59,7 +59,22 @@ test_element()
 			"pp_path::element::element()");
 		ret += PP_TEST_ASSERT(e.is_array() == true,
 			"pp_path::element::element()");
-		ret += PP_TEST_ASSERT(e.array_index() == -1,
+		ret += PP_TEST_ASSERT(e.array_mode() == e.ARRAY_APPEND,
+			"pp_path::element::element()");
+	}
+	{
+		pp_path::element e("foo[$]");
+		ret += PP_TEST_ASSERT(e.to_string() == "foo[$]",
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.equals(pp_path::element("foo[$]")),
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(!e.equals(pp_path::element("foo")),
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(!e.equals(pp_path::element("bar[$]")),
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.is_array() == true,
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.array_mode() == e.ARRAY_TAIL,
 			"pp_path::element::element()");
 	}
 	{
@@ -73,6 +88,8 @@ test_element()
 		ret += PP_TEST_ASSERT(!e.equals(pp_path::element("bar[0]")),
 			"pp_path::element::element()");
 		ret += PP_TEST_ASSERT(e.is_array() == true,
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.array_mode() == e.ARRAY_INDEX,
 			"pp_path::element::element()");
 		ret += PP_TEST_ASSERT(e.array_index() == 0,
 			"pp_path::element::element()");
@@ -93,6 +110,8 @@ test_element()
 			"pp_path::element::element()");
 		ret += PP_TEST_ASSERT(e.is_array() == true,
 			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.array_mode() == e.ARRAY_INDEX,
+			"pp_path::element::element()");
 		ret += PP_TEST_ASSERT(e.array_index() == 8,
 			"pp_path::element::element()");
 	}
@@ -111,6 +130,8 @@ test_element()
 		ret += PP_TEST_ASSERT(!e.equals(pp_path::element("bar[16]")),
 			"pp_path::element::element()");
 		ret += PP_TEST_ASSERT(e.is_array() == true,
+			"pp_path::element::element()");
+		ret += PP_TEST_ASSERT(e.array_mode() == e.ARRAY_INDEX,
 			"pp_path::element::element()");
 		ret += PP_TEST_ASSERT(e.array_index() == 16,
 			"pp_path::element::element()");

@@ -100,12 +100,19 @@ class pp_path
 	class element
 	{
 	    public:
+		enum array_mode {
+			ARRAY_NONE = 0,
+			ARRAY_INDEX,
+			ARRAY_TAIL,
+			ARRAY_APPEND,
+		};
+
 		// explicit ctor from string
 		// throws:
 		// 	pp_path::invalid_error
 		explicit
 		element(const string &str)
-		    : m_name(), m_is_array(false), m_index(-1)
+		    : m_name(), m_array_mode(ARRAY_NONE), m_array_index(0)
 		{
 			parse(str);
 		}
@@ -122,13 +129,16 @@ class pp_path
 		bool
 		is_array() const;
 
-		int
+		enum array_mode
+		array_mode() const;
+
+		size_t
 		array_index() const;
 
 	    private:
 		string m_name;
-		bool m_is_array;
-		int m_index;
+		enum array_mode m_array_mode;
+		size_t m_array_index;
 
 		void
 		parse(const string &input);
