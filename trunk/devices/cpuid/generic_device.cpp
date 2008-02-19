@@ -1,10 +1,5 @@
 #include "pp.h"
-#include "pp_scope.h"
-#include "pp_register.h"
-#include "pp_datatypes.h"
-#include "pp_fields.h"
 #include "utils.h"
-#include "drivers.h"
 
 void
 CPUID_SCOPE(const string &name, const pp_value &cpu, const pp_value &func)

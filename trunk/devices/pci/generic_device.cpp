@@ -1,11 +1,5 @@
 #include "pp.h"
-#include <vector>
-#include "pp_scope.h"
-#include "pp_register.h"
-#include "pp_datatypes.h"
-#include "pp_fields.h"
 #include "utils.h"
-#include "drivers.h"
 
 // All standard BARs look like this.
 static void
