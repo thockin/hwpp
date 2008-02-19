@@ -154,7 +154,7 @@ pp_scope::add_dirent(const string &name, pp_dirent_ptr new_dirent)
 	// is the name an array access?
 	if (elem.is_array()) {
 		// if so, we don't support direct indexed writes, just appends
-		if (elem.array_index() != -1) {
+		if (elem.array_mode() != elem.ARRAY_APPEND) {
 			throw pp_path::invalid_error(
 			    "array write is not an append: "
 			    + elem.to_string());
@@ -284,16 +284,32 @@ pp_scope::lookup_dirent_internal(pp_path &path) const
 			    "path element is not an array: "
 			    + path_front.to_string());
 		}
-		// if path is array[], return not_found
-		if (path_front.array_index() == -1) {
+		// if path is array_append, return not_found
+		if (path_front.array_mode() == path_front.ARRAY_APPEND) {
 			throw pp_path::not_found_error(
 			    "array append is not a dirent: "
 			    + path_front.name());
 		}
-		// if path is array[n], index into the array
+
+		const pp_array *ar = pp_array_from_dirent(de);
+		size_t index;
+
+		// if path is an array_tail, but dirent is empty: error
+		if (path_front.array_mode() == path_front.ARRAY_TAIL
+		 && ar->size() == 0) {
+			throw pp_path::not_found_error(
+			    "array is empty: " + path_front.name());
+		}
+		// if path is an array_tail, access the last index
+		if (path_front.array_mode() == path_front.ARRAY_TAIL) {
+			index = ar->size() - 1;
+		} else {
+			// must be a direct access
+			index = path_front.array_index();
+		}
+		// index into the array
 		try {
-			const pp_array *ar = pp_array_from_dirent(de);
-			de = ar->at(path_front.array_index());
+			de = ar->at(index);
 		} catch (std::out_of_range &e) {
 			throw pp_path::not_found_error(
 			    "path element not found: "
