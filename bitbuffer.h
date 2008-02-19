@@ -1,4 +1,4 @@
-/* Copyright (c) Tim Hockin, 2008 */
+// Copyright (c) Tim Hockin, 2008
 #ifndef PP_BITBUFFER_H__
 #define PP_BITBUFFER_H__
 
@@ -7,15 +7,15 @@
 #include <boost/shared_array.hpp>
 #include <stdint.h>
 
-/*
- * This is a simple buffer of a fixed bit width.  It is a suitable place
- * to store data for lower-level things like read() and write().  Once
- * initialized, it can not be resized except through a call to reset().
- *
- * Bitbuffers are always stored in little endian form as an array of
- * 'uint8_t'.  Bits beyond the specified bit width are initialized to 0,
- * but could be changed by the caller.
- */
+//
+// This is a simple buffer of a fixed bit width.  It is a suitable place
+// to store data for lower-level things like read() and write().  Once
+// initialized, it can not be resized except through a call to reset().
+//
+// Bitbuffers are always stored in little endian form as an array of
+// 'uint8_t'.  Bits beyond the specified bit width are initialized to 0,
+// but could be changed by the caller.
+//
 class bitbuffer
 {
     private:
@@ -89,7 +89,7 @@ inline std::ostream &
 operator<<(std::ostream& o, const bitbuffer &bitbuf)
 {
 	o << "0x";
-	// This is signed on purpose.
+	// this is signed on purpose
 	signed long i = bitbuf.size_bytes()-1;
 	if (i >= 0) {
 		// skip leading zeros

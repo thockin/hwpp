@@ -1,13 +1,13 @@
-/* Copyright (c) Tim Hockin, 2007 */
+// Copyright (c) Tim Hockin, 2007-2008
 #ifndef KEYED_VECTOR_HPP__
 #define KEYED_VECTOR_HPP__
 
-/*
- * keyed_vector.cpp
- *
- * Tim Hockin <thockin@hockin.org>
- * 2007
- */
+//
+// keyed_vector.cpp
+//
+// Tim Hockin <thockin@hockin.org>
+// 2007
+//
 
 #include <vector>
 #include <map>
@@ -16,11 +16,11 @@
 #include "pp.h"
 #include "debug.h"
 
-/*
- * This template class is a thin wrapper to make iterators work for
- * keyed_vector objects.  This is largely based on the boost example
- * code for boost::iterator_facade.
- */
+//
+// This template class is a thin wrapper to make iterators work for
+// keyed_vector objects.  This is largely based on the boost example
+// code for boost::iterator_facade.
+//
 template<typename Titer, typename Tval>
 class keyvec_iter
     : public boost::iterator_facade<keyvec_iter<Titer, Tval>, Tval,
@@ -30,18 +30,18 @@ class keyvec_iter
 	template<class,class> friend class keyvec_iter;
 
     public:
-	/* default constructor */
+	// default constructor
 	keyvec_iter() {}
 
-	/* implicit conversion from the underlying iterator */
+	// implicit conversion from the underlying iterator
 	keyvec_iter(Titer it): m_it(it) {}
 
-	/* implicit conversion from iterator to const_iterator */
+	// implicit conversion from iterator to const_iterator
 	template<class Tother>
 	keyvec_iter(const keyvec_iter<Titer, Tother> &other)
 	    : m_it(other.m_it), m_trap(other.m_trap) {}
 
-	/* get the underlying iterator */
+	// get the underlying iterator
 	const Titer&
 	get() const
 	{
@@ -49,7 +49,7 @@ class keyvec_iter
 	}
 
     private:
-	/* check for equality */
+	// check for equality
 	template<typename Tthat>
 	bool
 	equal(const keyvec_iter<Titer, Tthat> &that) const
@@ -57,28 +57,28 @@ class keyvec_iter
 		return (this->m_it == that.m_it);
 	}
 
-	/* move the iterator forward by one */
+	// move the iterator forward by one
 	void
 	increment()
 	{
 		++m_it;
 	}
 
-	/* move the iterator backward by one */
+	// move the iterator backward by one
 	void
 	decrement()
 	{
 		--m_it;
 	}
 
-	/* move the iterator forward or backward by n */
+	// move the iterator forward or backward by n
 	void
 	advance(const std::ptrdiff_t n)
 	{
 		m_it += n;
 	}
 
-	/* figure out the distance to another iterator */
+	// figure out the distance to another iterator
 	template<typename Tthere>
 	std::ptrdiff_t
 	distance_to(const keyvec_iter<Titer, Tthere> &there) const
@@ -86,7 +86,7 @@ class keyvec_iter
 		return there.m_it - this->m_it;
 	}
 
-	/* get at the referent */
+	// get at the referent
 	Tval &
 	dereference() const
 	{
@@ -94,42 +94,42 @@ class keyvec_iter
 	}
 
     private:
-	/* the actual underlying iterator */
+	// the actual underlying iterator
 	Titer m_it;
 
-	/* a trap to catch const_iterator to iterator assignment */
+	// a trap to catch const_iterator to iterator assignment
 	Tval *m_trap;
 };
 
-/*
- * template class keyed_vector<Tkey, Tval>
- *
- * This template class implements a vector in which each stored object
- * (value) has a specific key.  Indexing can be done by integer or by key.
- * When indexing by integer or iterating the data is returned in insert
- * order.
- *
- * This is a brief overview of how it works.  First, there is an STL
- * vector of Tval which holds the data elements, in insert order.  Then,
- * There is an STL map of Tkey->int.  This holds the key elements and the
- * int index of the value in the value vector.  Lastly, there is a vector
- * of map iterators, where the index in the vector is parallel to the
- * value vector.  This allows you to access the data in order (via the
- * vectors), or to access it randomly (by the map).
- *
- * STL guarantees that map iterators do not get invalidated unless the
- * item pointed to is removed from the map.  We rely on this when we store
- * iterators.  When an item is removed from any position except the back
- * of the vectors, all subsequent entries must have their indices updated
- * in the map.
- *
- * Notes:
- *   - The 'Tkey' type must have an == operator.
- *   - Because of the dual modes of indexing, the 'Tkey' type can not be an
- *     integral primitive.
- *   - Keys must be unique.  Inserting a duplicate key will over-write the
- *     original value.
- */
+//
+// template class keyed_vector<Tkey, Tval>
+//
+// This template class implements a vector in which each stored object
+// (value) has a specific key.  Indexing can be done by integer or by key.
+// When indexing by integer or iterating the data is returned in insert
+// order.
+//
+// This is a brief overview of how it works.  First, there is an STL
+// vector of Tval which holds the data elements, in insert order.  Then,
+// There is an STL map of Tkey->int.  This holds the key elements and the
+// int index of the value in the value vector.  Lastly, there is a vector
+// of map iterators, where the index in the vector is parallel to the
+// value vector.  This allows you to access the data in order (via the
+// vectors), or to access it randomly (by the map).
+//
+// STL guarantees that map iterators do not get invalidated unless the
+// item pointed to is removed from the map.  We rely on this when we store
+// iterators.  When an item is removed from any position except the back
+// of the vectors, all subsequent entries must have their indices updated
+// in the map.
+//
+// Notes:
+//   - The 'Tkey' type must have an == operator.
+//   - Because of the dual modes of indexing, the 'Tkey' type can not be an
+//     integral primitive.
+//   - Keys must be unique.  Inserting a duplicate key will over-write the
+//     original value.
+//
 template<typename Tkey, typename Tval>
 class keyed_vector
 {
@@ -140,7 +140,7 @@ class keyed_vector
 	typedef std::vector<Tkey_iter> Tkeyptr_vector;
 	typedef typename Tkeyptr_vector::iterator Tkeyptr_iter;
 
-	/* the underlying data representation */
+	// the underlying data representation
 	Tkey_map m_keys;
 	Tval_vector m_values;
 	Tkeyptr_vector m_keyptrs;

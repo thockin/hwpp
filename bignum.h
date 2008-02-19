@@ -7,6 +7,7 @@
 
 #define BITS_PER_LONG	(sizeof(long)*CHAR_BIT)
 
+//
 // All bignums are signed.  GMP will allow you to create a bignum from
 // either signed or unsigned raw integers, and it will do "the right
 // thing".  Unsigned raw integers will always create a positive bignum.  It
@@ -15,6 +16,7 @@
 // is also not clear what happens if you read a negative bignum as an
 // unsigned value (e.g. -1 read back as unsigned int).  Just don't do those
 // things, and we'll all be happy.
+//
 class bignum: public mpz_class
 {
     public:

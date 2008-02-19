@@ -1,7 +1,7 @@
-/*
- * Thin wrappers around standard file/directory IO.
- * Tim Hockin <thockin@hockin.org>
- */
+//
+// Thin wrappers around standard file/directory IO.
+// Tim Hockin <thockin@hockin.org>
+//
 #ifndef FILESYSTEM_HPP__
 #define FILESYSTEM_HPP__
 
@@ -52,26 +52,26 @@ class io_error: public std::runtime_error
 	}
 };
 
-/* a file */
+// a file
 class file;
 typedef boost::shared_ptr<file> file_ptr;
 typedef boost::shared_ptr<const file> const_file_ptr;
 typedef boost::weak_ptr<file> weak_file_ptr;
 
-/* a memory-mapped area of a file */
+// a memory-mapped area of a file
 class file_mapping;
 typedef boost::shared_ptr<file_mapping> file_mapping_ptr;
 
-/* a directory */
+// a directory
 class directory;
 typedef boost::shared_ptr<directory> directory_ptr;
 
-/* a directory entry */
+// a directory entry
 class direntry;
 typedef boost::shared_ptr<direntry> direntry_ptr;
 
 
-/*
+//
  * file_mapping
  *
  * This class tracks an individual mmap() of a file.  When this class is
@@ -79,18 +79,18 @@ typedef boost::shared_ptr<direntry> direntry_ptr;
  *
  * Users can not create instances of this class.  To create a mapping call
  * fs::file::mmap(), which returns a smart pointer to one of these.
- */
+
 class file_mapping
 {
 	friend class file;
 
     private:
-	/* constructors - private to prevent abuse, defined later */
+	// constructors - private to prevent abuse, defined later
 	file_mapping(const_file_ptr file, off_t offset, size_t length,
 			int prot = PROT_READ, int flags = MAP_SHARED);
 
     public:
-	/* destructor */
+	// destructor
 	~file_mapping()
 	{
 		unmap();
@@ -103,10 +103,10 @@ class file_mapping
 			return;
 		}
 
-		/*
+		//
 		 * If other references exist, this can be bad.  Better to
 		 * use the destructor whenever possible.
-		 */
+		
 		int r = munmap(m_real_address, m_real_length);
 		if (r < 0) {
 			throw io_error(
@@ -155,20 +155,20 @@ class file_mapping
 
     private:
 	const_file_ptr m_file;
-	/* these are the file offset and map length that were requested */
+	// these are the file offset and map length that were requested
 	off_t m_offset;
 	size_t m_length;
 	uint8_t *m_address;
-	/* these are the aligned file offset and map length */
+	// these are the aligned file offset and map length
 	off_t m_real_offset;
 	size_t m_real_length;
 	uint8_t *m_real_address;
-	/* flags for the mapping */
+	// flags for the mapping
 	int m_prot;
 	int m_flags;
 };
 
-/*
+//
  * file
  *
  * This class represents a single opened file.  When this class is
@@ -176,11 +176,11 @@ class file_mapping
  *
  * Users can not create instances of this class.  To open a file call
  * fs::file::open(), which returns a smart pointer to one of these.
- */
+
 class file
 {
     private:
-	/* constructors - private to prevent abuse */
+	// constructors - private to prevent abuse
 	file(): m_path(""), m_mode(-1), m_fd(-1)
 	{
 	}
@@ -198,7 +198,7 @@ class file
 	}
 
     public:
-	/* destructor */
+	// destructor
 	~file()
 	{
 		if (m_fd >= 0) {
@@ -308,10 +308,10 @@ class file
 	void
 	close()
 	{
-		/*
+		//
 		 * If other references exist, this can be bad.  Better to
 		 * use the destructor whenever possible.
-		 */
+		
 		if (::close(m_fd) < 0) {
 			throw io_error(
 			    std::string("fs::file::close(") + m_path + "): "
@@ -536,7 +536,7 @@ file_mapping::file_mapping(const_file_ptr file,
 	size_t pgmask;
 	off_t ptr_off;
 
-	/* maps need to be page aligned */
+	// maps need to be page aligned
 	pgsize = getpagesize();
 	pgmask = pgsize - 1;
 	ptr_off = m_offset & pgmask;
@@ -554,14 +554,14 @@ file_mapping::file_mapping(const_file_ptr file,
 	m_address = m_real_address + ptr_off;
 }
 
-/*
+//
  * device
  *
  * This class represents a single device node.
  *
  * Users can not create instances of this class.  To open a device call
  * fs::device::open(), which returns a smart pointer to one of these.
- */
+
 class device: public file
 {
     public:
@@ -587,26 +587,26 @@ class device: public file
 	}
 };
 
-/*
+//
  * direntry
  *
  * This class represents a single directory entry.
  *
  * Users can not create instances of this class.  To access a direntry, use
  * fs::directory::read(), which returns a smart pointer to one of these.
- */
+
 class direntry
 {
     friend class directory;
 
     private:
-	/* constructor - implicit conversion from ::dirent */
+	// constructor - implicit conversion from ::dirent
 	direntry(struct ::dirent *de): m_dirent(de)
 	{
 	}
 
     public:
-	/* destructor */
+	// destructor
 	~direntry()
 	{
 	}
@@ -735,7 +735,7 @@ class direntry
 	struct ::dirent *m_dirent;
 };
 
-/*
+//
  * directory
  *
  * This class represents a single directory.  When this class is destructed,
@@ -743,11 +743,11 @@ class direntry
  *
  * Users can not create instances of this class.  To access a direntry, use
  * fs::directory::open(), which returns a smart pointer to one of these.
- */
+
 class directory
 {
     private:
-	/* constructors - private to prevent abuse */
+	// constructors - private to prevent abuse
 	directory(): m_path(""), m_dir(NULL)
 	{
 	}
@@ -764,7 +764,7 @@ class directory
 	}
 
     public:
-	/* destructor */
+	// destructor
 	~directory()
 	{
 		if (m_dir) {
@@ -837,6 +837,6 @@ class directory
 	::DIR *m_dir;
 };
 
-} /* namespace fs */
+} // namespace fs
 
-#endif /* FILESYSTEM_HPP__ */
+#endif // FILESYSTEM_HPP__
