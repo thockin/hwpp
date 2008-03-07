@@ -45,7 +45,7 @@ class pp_dirent {
 	// a dirent conversion error
 	struct conversion_error: public std::runtime_error
 	{
-		conversion_error(const string &str)
+		explicit conversion_error(const string &str)
 		    : runtime_error(str)
 		{
 		}

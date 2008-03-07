@@ -30,7 +30,7 @@ class pp_regbits
 	// a bitrange error
 	struct range_error: public std::runtime_error
 	{
-		range_error(const string &str)
+		explicit range_error(const string &str)
 		    : runtime_error(str)
 		{
 		}

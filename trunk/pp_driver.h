@@ -9,32 +9,36 @@
 /*
  * pp_driver_error - thrown when something goes awry with a driver.
  */
-class pp_driver_error: public std::runtime_error
+struct pp_driver_error: public std::runtime_error
 {
-    public:
-	explicit pp_driver_error(const string &arg)
-	    : std::runtime_error(arg) {}
+	explicit pp_driver_error(const string &str)
+	    : std::runtime_error(str)
+	{
+	}
 };
 
-class pp_driver_io_error: public pp_driver_error
+struct pp_driver_io_error: public pp_driver_error
 {
-    public:
-	explicit pp_driver_io_error(const string &arg)
-	    : pp_driver_error(arg) {}
+	explicit pp_driver_io_error(const string &str)
+	    : pp_driver_error(str)
+	{
+	}
 };
 
-class pp_driver_args_error: public pp_driver_error
+struct pp_driver_args_error: public pp_driver_error
 {
-    public:
-	explicit pp_driver_args_error(const string &arg)
-	    : pp_driver_error(arg) {}
+	explicit pp_driver_args_error(const string &str)
+	    : pp_driver_error(str)
+	{
+	}
 };
 
-class pp_driver_not_supported_error: public pp_driver_error
+struct pp_driver_not_supported_error: public pp_driver_error
 {
-    public:
-	explicit pp_driver_not_supported_error(const string &arg)
-	    : pp_driver_error(arg) {}
+	explicit pp_driver_not_supported_error(const string &str)
+	    : pp_driver_error(str)
+	{
+	}
 };
 
 /*

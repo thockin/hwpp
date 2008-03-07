@@ -150,7 +150,7 @@ class pp_path
 	// a path not found error
 	struct not_found_error: public std::runtime_error
 	{
-		not_found_error(const std::string &str)
+		explicit not_found_error(const std::string &str)
 		    : runtime_error(str)
 		{
 		}
@@ -159,7 +159,7 @@ class pp_path
 	// an invalid path error
 	struct invalid_error: public std::runtime_error
 	{
-		invalid_error(const std::string &str)
+		explicit invalid_error(const std::string &str)
 		    : runtime_error(str)
 		{
 		}
