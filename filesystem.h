@@ -28,26 +28,26 @@ namespace fs {
 using std::size_t;
 using ::off_t;
 
-class not_found_error: public std::runtime_error
+struct not_found_error: public std::runtime_error
 {
-    public:
-	not_found_error(const std::string &str): runtime_error(str)
+	explicit not_found_error(const std::string &str)
+	    : runtime_error(str)
 	{
 	}
 };
 
-class permission_denied_error: public std::runtime_error
+struct permission_denied_error: public std::runtime_error
 {
-    public:
-	permission_denied_error(const std::string &str): runtime_error(str)
+	explicit permission_denied_error(const std::string &str)
+	    : runtime_error(str)
 	{
 	}
 };
 
-class io_error: public std::runtime_error
+struct io_error: public std::runtime_error
 {
-    public:
-	io_error(const std::string &str): runtime_error(str)
+	explicit io_error(const std::string &str)
+	    : runtime_error(str)
 	{
 	}
 };

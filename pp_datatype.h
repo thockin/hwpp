@@ -17,10 +17,9 @@ class pp_datatype
 {
     public:
 	// an invalid value error
-	class invalid_error: public std::runtime_error
+	struct invalid_error: public std::runtime_error
 	{
-	    public:
-		invalid_error(const string &str)
+		explicit invalid_error(const string &str)
 		    : runtime_error(str)
 		{
 		}
