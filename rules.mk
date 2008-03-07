@@ -4,7 +4,7 @@ PP_VERSION = 0.2.0
 # build options
 
 DEBUG = 1
-STATIC = 1
+STATIC = 0
 PROFILE = 0
 
 # build tools
@@ -19,7 +19,7 @@ PP_LDFLAGS = $(ARCHFLAGS)
 PP_WARNS = -Wall -Werror -Woverloaded-virtual $(WARNS)
 PP_DEFS = -DPP_VERSION="\"$(PP_VERSION)\"" $(DEFS)
 PP_INCLUDES = -I$(TOPDIR) $(INCLUDES)
-PP_LDLIBS = $(LIBS) -lgmpxx -lgmp
+PP_LDLIBS = $(LIBS) -lgmpxx -lgmp -ldl
 
 ifeq ($(strip $(STATIC)),1)
 PP_STATIC = -static
