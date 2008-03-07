@@ -72,14 +72,14 @@ typedef boost::shared_ptr<direntry> direntry_ptr;
 
 
 //
- * file_mapping
- *
- * This class tracks an individual mmap() of a file.  When this class is
- * destructed, the mapping is munmap()ed.
- *
- * Users can not create instances of this class.  To create a mapping call
- * fs::file::mmap(), which returns a smart pointer to one of these.
-
+// file_mapping
+//
+// This class tracks an individual mmap() of a file.  When this class is
+// destructed, the mapping is munmap()ed.
+//
+// Users can not create instances of this class.  To create a mapping call
+// fs::file::mmap(), which returns a smart pointer to one of these.
+//
 class file_mapping
 {
 	friend class file;
@@ -103,10 +103,8 @@ class file_mapping
 			return;
 		}
 
-		//
-		 * If other references exist, this can be bad.  Better to
-		 * use the destructor whenever possible.
-		
+		// If other references exist, this can be bad.  Better to
+		// use the destructor whenever possible.
 		int r = munmap(m_real_address, m_real_length);
 		if (r < 0) {
 			throw io_error(
@@ -169,14 +167,14 @@ class file_mapping
 };
 
 //
- * file
- *
- * This class represents a single opened file.  When this class is
- * destructed, the file descriptor is close()d.
- *
- * Users can not create instances of this class.  To open a file call
- * fs::file::open(), which returns a smart pointer to one of these.
-
+// file
+//
+// This class represents a single opened file.  When this class is
+// destructed, the file descriptor is close()d.
+//
+// Users can not create instances of this class.  To open a file call
+// fs::file::open(), which returns a smart pointer to one of these.
+//
 class file
 {
     private:
@@ -309,9 +307,9 @@ class file
 	close()
 	{
 		//
-		 * If other references exist, this can be bad.  Better to
-		 * use the destructor whenever possible.
-		
+		// If other references exist, this can be bad.  Better to
+		// use the destructor whenever possible.
+		//
 		if (::close(m_fd) < 0) {
 			throw io_error(
 			    std::string("fs::file::close(") + m_path + "): "
@@ -555,13 +553,13 @@ file_mapping::file_mapping(const_file_ptr file,
 }
 
 //
- * device
- *
- * This class represents a single device node.
- *
- * Users can not create instances of this class.  To open a device call
- * fs::device::open(), which returns a smart pointer to one of these.
-
+// device
+//
+// This class represents a single device node.
+//
+// Users can not create instances of this class.  To open a device call
+// fs::device::open(), which returns a smart pointer to one of these.
+//
 class device: public file
 {
     public:
@@ -588,13 +586,13 @@ class device: public file
 };
 
 //
- * direntry
- *
- * This class represents a single directory entry.
- *
- * Users can not create instances of this class.  To access a direntry, use
- * fs::directory::read(), which returns a smart pointer to one of these.
-
+// direntry
+//
+// This class represents a single directory entry.
+//
+// Users can not create instances of this class.  To access a direntry, use
+// fs::directory::read(), which returns a smart pointer to one of these.
+//
 class direntry
 {
     friend class directory;
@@ -736,14 +734,14 @@ class direntry
 };
 
 //
- * directory
- *
- * This class represents a single directory.  When this class is destructed,
- * the directory is closedir()d.
- *
- * Users can not create instances of this class.  To access a direntry, use
- * fs::directory::open(), which returns a smart pointer to one of these.
-
+// directory
+//
+// This class represents a single directory.  When this class is destructed,
+// the directory is closedir()d.
+//
+// Users can not create instances of this class.  To access a direntry, use
+// fs::directory::open(), which returns a smart pointer to one of these.
+//
 class directory
 {
     private:
