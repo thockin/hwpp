@@ -52,9 +52,9 @@ dump_array(const string &name, const pp_array *array, const string &indent)
 			scope = pp_scope_from_dirent(array->at(i));
 			dump_scope(subname, scope, indent+"    ");
 		} else if (array->array_type() == PP_DIRENT_ARRAY) {
-			const pp_array *array;
-			array = pp_array_from_dirent(array->at(i));
-			dump_array(subname, array, indent+"    ");
+			const pp_array *subarray;
+			subarray = pp_array_from_dirent(array->at(i));
+			dump_array(subname, subarray, indent+"    ");
 		}
 	}
 }
