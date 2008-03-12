@@ -22,35 +22,12 @@
 #include <sys/mman.h>
 
 #include "pp.h"
+#include "sys_error.h"
 
 namespace fs {
 
 using std::size_t;
 using ::off_t;
-
-struct not_found_error: public std::runtime_error
-{
-	explicit not_found_error(const std::string &str)
-	    : runtime_error(str)
-	{
-	}
-};
-
-struct permission_denied_error: public std::runtime_error
-{
-	explicit permission_denied_error(const std::string &str)
-	    : runtime_error(str)
-	{
-	}
-};
-
-struct io_error: public std::runtime_error
-{
-	explicit io_error(const std::string &str)
-	    : runtime_error(str)
-	{
-	}
-};
 
 // a file
 class file;
@@ -107,9 +84,7 @@ class file_mapping
 		// use the destructor whenever possible.
 		int r = munmap(m_real_address, m_real_length);
 		if (r < 0) {
-			throw io_error(
-			    std::string("fs::file_mapping::unmap(): ")
-			    + strerror(errno));
+			throw sys_error(errno, "fs::file_mapping::unmap()");
 		}
 		m_address = m_real_address = NULL;
 		m_length = m_real_length = 0;
@@ -214,15 +189,8 @@ class file
 		f->m_mode = mode;
 		f->m_fd = ::open(path.c_str(), mode);
 		if (f->m_fd < 0) {
-			if (errno == ENOENT) {
-				throw not_found_error(path);
-			}
-			if (errno == EPERM || errno == EACCES) {
-				throw permission_denied_error(path);
-			}
-			throw io_error(
-			    std::string("fs::file::open(") + path + "): "
-			    + strerror(errno));
+			throw sys_error(errno,
+			    "fs::file::open(" + path + ")");
 		}
 
 		return f;
@@ -256,9 +224,8 @@ class file
 		buf[path_template.size()] = '\0';
 		r = ::mkstemp(buf);
 		if (r < 0) {
-			throw io_error(
-			    std::string("fs::file::tempfile(")
-			    + path_template + "): " + strerror(errno));
+			throw sys_error(errno,
+			    "fs::file::tempfile(" + path_template + ")");
 		}
 
 		return fdopen(r, buf, O_RDWR);
@@ -282,24 +249,16 @@ class file
 
 		new_fd = ::open(m_path.c_str(), new_mode);
 		if (new_fd < 0) {
-			if (errno == ENOENT) {
-				throw not_found_error(m_path);
-			}
-			if (errno == EPERM || errno == EACCES) {
-				throw permission_denied_error(m_path);
-			}
-			throw io_error(
-			    std::string("fs::file::open(") + m_path + "): "
-			    + strerror(errno));
+			throw sys_error(errno,
+			    "fs::file::open(" + m_path + ")");
 		}
 
 		int tmp = m_fd;
 		m_mode = new_mode;
 		m_fd = new_fd;
 		if (::close(tmp) < 0) {
-			throw io_error(
-			    std::string("fs::file::close(") + m_path + "): "
-			    + strerror(errno));
+			throw sys_error(errno,
+			    "fs::file::close(" + m_path + ")");
 		}
 	}
 
@@ -311,9 +270,8 @@ class file
 		// use the destructor whenever possible.
 		//
 		if (::close(m_fd) < 0) {
-			throw io_error(
-			    std::string("fs::file::close(") + m_path + "): "
-			    + strerror(errno));
+			throw sys_error(errno,
+			    "fs::file::close(" + m_path + ")");
 		}
 		m_fd = -1;
 	}
@@ -325,15 +283,8 @@ class file
 
 		r = ::unlink(path.c_str());
 		if (r < 0) {
-			if (errno == ENOENT) {
-				throw not_found_error(path);
-			}
-			if (errno == EPERM || errno == EACCES) {
-				throw permission_denied_error(path);
-			}
-			throw io_error(
-			    std::string("fs::file::unlink(") + path + "): "
-			    + strerror(errno));
+			throw sys_error(errno,
+			    "fs::file::unlink(" + path + ")");
 		}
 	}
 
@@ -350,9 +301,8 @@ class file
 
 		r = ::read(m_fd, buf, size);
 		if (r < 0) {
-			throw io_error(
-			    std::string("fs::file::read(") + m_path + "): "
-			    + strerror(errno));
+			throw sys_error(errno,
+			    "fs::file::read(" + m_path + ")");
 		}
 
 		return r;
@@ -386,9 +336,8 @@ class file
 
 		r = ::write(m_fd, buf, size);
 		if (r < 0) {
-			throw io_error(
-			    std::string("fs::file::write(") + m_path + "): "
-			    + strerror(errno));
+			throw sys_error(errno,
+			    "fs::file::write(" + m_path + ")");
 		}
 
 		return r;
@@ -420,9 +369,8 @@ class file
 
 		r = ::lseek(m_fd, offset, whence);
 		if (r == (off_t)-1) {
-			throw io_error(
-			    std::string("fs::file::seek(") + m_path + "): "
-			    + strerror(errno));
+			throw sys_error(errno,
+			    "fs::file::seek(" + m_path + ")");
 		}
 
 		return r;
@@ -436,9 +384,8 @@ class file
 
 		r = ::stat(path.c_str(), &st);
 		if (r < 0) {
-			throw io_error(
-			    std::string("fs::file::size(") + path + "): "
-			    + strerror(errno));
+			throw sys_error(errno,
+			    "fs::file::size(" + path + ")");
 		}
 
 		return st.st_size;
@@ -452,9 +399,8 @@ class file
 
 		r = ::fstat(m_fd, &st);
 		if (r < 0) {
-			throw io_error(
-			    std::string("fs::file::size(") + m_path + "): "
-			    + strerror(errno));
+			throw sys_error(errno,
+			    "fs::file::size(" + m_path + ")");
 		}
 
 		return st.st_size;
@@ -544,9 +490,7 @@ file_mapping::file_mapping(const_file_ptr file,
 	m_real_address = (uint8_t *)mmap(NULL, m_real_length, prot,
 			flags, m_file->fd(), m_real_offset);
 	if (!m_real_address || m_real_address == MAP_FAILED) {
-		throw io_error(
-		    std::string("fs::file_mapping::file_mapping(): ")
-		    + strerror(errno));
+		throw sys_error(errno, "fs::file_mapping::file_mapping()");
 	}
 
 	m_address = m_real_address + ptr_off;
@@ -572,15 +516,8 @@ class device: public file
 		r = ::mknod(path.c_str(), perms | type,
 				::makedev(major, minor));
 		if (r < 0) {
-			if (errno == ENOENT) {
-				throw not_found_error(path);
-			}
-			if (errno == EPERM || errno == EACCES) {
-				throw permission_denied_error(path);
-			}
-			throw io_error(
-			    std::string("fs::device::mkdev(") + path + "): "
-			    + strerror(errno));
+			throw sys_error(errno,
+			    "fs::device::mkdev(" + path + ")");
 		}
 	}
 };
@@ -777,15 +714,8 @@ class directory
 
 		d->m_dir = ::opendir(path.c_str());
 		if (!d->m_dir) {
-			if (errno == ENOENT) {
-				throw not_found_error(path);
-			}
-			if (errno == EPERM || errno == EACCES) {
-				throw permission_denied_error(path);
-			}
-			throw io_error(
-			    std::string("fs::directory::open(") + path + "): "
-			    + strerror(errno));
+			throw sys_error(errno,
+			    "fs::directory::open(" + path + ")");
 		}
 
 		return d;
@@ -834,6 +764,37 @@ class directory
 	std::string m_path;
 	::DIR *m_dir;
 };
+
+inline void
+chdir(const string &path)
+{
+	int ret = ::chdir(path.c_str());
+	if (ret < 0) {
+		throw sys_error(errno, path);
+	}
+}
+//FIXME: chdir(directory)
+
+inline const string
+getcwd()
+{
+	#ifdef _GNU_SOURCE
+	char *p = ::get_current_dir_name();
+	if (p == NULL) {
+		throw sys_error(errno, "fs::getcwd()");
+	}
+	string cwd(p);
+	free(p);
+	return cwd;
+	#else
+	char buf[4096];
+	char *p = ::getcwd(buf, sizeof(buf));
+	if (p == NULL) {
+		throw sys_error(errno, "fs::getcwd()");
+	}
+	return p;
+	#endif
+}
 
 } // namespace fs
 

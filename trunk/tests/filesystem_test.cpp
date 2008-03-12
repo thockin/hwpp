@@ -204,19 +204,20 @@ test_dev()
 	int ret = 0;
 
 	string tempname = file::tempname();
-	if (direntry::exists("file.exists")) {
+	if (direntry::exists(tempname)) {
 		TEST_ERROR("fs::file::tempname()");
 		ret++;
 	}
 	try {
 		// major 1, minor 3 = /dev/null
 		device::mkdev(tempname, 0600, S_IFCHR, 1, 3);
-		if (!direntry::exists("file.exists")) {
+		if (!direntry::exists(tempname)) {
 			TEST_ERROR("fs::file::tempname()");
 			ret++;
 		}
-	} catch (permission_denied_error &e) {
-		TEST_WARNING("must be root to call fs::device::mkdev");
+	} catch (sys_error::not_permitted &e) {
+		TEST_WARNING("must be root to call fs::device::mkdev()");
+		ret++;
 	}
 
 	return ret;
