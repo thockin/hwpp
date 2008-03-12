@@ -113,7 +113,7 @@ cpuid_io::open_device(string devdir, int major, int minor)
 	try {
 		m_file = fs::file::open(filename, O_RDONLY);
 		return;
-	} catch (fs::not_found_error &e) {
+	} catch (sys_error::not_found &e) {
 		/* do nothing yet */
 	}
 
