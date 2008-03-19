@@ -103,7 +103,7 @@ pci_io::enumerate(std::vector<pci_address> *addresses)
 void
 pci_io::do_io_error(const string &str) const
 {
-	throw pp_driver_io_error(to_string(m_address) + ": " + str);
+	throw pp_driver::io_error(to_string(m_address) + ": " + str);
 }
 
 void

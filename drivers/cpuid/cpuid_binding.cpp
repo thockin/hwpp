@@ -92,7 +92,7 @@ cpuid_io::enumerate(std::vector<cpuid_address> *addresses)
 void
 cpuid_io::do_io_error(const string &str) const
 {
-	throw pp_driver_io_error(to_string(m_address) + ": " + str);
+	throw pp_driver::io_error(to_string(m_address) + ": " + str);
 }
 
 void

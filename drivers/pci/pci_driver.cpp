@@ -30,7 +30,7 @@ pp_binding_ptr
 pci_driver::new_binding(const std::vector<pp_value> &args) const
 {
 	if (args.size() < 3 || args.size() > 4) {
-		throw pp_driver_args_error(
+		throw pp_driver::args_error(
 		    "pci<>: <seg=0, bus, dev, func>");
 	}
 
@@ -46,16 +46,16 @@ pci_driver::new_binding(const std::vector<pp_value> &args) const
 	pp_value func = args[i++];
 
 	if (seg < 0 || seg > UINT32_MAX) {
-		throw pp_driver_args_error("pci<>: invalid segment");
+		throw pp_driver::args_error("pci<>: invalid segment");
 	}
 	if (bus < 0 || bus >= 256) {
-		throw pp_driver_args_error("pci<>: invalid bus");
+		throw pp_driver::args_error("pci<>: invalid bus");
 	}
 	if (dev < 0 || dev >= 32) {
-		throw pp_driver_args_error("pci<>: invalid device");
+		throw pp_driver::args_error("pci<>: invalid device");
 	}
 	if (func < 0 || func >= 8) {
-		throw pp_driver_args_error("pci<>: invalid function");
+		throw pp_driver::args_error("pci<>: invalid function");
 	}
 	return new_pci_binding(pci_address(seg.get_uint(), bus.get_uint(),
 		dev.get_uint(), func.get_uint()));
@@ -95,7 +95,7 @@ pci_driver::register_discovery(const std::vector<pp_value> &args,
 {
 	if (args.size() == 0) {
 		if (m_catchall) {
-			throw pp_driver_args_error(
+			throw pp_driver::args_error(
 			    "pci discovery: catchall already defined");
 		}
 		m_catchall = function;
@@ -103,7 +103,7 @@ pci_driver::register_discovery(const std::vector<pp_value> &args,
 	}
 
 	if (args.size() != 2) {
-		throw pp_driver_args_error(
+		throw pp_driver::args_error(
 		    "pci discovery: <vendor, device>");
 	}
 

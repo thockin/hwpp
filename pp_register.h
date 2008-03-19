@@ -57,7 +57,7 @@ class pp_register: public pp_dirent
 	 *
 	 * Read the value of this register.
 	 *
-	 * Throws: pp_driver_error
+	 * Throws: pp_driver::io_error
 	 */
 	pp_value
 	read() const
@@ -70,7 +70,7 @@ class pp_register: public pp_dirent
 	 *
 	 * Write a value to this register.
 	 *
-	 * Throws: pp_driver_error
+	 * Throws: pp_driver::io_error
 	 */
 	void
 	write(const pp_value &value) const

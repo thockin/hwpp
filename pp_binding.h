@@ -25,7 +25,7 @@ class pp_binding
 	 *
 	 * Read from a register in this binding.
 	 *
-	 * Throws: pp_driver_error
+	 * Throws: pp_driver::io_error
 	 */
 	virtual pp_value
 	read(const pp_value &address, const pp_bitwidth width) const = 0;
@@ -35,7 +35,7 @@ class pp_binding
 	 *
 	 * Write to a register in this binding.
 	 *
-	 * Throws: pp_driver_error
+	 * Throws: pp_driver::io_error
 	 */
 	virtual void
 	write(const pp_value &address, const pp_bitwidth width,

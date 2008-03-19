@@ -34,17 +34,17 @@ io_driver::new_binding(const std::vector<pp_value> &args) const
 	pp_value base, size;
 
 	if (args.size() != 2) {
-		throw pp_driver_args_error("io<>: <base, size>");
+		throw pp_driver::args_error("io<>: <base, size>");
 	}
 
 	base = args[0];
 	size = args[1];
 
 	if (base < 0 || base >= IO_SPACE_SIZE) {
-		throw pp_driver_args_error("io<>: invalid base");
+		throw pp_driver::args_error("io<>: invalid base");
 	}
 	if (size < 0 || base + size > IO_SPACE_SIZE) {
-		throw pp_driver_args_error("io<>: invalid size");
+		throw pp_driver::args_error("io<>: invalid size");
 	}
 
 	return new_io_binding(io_address(base.get_uint(), size.get_uint()));
