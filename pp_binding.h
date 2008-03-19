@@ -17,7 +17,7 @@
 class pp_binding
 {
     public:
-	explicit pp_binding() {}
+	pp_binding() {}
 	virtual ~pp_binding() {}
 
 	/*

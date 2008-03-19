@@ -40,7 +40,7 @@ class pp_driver
 	};
 
 	// ctor and dtor
-	explicit pp_driver() {}
+	pp_driver() {}
 	virtual ~pp_driver() {}
 
 	//
