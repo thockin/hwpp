@@ -44,6 +44,30 @@ test_ctors()
 		ret++;
 	}
 
+	// assignment
+	{
+		si_keyvec keyvec;
+		keyvec.insert("one", 1);
+		keyvec.insert("two", 2);
+		if (keyvec.size() != 2) {
+			TEST_ERROR("keyed_vector::opersator=(keyed_vector)");
+			ret++;
+		}
+
+		si_keyvec keyvec2;
+		keyvec2.insert("three", 3);
+		if (keyvec2.size() != 1) {
+			TEST_ERROR("keyed_vector::opersator=(keyed_vector)");
+			ret++;
+		}
+
+		keyvec2 = keyvec;
+		if (keyvec2.size() != 2) {
+			TEST_ERROR("keyed_vector::opersator=(keyed_vector)");
+			ret++;
+		}
+	}
+
 	return ret;
 }
 
@@ -320,6 +344,13 @@ test_int()
 	/* erase should have adjusted everything */
 	if (keyvec.at(2) != 4 || keyvec.at("four") != 4) {
 		TEST_ERROR("keyed_vector::erase()");
+		ret++;
+	}
+
+	/* test clear() */
+	keyvec.clear();
+	if (keyvec.size() != 0) {
+		TEST_ERROR("keyed_vector::push_back()");
 		ret++;
 	}
 

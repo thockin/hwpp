@@ -174,9 +174,11 @@ class keyed_vector
 	{
 		// We can't just copy each element, because m_keyptrs
 		// holds iterators into m_keys.
+		keyed_vector tmp;
 		for (size_type i = 0; i < other.size(); i++) {
-			insert(other.key_at(i), other.at(i));
+			tmp.insert(other.key_at(i), other.at(i));
 		}
+		swap(tmp);
 		return *this;
 	}
 	// swap data
@@ -186,6 +188,14 @@ class keyed_vector
 		m_keys.swap(other.m_keys);
 		m_values.swap(other.m_values);
 		m_keyptrs.swap(other.m_keyptrs);
+	}
+	// clear data
+	void
+	clear()
+	{
+		m_keys.clear();
+		m_values.clear();
+		m_keyptrs.clear();
 	}
 
 	// get a forward iterator
