@@ -121,7 +121,6 @@ typedef boost::shared_ptr<pp_enum> pp_enum_ptr;
 class pp_bool: public pp_enum
 {
     public:
-	explicit
 	pp_bool(const string &true_str, const string &false_str)
 	{
 		add_value(true_str, 1);
