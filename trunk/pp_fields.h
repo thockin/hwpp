@@ -31,7 +31,7 @@ class pp_direct_field: public pp_field
 	 *
 	 * Read the current value of this field.
 	 *
-	 * Throws: pp_driver_error
+	 * Throws: pp_driver::io_error
 	 */
 	virtual pp_value
 	read() const
@@ -44,7 +44,7 @@ class pp_direct_field: public pp_field
 	 *
 	 * Write a value to this field.
 	 *
-	 * Throws: pp_driver_error
+	 * Throws: pp_driver::io_error
 	 */
 	virtual void
 	write(const pp_value &value) const
@@ -96,7 +96,7 @@ class pp_proc_field: public pp_field
 	 *
 	 * Read the current value of this field.
 	 *
-	 * Throws: pp_driver_error
+	 * Throws: pp_driver::io_error
 	 */
 	virtual pp_value
 	read() const
@@ -110,7 +110,7 @@ class pp_proc_field: public pp_field
 	 *
 	 * Write a value to this field.
 	 *
-	 * Throws: pp_driver_error
+	 * Throws: pp_driver::io_error
 	 */
 	virtual void
 	write(const pp_value &value) const
@@ -161,7 +161,7 @@ class pp_constant_field: public pp_field
 	 *
 	 * Write a value to this field.
 	 *
-	 * Throws: pp_driver_error
+	 * Throws: pp_driver::io_error
 	 */
 	virtual void
 	write(const pp_value &value) const

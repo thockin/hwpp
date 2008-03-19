@@ -32,17 +32,17 @@ pp_binding_ptr
 cpuid_driver::new_binding(const std::vector<pp_value> &args) const
 {
 	if (args.size() != 2) {
-		throw pp_driver_args_error("cpuid<>: <cpu,function>");
+		throw pp_driver::args_error("cpuid<>: <cpu,function>");
 	}
 
 	pp_value cpu = args[0];
 	pp_value function = args[1];
 
 	if (cpu < 0) {
-		throw pp_driver_args_error("cpuid<>: invalid cpu");
+		throw pp_driver::args_error("cpuid<>: invalid cpu");
 	}
 	if (function < 0) {
-		throw pp_driver_args_error("cpuid<>: invalid function");
+		throw pp_driver::args_error("cpuid<>: invalid function");
 	}
 
 	return new_cpuid_binding(
@@ -81,7 +81,7 @@ cpuid_driver::register_discovery(const std::vector<pp_value> &args,
 {
 	if (args.size() == 0) {
 		if (m_catchall) {
-			throw pp_driver_args_error(
+			throw pp_driver::args_error(
 			    "cpuid discovery: catchall already defined");
 		}
 		m_catchall = function;
@@ -89,7 +89,7 @@ cpuid_driver::register_discovery(const std::vector<pp_value> &args,
 	}
 
 	if (args.size() != 7) {
-		throw pp_driver_args_error(
+		throw pp_driver::args_error(
 		    "cpuid discovery: <vendor, family_min, family_max, "
 		    "model_min, model_max, stepping_min, stepping_max>");
 	}

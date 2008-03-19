@@ -33,7 +33,7 @@ class io_driver: public pp_driver
 	 *
 	 * Create a new pp_binding.
 	 *
-	 * Throws: pp_driver_args_error
+	 * Throws: pp_driver::args_error
 	 */
 	virtual pp_binding_ptr
 	new_binding(const std::vector<pp_value> &args) const;
