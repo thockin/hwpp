@@ -24,7 +24,7 @@
 class pp_scope: public pp_dirent
 {
     public:
-	explicit pp_scope(pp_binding_ptr binding = pp_binding_ptr())
+	explicit pp_scope(const pp_binding_ptr &binding = pp_binding_ptr())
 	    : pp_dirent(PP_DIRENT_SCOPE), m_binding(binding)
 	{
 	}
@@ -69,9 +69,9 @@ class pp_scope: public pp_dirent
 	 * Add a named or unnamed datatype to this scope.
 	 */
 	void
-	add_datatype(const string &name, pp_datatype_ptr datatype);
+	add_datatype(const string &name, const pp_datatype_ptr &datatype);
 	void
-	add_datatype(pp_datatype_ptr datatype);
+	add_datatype(const pp_datatype_ptr &datatype);
 
 	/*
 	 * Return the number of named datatypes in this scope.
@@ -108,7 +108,7 @@ class pp_scope: public pp_dirent
 	 * 	pp_dirent::conversion_error	- path element is not a scope
 	 */
 	void
-	add_dirent(const string &name, pp_dirent_ptr dirent);
+	add_dirent(const string &name, const pp_dirent_ptr &dirent);
 
 	/*
 	 * Return the number of dirents in this scope.

@@ -33,7 +33,7 @@ class pp_array: public pp_dirent
 	// 	pp_dirent::conversion_error	- wrong pp_dirent_type
 	//
 	void
-	append(pp_dirent_ptr dirent)
+	append(const pp_dirent_ptr &dirent)
 	{
 		if (dirent->dirent_type() != m_type) {
 			throw pp_dirent::conversion_error("can't append "

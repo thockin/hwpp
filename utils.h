@@ -148,7 +148,8 @@ NEW_PLATFORM();
  * operations, eg ONE_BIT_FIELD) will be placed on this scope.
  */
 extern void
-OPEN_SCOPE(const string &name, pp_binding_ptr binding = pp_binding_ptr());
+OPEN_SCOPE(const string &name,
+    const pp_binding_ptr &binding = pp_binding_ptr());
 
 /*
  * CLOSE_SCOPE

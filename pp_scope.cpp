@@ -70,12 +70,12 @@ pp_scope::is_bound() const
  * Add a named or unnamed datatype to this scope.
  */
 void
-pp_scope::add_datatype(const string &name, pp_datatype_ptr datatype)
+pp_scope::add_datatype(const string &name, const pp_datatype_ptr &datatype)
 {
 	m_datatypes.insert(name, datatype);
 }
 void
-pp_scope::add_datatype(pp_datatype_ptr datatype)
+pp_scope::add_datatype(const pp_datatype_ptr &datatype)
 {
 	m_anon_datatypes.push_back(datatype);
 }
@@ -146,7 +146,7 @@ pp_scope::resolve_datatype(const string &name) const
  * 	pp_dirent::conversion_error	- path element is not a scope
  */
 void
-pp_scope::add_dirent(const string &name, pp_dirent_ptr new_dirent)
+pp_scope::add_dirent(const string &name, const pp_dirent_ptr &new_dirent)
 {
 	// convert name to a path element, which will validate and parse it
 	pp_path::element elem(name);

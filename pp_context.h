@@ -24,7 +24,7 @@ class pp_context
 	pp_context(): m_readonly(false)
 	{
 	}
-	pp_context(const string &n, pp_scope_ptr s)
+	pp_context(const string &n, const pp_scope_ptr &s)
 	    : m_name(n), m_scope(s), m_readonly(false)
 	{
 	}
@@ -80,12 +80,12 @@ class pp_context
 	}
 
 	void
-	add_datatype(const string &name, pp_datatype_ptr datatype)
+	add_datatype(const string &name, const pp_datatype_ptr &datatype)
 	{
 		m_scope->add_datatype(name, datatype);
 	}
 	void
-	add_datatype(pp_datatype_ptr datatype)
+	add_datatype(const pp_datatype_ptr &datatype)
 	{
 		m_scope->add_datatype(datatype);
 	}
@@ -102,7 +102,7 @@ class pp_context
 		m_scope->add_dirent(ctxt.m_name, ctxt.m_scope);
 	}
 	void
-	add_dirent(const string &name, pp_dirent_ptr dirent)
+	add_dirent(const string &name, const pp_dirent_ptr &dirent)
 	{
 		m_scope->add_dirent(name, dirent);
 	}
