@@ -42,5 +42,13 @@ parse enum and bitmask stings (boost::regex)
 are carats allowed mid-path?  not currently
 
 make a pp_platform
-make a pp_exception with a custom what()
 clean up utils.h - no reason as to what is inline
+
+filesystem.h:
+	track full path name in directory and direntry
+		- enables direntry->open() := file::open(direntry->path)
+	directory iterators
+		- needs direntry comparison
+	fs::realpath()
+
+fix 'make clean' rules to include OBJS

@@ -76,7 +76,7 @@ typedef boost::shared_ptr<const proc_field_accessor> proc_field_accessor_ptr;
  * pp_proc_field - a field that is a procedure.
  *
  * Constructors:
- * 	(const pp_datatype *datatype, proc_field_accessor_ptr access)
+ * 	(const pp_datatype *datatype, const proc_field_accessor_ptr &access)
  *
  * Notes:
  */
@@ -84,7 +84,7 @@ class pp_proc_field: public pp_field
 {
     public:
 	pp_proc_field(const pp_datatype *datatype,
-	    proc_field_accessor_ptr access)
+	    const proc_field_accessor_ptr &access)
 	    : pp_field(datatype), m_access(access),
 	      m_context(GET_CURRENT_CONTEXT())
 	{}

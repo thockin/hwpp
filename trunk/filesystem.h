@@ -63,7 +63,7 @@ class file_mapping
 
     private:
 	// constructors - private to prevent abuse, defined later
-	file_mapping(const_file_ptr file, off_t offset, size_t length,
+	file_mapping(const const_file_ptr &file, off_t offset, size_t length,
 			int prot = PROT_READ, int flags = MAP_SHARED);
 
     public:
@@ -469,7 +469,7 @@ class file
 };
 
 inline
-file_mapping::file_mapping(const_file_ptr file,
+file_mapping::file_mapping(const const_file_ptr &file,
     off_t offset, size_t length, int prot, int flags)
     : m_file(file),
       m_offset(offset), m_length(length), m_address(NULL),
