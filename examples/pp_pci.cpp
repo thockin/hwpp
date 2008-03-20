@@ -46,15 +46,15 @@ dump_array(const string &name, const pp_array *array, const string &indent)
 		if (array->array_type() == PP_DIRENT_FIELD) {
 			const pp_field *field;
 			field = pp_field_from_dirent(array->at(i));
-			dump_field(subname, field, indent+"    ");
+			dump_field(subname, field, indent);
 		} else if (array->array_type() == PP_DIRENT_SCOPE) {
 			const pp_scope *scope;
 			scope = pp_scope_from_dirent(array->at(i));
-			dump_scope(subname, scope, indent+"    ");
+			dump_scope(subname, scope, indent);
 		} else if (array->array_type() == PP_DIRENT_ARRAY) {
 			const pp_array *subarray;
 			subarray = pp_array_from_dirent(array->at(i));
-			dump_array(subname, subarray, indent+"    ");
+			dump_array(subname, subarray, indent);
 		}
 	}
 }
