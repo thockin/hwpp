@@ -41,6 +41,17 @@ class pp_context
 	}
 
 	/*
+	 * Rename the current context
+	 */
+	void
+	rename(const string &name)
+	{
+		if (is_valid() && !is_readonly()) {
+			m_name = name;
+		}
+	}
+
+	/*
 	 * getter methods
 	 */
 	const string &

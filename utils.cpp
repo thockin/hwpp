@@ -192,7 +192,7 @@ OPEN_SCOPE(const string &name, const pp_binding_ptr &binding)
 	DTRACE(TRACE_SCOPES, "scope: " + name);
 
 	// note: this is not a debug-only test
-	if (DEFINED(name)) {
+	if (name != "" && DEFINED(name)) {
 		WARN("dirent redefined: " + name);
 	}
 
@@ -229,6 +229,25 @@ CLOSE_SCOPE()
 	// restore the parent context
 	current_context = old_ctxt;
 	context_stack.pop_back();
+}
+
+void
+CLOSE_SCOPE(const string &new_name)
+{
+	DASSERT_MSG(!current_context.is_readonly(),
+	    "current_context is read-only");
+	// there had better be a current scope and a parent scope
+	DASSERT_MSG(current_context.is_valid(), "invalid current_context");
+	DASSERT_MSG(!context_stack.empty() && context_stack.back().is_valid(),
+	    "invalid parent context");
+
+	// note: this is not a debug-only test
+	if (DEFINED("../" + new_name)) {
+		WARN("dirent redefined: " + new_name);
+	}
+
+	current_context.rename(new_name);
+	CLOSE_SCOPE();
 }
 
 /*
