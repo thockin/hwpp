@@ -151,12 +151,20 @@ extern void
 OPEN_SCOPE(const string &name,
     const pp_binding_ptr &binding = pp_binding_ptr());
 
+inline void
+OPEN_SCOPE(const pp_binding_ptr &binding = pp_binding_ptr())
+{
+	OPEN_SCOPE("", binding);
+}
+
 /*
  * CLOSE_SCOPE
  * Closes the current scope context.
  */
 extern void
 CLOSE_SCOPE();
+extern void
+CLOSE_SCOPE(const string &new_name);
 
 /*
  * REGN

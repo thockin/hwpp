@@ -1091,9 +1091,8 @@ explore_capabilities()
 		REGFIELD8("capptr", 0x34, "hex8_t");
 
 		pp_value ptr = READ("capptr");
-		unsigned i = 0;
 		while (ptr != 0 && ptr != 0xff) {
-			OPEN_SCOPE("capability[]");
+			OPEN_SCOPE();
 
 			FIELD("offset", "hex8_t", ptr);
 			REGFIELD8("id", ptr, "pci_capability_t");
@@ -1146,8 +1145,8 @@ explore_capabilities()
 				//FIXME: not implemented yet
 			}
 			ptr = READ("next");
-			CLOSE_SCOPE();
-			i++;
+			CLOSE_SCOPE("pci_capability."
+			    + GET_FIELD("id")->evaluate() + "[]");
 		}
 	}
 	//FIXME: scan EHCI extended capabilities
