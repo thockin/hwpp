@@ -4,16 +4,18 @@
 #include "pci_driver.h"
 #include "pci_binding.h"
 
-// this forces linkage and avoids the static initialization order fiasco
-void
-load_pci_driver()
+// this is called when the driver module is loaded
+extern "C" {
+pp_driver *
+create_driver()
 {
-	static pci_driver the_pci_driver;
+	static pci_driver the_driver;
+	return &the_driver;
+}
 }
 
 pci_driver::pci_driver()
 {
-	pp_register_driver(this);
 }
 
 pci_driver::~pci_driver()

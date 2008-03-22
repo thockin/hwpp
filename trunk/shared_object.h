@@ -13,26 +13,19 @@
  */
 class shared_object
 {
-    private:
-	static const unsigned default_flags = (RTLD_NOW | RTLD_LOCAL);
-	boost::shared_ptr<void> m_handle;
-	string m_path;
-
-	// create a shared_ptr to a handle
-	boost::shared_ptr<void>
-	make_handle_ptr(void *ptr = NULL)
-	{
-		if (ptr == NULL) {
-			return boost::shared_ptr<void>();
-		}
-		return boost::shared_ptr<void>(ptr, dlclose);
-	}
-
     public:
 	// something went wrong loading the object
 	struct load_error: public std::runtime_error
 	{
 		explicit load_error(const string &str)
+		    : runtime_error(str)
+		{
+		}
+	};
+	// the handle was NULL
+	struct invalid_handle_error: public std::runtime_error
+	{
+		explicit invalid_handle_error(const string &str)
 		    : runtime_error(str)
 		{
 		}
@@ -46,24 +39,32 @@ class shared_object
 		}
 	};
 
+    private:
+	// member variables
+	boost::shared_ptr<void> m_handle;
+	string m_path;
+
+    public:
+	// these are the default flags with which to open a shared_object
+	static const unsigned default_flags = (RTLD_NOW | RTLD_LOCAL);
+
+	// default ctor - does not open anything
 	shared_object()
-	    : m_handle(make_handle_ptr()), m_path("")
+	    : m_handle(), m_path("")
 	{
 	}
-	shared_object(const string &path, unsigned flags = default_flags)
-	    : m_handle(make_handle_ptr()), m_path("")
+	// ctor - open a shared object file
+	explicit shared_object(const string &path, unsigned flags=default_flags)
+	    : m_handle(), m_path(path)
 	{
 		open(path, flags);
 	}
-	~shared_object()
-	{
-		// the dtor for m_handle does the dirty work
-	}
+	// the default copy ctor is correct
+	// the default assignment operator is correct
+	// the dtor for m_handle does the dirty work
 
-	//
 	// Open a new shared object file.  See the man-page for dlopen() for
 	// details about flags and path handling.
-	//
 	void
 	open(const string &path, unsigned flags = default_flags)
 	{
@@ -87,16 +88,15 @@ class shared_object
 	lookup_symbol(const string &symbol) const
 	{
 		if (handle() == NULL) {
-			throw symbol_not_found_error(symbol);
+			throw invalid_handle_error(symbol);
 		}
-
-		void *sym;
 
 		// check for errors as per the man page
 		dlerror();
-		sym = dlsym(m_handle.get(), symbol.c_str());
-		if (sym == NULL && dlerror()) {
-			throw symbol_not_found_error(symbol);
+		void *sym = dlsym(m_handle.get(), symbol.c_str());
+		const char *error = dlerror();
+		if (sym == NULL && error) {
+			throw symbol_not_found_error(error);
 		}
 
 		return sym;
@@ -114,6 +114,17 @@ class shared_object
 	path() const
 	{
 		return m_path;
+	}
+
+    private:
+	// create a shared_ptr to a handle, with an appropriate deleter
+	boost::shared_ptr<void>
+	make_handle_ptr(void *ptr = NULL)
+	{
+		if (ptr == NULL) {
+			return boost::shared_ptr<void>();
+		}
+		return boost::shared_ptr<void>(ptr, dlclose);
 	}
 };
 

@@ -19,7 +19,7 @@ PP_LDFLAGS = $(ARCHFLAGS)
 PP_WARNS = -Wall -Werror -Woverloaded-virtual $(WARNS)
 PP_DEFS = -DPP_VERSION="\"$(PP_VERSION)\"" $(DEFS)
 PP_INCLUDES = -I$(TOPDIR) $(INCLUDES)
-PP_LDLIBS = $(LIBS) -lgmpxx -lgmp -ldl
+PP_LDLIBS = $(LIBS) -lgmpxx -lgmp -ldl -lboost_regex
 
 ifeq ($(strip $(STATIC)),1)
 PP_STATIC = -static
@@ -47,6 +47,11 @@ LDFLAGS += $(PP_LDFLAGS)
 LDLIBS += $(PP_LDLIBS) $(PP_STATIC)
 
 MAKEFLAGS += --no-print-directory
+
+# suffix rule for building shared objects
+.SUFFIXES: .do
+.cpp.do:
+	$(CXX) -c $(CXXFLAGS) -fPIC -shared $(CPPFLAGS) -o $@ $<
 
 # common rules
 

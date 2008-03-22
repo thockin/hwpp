@@ -1,8 +1,6 @@
 TOPDIR = $(shell pwd)
 include rules.mk
 
-DRIVER_LIB = drivers/libdrivers.a
-
 SRCS = utils.cpp \
 	magic_regs.cpp \
 	drivers.cpp \
@@ -11,22 +9,11 @@ SRCS = utils.cpp \
 OBJS = $(SRCS:.cpp=.o)
 
 
-all: libpp.a
+all: libpp.a drivers
 
 
-# add a driver in the DRIVER_LIB to another archive
-define add_driver
-	ar -x $(DRIVER_LIB) $(1)
-	ar rcs $(2) $(1)
-	$(RM) $(1);
-endef
-
-libpp.a: $(OBJS) devices/all_devices.o $(DRIVER_LIB)
+libpp.a: $(OBJS) devices/all_devices.o
 	ar rcs $@ $(OBJS) devices/all_devices.o
-	@$(foreach drvobj,$(shell ar -t $(DRIVER_LIB)),$(call add_driver,$(drvobj),$@))
-
-$(DRIVER_LIB): drivers
-	@$(MAKE) -C drivers lib
 
 .PHONY: drivers devices
 drivers devices:
@@ -49,7 +36,7 @@ test: all
 
 .PHONY: clean
 clean:
-	@$(RM) *.o *.a .depend
+	@$(RM) $(OBJS) *.o *.a .depend
 	@$(MAKE) -C tests clean
 	@$(MAKE) -C drivers clean
 	@$(MAKE) -C devices clean

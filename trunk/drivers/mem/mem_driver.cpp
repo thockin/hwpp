@@ -4,16 +4,18 @@
 #include "mem_driver.h"
 #include "mem_binding.h"
 
-// this forces linkage and avoids the static initialization order fiasco
-void
-load_mem_driver()
+// this is called when the driver module is loaded
+extern "C" {
+pp_driver *
+create_driver()
 {
-	static mem_driver the_mem_driver;
+	static mem_driver the_driver;
+	return &the_driver;
+}
 }
 
 mem_driver::mem_driver()
 {
-	pp_register_driver(this);
 }
 
 mem_driver::~mem_driver()
