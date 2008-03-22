@@ -9,8 +9,7 @@ TESTS_SRCS = $(TESTS:=.cpp)
 
 all: $(TESTS)
 
-$(TESTS): %: %.o ../cpuid_driver_module.o \
-	$(TOPDIR)/libpp.a $(TOPDIR)/tests/libpptest.a
+$(TESTS): %: %.o ../cpuid.so $(TOPDIR)/libpp.a $(TOPDIR)/tests/libpptest.a
 
 .PHONY: test
 test: all
@@ -18,6 +17,6 @@ test: all
 
 .PHONY: clean
 clean:
-	@$(RM) *.o *.a .depend $(TESTS)
+	@$(RM) $(OBJS) *.o *.a .depend $(TESTS)
 
 .depend: $(SRCS) $(TESTS_SRCS)

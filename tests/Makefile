@@ -32,10 +32,10 @@ $(TESTS): %: %.o $(TOPDIR)/libpp.a libpptest.a
 
 .PHONY: test
 test: all
-	@$(MAKE) run_tests RUN_TESTS="$(TESTS)"
+	@$(MAKE) run_tests RUN_TESTS="$(TESTS)" PP_DRIVER_PATH="../drivers"
 
 .PHONY: clean
 clean:
-	@$(RM) *.o *.a .depend $(TESTS)
+	@$(RM) $(OBJS) *.o *.a .depend $(TESTS)
 
 .depend: $(SRCS) $(TESTS_SRCS)

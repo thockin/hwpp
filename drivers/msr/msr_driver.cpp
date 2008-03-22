@@ -5,17 +5,19 @@
 #include "msr_driver.h"
 #include "msr_binding.h"
 
-// this forces linkage and avoids the static initialization order fiasco
-void
-load_msr_driver()
+// this is called when the driver module is loaded
+extern "C" {
+pp_driver *
+create_driver()
 {
-	static msr_driver the_msr_driver;
+	static msr_driver the_driver;
+	return &the_driver;
+}
 }
 
 msr_driver::msr_driver()
 {
 	system("modprobe msr >/dev/null 2>&1");
-	pp_register_driver(this);
 }
 
 msr_driver::~msr_driver()

@@ -91,6 +91,15 @@ main(void)
 		ret += TEST_ASSERT(p == dlsym(p2, "dlopen"),
 			"shared_object::lookup_symbol()");
 	}
+	{
+		try {
+			shared_object so("libdl.so");
+			so.lookup_symbol("nonexistant");
+			TEST_ERROR("shared_object::lookup_symbol()");
+			ret++;
+		} catch (shared_object::symbol_not_found_error &e) {
+		}
+	}
 
 	// test reference-counting
 	{
@@ -118,7 +127,7 @@ main(void)
 			p = so.lookup_symbol("dlopen");
 			TEST_ERROR("shared_object::lookup_symbol()");
 			ret++;
-		} catch (shared_object::symbol_not_found_error &e) {
+		} catch (shared_object::invalid_handle_error &e) {
 		}
 		p = so2.lookup_symbol("dlopen");
 		ret += TEST_ASSERT(p != NULL,
@@ -133,13 +142,13 @@ main(void)
 			p = so.lookup_symbol("dlopen");
 			TEST_ERROR("shared_object::lookup_symbol()");
 			ret++;
-		} catch (shared_object::symbol_not_found_error &e) {
+		} catch (shared_object::invalid_handle_error &e) {
 		}
 		try {
 			p = so2.lookup_symbol("dlopen");
 			TEST_ERROR("shared_object::lookup_symbol()");
 			ret++;
-		} catch (shared_object::symbol_not_found_error &e) {
+		} catch (shared_object::invalid_handle_error &e) {
 		}
 	}
 

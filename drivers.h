@@ -4,9 +4,6 @@
 #include "pp.h"
 #include "pp_driver.h"
 
-extern void
-pp_register_driver(pp_driver *driver);
-
 extern pp_driver *
 pp_find_driver(const string &name);
 
