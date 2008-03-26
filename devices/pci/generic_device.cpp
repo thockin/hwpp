@@ -1,6 +1,8 @@
 #include "pp.h"
 #include "utils.h"
 
+//FIXME unify cap, sts, en, dis, msk, svr names everywhere.  Look at aer
+
 // All standard BARs look like this.
 static void
 BAR(const string &name, const pp_value &address)
@@ -742,12 +744,12 @@ pcie_capability(const pp_value &address)
 	REG16("%dev_status", address + 0x0a);
 
 	ENUM("pcie_payload_size_t",
-			KV("b128", 0),
-			KV("b256", 1),
-			KV("b512", 2),
-			KV("b1024", 3),
-			KV("b2048", 4),
-			KV("b4096", 5));
+			KV("bytes128", 0),
+			KV("bytes256", 1),
+			KV("bytes512", 2),
+			KV("bytes1024", 3),
+			KV("bytes2048", 4),
+			KV("bytes4096", 5));
 	FIELD("max_payload_cap", "pcie_payload_size_t",
 			BITS("%dev_caps", 2, 0));
 	FIELD("max_payload", "pcie_payload_size_t",
@@ -1083,10 +1085,201 @@ pcie_capability(const pp_value &address)
 	}
 }
 
+static void
+aer_ecapability(const pp_value &address)
+{
+	BOOL("fatal_t", "fatal", "nonfatal");
+
+	// uncorrectable errors
+	OPEN_SCOPE("uncorrectable");
+
+	REG32("%error_status", address + 0x4);
+	REG32("%error_mask", address + 0x8);
+	REG32("%error_severity", address + 0xc);
+
+	OPEN_SCOPE("data_link_proto_err");
+	FIELD("status", "yesno_t", BITS("../%error_status", 4));
+	FIELD("masked", "yesno_t", BITS("../%error_mask", 4));
+	FIELD("severity", "fatal_t", BITS("../%error_severity", 4));
+	CLOSE_SCOPE();
+
+	OPEN_SCOPE("surprise_down_err");
+	FIELD("status", "yesno_t", BITS("../%error_status", 5));
+	FIELD("masked", "yesno_t", BITS("../%error_mask", 5));
+	FIELD("severity", "fatal_t", BITS("../%error_severity", 5));
+	CLOSE_SCOPE();
+
+	OPEN_SCOPE("poisoned_tlp");
+	FIELD("status", "yesno_t", BITS("../%error_status", 12));
+	FIELD("masked", "yesno_t", BITS("../%error_mask", 12));
+	FIELD("severity", "fatal_t", BITS("../%error_severity", 12));
+	CLOSE_SCOPE();
+
+	OPEN_SCOPE("flow_ctrl_proto_err");
+	FIELD("status", "yesno_t", BITS("../%error_status", 13));
+	FIELD("masked", "yesno_t", BITS("../%error_mask", 13));
+	FIELD("severity", "fatal_t", BITS("../%error_severity", 13));
+	CLOSE_SCOPE();
+
+	OPEN_SCOPE("completion_timeout");
+	FIELD("status", "yesno_t", BITS("../%error_status", 14));
+	FIELD("masked", "yesno_t", BITS("../%error_mask", 14));
+	FIELD("severity", "fatal_t", BITS("../%error_severity", 14));
+	CLOSE_SCOPE();
+
+	OPEN_SCOPE("completer_abort");
+	FIELD("status", "yesno_t", BITS("../%error_status", 15));
+	FIELD("masked", "yesno_t", BITS("../%error_mask", 15));
+	FIELD("severity", "fatal_t", BITS("../%error_severity", 15));
+	CLOSE_SCOPE();
+
+	OPEN_SCOPE("unexpected_completion");
+	FIELD("status", "yesno_t", BITS("../%error_status", 16));
+	FIELD("masked", "yesno_t", BITS("../%error_mask", 16));
+	FIELD("severity", "fatal_t", BITS("../%error_severity", 16));
+	CLOSE_SCOPE();
+
+	OPEN_SCOPE("receiver_overflow");
+	FIELD("status", "yesno_t", BITS("../%error_status", 17));
+	FIELD("masked", "yesno_t", BITS("../%error_mask", 17));
+	FIELD("severity", "fatal_t", BITS("../%error_severity", 17));
+	CLOSE_SCOPE();
+
+	OPEN_SCOPE("malformed_tlp");
+	FIELD("status", "yesno_t", BITS("../%error_status", 18));
+	FIELD("masked", "yesno_t", BITS("../%error_mask", 18));
+	FIELD("severity", "fatal_t", BITS("../%error_severity", 18));
+	CLOSE_SCOPE();
+
+	OPEN_SCOPE("ecrc_err");
+	FIELD("status", "yesno_t", BITS("../%error_status", 19));
+	FIELD("masked", "yesno_t", BITS("../%error_mask", 19));
+	FIELD("severity", "fatal_t", BITS("../%error_severity", 19));
+	CLOSE_SCOPE();
+
+	OPEN_SCOPE("unsupported_request_err");
+	FIELD("status", "yesno_t", BITS("../%error_status", 20));
+	FIELD("masked", "yesno_t", BITS("../%error_mask", 20));
+	FIELD("severity", "fatal_t", BITS("../%error_severity", 20));
+	CLOSE_SCOPE();
+
+	OPEN_SCOPE("acs_violation");
+	FIELD("status", "yesno_t", BITS("../%error_status", 21));
+	FIELD("masked", "yesno_t", BITS("../%error_mask", 21));
+	FIELD("severity", "fatal_t", BITS("../%error_severity", 21));
+	CLOSE_SCOPE();
+
+	CLOSE_SCOPE(); // uncorrectable
+
+	// correctable errors
+	OPEN_SCOPE("correctable");
+
+	REG32("%error_status", address + 0x10);
+	REG32("%error_mask", address + 0x14);
+
+	OPEN_SCOPE("receiver_err");
+	FIELD("status", "yesno_t", BITS("../%error_status", 0));
+	FIELD("masked", "yesno_t", BITS("../%error_mask", 0));
+	CLOSE_SCOPE();
+
+	OPEN_SCOPE("bad_tlp");
+	FIELD("status", "yesno_t", BITS("../%error_status", 6));
+	FIELD("masked", "yesno_t", BITS("../%error_mask", 6));
+	CLOSE_SCOPE();
+
+	OPEN_SCOPE("bad_dllp");
+	FIELD("status", "yesno_t", BITS("../%error_status", 7));
+	FIELD("masked", "yesno_t", BITS("../%error_mask", 7));
+	CLOSE_SCOPE();
+
+	OPEN_SCOPE("replay_num_rollover");
+	FIELD("status", "yesno_t", BITS("../%error_status", 8));
+	FIELD("masked", "yesno_t", BITS("../%error_mask", 8));
+	CLOSE_SCOPE();
+
+	OPEN_SCOPE("replay_timer_timeout");
+	FIELD("status", "yesno_t", BITS("../%error_status", 12));
+	FIELD("masked", "yesno_t", BITS("../%error_mask", 12));
+	CLOSE_SCOPE();
+
+	OPEN_SCOPE("advisory_nf_err");
+	FIELD("status", "yesno_t", BITS("../%error_status", 21));
+	FIELD("masked", "yesno_t", BITS("../%error_mask", 13));
+	CLOSE_SCOPE();
+
+	CLOSE_SCOPE(); // correctable
+
+	// capabilities and control
+	REG32("%caps_control", address + 0x18);
+	FIELD("first_err_ptr", "hex8_t",
+			BITS("%caps_control", 4, 0));
+	FIELD("ecrc_generation_cap", "yesno_t",
+			BITS("%caps_control", 5));
+	FIELD("ecrc_generation_en", "yesno_t",
+			BITS("%caps_control", 6));
+	FIELD("ecrc_check_cap", "yesno_t",
+			BITS("%caps_control", 7));
+	FIELD("ecrc_check_en", "yesno_t",
+			BITS("%caps_control", 8));
+
+	// header log
+	REG32("%header_log_0", address + 0x1c);
+	REG32("%header_log_1", address + 0x20);
+	REG32("%header_log_2", address + 0x24);
+	REG32("%header_log_3", address + 0x28);
+	FIELD("header_log", "hex128_t",
+			BITS("%header_log_3", 31, 0) +
+			BITS("%header_log_2", 31, 0) +
+			BITS("%header_log_1", 31, 0) +
+			BITS("%header_log_0", 31, 0));
+
+	// if this device is a root port or root complex event collector
+	if (FIELD_EQ("^/capability.pcie[0]/type", "root_event_collector")
+	 || FIELD_EQ("^/capability.pcie[0]/type", "root_port")) {
+		// root error command and status
+		REG32("%root_error_command", address + 0x2c);
+		REG32("%root_error_status", address + 0x30);
+
+		FIELD("correctable_err_en", "yesno_t",
+				BITS("%root_error_command", 0));
+		FIELD("correctable_err_rcvd", "yesno_t",
+				BITS("%root_error_status", 0));
+		FIELD("correctable_err_multi", "yesno_t",
+				BITS("%root_error_status", 1));
+
+		FIELD("nonfatal_err_en", "yesno_t",
+				BITS("%root_error_command", 1));
+		FIELD("nonfatal_rcvd", "yesno_t",
+				BITS("%root_error_status", 5));
+
+		FIELD("fatal_err_en", "yesno_t",
+				BITS("%root_error_command", 2));
+		FIELD("fatal_rcvd", "yesno_t",
+				BITS("%root_error_status", 6));
+
+		FIELD("uncorrectable_err_rcvd", "yesno_t",
+				BITS("%root_error_status", 2));
+		FIELD("uncorrectable_err_multi", "yesno_t",
+				BITS("%root_error_status", 3));
+		FIELD("first_uncorrectable", "fatal_t",
+				BITS("%root_error_status", 4));
+
+		FIELD("intr_msg_num", "hex8_t",
+				BITS("%root_error_status", 31, 27));
+
+		REG32("%error_src_id", address + 0x34);
+		FIELD("correctable_src_id", "hex16_t",
+				BITS("%error_src_id", 15, 0));
+		FIELD("uncorrectable_src_id", "hex16_t",
+				BITS("%error_src_id", 31, 16));
+	}
+}
+
 // Handle the PCI capabilities linked-list.
 static void
 explore_capabilities()
 {
+	// PCI capabilities
 	if (FIELD_BOOL("status/caps")) {
 		REGFIELD8("capptr", 0x34, "hex8_t");
 
@@ -1144,13 +1337,64 @@ explore_capabilities()
 			} else if (FIELD_EQ("id", "secure")) {
 				//FIXME: not implemented yet
 			}
+
 			ptr = READ("next");
-			CLOSE_SCOPE("pci_capability."
+			CLOSE_SCOPE("capability."
+			    + GET_FIELD("id")->evaluate() + "[]");
+		}
+	}
+
+	// PCI-Express capabilities
+	// FIXME: need RCRB support
+	pp_value ecaps = READ("%PCI.100");
+	// We should really check if %PCI[100] == 0 or FFFFFFFF, but at
+	// least one major vendor has mis-interpreted the spec and set
+	// %PCI[100] to 0x10000000 (causing an infinite loop).  So instead
+	// we just look for a capability ID of 0 in %PCI[100].
+	if ((ecaps & pp_value(0xffff)) != 0 && ecaps != 0xffffffff) {
+		pp_value ptr = 0x100;
+		while (ptr != 0 && ptr != 0xfff) {
+			OPEN_SCOPE("ecapability[]");
+
+			FIELD("offset", "hex16_t", ptr);
+			REGFIELD16("id", ptr, "pcie_capability_t");
+			REG16("%ver_next", ptr+2);
+			FIELD("version", "hex4_t", BITS("%ver_next", 3, 0));
+			FIELD("next", "hex12_t", BITS("%ver_next", 15, 4));
+
+			if (FIELD_EQ("id", "aer")) {
+				// PCI-E spec
+				aer_ecapability(ptr);
+			} else if (FIELD_EQ("id", "vchannel")) {
+				//FIXME: not implemented yet
+			} else if (FIELD_EQ("id", "serial_num")) {
+				//FIXME: not implemented yet
+			} else if (FIELD_EQ("id", "power_budget")) {
+				//FIXME: not implemented yet
+			} else if (FIELD_EQ("id", "root_link_decl")) {
+				//FIXME: not implemented yet
+			} else if (FIELD_EQ("id", "root_internal_link_ctrl")) {
+				//FIXME: not implemented yet
+			} else if (FIELD_EQ("id", "root_event_collector_endpoint_assoc")) {
+				//FIXME: not implemented yet
+			} else if (FIELD_EQ("id", "multi_func_vchannel")) {
+				//FIXME: not implemented yet
+			} else if (FIELD_EQ("id", "vc2")) {
+				//FIXME: not implemented yet
+			} else if (FIELD_EQ("id", "rcrb_header")) {
+				//FIXME: not implemented yet
+			} else if (FIELD_EQ("id", "vendor_specific")) {
+				//FIXME: not implemented yet
+			} else if (FIELD_EQ("id", "acs")) {
+				//FIXME: not implemented yet
+			}
+
+			ptr = READ("next");
+			CLOSE_SCOPE("ecapability."
 			    + GET_FIELD("id")->evaluate() + "[]");
 		}
 	}
 	//FIXME: scan EHCI extended capabilities
-	//FIXME: PCIE Extended caps! { 16 bits ID, 4 bits version, 12 bits next
 }
 
 static void
@@ -1269,6 +1513,7 @@ create_pci_bridge()
 	// Bridge control
 	REG16("%bridge_ctrl", 0x3e);
 	OPEN_SCOPE("bridge_ctrl");
+		BOOL("discard_timer_t", "short", "long");
 		FIELD("perr", "yesno_t", BITS("../%bridge_ctrl", 0));
 		FIELD("serr", "yesno_t", BITS("../%bridge_ctrl", 1));
 		FIELD("isa", "yesno_t", BITS("../%bridge_ctrl", 2));
@@ -1277,8 +1522,10 @@ create_pci_bridge()
 		FIELD("mst_abort", "yesno_t", BITS("../%bridge_ctrl", 5));
 		FIELD("sec_reset", "yesno_t", BITS("../%bridge_ctrl", 6));
 		FIELD("fbb", "yesno_t", BITS("../%bridge_ctrl", 7));
-		FIELD("pri_discard", "yesno_t", BITS("../%bridge_ctrl", 8));
-		FIELD("sec_discard", "yesno_t", BITS("../%bridge_ctrl", 9));
+		FIELD("pri_discard", "discard_timer_t",
+		    BITS("../%bridge_ctrl", 8));
+		FIELD("sec_discard", "discard_timer_t",
+		    BITS("../%bridge_ctrl", 9));
 		FIELD("discard_status", "yesno_t", BITS("../%bridge_ctrl", 10));
 		FIELD("discard_serr", "yesno_t", BITS("../%bridge_ctrl", 11));
 	CLOSE_SCOPE();
@@ -1345,8 +1592,16 @@ create_device()
 void
 pci_generic_device()
 {
-	for (unsigned i = 0; i < 4096; i += 4) {
-		REG32(to_string(boost::format("%%PCI.%04x") %i), i);
+	// all PCI devices have a 256 Byte config space
+	for (unsigned i = 0; i < 256; i += 4) {
+		REG32(to_string(boost::format("%%PCI.%03x") %i), i);
+	}
+	// if %PCI.100 is not FFFFFFFF, we have a 4 KByte config space
+	REG32("%PCI.100", 0x100);
+	if (READ("%PCI.100") != 0xffffffff) {
+		for (unsigned i = 256+4; i < 4096; i += 4) {
+			REG32(to_string(boost::format("%%PCI.%03x") %i), i);
+		}
 	}
 
 	REGFIELD16("vendor", 0x00, "pci_vendor_t");
