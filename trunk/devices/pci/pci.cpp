@@ -18,7 +18,10 @@ pci_datatypes_init()
 		KV("amd", 0x1022),
 		KV("nvidia", 0x10de),
 		KV("broadcom", 0x14e4),
-		KV("silicon_image", 0x1095));
+		KV("silicon_image", 0x1095),
+		KV("marvell", 0x11ab),
+		KV("google", 0x1ae0),
+		KV("plx", 0x10b5));
 		//FIXME: default?
 
 	/* pci_class_t */
@@ -116,6 +119,22 @@ pci_datatypes_init()
 			KV("secure", 0x0f),
 			KV("pcie", 0x10),
 			KV("msix", 0x11));
+
+	// pcie_capability_t
+	ENUM("pcie_capability_t",
+			KV("unknown", 0),
+			KV("aer", 0x01),
+			KV("vchannel", 0x02),
+			KV("serial_num", 0x03),
+			KV("power_budget", 0x04),
+			KV("root_link_decl", 0x05),
+			KV("root_internal_link_ctrl", 0x06),
+			KV("root_event_collector_endpoint_assoc", 0x07),
+			KV("multi_func_vchannel", 0x08),
+			KV("vc2", 0x09),
+			KV("rcrb_header", 0x0a),
+			KV("vendor_specific", 0x0b),
+			KV("acs", 0x0d));
 }
 
 static void
