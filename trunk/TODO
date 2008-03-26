@@ -41,6 +41,7 @@ are carats allowed mid-path?  not currently
 
 make a pp_platform
 clean up utils.h - no reason as to what is inline
+make PCI capabilities be self-contained to closer emulate the final language
 
 filesystem.h:
 	track full path name in directory and direntry
@@ -50,3 +51,9 @@ filesystem.h:
 	fs::realpath()
 
 fix 'make clean' rules to include OBJS
+
+BUG: some MSIX access kill the system in !msi_enabled.  Figure out why and
+what the right heuristic is.
+
+enum defaults
+enums with duplicate names - pcie_capability_t
