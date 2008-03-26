@@ -9,16 +9,15 @@
 using namespace std;
 
 void
-dump_field(const string &name, const pp_field *field, const string &indent="");
+dump_field(const string &name, const pp_field *field);
 void
-dump_scope(const string &name, const pp_scope *scope, const string &indent="");
+dump_scope(const string &name, const pp_scope *scope);
 void
-dump_array(const string &name, const pp_array *array, const string &indent="");
+dump_array(const string &name, const pp_array *array);
 
 void
-dump_field(const string &name, const pp_field *field, const string &indent)
+dump_field(const string &name, const pp_field *field)
 {
-	cout << indent;
 	cout << name << ": "
 	     << field->evaluate()
 	     << std::hex
@@ -27,61 +26,45 @@ dump_field(const string &name, const pp_field *field, const string &indent)
 }
 
 void
-dump_array(const string &name, const pp_array *array, const string &indent)
+dump_array(const string &name, const pp_array *array)
 {
 	for (size_t i = 0; i < array->size(); i++) {
 		string subname = name + "[" + to_string(i) + "]";
 		if (array->array_type() == PP_DIRENT_FIELD) {
-			const pp_field *field;
-			field = pp_field_from_dirent(array->at(i));
-			dump_field(subname, field, indent);
+			dump_field(subname,
+			    pp_field_from_dirent(array->at(i)));
 		} else if (array->array_type() == PP_DIRENT_SCOPE) {
-			const pp_scope *scope;
-			scope = pp_scope_from_dirent(array->at(i));
-			dump_scope(subname, scope, indent);
+			dump_scope(subname,
+			    pp_scope_from_dirent(array->at(i)));
 		} else if (array->array_type() == PP_DIRENT_ARRAY) {
-			const pp_array *subarray;
-			subarray = pp_array_from_dirent(array->at(i));
-			dump_array(subname, subarray, indent);
+			dump_array(subname,
+			    pp_array_from_dirent(array->at(i)));
 		}
 	}
 }
 
 void
-dump_scope(const string &name, const pp_scope *scope, const string &indent)
+dump_scope(const string &name, const pp_scope *scope)
 {
-	cout << indent << name;
+	cout << name << "/";
 	if (scope->is_bound()) {
 		cout << " (@" << *scope->binding() << ")";
 	}
-	cout << " {" << endl;
-
-	#if 0
-	for (size_t i = 0; i < scope->n_datatypes(); i++) {
-		cout << indent;
-		cout << "datatype: "
-		     << scope->datatype_name(i)
-		     << endl;
-	}
-	#endif
+	cout << endl;
 
 	for (size_t i = 0; i < scope->n_dirents(); i++) {
+		string subname = name + "/" + scope->dirent_name(i);
 		if (scope->dirent(i)->is_field()) {
-			dump_field(scope->dirent_name(i),
-			    pp_field_from_dirent(scope->dirent(i)),
-			    indent+"    ");
+			dump_field(subname,
+			    pp_field_from_dirent(scope->dirent(i)));
 		} else if (scope->dirent(i)->is_scope()) {
-			dump_scope(scope->dirent_name(i),
-			    pp_scope_from_dirent(scope->dirent(i)),
-			    indent+"    ");
+			dump_scope(subname,
+			    pp_scope_from_dirent(scope->dirent(i)));
 		} else if (scope->dirent(i)->is_array()) {
-			dump_array(scope->dirent_name(i),
-			    pp_array_from_dirent(scope->dirent(i)),
-			    indent+"    ");
+			dump_array(subname,
+			    pp_array_from_dirent(scope->dirent(i)));
 		}
 	}
-
-	cout << indent << "}" << endl;
 }
 
 int
