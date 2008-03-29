@@ -1,3 +1,16 @@
-To report bugs, ask questions, or send patches: send email to
-	pp-devel@googlegroups.com
+Bugs:
+
+  To report bugs, ask questions, or send patches: send email to
+  	pp-devel@googlegroups.com
+
+Requirements:
+
+  To build this you will need several libraries:
+  	- gmp and gmpxx version 4.2.1 or higher
+	  Apparently, ubuntu-dapper does not have official packages
+	  that meet this requirement.  I have rebuilt the ubuntu-edgy
+	  packages against dapper.
+  	  	http://www.hockin.org/~thockin/ubuntu/dapper/
+  	- boost and boost-regex version 1.33 or higher
+	  These should not be hard to get for just about any distro.
 
