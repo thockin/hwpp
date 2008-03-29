@@ -85,8 +85,5 @@ main()
 	r += test_ctors();
 	r += test_indexing();
 
-	if (r)
-		return EXIT_FAILURE;
-
-	return EXIT_SUCCESS;
+	TEST_EXIT(r);
 }

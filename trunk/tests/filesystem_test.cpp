@@ -233,5 +233,5 @@ main(void)
 	ret += test_dir();
 	ret += test_dev();
 
-	return ret;
+	TEST_EXIT(ret);
 }

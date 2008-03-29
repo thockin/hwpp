@@ -589,6 +589,5 @@ main()
 	r += test_int();
 	r += test_xypair();
 
-	if (r) return EXIT_FAILURE;
-	return EXIT_SUCCESS;
+	TEST_EXIT(r);
 }

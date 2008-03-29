@@ -341,8 +341,5 @@ main()
 	r += test_pp_int();
 	r += test_pp_hex();
 
-	if (r) {
-		return EXIT_FAILURE;
-	}
-	return EXIT_SUCCESS;
+	TEST_EXIT(r);
 }

@@ -1988,5 +1988,5 @@ main(void)
 	ret += test_large_io();
 	ret += test_operators();
 
-	return ret;
+	TEST_EXIT(ret);
 }

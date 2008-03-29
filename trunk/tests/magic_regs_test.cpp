@@ -51,5 +51,5 @@ main()
 
 	ret += magic_regs_test();
 
-	return ret;
+	TEST_EXIT(ret);
 }
