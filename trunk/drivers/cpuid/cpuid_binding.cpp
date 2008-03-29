@@ -124,6 +124,7 @@ cpuid_io::open_device(string devdir, int major, int minor)
 		m_file = fs::device::open(filename, O_RDONLY);
 		return;
 	} catch (std::exception &e) {
+		//FIXME: better errors
 		/* the device seems to not exist */
 		do_io_error(string("can't open a cpuid device: ") + e.what());
 	}
