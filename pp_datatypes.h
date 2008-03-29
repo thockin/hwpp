@@ -231,7 +231,13 @@ class pp_bitmask: public pp_datatype
 	virtual pp_value
 	lookup(const pp_value &value) const
 	{
-		return 0; //FIXME: missing
+		//FIXME: need to support multiple bits
+		for (size_t i=0; i < m_bits.size(); i++) {
+			if (m_bits.at(i) == value) {
+				return m_bits[i];
+			}
+		}
+		throw pp_datatype::invalid_error(to_string(value));
 	}
 
 	/*
