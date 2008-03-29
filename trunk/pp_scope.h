@@ -25,7 +25,7 @@ class pp_scope: public pp_dirent
 {
     public:
 	explicit pp_scope(const pp_binding_ptr &binding = pp_binding_ptr())
-	    : pp_dirent(PP_DIRENT_SCOPE), m_binding(binding)
+	    : pp_dirent(PP_DIRENT_SCOPE), m_parent(NULL), m_binding(binding)
 	{
 	}
 	virtual ~pp_scope()
