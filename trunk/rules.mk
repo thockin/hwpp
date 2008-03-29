@@ -98,10 +98,10 @@ run_tests:
 			echo PASS; \
 		else \
 			echo FAIL; \
-			cat $$f.err | while read LINE; do \
-				echo "    $$LINE"; \
-			done; \
 		fi; \
+		cat $$f.err | while read LINE; do \
+			echo "    $$LINE"; \
+		done; \
 		$(RM) -f $$f.err; \
 	done
 
