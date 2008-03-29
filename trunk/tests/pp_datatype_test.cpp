@@ -163,16 +163,12 @@ test_pp_int()
 	ret += TEST_ASSERT(i1.lookup("23") == 23, "pp_int::lookup(string)");
 	ret += TEST_ASSERT(i1.lookup(1) == 1, "pp_int::lookup(int)");
 	ret += TEST_ASSERT(i1.lookup(23) == 23, "pp_int::lookup(int)");
-	//FIXME: this test fails because bignum simply returns 0, rather
-	//than throw an error if the string is not a numeric string.
-	#if 0
 	try {
 		i1.lookup("foo");
 		TEST_ERROR("pp_int::lookup(string)");
 		ret++;
 	} catch (pp_datatype::invalid_error &e) {
 	}
-	#endif
 
 	// test the units constructor
 	pp_int i2("units");
@@ -200,16 +196,12 @@ test_pp_int()
 	    "pp_int::lookup(int)");
 	ret += TEST_ASSERT(i2.lookup(23) == 23,
 	    "pp_int::lookup(int)");
-	//FIXME: this test fails because bignum simply returns 0, rather
-	//than throw an error if the string is not a numeric string.
-	#if 0
 	try {
 		i2.lookup("foo");
 		TEST_ERROR("pp_int::lookup(string)");
 		ret++;
 	} catch (pp_datatype::invalid_error &e) {
 	}
-	#endif
 
 	return ret;
 }
@@ -230,23 +222,19 @@ test_pp_hex()
 
 	// test lookup()
 	ret += TEST_ASSERT(h1.lookup("0x1") == 1,
-	    "pp_int::lookup(string)");
+	    "pp_hex::lookup(string)");
 	ret += TEST_ASSERT(h1.lookup("0x23") ==35,
-	    "pp_int::lookup(string)");
+	    "pp_hex::lookup(string)");
 	ret += TEST_ASSERT(h1.lookup(1) == 1,
-	    "pp_int::lookup(int)");
+	    "pp_hex::lookup(int)");
 	ret += TEST_ASSERT(h1.lookup(23) == 23,
-	    "pp_int::lookup(int)");
-	//FIXME: this test fails because bignum simply returns 0, rather
-	//than throw an error if the string is not a numeric string.
-	#if 0
+	    "pp_hex::lookup(int)");
 	try {
 		h1.lookup("foo");
-		TEST_ERROR("pp_int::lookup(string)");
+		TEST_ERROR("pp_hex::lookup(string)");
 		ret++;
 	} catch (pp_datatype::invalid_error &e) {
 	}
-	#endif
 
 	// test the units constructor
 	pp_hex h2(BITS0, "units");
@@ -260,24 +248,20 @@ test_pp_hex()
 	// and returns 0, yet "1 " parses just fine.
 	#if 0
 	ret += TEST_ASSERT(h1.lookup("0x1 units") == 1,
-	    "pp_int::lookup(string)");
+	    "pp_hex::lookup(string)");
 	ret += TEST_ASSERT(h1.lookup("0x23 units") ==35,
-	    "pp_int::lookup(string)");
+	    "pp_hex::lookup(string)");
 	#endif
 	ret += TEST_ASSERT(h1.lookup(1) == 1,
-	    "pp_int::lookup(int)");
+	    "pp_hex::lookup(int)");
 	ret += TEST_ASSERT(h1.lookup(23) == 23,
-	    "pp_int::lookup(int)");
-	//FIXME: this test fails because bignum simply returns 0, rather
-	//than throw an error if the string is not a numeric string.
-	#if 0
+	    "pp_hex::lookup(int)");
 	try {
 		h1.lookup("foo");
-		TEST_ERROR("pp_int::lookup(string)");
+		TEST_ERROR("pp_hex::lookup(string)");
 		ret++;
 	} catch (pp_datatype::invalid_error &e) {
 	}
-	#endif
 
 	// test the width constructor
 	pp_hex h3(BITS8);

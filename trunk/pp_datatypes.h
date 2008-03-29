@@ -323,7 +323,11 @@ class pp_int: public pp_datatype
 	virtual pp_value
 	lookup(const string &str) const
 	{
-		return pp_value(str);
+		try {
+			return pp_value(str);
+		} catch (std::invalid_argument &e) {
+			throw pp_datatype::invalid_error(str);
+		}
 	}
 
     protected:
