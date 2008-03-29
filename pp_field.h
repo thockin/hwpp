@@ -24,6 +24,14 @@ class pp_field: public pp_dirent
 	virtual ~pp_field() {}
 
 	/*
+	 * pp_field::describe()
+	 *
+	 * Get a string which describes this field
+	 */
+	virtual string
+	describe() const = 0;
+
+	/*
 	 * pp_field::read()
 	 *
 	 * Read the current value of this field.

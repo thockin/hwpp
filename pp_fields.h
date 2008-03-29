@@ -27,6 +27,15 @@ class pp_direct_field: public pp_field
 	{}
 
 	/*
+	 * pp_direct_field::describe()
+	 */
+	virtual string
+	describe() const
+	{
+		return m_regbits.describe();
+	}
+
+	/*
 	 * pp_direct_field::read()
 	 *
 	 * Read the current value of this field.
@@ -92,6 +101,15 @@ class pp_proc_field: public pp_field
 	{}
 
 	/*
+	 * pp_direct_field::describe()
+	 */
+	virtual string
+	describe() const
+	{
+		return "procedures";
+	}
+
+	/*
 	 * pp_proc_field::read()
 	 *
 	 * Read the current value of this field.
@@ -144,6 +162,15 @@ class pp_constant_field: public pp_field
 	{}
 	virtual ~pp_constant_field()
 	{}
+
+	/*
+	 * pp_direct_field::describe()
+	 */
+	virtual string
+	describe() const
+	{
+		return "constant";
+	}
 
 	/*
 	 * pp_constant_field::read()
