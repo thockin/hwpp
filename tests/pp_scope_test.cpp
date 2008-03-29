@@ -586,8 +586,5 @@ main()
 	r += test_exceptions();
 	r += test_dirents();
 
-	if (r)
-		return EXIT_FAILURE;
-
-	return EXIT_SUCCESS;
+	TEST_EXIT(r);
 }

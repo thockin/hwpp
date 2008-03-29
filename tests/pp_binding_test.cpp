@@ -32,7 +32,6 @@ main()
 	int r;
 
 	r = test_pp_binding();
-	if (r) return EXIT_FAILURE;
 
-	return EXIT_SUCCESS;
+	TEST_EXIT(r);
 }

@@ -21,5 +21,5 @@ main()
 {
 	int ret = 0;
 	//FIXME:  fill this in
-	return ret;
+	TEST_EXIT(ret);
 }

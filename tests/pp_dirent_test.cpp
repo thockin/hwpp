@@ -92,7 +92,6 @@ main()
 	int r;
 
 	r = test_pp_dirent();
-	if (r) return EXIT_FAILURE;
 
-	return EXIT_SUCCESS;
+	TEST_EXIT(r);
 }

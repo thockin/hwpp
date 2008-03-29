@@ -283,7 +283,5 @@ main()
 	r |= test_proc_field();
 	r |= test_constant_field();
 
-	if (r) return EXIT_FAILURE;
-
-	return EXIT_SUCCESS;
+	TEST_EXIT(r);
 }

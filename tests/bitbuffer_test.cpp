@@ -139,5 +139,5 @@ main(void)
 			"bitbuffer::operator<<(ostream, bitbuffer)");
 	}
 
-	return ret;
+	TEST_EXIT(ret);
 }

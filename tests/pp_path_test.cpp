@@ -725,5 +725,6 @@ main()
 	error_count += test_iters();
 	error_count += test_contents();
 	error_count += test_const();
-	return error_count;
+
+	TEST_EXIT(error_count);
 }

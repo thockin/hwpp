@@ -176,6 +176,5 @@ main()
 	r += test_complex_regbits();
 	r += test_exceptions();
 
-	if (r) return EXIT_FAILURE;
-	return EXIT_SUCCESS;
+	TEST_EXIT(r);
 }

@@ -152,5 +152,5 @@ main(void)
 		}
 	}
 
-	return ret;
+	TEST_EXIT(ret);
 }
