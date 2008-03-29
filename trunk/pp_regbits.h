@@ -92,6 +92,27 @@ class pp_regbits
 	}
 
 	/*
+	 * pp_regbits::describe()
+	 */
+	string
+	describe() const
+	{
+		if (m_register) {
+			return to_string(boost::format("0x%x[%d:%d]")
+			    %m_register->address() %m_hi_bit %m_lo_bit);
+		}
+
+		string ret;
+		for (size_t i = 0; i < m_sub_bits.size(); i++) {
+			if (ret != "") {
+				ret += ",";
+			}
+			ret += m_sub_bits[i].describe();
+		}
+		return ret;
+	}
+
+	/*
 	 * pp_regbits::read()
 	 *
 	 * Read the value of this regbits.  The resulting value is
@@ -104,7 +125,7 @@ class pp_regbits
 		if (m_register) {
 			// simple
 			result = m_register->read();
-			result >>= m_shift;
+			result >>= m_lo_bit;
 			result &= m_mask;
 		} else {
 			// complex (MSB first)
@@ -129,9 +150,9 @@ class pp_regbits
 			// simple
 			pp_value myval = value;
 			myval &= m_mask;
-			myval <<= m_shift;
+			myval <<= m_lo_bit;
 			pp_value tmp = m_register->read();
-			tmp ^= (tmp & (m_mask << m_shift));
+			tmp ^= (tmp & (m_mask << m_lo_bit));
 			tmp |= myval;
 			m_register->write(tmp);
 		} else {
@@ -168,7 +189,8 @@ class pp_regbits
     private:
 	// a simple regbits populates these
 	const pp_register *m_register;
-	unsigned m_shift;
+	unsigned m_lo_bit;
+	unsigned m_hi_bit;
 	pp_value m_mask;
 	// a complex regbits populates this (most significant bits first)
 	std::vector<pp_regbits> m_sub_bits;
@@ -194,7 +216,8 @@ class pp_regbits
 
 		// do this only after sanity checks
 		m_register = reg;
-		m_shift = lo_bit;
+		m_lo_bit = lo_bit;
+		m_hi_bit = hi_bit;
 		m_mask = PP_MASK((hi_bit - lo_bit) + 1);
 	}
 };
