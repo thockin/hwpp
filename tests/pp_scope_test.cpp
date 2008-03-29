@@ -96,6 +96,12 @@ test_datatypes()
 
 	pp_scope_ptr scope = new_pp_scope();
 
+	// nonexistent datatypes
+	if (scope->resolve_datatype("nonexistent-type") != NULL) {
+		TEST_ERROR("pp_scope::resolve_datatype()");
+		ret++;
+	}
+
 	// test add_datatype() and datatype()
 	pp_datatype_ptr type = new_pp_int();
 	scope->add_datatype("type", type);
@@ -132,6 +138,13 @@ test_datatypes()
 	psub->set_parent(scope.get());
 	type2 = psub->resolve_datatype("type");
 	if (type2 != type.get()) {
+		TEST_ERROR("pp_scope::resolve_datatype()");
+		ret++;
+	}
+
+	// nonexistent type for chained scopes
+	type2 = psub->resolve_datatype("nonexistent-type");
+	if (type2 != NULL) {
 		TEST_ERROR("pp_scope::resolve_datatype()");
 		ret++;
 	}

@@ -123,6 +123,7 @@ pp_scope::resolve_datatype(const string &name) const
 			"trying to resolve type \"" + name + "\"");
 		return m_datatypes[name].get();
 	} catch (std::out_of_range &e) {
+		// if not found in currrent scope fall through to parent scope
 	}
 
 	if (!is_root()) {
