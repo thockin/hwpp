@@ -271,11 +271,11 @@ test_constant_field()
 	return ret;
 }
 
-TEST_MAIN(
-	TEST_FUNC(test_int_field),
-	TEST_FUNC(test_hex_field),
-	TEST_FUNC(test_enum_field),
-	TEST_FUNC(test_bitmask_field),
-	TEST_FUNC(test_proc_field),
-	TEST_FUNC(test_constant_field),
+TEST_LIST(
+	TEST(test_int_field),
+	TEST(test_hex_field),
+	TEST(test_enum_field),
+	TEST(test_bitmask_field),
+	TEST(test_proc_field),
+	TEST(test_constant_field),
 );

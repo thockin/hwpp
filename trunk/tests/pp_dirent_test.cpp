@@ -86,6 +86,6 @@ test_pp_dirent()
 	return ret;
 }
 
-TEST_MAIN(
-	TEST_FUNC(test_pp_dirent),
+TEST_LIST(
+	TEST(test_pp_dirent),
 );

@@ -77,7 +77,7 @@ test_indexing()
 	return ret;
 }
 
-TEST_MAIN(
-	TEST_FUNC(test_ctors),
-	TEST_FUNC(test_indexing),
+TEST_LIST(
+	TEST(test_ctors),
+	TEST(test_indexing),
 );

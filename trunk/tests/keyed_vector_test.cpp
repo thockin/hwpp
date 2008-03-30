@@ -579,9 +579,9 @@ test_xypair()
 	return ret;
 }
 
-TEST_MAIN(
-	TEST_FUNC(test_ctors),
-	TEST_FUNC(test_exceptions),
-	TEST_FUNC(test_int),
-	TEST_FUNC(test_xypair),
+TEST_LIST(
+	TEST(test_ctors),
+	TEST(test_exceptions),
+	TEST(test_int),
+	TEST(test_xypair),
 );

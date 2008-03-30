@@ -177,9 +177,9 @@ test_refcount()
 	return ret;
 }
 
-TEST_MAIN(
-	TEST_FUNC(test_ctors),
-	TEST_FUNC(test_open_close),
-	TEST_FUNC(test_lookup_symbol),
-	TEST_FUNC(test_refcount),
+TEST_LIST(
+	TEST(test_ctors),
+	TEST(test_open_close),
+	TEST(test_lookup_symbol),
+	TEST(test_refcount),
 );

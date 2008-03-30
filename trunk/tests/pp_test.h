@@ -37,12 +37,12 @@ struct test_component
 	int (*entry_point)(void);
 };
 
-#define TEST_FUNC(name_) \
+#define TEST(name_) \
 	{ \
 		name_ \
 	}
 
-#define TEST_MAIN(...) \
+#define TEST_LIST(...) \
 	int main(void) \
 	{ \
 		static struct test_component __t[] = { \

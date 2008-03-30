@@ -172,11 +172,11 @@ test_io()
 	return ret;
 }
 
-TEST_MAIN(
-	TEST_FUNC(test_ctors),
-	TEST_FUNC(test_fills),
-	TEST_FUNC(test_reset),
-	TEST_FUNC(test_byte_at),
-	TEST_FUNC(test_io),
-	TEST_FUNC(test_get),
+TEST_LIST(
+	TEST(test_ctors),
+	TEST(test_fills),
+	TEST(test_reset),
+	TEST(test_byte_at),
+	TEST(test_io),
+	TEST(test_get),
 );

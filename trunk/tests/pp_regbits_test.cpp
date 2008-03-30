@@ -167,8 +167,8 @@ test_exceptions()
 	return ret;
 }
 
-TEST_MAIN(
-	TEST_FUNC(test_simple_regbits),
-	TEST_FUNC(test_complex_regbits),
-	TEST_FUNC(test_exceptions),
+TEST_LIST(
+	TEST(test_simple_regbits),
+	TEST(test_complex_regbits),
+	TEST(test_exceptions),
 );
