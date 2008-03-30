@@ -223,9 +223,9 @@ test_dev()
 	return ret;
 }
 
-TEST_MAIN(
-	TEST_FUNC(test_file),
-	TEST_FUNC(test_file_mapping),
-	TEST_FUNC(test_dir),
-	TEST_FUNC(test_dev),
+TEST_LIST(
+	TEST(test_file),
+	TEST(test_file_mapping),
+	TEST(test_dir),
+	TEST(test_dev),
 );

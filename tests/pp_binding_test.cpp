@@ -26,6 +26,6 @@ test_pp_binding()
 	return ret;
 }
 
-TEST_MAIN(
-	TEST_FUNC(test_pp_binding),
+TEST_LIST(
+	TEST(test_pp_binding),
 );

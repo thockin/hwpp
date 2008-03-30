@@ -17,4 +17,4 @@
 using namespace std;
 
 //FIXME:  fill this in
-TEST_MAIN();
+TEST_LIST();

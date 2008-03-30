@@ -314,10 +314,10 @@ test_pp_hex()
 	return ret;
 }
 
-TEST_MAIN(
-	TEST_FUNC(test_pp_enum),
-	TEST_FUNC(test_pp_bool),
-	TEST_FUNC(test_pp_bitmask),
-	TEST_FUNC(test_pp_int),
-	TEST_FUNC(test_pp_hex),
+TEST_LIST(
+	TEST(test_pp_enum),
+	TEST(test_pp_bool),
+	TEST(test_pp_bitmask),
+	TEST(test_pp_int),
+	TEST(test_pp_hex),
 );

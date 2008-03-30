@@ -575,10 +575,10 @@ test_dirents()
 	return ret;
 }
 
-TEST_MAIN(
-	TEST_FUNC(test_ctors),
-	TEST_FUNC(test_parentage),
-	TEST_FUNC(test_datatypes),
-	TEST_FUNC(test_exceptions),
-	TEST_FUNC(test_dirents),
+TEST_LIST(
+	TEST(test_ctors),
+	TEST(test_parentage),
+	TEST(test_datatypes),
+	TEST(test_exceptions),
+	TEST(test_dirents),
 );

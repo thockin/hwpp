@@ -74,6 +74,6 @@ test_pp_register()
 	return ret;
 }
 
-TEST_MAIN(
-	TEST_FUNC(test_pp_register),
+TEST_LIST(
+	TEST(test_pp_register),
 );

@@ -715,11 +715,11 @@ test_const()
 	return ret;
 }
 
-TEST_MAIN(
-	TEST_FUNC(test_element),
-	TEST_FUNC(test_ctors),
-	TEST_FUNC(test_comparisons),
-	TEST_FUNC(test_iters),
-	TEST_FUNC(test_contents),
-	TEST_FUNC(test_const),
+TEST_LIST(
+	TEST(test_element),
+	TEST(test_ctors),
+	TEST(test_comparisons),
+	TEST(test_iters),
+	TEST(test_contents),
+	TEST(test_const),
 );

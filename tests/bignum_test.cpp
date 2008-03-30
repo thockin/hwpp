@@ -1973,15 +1973,15 @@ test_operators()
 }
 
 // Perform the tests
-TEST_MAIN(
-	TEST_FUNC(test_ctors),
-	TEST_FUNC(test_assignments),
-	TEST_FUNC(test_comparisons),
-	TEST_FUNC(test_small_arithmetic),
-	TEST_FUNC(test_large_arithmetic),
-	TEST_FUNC(test_small_logical),
-	TEST_FUNC(test_large_logical),
-	TEST_FUNC(test_small_io),
-	TEST_FUNC(test_large_io),
-	TEST_FUNC(test_operators),
+TEST_LIST(
+	TEST(test_ctors),
+	TEST(test_assignments),
+	TEST(test_comparisons),
+	TEST(test_small_arithmetic),
+	TEST(test_large_arithmetic),
+	TEST(test_small_logical),
+	TEST(test_large_logical),
+	TEST(test_small_io),
+	TEST(test_large_io),
+	TEST(test_operators),
 );
