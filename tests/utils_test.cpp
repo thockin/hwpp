@@ -16,10 +16,5 @@
 #include <iostream>
 using namespace std;
 
-int
-main()
-{
-	int ret = 0;
-	//FIXME:  fill this in
-	TEST_EXIT(ret);
-}
+//FIXME:  fill this in
+TEST_MAIN();

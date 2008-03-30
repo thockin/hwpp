@@ -32,4 +32,30 @@ TEST_ASSERT_(bool predicate, const string &msg, const string &file, int line)
 		exit(exit_code_); \
 	} while(0)
 
+struct test_component
+{
+	int (*entry_point)(void);
+};
+
+#define TEST_FUNC(name_) \
+	{ \
+		name_ \
+	}
+
+#define TEST_MAIN(...) \
+	int main(void) \
+	{ \
+		static struct test_component __t[] = { \
+			__VA_ARGS__ \
+		}; \
+		int ret = 0; \
+		int num = sizeof(__t)/sizeof(__t[0]); \
+		struct test_component* current = &__t[0]; \
+		while (num--) { \
+			ret += current->entry_point(); \
+			current++; \
+		} \
+		TEST_EXIT(ret); \
+	}
+
 #endif // PP_TEST_H__

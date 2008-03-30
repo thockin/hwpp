@@ -44,12 +44,6 @@ magic_regs_test()
 	return ret;
 }
 
-int
-main()
-{
-	int ret = 0;
-
-	ret += magic_regs_test();
-
-	TEST_EXIT(ret);
-}
+TEST_MAIN(
+	TEST_FUNC(magic_regs_test),
+);

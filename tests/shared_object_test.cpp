@@ -4,7 +4,7 @@
 using namespace std;
 
 int
-main(void)
+test_ctors()
 {
 	int ret = 0;
 
@@ -64,6 +64,13 @@ main(void)
 			"shared_object::operator=(lshared_object)");
 	}
 
+	return ret;
+}
+
+int
+test_open_close()
+{
+	int ret = 0;
 	// test open() and close()
 	{
 		shared_object so;
@@ -81,6 +88,13 @@ main(void)
 			"shared_object::close()");
 	}
 
+	return ret;
+}
+
+int
+test_lookup_symbol()
+{
+	int ret = 0;
 	// test lookup_symbol()
 	{
 		shared_object so("libdl.so");
@@ -100,6 +114,14 @@ main(void)
 		} catch (shared_object::symbol_not_found_error &e) {
 		}
 	}
+
+	return ret;
+}
+
+int
+test_refcount()
+{
+	int ret = 0;
 
 	// test reference-counting
 	{
@@ -152,5 +174,12 @@ main(void)
 		}
 	}
 
-	TEST_EXIT(ret);
+	return ret;
 }
+
+TEST_MAIN(
+	TEST_FUNC(test_ctors),
+	TEST_FUNC(test_open_close),
+	TEST_FUNC(test_lookup_symbol),
+	TEST_FUNC(test_refcount),
+);

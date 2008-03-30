@@ -314,16 +314,10 @@ test_pp_hex()
 	return ret;
 }
 
-int
-main()
-{
-	int r;
-
-	r += test_pp_enum();
-	r += test_pp_bool();
-	r += test_pp_bitmask();
-	r += test_pp_int();
-	r += test_pp_hex();
-
-	TEST_EXIT(r);
-}
+TEST_MAIN(
+	TEST_FUNC(test_pp_enum),
+	TEST_FUNC(test_pp_bool),
+	TEST_FUNC(test_pp_bitmask),
+	TEST_FUNC(test_pp_int),
+	TEST_FUNC(test_pp_hex),
+);
