@@ -715,16 +715,11 @@ test_const()
 	return ret;
 }
 
-int
-main()
-{
-	int error_count = 0;
-	error_count += test_element();
-	error_count += test_ctors();
-	error_count += test_comparisons();
-	error_count += test_iters();
-	error_count += test_contents();
-	error_count += test_const();
-
-	TEST_EXIT(error_count);
-}
+TEST_MAIN(
+	TEST_FUNC(test_element),
+	TEST_FUNC(test_ctors),
+	TEST_FUNC(test_comparisons),
+	TEST_FUNC(test_iters),
+	TEST_FUNC(test_contents),
+	TEST_FUNC(test_const),
+);

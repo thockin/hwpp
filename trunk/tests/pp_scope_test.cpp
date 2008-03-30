@@ -575,16 +575,10 @@ test_dirents()
 	return ret;
 }
 
-int
-main()
-{
-	int r = 0;
-
-	r += test_ctors();
-	r += test_parentage();
-	r += test_datatypes();
-	r += test_exceptions();
-	r += test_dirents();
-
-	TEST_EXIT(r);
-}
+TEST_MAIN(
+	TEST_FUNC(test_ctors),
+	TEST_FUNC(test_parentage),
+	TEST_FUNC(test_datatypes),
+	TEST_FUNC(test_exceptions),
+	TEST_FUNC(test_dirents),
+);

@@ -223,15 +223,9 @@ test_dev()
 	return ret;
 }
 
-int
-main(void)
-{
-	int ret = 0;
-
-	ret += test_file();
-	ret += test_file_mapping();
-	ret += test_dir();
-	ret += test_dev();
-
-	TEST_EXIT(ret);
-}
+TEST_MAIN(
+	TEST_FUNC(test_file),
+	TEST_FUNC(test_file_mapping),
+	TEST_FUNC(test_dir),
+	TEST_FUNC(test_dev),
+);

@@ -167,14 +167,8 @@ test_exceptions()
 	return ret;
 }
 
-int
-main()
-{
-	int r = 0;
-
-	r += test_simple_regbits();
-	r += test_complex_regbits();
-	r += test_exceptions();
-
-	TEST_EXIT(r);
-}
+TEST_MAIN(
+	TEST_FUNC(test_simple_regbits),
+	TEST_FUNC(test_complex_regbits),
+	TEST_FUNC(test_exceptions),
+);

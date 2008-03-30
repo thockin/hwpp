@@ -86,12 +86,6 @@ test_pp_dirent()
 	return ret;
 }
 
-int
-main()
-{
-	int r;
-
-	r = test_pp_dirent();
-
-	TEST_EXIT(r);
-}
+TEST_MAIN(
+	TEST_FUNC(test_pp_dirent),
+);

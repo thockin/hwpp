@@ -579,15 +579,9 @@ test_xypair()
 	return ret;
 }
 
-int
-main()
-{
-	int r = 0;
-
-	r += test_ctors();
-	r += test_exceptions();
-	r += test_int();
-	r += test_xypair();
-
-	TEST_EXIT(r);
-}
+TEST_MAIN(
+	TEST_FUNC(test_ctors),
+	TEST_FUNC(test_exceptions),
+	TEST_FUNC(test_int),
+	TEST_FUNC(test_xypair),
+);

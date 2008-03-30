@@ -74,12 +74,6 @@ test_pp_register()
 	return ret;
 }
 
-int
-main()
-{
-	int r;
-
-	r = test_pp_register();
-
-	TEST_EXIT(r);
-}
+TEST_MAIN(
+	TEST_FUNC(test_pp_register),
+);

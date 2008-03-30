@@ -77,13 +77,7 @@ test_indexing()
 	return ret;
 }
 
-int
-main()
-{
-	int r = 0;
-
-	r += test_ctors();
-	r += test_indexing();
-
-	TEST_EXIT(r);
-}
+TEST_MAIN(
+	TEST_FUNC(test_ctors),
+	TEST_FUNC(test_indexing),
+);

@@ -26,12 +26,6 @@ test_pp_binding()
 	return ret;
 }
 
-int
-main()
-{
-	int r;
-
-	r = test_pp_binding();
-
-	TEST_EXIT(r);
-}
+TEST_MAIN(
+	TEST_FUNC(test_pp_binding),
+);

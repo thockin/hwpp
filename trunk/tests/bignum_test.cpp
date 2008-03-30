@@ -1972,21 +1972,16 @@ test_operators()
 	return ret;
 }
 
-int
-main(void)
-{
-	int ret = 0;
-
-	ret += test_ctors();
-	ret += test_assignments();
-	ret += test_comparisons();
-	ret += test_small_arithmetic();
-	ret += test_large_arithmetic();
-	ret += test_small_logical();
-	ret += test_large_logical();
-	ret += test_small_io();
-	ret += test_large_io();
-	ret += test_operators();
-
-	TEST_EXIT(ret);
-}
+// Perform the tests
+TEST_MAIN(
+	TEST_FUNC(test_ctors),
+	TEST_FUNC(test_assignments),
+	TEST_FUNC(test_comparisons),
+	TEST_FUNC(test_small_arithmetic),
+	TEST_FUNC(test_large_arithmetic),
+	TEST_FUNC(test_small_logical),
+	TEST_FUNC(test_large_logical),
+	TEST_FUNC(test_small_io),
+	TEST_FUNC(test_large_io),
+	TEST_FUNC(test_operators),
+);

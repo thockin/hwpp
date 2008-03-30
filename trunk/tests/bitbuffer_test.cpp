@@ -3,12 +3,12 @@
 #include "bitbuffer.h"
 using namespace std;
 
+
 int
-main(void)
+test_ctors()
 {
 	int ret = 0;
 
-	// test ctor
 	{
 		bitbuffer bb;
 		ret += TEST_ASSERT(bb.size_bits() == 0,
@@ -44,8 +44,13 @@ main(void)
 		ret += TEST_ASSERT(bb.size_bytes() == 9,
 			"bitbuffer::bitbuffer(int)");
 	}
+	return ret;
+}
 
-	// test reset()
+int
+test_reset()
+{
+	int ret = 0;
 	{
 		bitbuffer bb(1);
 		bb.reset();
@@ -71,6 +76,13 @@ main(void)
 			"bitbuffer::reset(int)");
 	}
 
+	return ret;
+}
+
+int
+test_get()
+{
+	int ret = 0;
 	// test get()
 	{
 		bitbuffer bb(1024 * CHAR_BIT);
@@ -81,7 +93,13 @@ main(void)
 			"bitbuffer::get(int)");
 	}
 
-	// test fills
+	return ret;
+}
+
+int
+test_fills()
+{
+	int ret = 0;
 	{
 		bitbuffer bb(8, 0x5a);
 		ret += TEST_ASSERT(bb.size_bits() == 8,
@@ -100,7 +118,13 @@ main(void)
 			"bitbuffer::reset(int, unsigned char)");
 	}
 
-	// test byte_at()
+	return ret;
+}
+
+int
+test_byte_at()
+{
+	int ret = 0;
 	{
 		bitbuffer bb(2);
 		bb.get()[0] = 0x12;
@@ -114,7 +138,13 @@ main(void)
 			"bitbuffer::byte_at(int)");
 	}
 
-	// test IO
+	return ret;
+}
+
+int
+test_io()
+{
+	int ret = 0;
 	{
 		bitbuffer bb(0);
 		ret += TEST_ASSERT(to_string(bb) == "0x0",
@@ -139,5 +169,14 @@ main(void)
 			"bitbuffer::operator<<(ostream, bitbuffer)");
 	}
 
-	TEST_EXIT(ret);
+	return ret;
 }
+
+TEST_MAIN(
+	TEST_FUNC(test_ctors),
+	TEST_FUNC(test_fills),
+	TEST_FUNC(test_reset),
+	TEST_FUNC(test_byte_at),
+	TEST_FUNC(test_io),
+	TEST_FUNC(test_get),
+);
