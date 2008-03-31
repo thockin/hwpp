@@ -1,16 +1,16 @@
 TOPDIR = ../..
 include $(TOPDIR)/rules.mk
 
-DRIVER_TARGET = $(DRIVER_NAME).so
+DRIVER_TARGET = $(DRIVER_NAME)_driver_module.o
 
 SRCS = $(DRIVER_NAME)_driver.cpp $(DRIVER_NAME)_binding.cpp
-OBJS = $(SRCS:.cpp=.do)
+OBJS = $(SRCS:.cpp=.o)
 
 
 all: $(DRIVER_TARGET)
 
 $(DRIVER_TARGET): $(OBJS)
-	$(CXX) $(LDFLAGS) -shared -fPIC -o $@ $^
+	$(CXX) $(LDFLAGS) -nostdlib -Wl,-r -o $@ $(OBJS)
 
 .PHONY: test
 test: all

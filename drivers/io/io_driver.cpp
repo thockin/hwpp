@@ -6,18 +6,16 @@
 
 #define IO_SPACE_SIZE	0x10000
 
-// this is called when the driver module is loaded
-extern "C" {
-pp_driver *
-create_driver()
+// this forces linkage and avoids the static initialization order fiasco
+void
+load_io_driver()
 {
 	static io_driver the_driver;
-	return &the_driver;
-}
 }
 
 io_driver::io_driver()
 {
+	pp_register_driver(this);
 }
 
 io_driver::~io_driver()

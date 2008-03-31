@@ -6,7 +6,7 @@ PP_VERSION = 0.2.0
 # Otherwise 'DEBUG= make all' would still build with debugging enabled.
 
 DEBUG ?= 1
-STATIC ?= 0
+STATIC ?= 1
 PROFILE ?= 0
 
 # build tools
@@ -21,7 +21,7 @@ PP_LDFLAGS = $(ARCHFLAGS)
 PP_WARNS = -Wall -Werror -Woverloaded-virtual $(WARNS)
 PP_DEFS = -DPP_VERSION="\"$(PP_VERSION)\"" $(DEFS)
 PP_INCLUDES = -I$(TOPDIR) $(INCLUDES)
-PP_LDLIBS = $(LIBS) -lgmpxx -lgmp -ldl -lboost_regex
+PP_LDLIBS = -ldl -lgmpxx -lgmp $(LIBS)
 
 ifeq ($(strip $(STATIC)),1)
 PP_STATIC = -static
@@ -46,14 +46,9 @@ endif
 
 CXXFLAGS += $(PP_CXXFLAGS) $(PP_WARNS) $(PP_DEFS) $(PP_INCLUDES) $(PP_DEBUG)
 LDFLAGS += $(PP_LDFLAGS)
-LDLIBS += $(PP_LDLIBS) $(PP_STATIC)
+LDLIBS += $(PP_STATIC) $(PP_LDLIBS)
 
 MAKEFLAGS += --no-print-directory
-
-# suffix rule for building shared objects
-.SUFFIXES: .do
-.cpp.do:
-	$(CXX) -c $(CXXFLAGS) -fPIC -shared $(CPPFLAGS) -o $@ $<
 
 # common rules
 
