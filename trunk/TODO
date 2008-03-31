@@ -57,3 +57,6 @@ what the right heuristic is.
 
 enum defaults
 enums with duplicate names - pcie_capability_t
+
+prep from cross-compile and hermetic builds
+do my own simple regex class?
