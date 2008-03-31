@@ -2,10 +2,12 @@
 PP_VERSION = 0.2.0
 
 # build options
+# use '?=' variable assignment so ENV variables can be used.
+# Otherwise 'DEBUG= make all' would still build with debugging enabled.
 
-DEBUG = 1
-STATIC = 0
-PROFILE = 0
+DEBUG ?= 1
+STATIC ?= 0
+PROFILE ?= 0
 
 # build tools
 
