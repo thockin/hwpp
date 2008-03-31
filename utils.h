@@ -221,7 +221,7 @@ FIELD(const string &name, const pp_datatype *type,
 extern void
 FIELD(const string &name, const string &type,
     const proc_field_accessor_ptr &access);
-#define PROCS(ptr) proc_field_accessor_ptr(ptr)
+#define PROCS(procs) proc_field_accessor_ptr(new procs)
 
 /*
  * Create a register and a field that consumes it.

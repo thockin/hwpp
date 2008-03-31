@@ -59,8 +59,8 @@ cpuid_generic_device(const pp_value &cpu)
 
 	if (FIELD_GE("cpuid.0/largest_std_fn", 1)) {
 		CPUID_SCOPE("cpuid.1" , cpu, 1);
-		FIELD("family", "int_t", PROCS(new cpuid_family_procs));
-		FIELD("model", "int_t", PROCS(new cpuid_model_procs));
+		FIELD("family", "int_t", PROCS(cpuid_family_procs));
+		FIELD("model", "int_t", PROCS(cpuid_model_procs));
 		FIELD("stepping", "int_t", BITS("%eax", 3, 0));
 		//FIXME: more
 		CLOSE_SCOPE();
