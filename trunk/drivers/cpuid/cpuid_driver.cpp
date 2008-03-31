@@ -5,19 +5,17 @@
 #include "cpuid_driver.h"
 #include "cpuid_binding.h"
 
-// this is called when the driver module is loaded
-extern "C" {
-pp_driver *
-create_driver()
+// this forces linkage and avoids the static initialization order fiasco
+void
+load_cpuid_driver()
 {
 	static cpuid_driver the_driver;
-	return &the_driver;
-}
 }
 
 cpuid_driver::cpuid_driver()
 {
 	system("modprobe cpuid >/dev/null 2>&1");
+	pp_register_driver(this);
 }
 
 cpuid_driver::~cpuid_driver()

@@ -9,7 +9,8 @@ TESTS_SRCS = $(TESTS:=.cpp)
 
 all: $(TESTS)
 
-$(TESTS): %: %.o ../pci.so $(TOPDIR)/libpp.a $(TOPDIR)/tests/libpptest.a
+$(TESTS): %: %.o ../pci_driver_module.o \
+		$(TOPDIR)/libpp.a $(TOPDIR)/tests/libpptest.a
 
 .PHONY: test
 test: all
