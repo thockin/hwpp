@@ -21,15 +21,15 @@
 
 //FIXME: need tests
 
-/*
- * These comprise the current context within the PP tree.
- */
+//
+// These comprise the current context within the PP tree.
+//
 static pp_context current_context;
 static std::vector<pp_context> context_stack;
 
-/*
- * This is a transaction-management helper.
- */
+//
+// This is a transaction-management helper.
+//
 class pp_saved_context_impl
 {
     private:
@@ -64,9 +64,9 @@ SET_CURRENT_CONTEXT(const pp_context &new_ctxt)
 	return old_ctxt;
 }
 
-/*
- * Resolve a path to a dirent, relative to the current scope.
- */
+//
+// Resolve a path to a dirent, relative to the current scope.
+//
 const pp_dirent *
 GET_DIRENT(const string &path)
 {
@@ -74,9 +74,9 @@ GET_DIRENT(const string &path)
 	return current_context.lookup_dirent(path);
 }
 
-/*
- * Resolve a path to a field, relative to the current scope.
- */
+//
+// Resolve a path to a field, relative to the current scope.
+//
 const pp_field *
 GET_FIELD(const string &path)
 {
@@ -84,18 +84,16 @@ GET_FIELD(const string &path)
 	return current_context.lookup_field(path);
 }
 
-/*
- * magic registers
- */
-extern pp_register *magic_zeros;
-extern pp_register *magic_ones;
-
-/*
- * Resolve a path to a register, relative to the current scope.
- */
+//
+// Resolve a path to a register, relative to the current scope.
+//
 const pp_register *
 GET_REGISTER(const string &path)
 {
+	// magic registers
+	extern pp_register *magic_zeros;
+	extern pp_register *magic_ones;
+
 	DASSERT_MSG(current_context.is_valid(), "invalid current_context");
 	if (path == "%0")
 		return magic_zeros;
@@ -104,9 +102,9 @@ GET_REGISTER(const string &path)
 	return current_context.lookup_register(path);
 }
 
-/*
- * Check whether a path resolves successfully.
- */
+//
+// Check whether a path resolves successfully.
+//
 bool
 DEFINED(const string &path)
 {
@@ -116,9 +114,9 @@ DEFINED(const string &path)
 	return current_context.dirent_defined(path);
 }
 
-/*
- * Read and write a field or register.
- */
+//
+// Read and write a field or register.
+//
 pp_value
 READ(const string &path)
 {
@@ -144,9 +142,9 @@ WRITE(const string &path, const pp_value &value)
 	    + to_string(path) + " (" + to_string(de->dirent_type()) + ")");
 }
 
-/*
- * Read and wite regbits.
- */
+//
+// Read and wite regbits.
+//
 pp_value
 READ(const pp_regbits &bits)
 {
@@ -158,10 +156,10 @@ WRITE(const pp_regbits &bits, const pp_value &value)
 	bits.write(value);
 }
 
-/*
- * Start a new platform scope.  A pltform scope is the top-level scope in the
- * hierarchy.
- */
+//
+// Start a new platform scope.  A platform scope is the top-level scope in
+// the hierarchy.
+//
 pp_scope *
 NEW_PLATFORM()
 {
@@ -181,9 +179,9 @@ NEW_PLATFORM()
 	return current_context.scope();
 }
 
-/*
- * Start a new scope.
- */
+//
+// Start a new scope.
+//
 void
 OPEN_SCOPE(const string &name, const pp_binding_ptr &binding)
 {
@@ -208,9 +206,9 @@ OPEN_SCOPE(const string &name, const pp_binding_ptr &binding)
 	current_context = new_ctxt;
 }
 
-/*
- * Close the current scope.
- */
+//
+// Close the current scope.
+//
 void
 CLOSE_SCOPE()
 {
@@ -230,7 +228,6 @@ CLOSE_SCOPE()
 	current_context = old_ctxt;
 	context_stack.pop_back();
 }
-
 void
 CLOSE_SCOPE(const string &new_name)
 {
@@ -250,9 +247,9 @@ CLOSE_SCOPE(const string &new_name)
 	CLOSE_SCOPE();
 }
 
-/*
- * Define a register.
- */
+//
+// Define a register.
+//
 void
 REGN(const string &name, const pp_value &address, pp_bitwidth width)
 {
@@ -275,9 +272,9 @@ REGN(const string &name, const pp_value &address, pp_bitwidth width)
 	current_context.add_dirent(name, reg_ptr);
 }
 
-/*
- * Define a regbits from a register name and bit range.
- */
+//
+// Define a regbits from a register name and bit range.
+//
 pp_regbits
 BITS(const string &regname)
 {
@@ -297,9 +294,29 @@ BITS(const string &regname, pp_bitwidth hi_bit, pp_bitwidth lo_bit)
 	return pp_regbits(reg, hi_bit, lo_bit);
 }
 
-/*
- * Define a field as a set of register-bits.
- */
+//
+// Define a register and a field that consumes that register.
+//
+void
+REGFIELDN(const string &name, const pp_value &address, const pp_datatype *type,
+		pp_bitwidth width)
+{
+	DASSERT_MSG(!current_context.is_readonly(),
+		"current_context is read-only");
+	string regname = "%" + name;
+	REGN(regname, address, width);
+	FIELD(name, type, BITS(regname, width-1, 0));
+}
+void
+REGFIELDN(const string &name, const pp_value &address, const string &type,
+		pp_bitwidth width)
+{
+	REGFIELDN(name, address, current_context.resolve_datatype(type), width);
+}
+
+//
+// Define a field as a set of register-bits.
+//
 void
 FIELD(const string &name, const pp_datatype *type, const pp_regbits &bits)
 {
@@ -323,9 +340,9 @@ FIELD(const string &name, const string &type, const pp_regbits &bits)
 {
 	FIELD(name, current_context.resolve_datatype(type), bits);
 }
-/*
- * Define a field as a constant value.
- */
+//
+// Define a field as a constant value.
+//
 void
 FIELD(const string &name, const pp_datatype *type, const pp_value &value)
 {
@@ -339,9 +356,10 @@ FIELD(const string &name, const string &type, const pp_value &value)
 {
 	FIELD(name, current_context.resolve_datatype(type), value);
 }
-/*
- * Define a field as a set of procedures.
- */
+
+//
+// Define a field as a set of procedures.
+//
 void
 FIELD(const string &name, const pp_datatype *type,
 		const proc_field_accessor_ptr &access)
@@ -358,30 +376,9 @@ FIELD(const string &name, const string &type,
 	FIELD(name, current_context.resolve_datatype(type), access);
 }
 
-/*
- * Define a register and a field that consumes that register.
- */
-void
-REGFIELDN(const string &name, const pp_value &address, const pp_datatype *type,
-		pp_bitwidth width)
-{
-	DASSERT_MSG(!current_context.is_readonly(),
-		"current_context is read-only");
-	string regname = "%" + name;
-	REGN(regname, address, width);
-	FIELD(name, type, BITS(regname, width-1, 0));
-}
-void
-REGFIELDN(const string &name, const pp_value &address, const string &type,
-		pp_bitwidth width)
-{
-	REGFIELDN(name, address, current_context.resolve_datatype(type), width);
-}
-
-
-/*
- * Define a pp_int datatype.
- */
+//
+// Define a pp_int datatype.
+//
 pp_int *
 INT(const string &name, const string &units)
 {
@@ -400,8 +397,33 @@ INT(const string &name, const string &units)
 	return int_ptr.get();
 }
 
+//
+// Define a pp_hex datatype.
+//
+pp_hex *
+HEX(const string &name, const pp_bitwidth width, const string &units)
+{
+	DASSERT_MSG(!current_context.is_readonly(),
+		"current_context is read-only");
+	DTRACE(TRACE_TYPES, "hex: " + name);
+	// sanity
+	DASSERT_MSG(current_context.is_valid(), "invalid current_context");
+
+	pp_hex_ptr hex_ptr = new_pp_hex(width, units);
+	if (name == "") {
+		current_context.add_datatype(hex_ptr);
+	} else {
+		current_context.add_datatype(name, hex_ptr);
+	}
+	return hex_ptr.get();
+}
+
+//
+// Define a pp_bitmask datatype.
+//
 pp_bitmask *
-BITMASK_(const string &name, const string &dflt, const kvpair_list &kvlist)
+BITMASK_(const string &name, const string &dflt,
+    const pp_helper_kvpair_list &kvlist)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
@@ -423,8 +445,11 @@ BITMASK_(const string &name, const string &dflt, const kvpair_list &kvlist)
 	return bitmask_ptr.get();
 }
 
+//
+// Define a pp_enum datatype.
+//
 pp_enum *
-ENUM_(const string &name, const kvpair_list &kvlist)
+ENUM_(const string &name, const pp_helper_kvpair_list &kvlist)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
@@ -442,6 +467,9 @@ ENUM_(const string &name, const kvpair_list &kvlist)
 	return enum_ptr.get();
 }
 
+//
+// Define a pp_bool datatype.
+//
 pp_bool *
 BOOL(const string &name, const string &true_str, const string &false_str)
 {
