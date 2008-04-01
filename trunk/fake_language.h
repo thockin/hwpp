@@ -2,7 +2,6 @@
 // Copyright 2007 Google, Inc. All Rights Reserved.
 // Copyright 2008 Tim Hockin.
 //
-//FIXME: move this to fake_language.h
 #ifndef PP_UTILS_H__
 #define PP_UTILS_H__
 
@@ -12,24 +11,10 @@
 #include "pp_register.h"
 #include "pp_dirent.h"
 #include "pp_scope.h"
-#include "pp_context.h"
 #include "pp_binding.h"
 #include "drivers.h"
 
 #include <vector>
-
-//
-// Get/set the current active context.
-//
-extern pp_context
-GET_CURRENT_CONTEXT();
-
-class pp_saved_context_impl;
-typedef boost::shared_ptr<pp_saved_context_impl> pp_saved_context;
-
-extern pp_saved_context
-SET_CURRENT_CONTEXT(const pp_context &new_context);
-
 
 #include "pp_fields.h"
 

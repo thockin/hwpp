@@ -40,7 +40,6 @@ parse enum and bitmask stings (boost::regex)
 are carats allowed mid-path?  not currently
 
 make a pp_platform
-clean up utils.h - no reason as to what is inline
 make PCI capabilities be self-contained to closer emulate the final language
 
 filesystem.h:
@@ -60,3 +59,5 @@ enums with duplicate names - pcie_capability_t
 
 prep from cross-compile and hermetic builds
 do my own simple regex class?
+
+tests do not need to be built static

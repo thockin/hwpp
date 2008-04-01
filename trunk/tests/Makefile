@@ -18,7 +18,7 @@ TESTS = keyed_vector_test \
 	pp_field_test \
 	pp_scope_test \
 	pp_array_test \
-	utils_test \
+	fake_language_test \
 	magic_regs_test
 TESTS_SRCS = $(TESTS:=.cpp)
 
