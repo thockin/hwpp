@@ -1,5 +1,5 @@
 #include "pp.h"
-#include "utils.h"
+#include "fake_language.h"
 
 void
 CPUID_SCOPE(const string &name, const pp_value &cpu, const pp_value &func)

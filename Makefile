@@ -3,7 +3,8 @@ include rules.mk
 
 DRIVER_LIB = drivers/libdrivers.a
 
-SRCS = utils.cpp \
+SRCS = fake_language.cpp \
+	runtime.cpp \
 	magic_regs.cpp \
 	drivers.cpp \
 	pp_path.cpp \

@@ -7,6 +7,7 @@
 #include "pp_register.h"
 #include "pp_regbits.h"
 #include "pp_context.h"
+#include "runtime.h"
 #include <vector>
 
 /*
@@ -78,8 +79,6 @@ class proc_field_accessor
 	virtual void write(const pp_value &value) const = 0;
 };
 typedef boost::shared_ptr<const proc_field_accessor> proc_field_accessor_ptr;
-
-#include "utils.h"
 
 /*
  * pp_proc_field - a field that is a procedure.
