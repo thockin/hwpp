@@ -39,7 +39,6 @@ parse enum and bitmask stings (boost::regex)
 
 are carats allowed mid-path?  not currently
 
-make a pp_platform
 make PCI capabilities be self-contained to closer emulate the final language
 
 filesystem.h:

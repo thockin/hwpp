@@ -4,7 +4,7 @@
 #include "pp_datatypes.h"
 #include "pp_fields.h"
 #include "pp_array.h"
-#include "fake_language.h"
+#include "pp_platform.h"
 
 using namespace std;
 
@@ -70,8 +70,8 @@ dump_scope(const string &name, const pp_scope *scope)
 int
 main()
 {
-	pp_scope *platform = NEW_PLATFORM();
-	pp_do_discovery(platform);
-	dump_scope("", platform);
+	pp_platform platform;
+	platform.do_discovery();
+	dump_scope("", platform.scope());
 	return 0;
 }

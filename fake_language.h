@@ -128,13 +128,6 @@ FIELD_AND(const string &field, const pp_value &comparator)
 }
 
 //
-// Create a new platform scope and initialize it with the built-in
-// primitive types, as well as global language-defined types.
-//
-extern pp_scope *
-NEW_PLATFORM();
-
-//
 // Create a new scope.  Once you open a scope, all subsequent operations
 // (such as REGN() or FIELD()) will be relative to this new scope. Unnamed
 // scopes can be named via CLOSE_SCOPE().
