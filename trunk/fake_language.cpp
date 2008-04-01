@@ -12,7 +12,6 @@
 #include "pp_register.h"
 #include "pp_scope.h"
 #include "pp_datatypes.h"
-#include "device_init.h"
 
 #include <stdexcept>
 
@@ -108,29 +107,6 @@ void
 WRITE(const pp_regbits &bits, const pp_value &value)
 {
 	bits.write(value);
-}
-
-//
-// Start a new platform scope.  A platform scope is the top-level scope in
-// the hierarchy.
-//
-pp_scope *
-NEW_PLATFORM()
-{
-	// platform is the top level, cur_scope must not exist
-	DASSERT_MSG(!current_context.is_valid(),
-		"current_context is already valid");
-	DASSERT_MSG(context_stack.empty(), "context_stack must be empty");
-
-	OPEN_SCOPE("");
-	platform_global_init(current_context.scope());
-
-	// FIXME: take these out when we have a real language
-	pci_datatypes_init();
-	cpuid_datatypes_init();
-
-	DASSERT_MSG(current_context.is_valid(), "invalid current_context");
-	return current_context.scope();
 }
 
 //
