@@ -48,8 +48,6 @@ filesystem.h:
 		- needs direntry comparison
 	fs::realpath()
 
-fix 'make clean' rules to include OBJS
-
 BUG: some MSIX access kill the system in !msi_enabled.  Figure out why and
 what the right heuristic is.
 
