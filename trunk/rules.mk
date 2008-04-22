@@ -21,7 +21,7 @@ PP_LDFLAGS = $(ARCHFLAGS)
 PP_WARNS = -Wall -Werror -Woverloaded-virtual $(WARNS)
 PP_DEFS = -DPP_VERSION="\"$(PP_VERSION)\"" $(DEFS)
 PP_INCLUDES = -I$(TOPDIR) $(INCLUDES)
-PP_LDLIBS = -ldl -lgmpxx -lgmp $(LIBS)
+PP_LDLIBS = -lgmpxx -lgmp $(LIBS)
 
 ifeq ($(strip $(STATIC)),1)
 PP_STATIC = -static
