@@ -8,8 +8,7 @@
 class pp_scope;
 
 extern void
-platform_global_init(pp_scope *platform);
-
+platform_global_init();
 extern void
 pci_datatypes_init();
 extern void
