@@ -1,7 +1,8 @@
 #include "pp.h"
-#include <stdlib.h>
+#include "drivers.h"
+#include "pp_driver.h"
 
-typedef void (*driver_init_func)();
+typedef pp_driver *(*driver_init_func)();
 
 DRIVER_INIT_PROTOS
 
@@ -17,6 +18,7 @@ pp_load_all_drivers()
 {
 	DTRACE(TRACE_DRIVER_UTILS, "loading all drivers");
 	for (int i=0; driver_init_functions[i] != NULL; i++) {
-		driver_init_functions[i]();
+		pp_driver *driver = driver_init_functions[i]();
+		pp_register_driver(driver);
 	}
 }

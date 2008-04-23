@@ -1,19 +1,18 @@
 #include "pp.h"
-#include "drivers.h"
 #include "pp_datatypes.h"
 #include "mem_driver.h"
 #include "mem_binding.h"
 
 // this forces linkage and avoids the static initialization order fiasco
-void
+pp_driver *
 load_mem_driver()
 {
 	static mem_driver the_driver;
+	return &the_driver;
 }
 
 mem_driver::mem_driver()
 {
-	pp_register_driver(this);
 }
 
 mem_driver::~mem_driver()
