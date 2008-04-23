@@ -21,9 +21,6 @@ class pp_context
 	bool m_readonly;
 
     public:
-	pp_context(): m_readonly(false)
-	{
-	}
 	pp_context(const string &n, const pp_scope_ptr &s)
 	    : m_name(n), m_scope(s), m_readonly(false)
 	{
@@ -46,7 +43,7 @@ class pp_context
 	void
 	rename(const string &name)
 	{
-		if (is_valid() && !is_readonly()) {
+		if (!is_readonly()) {
 			m_name = name;
 		}
 	}
@@ -68,11 +65,6 @@ class pp_context
 	scope() const
 	{
 		return m_scope.get();
-	}
-	bool
-	is_valid() const
-	{
-		return m_scope ? true : false;
 	}
 	bool
 	is_readonly() const

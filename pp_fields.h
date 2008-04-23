@@ -94,7 +94,7 @@ class pp_proc_field: public pp_field
 	pp_proc_field(const pp_datatype *datatype,
 	    const proc_field_accessor_ptr &access)
 	    : pp_field(datatype), m_access(access),
-	      m_context(GET_CURRENT_CONTEXT())
+	      m_context(pp_get_current_context())
 	{}
 	virtual ~pp_proc_field()
 	{}
@@ -118,7 +118,7 @@ class pp_proc_field: public pp_field
 	virtual pp_value
 	read() const
 	{
-		pp_saved_context old_ctxt = SET_CURRENT_CONTEXT(m_context);
+		pp_saved_context old_ctxt = pp_set_current_context(m_context);
 		return m_access->read();
 	}
 
@@ -132,7 +132,7 @@ class pp_proc_field: public pp_field
 	virtual void
 	write(const pp_value &value) const
 	{
-		pp_saved_context old_ctxt = SET_CURRENT_CONTEXT(m_context);
+		pp_saved_context old_ctxt = pp_set_current_context(m_context);
 		m_access->write(value);
 	}
 

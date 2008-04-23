@@ -8,6 +8,9 @@
 #include "pp_context.h"
 #include <vector>
 
+extern pp_scope *
+pp_init();
+
 extern pp_context current_context;
 extern std::vector<pp_context> context_stack;
 
@@ -18,9 +21,9 @@ typedef boost::shared_ptr<pp_saved_context_impl> pp_saved_context;
 // Get/set the current active context.
 //
 extern pp_context
-GET_CURRENT_CONTEXT();
+pp_get_current_context();
 
 extern pp_saved_context
-SET_CURRENT_CONTEXT(const pp_context &new_context);
+pp_set_current_context(const pp_context &new_context);
 
 #endif // PP_RUNTIME_H__

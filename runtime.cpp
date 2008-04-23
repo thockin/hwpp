@@ -5,17 +5,29 @@
 #include "pp.h"
 #include "runtime.h"
 #include "pp_context.h"
-
-#if 0
-class stack<pp_context> context_stack;
-drop is_valid() crap once pp_platform is the main entrypoint for apps
-#endif
+#include "device_init.h"
 
 //
 // These comprise the current context within the PP tree.
 //
-pp_context current_context;
+pp_context current_context("", new_pp_scope());
 std::vector<pp_context> context_stack;
+
+// Initialize the PP runtime.
+pp_scope *
+pp_init()
+{
+	// platform is the top level, cur_scope must not exist
+	DASSERT_MSG(context_stack.empty(),
+			"context_stack must be empty");
+
+	// FIXME: take these out when we have a real language
+	platform_global_init();
+	pci_datatypes_init();
+	cpuid_datatypes_init();
+
+	return current_context.scope();
+}
 
 //
 // This is a transaction-management helper.
@@ -39,14 +51,14 @@ class pp_saved_context_impl
 
 // get a read-only copy of the current context
 pp_context
-GET_CURRENT_CONTEXT()
+pp_get_current_context()
 {
 	return current_context.snapshot();
 }
 
 // when this saved_context expires, the context will be restored
 pp_saved_context
-SET_CURRENT_CONTEXT(const pp_context &new_ctxt)
+pp_set_current_context(const pp_context &new_ctxt)
 {
 	DTRACE(TRACE_SCOPES, "setting scope: " + new_ctxt.name());
 	pp_saved_context old_ctxt(new pp_saved_context_impl(current_context));
