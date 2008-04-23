@@ -10,24 +10,23 @@
 int force_devices_linkage;
 
 /* call this when you init a new platform */
-//FIXME: do this automagically via a static object ctor?
 void
-platform_global_init(pp_scope *platform)
+platform_global_init()
 {
 	/* primitives */
-	platform->add_datatype("int_t", new_pp_int());
-	platform->add_datatype("hex_t", new_pp_hex());
-	platform->add_datatype("hex4_t", new_pp_hex(BITS4));
-	platform->add_datatype("hex8_t", new_pp_hex(BITS8));
-	platform->add_datatype("hex12_t", new_pp_hex(BITS12));
-	platform->add_datatype("hex16_t", new_pp_hex(BITS16));
-	platform->add_datatype("hex20_t", new_pp_hex(BITS20));
-	platform->add_datatype("hex32_t", new_pp_hex(BITS32));
-	platform->add_datatype("hex64_t", new_pp_hex(BITS64));
-	platform->add_datatype("hex128_t", new_pp_hex(BITS128));
-	platform->add_datatype("addr16_t", new_pp_hex(BITS16));
-	platform->add_datatype("addr32_t", new_pp_hex(BITS32));
-	platform->add_datatype("addr64_t", new_pp_hex(BITS64));
+	INT("int_t");
+	HEX("hex_t");
+	HEX("hex4_t", BITS4);
+	HEX("hex8_t", BITS8);
+	HEX("hex12_t", BITS12);
+	HEX("hex16_t", BITS16);
+	HEX("hex20_t", BITS20);
+	HEX("hex32_t", BITS32);
+	HEX("hex64_t", BITS64);
+	HEX("hex128_t", BITS128);
+	HEX("addr16_t", BITS16);
+	HEX("addr32_t", BITS32);
+	HEX("addr64_t", BITS64);
 
 	/* various booleans */
 	BOOL("yesno_t", "yes", "no");
