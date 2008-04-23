@@ -3,6 +3,7 @@
 
 #include "pp.h"
 #include "pp_driver.h"
+#include "runtime.h"
 
 extern void
 pp_register_driver(pp_driver *driver);
@@ -16,6 +17,13 @@ pp_register_discovery(const string &driver_name,
 		pp_driver::discovery_callback function);
 
 extern void
-pp_do_discovery(pp_scope *platform);
+pp_do_discovery(const string &driver_name,
+		pp_scope *scope = current_context.scope());
+
+inline void
+pp_do_discovery(pp_scope *scope = current_context.scope())
+{
+	pp_do_discovery("", scope);
+}
 
 #endif // PP_DRIVERS_H__
