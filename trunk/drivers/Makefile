@@ -16,8 +16,12 @@ all: $(OBJS)
 
 DRIVERS_TO_ADD=$(foreach dir,$(DRIVERS), $(wildcard $(dir)/*$(DRIVER_MOD_SFX)))
 
-DRIVER_INIT_FUNCS =$(foreach dir,$(DRIVERS), load_$(dir)_driver,)
-DRIVER_INIT_PROTOS=$(foreach dir,$(DRIVERS), extern void load_$(dir)_driver();)
+DRIVER_INIT_FUNCS = $(foreach dir,$(DRIVERS), \
+	load_$(dir)_driver, \
+)
+DRIVER_INIT_PROTOS = $(foreach dir,$(DRIVERS), \
+	extern pp_driver *load_$(dir)_driver(); \
+)
 
 lib: $(DRIVER_LIB)
 

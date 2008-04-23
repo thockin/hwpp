@@ -1,21 +1,19 @@
 #include "pp.h"
-#include "stdlib.h"
-#include "drivers.h"
 #include "pp_datatypes.h"
 #include "msr_driver.h"
 #include "msr_binding.h"
 
 // this forces linkage and avoids the static initialization order fiasco
-void
+pp_driver *
 load_msr_driver()
 {
 	static msr_driver the_driver;
+	return &the_driver;
 }
 
 msr_driver::msr_driver()
 {
 	system("modprobe msr >/dev/null 2>&1");
-	pp_register_driver(this);
 }
 
 msr_driver::~msr_driver()

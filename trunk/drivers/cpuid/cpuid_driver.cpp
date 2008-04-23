@@ -1,21 +1,19 @@
 #include "pp.h"
-#include "stdlib.h"
-#include "drivers.h"
 #include "pp_datatypes.h"
 #include "cpuid_driver.h"
 #include "cpuid_binding.h"
 
 // this forces linkage and avoids the static initialization order fiasco
-void
+pp_driver *
 load_cpuid_driver()
 {
 	static cpuid_driver the_driver;
+	return &the_driver;
 }
 
 cpuid_driver::cpuid_driver()
 {
 	system("modprobe cpuid >/dev/null 2>&1");
-	pp_register_driver(this);
 }
 
 cpuid_driver::~cpuid_driver()

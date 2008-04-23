@@ -1,19 +1,18 @@
 #include "pp.h"
-#include "drivers.h"
 #include "pp_datatypes.h"
 #include "pci_driver.h"
 #include "pci_binding.h"
 
 // this forces linkage and avoids the static initialization order fiasco
-void
+pp_driver *
 load_pci_driver()
 {
 	static pci_driver the_driver;
+	return &the_driver;
 }
 
 pci_driver::pci_driver()
 {
-	pp_register_driver(this);
 }
 
 pci_driver::~pci_driver()
