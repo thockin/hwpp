@@ -23,7 +23,6 @@
 const pp_dirent *
 GET_DIRENT(const string &path)
 {
-	DASSERT_MSG(current_context.is_valid(), "invalid current_context");
 	return current_context.lookup_dirent(path);
 }
 
@@ -33,7 +32,6 @@ GET_DIRENT(const string &path)
 const pp_field *
 GET_FIELD(const string &path)
 {
-	DASSERT_MSG(current_context.is_valid(), "invalid current_context");
 	return current_context.lookup_field(path);
 }
 
@@ -47,7 +45,6 @@ GET_REGISTER(const string &path)
 	extern pp_register *magic_zeros;
 	extern pp_register *magic_ones;
 
-	DASSERT_MSG(current_context.is_valid(), "invalid current_context");
 	if (path == "%0")
 		return magic_zeros;
 	if (path == "%1")
@@ -61,9 +58,6 @@ GET_REGISTER(const string &path)
 bool
 DEFINED(const string &path)
 {
-	if (!current_context.is_valid()) {
-		return false;
-	}
 	return current_context.dirent_defined(path);
 }
 
@@ -127,11 +121,10 @@ OPEN_SCOPE(const string &name, const pp_binding_ptr &binding)
 	pp_scope_ptr tmp_scope = new_pp_scope(binding);
 	pp_context new_ctxt(name, tmp_scope);
 
-	// if we are not opening a top-level scope, save the current scope
-	if (current_context.is_valid()) {
-		tmp_scope->set_parent(current_context.scope());
-		context_stack.push_back(current_context);
-	}
+	// save the current scope
+	tmp_scope->set_parent(current_context.scope());
+	context_stack.push_back(current_context);
+
 	// set current_context
 	current_context = new_ctxt;
 }
@@ -146,9 +139,7 @@ CLOSE_SCOPE()
 		"current_context is read-only");
 	DTRACE(TRACE_SCOPES, "end scope: " + current_context.name());
 	// there had better be a current scope and a parent scope
-	DASSERT_MSG(current_context.is_valid(), "invalid current_context");
-	DASSERT_MSG(!context_stack.empty() && context_stack.back().is_valid(),
-		"invalid parent context");
+	DASSERT_MSG(!context_stack.empty(), "invalid parent context");
 
 	// add the current scope to the parent context
 	pp_context old_ctxt = context_stack.back();
@@ -164,9 +155,7 @@ CLOSE_SCOPE(const string &new_name)
 	DASSERT_MSG(!current_context.is_readonly(),
 	    "current_context is read-only");
 	// there had better be a current scope and a parent scope
-	DASSERT_MSG(current_context.is_valid(), "invalid current_context");
-	DASSERT_MSG(!context_stack.empty() && context_stack.back().is_valid(),
-	    "invalid parent context");
+	DASSERT_MSG(!context_stack.empty(), "invalid parent context");
 
 	// note: this is not a debug-only test
 	if (DEFINED("../" + new_name)) {
@@ -315,8 +304,6 @@ INT(const string &name, const string &units)
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 	DTRACE(TRACE_TYPES, "int: " + name);
-	// sanity
-	DASSERT_MSG(current_context.is_valid(), "invalid current_context");
 
 	pp_int_ptr int_ptr = new_pp_int(units);
 	if (name == "") {
@@ -336,8 +323,6 @@ HEX(const string &name, const pp_bitwidth width, const string &units)
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 	DTRACE(TRACE_TYPES, "hex: " + name);
-	// sanity
-	DASSERT_MSG(current_context.is_valid(), "invalid current_context");
 
 	pp_hex_ptr hex_ptr = new_pp_hex(width, units);
 	if (name == "") {
@@ -358,8 +343,6 @@ BITMASK_(const string &name, const string &dflt,
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 	DTRACE(TRACE_TYPES, "bitmask: " + name);
-	// sanity
-	DASSERT_MSG(current_context.is_valid(), "invalid current_context");
 
 	pp_bitmask_ptr bitmask_ptr = new_pp_bitmask(kvlist);
 	if (dflt != "") {
@@ -384,8 +367,6 @@ ENUM_(const string &name, const pp_helper_kvpair_list &kvlist)
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 	DTRACE(TRACE_TYPES, "enum: " + name);
-	// sanity
-	DASSERT_MSG(current_context.is_valid(), "invalid current_context");
 
 	pp_enum_ptr enum_ptr = new_pp_enum(kvlist);
 	if (name == "") {
@@ -406,8 +387,6 @@ BOOL(const string &name, const string &true_str, const string &false_str)
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 	DTRACE(TRACE_TYPES, "bool: " + name);
-	// sanity
-	DASSERT_MSG(current_context.is_valid(), "invalid current_context");
 
 	pp_bool_ptr bool_ptr = new_pp_bool(true_str, false_str);
 	if (name == "") {
