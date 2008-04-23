@@ -80,9 +80,15 @@ pp_register_discovery(const string &driver_name,
 }
 
 void
-pp_do_discovery(pp_scope *scope)
+pp_do_discovery(const string &driver_name, pp_scope *scope)
 {
-	// let each driver do it's own discovery
+	// if the caller specified a driver, use just that driver
+	if (driver_name != "") {
+		const pp_driver *driver = pp_find_driver(driver_name);
+		driver->discover(scope);
+	}
+
+	// otherwise, let each driver do it's own discovery
 	driver_map::iterator driver_iter = driver_list().begin();
 	while (driver_iter != driver_list().end()) {
 		driver_iter->second->discover(scope);
