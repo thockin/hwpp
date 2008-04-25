@@ -1,45 +1,51 @@
-link against a good memory debugger
+Testing stuff:
+ - link against a good memory debugger
+ - test field lookup() methods
+ - tests do not need to be built static
 
-Fix and finish PCI subclass and progintf stuff
+Device stuff:
+ - fix and finish PCI subclass and progintf stuff
+ - make PCI capabilities be self-contained to closer emulate the final language
+ - filter_field(regbits, procs) or maybe filter_type(real_type, procs)
+ - allow anonymous registers, such as READ(BITS(REG32(0x100)))
+   maybe change everything to
+   	EXPORT("%foo", REG32(0x100))
+   or
+   	NAME("%foo", REG32(0x100))
 
-preserve/set/clear flags for registers
+Driver stuff:
+ - remove the length arg of io/mem bindings? else report PCI BAR sizes
+ - add do_error() for non-io-errors
+ - strerror() in driver read/write errors
 
-create and use namespace pp::
-test lookup() methods
-capitalize PP_foo for types?
-scope merge for anon scopes
-space::bind() method?
-pp_enum -> pp_enum_type, etc
+Code stuff:
+ - create and use namespace pp::
+ - capitalize PP_foo for types?
+ - pp_enum -> pp_enum_type, etc
+ - move more code to .cpp files
+ - use // comments for pp_scope and pp_path
 
-FIXMEs
+Build stuff:
+ - write DEFS and other stuff to a dotfile and make that a makefile dependency
+ - prep from cross-compile and hermetic builds
 
-move more code to .cpp files
+Docs stuff:
+ - write fake_language spec
+ - write overview doc
 
-remove the length arg of io/mem bindings? else report PCI BAR sizes
-
-write DEFS and other stuff to a dotfile and make that a makefile dependency
-
-write docs
-
-filter_field(regbits, procs) or maybe filter_type(real_type, procs)
-strerror() in driver read/write errors
-drivers: add do_error() for non-io-errors
-use one comment style everywhere
-
-allow anonymous registers, such as READ(BITS(REG32(0x100)))
-  - maybe change everything to
-  	EXPORT("%foo", REG32(0x100))
-  or
-  	NAME("%foo", REG32(0x100))
-
-// comments for pp_scope and pp_path
-better errors on datatypes
-parse datatype names (boost::regex)
-parse enum and bitmask stings (boost::regex)
-
-are carats allowed mid-path?  not currently
-
-make PCI capabilities be self-contained to closer emulate the final language
+Bugs and features:
+ - all FIXMEs
+ - scope merge to allow anon scopes
+ - preserve/set/clear flags for registers
+ - better errors on datatypes
+ - do my own simple regex class?
+ - validate datatype names (regex)
+ - validate enum and bitmask stings (regex)
+ - are carats allowed mid-path?  not currently
+ - some MSIX access kill the system in !msi_enabled.  Figure out why
+   and what the right heuristic is.
+ - allow enum default values if value is out-of-bounds
+ - enums with duplicate names - e.g. pcie_capability_t
 
 filesystem.h:
 	track full path name in directory and direntry
@@ -47,14 +53,3 @@ filesystem.h:
 	directory iterators
 		- needs direntry comparison
 	fs::realpath()
-
-BUG: some MSIX access kill the system in !msi_enabled.  Figure out why and
-what the right heuristic is.
-
-enum defaults
-enums with duplicate names - pcie_capability_t
-
-prep from cross-compile and hermetic builds
-do my own simple regex class?
-
-tests do not need to be built static
