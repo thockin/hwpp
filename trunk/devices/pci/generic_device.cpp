@@ -1336,6 +1336,18 @@ explore_capabilities()
 				//FIXME: not implemented yet
 			} else if (FIELD_EQ("id", "secure")) {
 				//FIXME: not implemented yet
+			} else if (FIELD_EQ("id", "sata")) {
+				//FIXME: not implemented yet, what spec??
+			} else if (FIELD_EQ("id", "af")) {
+				//FIXME: not implemented yet, ECN
+			} else if (FIELD_EQ("id", pp_value(0))) {
+				// this should not be needed, except that
+				// some hardware vendors make the
+				// capability pointer link to a
+				// capability block with id=0 and next=0.
+				// Stupid.
+			} else {
+				//FIXME: do something proper here - LOG()?
 			}
 
 			ptr = READ("next");
@@ -1659,17 +1671,17 @@ pci_generic_device()
 		REGFIELD8("subclass", 0x0a, "pci_subclass_memory");
 	} else if (FIELD_EQ("class", "bridge")) {
 		REGFIELD8("subclass", 0x0a, "pci_subclass_bridge");
-	} else if (FIELD_EQ("class", "simple_comm")) {
-		REGFIELD8("subclass", 0x0a, "pci_subclass_simple_comm");
-	} else if (FIELD_EQ("class", "base_system")) {
-		REGFIELD8("subclass", 0x0a, "pci_subclass_base_system");
-	} else if (FIELD_EQ("class", "input")) {
-		REGFIELD8("subclass", 0x0a, "pci_subclass_input");
-	} else if (FIELD_EQ("class", "docking")) {
-		REGFIELD8("subclass", 0x0a, "pci_subclass_docking");
-	} else if (FIELD_EQ("class", "processor")) {
-		REGFIELD8("subclass", 0x0a, "pci_subclass_processor");
 	//FIXME: not implemented yet
+	//} else if (FIELD_EQ("class", "simple_comm")) {
+		//REGFIELD8("subclass", 0x0a, "pci_subclass_simple_comm");
+	//} else if (FIELD_EQ("class", "base_system")) {
+		//REGFIELD8("subclass", 0x0a, "pci_subclass_base_system");
+	//} else if (FIELD_EQ("class", "input")) {
+		//REGFIELD8("subclass", 0x0a, "pci_subclass_input");
+	//} else if (FIELD_EQ("class", "docking")) {
+		//REGFIELD8("subclass", 0x0a, "pci_subclass_docking");
+	//} else if (FIELD_EQ("class", "processor")) {
+		//REGFIELD8("subclass", 0x0a, "pci_subclass_processor");
 	//} else if (FIELD_EQ("class", "serial")) {
 		//REGFIELD8("subclass", 0x0a, "pci_subclass_serial");
 	//} else if (FIELD_EQ("class", "wireless")) {

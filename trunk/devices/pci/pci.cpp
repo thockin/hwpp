@@ -118,7 +118,9 @@ pci_datatypes_init()
 			KV("agp8x", 0x0e),
 			KV("secure", 0x0f),
 			KV("pcie", 0x10),
-			KV("msix", 0x11));
+			KV("msix", 0x11),
+			KV("sata", 0x12),
+			KV("af", 0X13));
 
 	// pcie_capability_t
 	ENUM("pcie_capability_t",
