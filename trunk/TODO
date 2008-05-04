@@ -45,7 +45,10 @@ Bugs and features:
  - some MSIX access kill the system in !msi_enabled.  Figure out why
    and what the right heuristic is.
  - allow enum default values if value is out-of-bounds
- - enums with duplicate names - e.g. pcie_capability_t
+ - enums with duplicate names
+ 	- pcie_capability_t vchannel vs vc2
+	- pcie_link_speed_t 0 vs 1
+ - import the public PCI repository into a vendor enum (and device?)
 
 filesystem.h:
 	track full path name in directory and direntry

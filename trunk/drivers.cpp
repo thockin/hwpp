@@ -40,7 +40,7 @@ pp_register_driver(pp_driver *driver)
 	const string driver_name(driver->name());
 	DTRACE(TRACE_DRIVER_UTILS, "register driver " + driver_name);
 	if (driver_list().find(driver_name) != driver_list().end()) {
-		WARN("driver name collision: '"
+		PP_WARN("driver name collision: '"
 		    + driver_name + "' - skipping it");
 		return;
 	}
