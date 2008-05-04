@@ -15,8 +15,43 @@
 #include "drivers.h"
 
 #include <vector>
+#include <iostream>
 
 #include "pp_fields.h"
+
+//
+// Print a message
+//
+// this is a helper for WARN()
+struct pp_helper_formatted_arglist {
+	explicit pp_helper_formatted_arglist(const string &fmt)
+	    : arglist(fmt)
+	{
+	}
+	// This class will almost always be used as a temporary (const),
+	// but we really want to allow operator%() on the arglist.  This
+	// saves us having to take a non-const copy of this class in
+	// operator,() below.
+	mutable boost::format arglist;
+};
+template <typename Trhs>
+inline const pp_helper_formatted_arglist &
+operator,(const pp_helper_formatted_arglist &lhs, const Trhs &rhs)
+{
+	lhs.arglist % rhs;
+	return lhs;
+}
+inline void
+WARNF(const pp_helper_formatted_arglist &arg)
+{
+	std::cerr << "WARNING: " << to_string(arg.arglist) << std::endl;
+}
+// WARN() operates like printf(), but can take C++ objects (such as string
+// and pp_value).
+#define WARN(fmt, ...) WARNF((pp_helper_formatted_arglist(fmt), __VA_ARGS__))
+
+//FIXME: need LOG or PRINT?
+//FIXME: pass control to host app if it wants it
 
 //
 // Lookup dirents by name.

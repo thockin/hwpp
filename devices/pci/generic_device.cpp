@@ -733,6 +733,7 @@ pcie_capability(const pp_value &address)
 			KV("x16", 16),
 			KV("x32", 32));
 	ENUM("pcie_link_speed_t",
+			KV("GTs_25_only", 0),
 			KV("GTs_25", 1),
 			KV("GTs_50", 2));
 
@@ -1341,18 +1342,19 @@ explore_capabilities()
 			} else if (FIELD_EQ("id", "af")) {
 				//FIXME: not implemented yet, ECN
 			} else if (FIELD_EQ("id", pp_value(0))) {
-				// this should not be needed, except that
+				// This should not be needed, except that
 				// some hardware vendors make the
 				// capability pointer link to a
 				// capability block with id=0 and next=0.
-				// Stupid.
 			} else {
-				//FIXME: do something proper here - LOG()?
+				WARN("unknown PCI capability 0x%02x @ 0x%02x",
+						READ("id"), ptr);
 			}
 
 			ptr = READ("next");
 			CLOSE_SCOPE("capability."
 			    + GET_FIELD("id")->evaluate() + "[]");
+			//FIXME: need to return a valid path_element, or be sanitized
 		}
 	}
 
@@ -1399,11 +1401,20 @@ explore_capabilities()
 				//FIXME: not implemented yet
 			} else if (FIELD_EQ("id", "acs")) {
 				//FIXME: not implemented yet
+			} else if (FIELD_EQ("id", pp_value(0))) {
+				// This should not be needed, except that
+				// some hardware vendors make the
+				// capability pointer link to a
+				// capability block with id=0 and next=0.
+			} else {
+				WARN("unknown PCIE capability 0x%04x @ 0x%03x",
+						READ("id"), ptr);
 			}
 
 			ptr = READ("next");
 			CLOSE_SCOPE("ecapability."
 			    + GET_FIELD("id")->evaluate() + "[]");
+			//FIXME: need to return a valid path_element, or be sanitized
 		}
 	}
 	//FIXME: scan EHCI extended capabilities

@@ -115,7 +115,7 @@ OPEN_SCOPE(const string &name, const pp_binding_ptr &binding)
 
 	// note: this is not a debug-only test
 	if (name != "" && DEFINED(name)) {
-		WARN("dirent redefined: " + name);
+		PP_WARN("dirent redefined: " + name);
 	}
 
 	pp_scope_ptr tmp_scope = new_pp_scope(binding);
@@ -159,7 +159,7 @@ CLOSE_SCOPE(const string &new_name)
 
 	// note: this is not a debug-only test
 	if (DEFINED("../" + new_name)) {
-		WARN("dirent redefined: " + new_name);
+		PP_WARN("dirent redefined: " + new_name);
 	}
 
 	current_context.rename(new_name);
@@ -183,7 +183,7 @@ REGN(const string &name, const pp_value &address, pp_bitwidth width)
 
 	// note: this is not a debug-only test
 	if (DEFINED(name)) {
-		WARN("register redefined: " + name);
+		PP_WARN("register redefined: " + name);
 	}
 
 	pp_register_ptr reg_ptr = new_pp_register(
@@ -247,7 +247,7 @@ FIELD(const string &name, const pp_datatype *type, const pp_regbits &bits)
 
 	// note: this is not a debug-only test
 	if (DEFINED(name)) {
-		WARN("scope or field redefined: " + name);
+		PP_WARN("scope or field redefined: " + name);
 	}
 
 	// create a field and add it to the current scope
