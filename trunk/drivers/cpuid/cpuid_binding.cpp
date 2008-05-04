@@ -78,11 +78,16 @@ cpuid_io::enumerate(std::vector<cpuid_address> *addresses)
 			continue;
 
 		/* parse the file name */
+		//FIXME: use a regex here /^cpu[0-9]+/ ?  cpuidle breaks it
 		std::istringstream iss(de->name());
 		char c;
-		unsigned cpu;
+		int cpu = (unsigned)-1;
 		// name comes in as "cpuN", but all we care about is N
 		iss >> c >> c >> c >> cpu;
+		// some drivers put non-CPU files/dirs in CPU_SYSFS_DIR
+		if (cpu < 0) {
+			continue;
+		}
 
 		addresses->push_back(cpuid_address(cpu, 0));
 	}
