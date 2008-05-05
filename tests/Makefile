@@ -8,6 +8,7 @@ TESTS = keyed_vector_test \
 	filesystem_test \
 	bitbuffer_test \
 	bignum_test \
+	regex_test \
 	pp_path_test \
 	pp_dirent_test \
 	pp_binding_test \
