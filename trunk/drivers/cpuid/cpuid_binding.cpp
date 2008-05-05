@@ -9,6 +9,7 @@
 #include "cpuid_binding.h"
 #include "pp_driver.h"
 #include "filesystem.h"
+#include "simple_regex.h"
 
 #define CPUID_DEVICE_DIR	"/dev/cpu"
 #define CPUID_DEV_MAJOR		203
@@ -70,21 +71,25 @@ cpuid_io::enumerate(std::vector<cpuid_address> *addresses)
 
 	fs::direntry_ptr de;
 	while ((de = dir->read())) {
-		/* each CPU gets a dir */
+		// each CPU gets a dir
 		if (!de->is_dir())
 			continue;
-		/* each dir is named cpuN */
+		// each dir is named cpuN
 		if (de->name().substr(0,3) != "cpu")
 			continue;
 
-		/* parse the file name */
-		//FIXME: use a regex here /^cpu[0-9]+/ ?  cpuidle breaks it
+		// parse the file name
+		regex re("^cpu[0-9]+$");
+		if (!re.matches(de->name())) {
+			continue;
+		}
+
 		std::istringstream iss(de->name());
 		char c;
 		int cpu = (unsigned)-1;
 		// name comes in as "cpuN", but all we care about is N
 		iss >> c >> c >> c >> cpu;
-		// some drivers put non-CPU files/dirs in CPU_SYSFS_DIR
+		// just in case
 		if (cpu < 0) {
 			continue;
 		}
