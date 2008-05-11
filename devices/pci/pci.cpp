@@ -75,7 +75,7 @@ pci_datatypes_init()
 	ENUM("pci_subclass_display",
 			KV("vga_ctrlr", 0x00),
 			KV("xga_ctrlr", 0x01),
-			KV("3d_ctrlr", 0x02),
+			KV("three_d_ctrlr", 0x02),
 			KV("other", 0x80));
 	ENUM("pci_subclass_multimedia",
 			KV("video_dev", 0x00),
