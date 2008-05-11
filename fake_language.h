@@ -357,11 +357,9 @@ operator,(const pp_helper_kvpair_list &lhs, const pp_helper_kvpair &rhs)
 // argument list.  I wish I was less proud of this.
 //
 extern pp_bitmask *
-BITMASK_(const string &name, const string &dflt,
-		const pp_helper_kvpair_list &kvlist);
-#define BITMASK_DFLT(name, dflt, ...)	BITMASK_(name, dflt, (__VA_ARGS__))
-#define BITMASK(name, ...)		BITMASK_(name, "", (__VA_ARGS__))
-#define ANON_BITMASK(...)		BITMASK_("", "", (__VA_ARGS__))
+BITMASK_(const string &name, const pp_helper_kvpair_list &kvlist);
+#define BITMASK(name, ...)		BITMASK_(name, (__VA_ARGS__))
+#define ANON_BITMASK(...)		BITMASK_("", (__VA_ARGS__))
 
 //
 // Declare an enum datatype.
