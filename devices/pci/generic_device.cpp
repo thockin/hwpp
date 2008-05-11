@@ -815,11 +815,15 @@ pcie_capability(const pp_value &address)
 		REG16("%dev_control2", address + 0x28);
 		REG16("%dev_status2", address + 0x2a);
 
-		BITMASK_DFLT("pcie_completion_timeout_t", "us_50_ms_50",
-				KV("us_50_ms_10", 0),
-				KV("ms_10_ms_250", 1),
-				KV("ms_250_s_4", 2),
-				KV("s_4_s_64", 3));
+		ENUM("pcie_completion_timeout_t",
+				KV("us_50_ms_50", 0),
+				KV("us_50_ms_10", 1),
+				KV("ms_10_ms_250", 2),
+				KV("us_50_ms_250", 3),
+				KV("ms_10_s_4", 6),
+				KV("us_50_s_4", 7),
+				KV("ms_10_s_64", 14),
+				KV("us_50_s_64", 15));
 
 		FIELD("completion_timeout_ranges",
 				"pcie_completion_timeout_t",
