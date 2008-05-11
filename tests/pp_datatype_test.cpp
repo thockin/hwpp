@@ -19,7 +19,7 @@ test_pp_enum()
 		TEST_ERROR("pp_enum::evaluate()");
 		ret++;
 	}
-	if (e.evaluate(0) != "<!!unknown!!>") {
+	if (e.evaluate(0) != "<!0!>") {
 		TEST_ERROR("pp_enum::evaluate()");
 		ret++;
 	}
@@ -104,7 +104,7 @@ test_pp_bitmask()
 		TEST_ERROR("pp_bitmask::evaluate()");
 		ret++;
 	}
-	if (b.evaluate(1) != "<!!bit0!!>") {
+	if (b.evaluate(1) != "<!0!>") {
 		TEST_ERROR("pp_bitmask::evaluate()");
 		ret++;
 	}
