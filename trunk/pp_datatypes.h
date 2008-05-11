@@ -16,12 +16,17 @@
  */
 class pp_enum: public pp_datatype
 {
+    private:
+	keyed_vector<string, pp_value> m_values;
+	string m_unknown;
+	bool m_custom_unknown;
+
     public:
 	pp_enum()
-	    : m_default("<!!unknown!!>")
+	    : m_custom_unknown(false)
 	{}
 	pp_enum(const keyed_vector<string, pp_value> &values)
-	    : m_default("<!!unknown!!>"), m_values(values)
+	    : m_values(values), m_custom_unknown(false)
 	{}
 	virtual ~pp_enum()
 	{}
@@ -41,7 +46,10 @@ class pp_enum: public pp_datatype
 				return m_values.key_at(i);
 			}
 		}
-		return m_default;
+		if (m_custom_unknown) {
+			return m_unknown;
+		}
+		return to_string(boost::format("<!%d!>") %value);
 	}
 
 	/*
@@ -92,19 +100,16 @@ class pp_enum: public pp_datatype
 	}
 
 	/*
-	 * pp_enum::set_default(name)
+	 * pp_enum::set_unknown(name)
 	 *
 	 * Use a string for unknown enumerated values.
 	 */
 	void
-	set_default(const string &name)
+	set_unknown(const string &name)
 	{
-		m_default = name;
+		m_unknown = name;
+		m_custom_unknown = true;
 	}
-
-    private:
-	string m_default;
-	keyed_vector<string, pp_value> m_values;
 };
 typedef boost::shared_ptr<pp_enum> pp_enum_ptr;
 
@@ -125,7 +130,7 @@ class pp_bool: public pp_enum
 	{
 		add_value(true_str, 1);
 		add_value(false_str, 0);
-		set_default(true_str);
+		set_unknown(true_str);
 	}
 
 	virtual pp_value
@@ -154,6 +159,9 @@ typedef boost::shared_ptr<pp_bool> pp_bool_ptr;
  */
 class pp_bitmask: public pp_datatype
 {
+    private:
+	keyed_vector<string, pp_value> m_bits;
+
     public:
 	pp_bitmask()
 	{}
@@ -193,7 +201,7 @@ class pp_bitmask: public pp_datatype
 				if (!ret.empty()) {
 					ret += " ";
 				}
-				ret += boost::format("<!!bit%d!!>") %unknown;
+				ret += boost::format("<!%d!>") %unknown;
 			}
 			myval >>= 1;
 			unknown++;
@@ -249,9 +257,6 @@ class pp_bitmask: public pp_datatype
 					+ name + " = " + to_string(value));
 		m_bits.insert(name, value);
 	}
-
-    private:
-	keyed_vector<string, pp_value> m_bits;
 };
 typedef boost::shared_ptr<pp_bitmask> pp_bitmask_ptr;
 
