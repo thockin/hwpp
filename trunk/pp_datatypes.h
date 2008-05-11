@@ -156,10 +156,9 @@ class pp_bitmask: public pp_datatype
 {
     public:
 	pp_bitmask()
-	    : m_default("")
 	{}
 	pp_bitmask(const keyed_vector<string, pp_value> &bits)
-	    : m_default(""), m_bits(bits)
+	    : m_bits(bits)
 	{}
 	virtual ~pp_bitmask() {}
 
@@ -200,9 +199,6 @@ class pp_bitmask: public pp_datatype
 			unknown++;
 		}
 
-		if (ret == "") {
-			ret = m_default;
-		}
 		return ret;
 	}
 
@@ -254,19 +250,7 @@ class pp_bitmask: public pp_datatype
 		m_bits.insert(name, value);
 	}
 
-	/*
-	 * pp_bitmask::set_default(name)
-	 *
-	 * Use a string for unknown enumerated values.
-	 */
-	void
-	set_default(const string &name)
-	{
-		m_default = name;
-	}
-
     private:
-	string m_default;
 	keyed_vector<string, pp_value> m_bits;
 };
 typedef boost::shared_ptr<pp_bitmask> pp_bitmask_ptr;

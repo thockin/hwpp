@@ -337,17 +337,13 @@ HEX(const string &name, const pp_bitwidth width, const string &units)
 // Define a pp_bitmask datatype.
 //
 pp_bitmask *
-BITMASK_(const string &name, const string &dflt,
-    const pp_helper_kvpair_list &kvlist)
+BITMASK_(const string &name, const pp_helper_kvpair_list &kvlist)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 	DTRACE(TRACE_TYPES, "bitmask: " + name);
 
 	pp_bitmask_ptr bitmask_ptr = new_pp_bitmask(kvlist);
-	if (dflt != "") {
-		bitmask_ptr->set_default(dflt);
-	}
 
 	if (name == "") {
 		current_context.add_datatype(bitmask_ptr);
