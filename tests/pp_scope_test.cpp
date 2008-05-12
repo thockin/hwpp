@@ -161,17 +161,13 @@ test_exceptions()
 
 	// test out-of-bounds accesses
 	ret += TEST_ASSERT(scope->n_dirents() == 0, "pp_scope::n_dirents()");
-	try {
-		scope->dirent(0);
+	if (scope->dirent(0) != NULL) {
 		TEST_ERROR("pp_scope::dirent()");
 		ret ++;
-	} catch (std::out_of_range &e) {
 	}
-	try {
-		scope->dirent("foo");
+	if (scope->dirent("foo") != NULL) {
 		TEST_ERROR("pp_scope::dirent()");
 		ret ++;
-	} catch (std::out_of_range &e) {
 	}
 	try {
 		scope->dirent_name(0);
@@ -234,11 +230,9 @@ test_exceptions()
 		ret++;
 	} catch (pp_dirent::conversion_error &e) {
 	}
-	try {
-		scope->lookup_dirent("array[0]");
+	if (scope->lookup_dirent("array[0]") != NULL) {
 		TEST_ERROR("pp_scope::lookup_dirent()");
 		ret++;
-	} catch (pp_path::not_found_error &e) {
 	}
 	try {
 		scope->add_dirent("array[0]", new_pp_scope());
@@ -336,11 +330,9 @@ test_dirents()
 		    "pp_scope::lookup_field()");
 
 		// search for a field, non-existing
-		try {
-			root->lookup_field("scope0/foo");
+		if (root->lookup_field("scope0/foo") != NULL) {
 			TEST_ERROR("pp_scope::lookup_field()");
 			ret++;
-		} catch (pp_path::not_found_error &e) {
 		}
 
 		// search for a non-field, existing
@@ -385,11 +377,9 @@ test_dirents()
 		    "pp_scope::lookup_register()");
 
 		// search for a register, non-existing
-		try {
-			root->lookup_register("scope0/foo");
+		if (root->lookup_register("scope0/foo") != NULL) {
 			TEST_ERROR("pp_scope::lookup_register()");
 			ret++;
-		} catch (pp_path::not_found_error &e) {
 		}
 
 		// search for a non-register, existing
@@ -429,11 +419,9 @@ test_dirents()
 		    "pp_scope::lookup_scope()");
 
 		// search for a scope, non-existing
-		try {
-			root->lookup_scope("scope0/foo");
+		if (root->lookup_scope("scope0/foo") != NULL) {
 			TEST_ERROR("pp_scope::lookup_scope()");
 			ret++;
-		} catch (pp_path::not_found_error &e) {
 		}
 
 		// search for a non-scope, existing
@@ -459,11 +447,9 @@ test_dirents()
 		    "pp_scope::lookup_array()");
 
 		// search for a array, non-existing
-		try {
-			root->lookup_array("scope0/foo");
+		if (root->lookup_array("scope0/foo") != NULL) {
 			TEST_ERROR("pp_scope::lookup_array()");
 			ret++;
-		} catch (pp_path::not_found_error &e) {
 		}
 
 		// search for a non-array, existing
@@ -499,11 +485,9 @@ test_dirents()
 		    "pp_scope::lookup_dirent()");
 
 		// search for a dirent, non-existing
-		try {
-			root->lookup_dirent("scope0/foo");
+		if (root->lookup_dirent("scope0/foo") != NULL) {
 			TEST_ERROR("pp_scope::lookup_dirent()");
 			ret++;
-		} catch (pp_path::not_found_error &e) {
 		}
 
 		// search for an item that is not a leaf node

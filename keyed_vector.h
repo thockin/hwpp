@@ -362,6 +362,14 @@ class keyed_vector
 
 	// get the value for a key, or end() if not found - does not throw
 	iterator
+	find(size_type index)
+	{
+		if (index >= size()) {
+			return end();
+		}
+		return iter_at(index);
+	}
+	iterator
 	find(const Tkey &key)
 	{
 		Tkey_iter found = m_keys.find(key);

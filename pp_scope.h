@@ -119,8 +119,8 @@ class pp_scope: public pp_dirent
 	/*
 	 * Provide access to the dirents vector.
 	 *
-	 * Throws:
-	 * 	std::out_of_range
+	 * Returns:
+	 * 	 NULL if element not found, otherwise the desired pp_dirent.
 	 */
 	pp_dirent *
 	dirent(int index);
@@ -144,8 +144,9 @@ class pp_scope: public pp_dirent
 	 * Return a pointer to the specified dirent.
 	 * NOTE: This takes path as a copy.
 	 *
+	 * Returns:
+	 * 	NULL if path not found.
 	 * Throws:
-	 * 	pp_path::not_found_error	- path not found
 	 * 	pp_path::invalid_error		- invalid path element
 	 * 	pp_dirent::conversion_error	- path element is not a scope
 	 *
@@ -162,8 +163,9 @@ class pp_scope: public pp_dirent
 	/*
 	 * Return a pointer to the specified register.
 	 *
+	 * Returns:
+	 * 	NULL if path not found.
 	 * Throws:
-	 * 	pp_path::not_found_error	- path not found
 	 * 	pp_path::invalid_error		- invalid path element
 	 * 	pp_dirent::conversion_error	- path element is not a scope
 	 */
@@ -173,8 +175,9 @@ class pp_scope: public pp_dirent
 	/*
 	 * Return a pointer to the specified field.
 	 *
+	 * Returns:
+	 * 	NULL if path not found.
 	 * Throws:
-	 * 	pp_path::not_found_error	- path not found
 	 * 	pp_path::invalid_error		- invalid path element
 	 * 	pp_dirent::conversion_error	- path element is not a scope
 	 */
@@ -184,8 +187,9 @@ class pp_scope: public pp_dirent
 	/*
 	 * Return a pointer to the specified scope.
 	 *
+	 * Returns:
+	 * 	NULL if path not found.
 	 * Throws:
-	 * 	pp_path::not_found_error	- path not found
 	 * 	pp_path::invalid_error		- invalid path element
 	 * 	pp_dirent::conversion_error	- path element is not a scope
 	 */
@@ -195,8 +199,9 @@ class pp_scope: public pp_dirent
 	/*
 	 * Return a pointer to the specified array.
 	 *
+	 * Returns:
+	 * 	NULL if path not found.
 	 * Throws:
-	 * 	pp_path::not_found_error	- path not found
 	 * 	pp_path::invalid_error		- invalid path element
 	 * 	pp_dirent::conversion_error	- path element is not a scope
 	 */
@@ -210,6 +215,7 @@ class pp_scope: public pp_dirent
 	keyed_vector<string, pp_const_datatype_ptr> m_datatypes;
 	std::vector<pp_const_datatype_ptr> m_anon_datatypes;
 
+	// Returned desired dirent specified by path, NULL if not found.
 	const pp_dirent *
 	lookup_dirent_internal(pp_path &path) const;
 };
