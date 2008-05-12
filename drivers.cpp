@@ -86,6 +86,7 @@ pp_do_discovery(const string &driver_name, pp_scope *scope)
 	if (driver_name != "") {
 		const pp_driver *driver = pp_find_driver(driver_name);
 		driver->discover(scope);
+		return;
 	}
 
 	// otherwise, let each driver do it's own discovery
