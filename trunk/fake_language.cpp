@@ -23,7 +23,13 @@
 const pp_dirent *
 GET_DIRENT(const string &path)
 {
-	return current_context.lookup_dirent(path);
+	const pp_dirent *de = current_context.lookup_dirent(path);
+
+	if (de == NULL) {
+		throw pp_path::not_found_error(path);
+	}
+
+	return de;
 }
 
 //
@@ -32,7 +38,13 @@ GET_DIRENT(const string &path)
 const pp_field *
 GET_FIELD(const string &path)
 {
-	return current_context.lookup_field(path);
+	const pp_field *field = current_context.lookup_field(path);
+
+	if (field == NULL) {
+		throw pp_path::not_found_error(path);
+	}
+
+	return field;
 }
 
 //
@@ -49,7 +61,14 @@ GET_REGISTER(const string &path)
 		return magic_zeros;
 	if (path == "%1")
 		return magic_ones;
-	return current_context.lookup_register(path);
+
+	const pp_register *reg = current_context.lookup_register(path);
+
+	if (reg == NULL) {
+		throw pp_path::not_found_error(path);
+	}
+
+	return reg;
 }
 
 //
