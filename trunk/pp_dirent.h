@@ -3,6 +3,7 @@
 #define PP_PP_DIRENT_H__
 
 #include "pp.h"
+#include <ostream>
 
 /*
  * pp_dirent_type - the specific type of a dirent.

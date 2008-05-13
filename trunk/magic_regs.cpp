@@ -1,7 +1,6 @@
 #include "pp.h"
 #include "pp_binding.h"
 #include "pp_register.h"
-#include <iostream>
 
 /*
  * A magic binding which always reads a certain value.
