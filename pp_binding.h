@@ -4,7 +4,7 @@
 
 #include "pp.h"
 #include <stdexcept>
-#include <iostream>
+#include <ostream>
 
 /*
  * pp_binding - abstract base class for bound register spaces.

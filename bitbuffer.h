@@ -2,7 +2,7 @@
 #ifndef PP_BITBUFFER_H__
 #define PP_BITBUFFER_H__
 
-#include <iostream>
+#include <ostream>
 #include <boost/format.hpp>
 #include <boost/shared_array.hpp>
 #include <stdint.h>

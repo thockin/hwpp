@@ -3,6 +3,7 @@
 #define PP_BIGNUM_H__
 
 #include <gmpxx.h>
+#include <ostream>
 #include "bitbuffer.h"
 
 #define BITS_PER_LONG	(sizeof(long)*CHAR_BIT)

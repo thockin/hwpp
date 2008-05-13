@@ -6,6 +6,7 @@
 #include "pp.h"
 #include <list>
 #include <stdexcept>
+#include <ostream>
 #include <boost/iterator_adaptors.hpp>
 
 //
