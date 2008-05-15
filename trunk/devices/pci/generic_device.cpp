@@ -1284,7 +1284,7 @@ aer_ecapability(const pp_value &address)
 static void
 explore_capabilities()
 {
-	// PCI capabilities
+	// Walk the PCI capabilities linked-list.
 	if (FIELD_BOOL("status/caps")) {
 		REGFIELD8("capptr", 0x34, "hex8_t");
 
@@ -1362,17 +1362,17 @@ explore_capabilities()
 		}
 	}
 
-	// PCI-Express capabilities
+	// Only PCI-X and PCI-Express devices should have extended
+	// capabilities.  Those devices self identify through the
+	// existence of a traditional PCI capability block.  If we have a
+	// non-zero capability header, walk the extended capabilities
+	// linked-list.
 	// FIXME: need RCRB support
-	pp_value ecaps = READ("%PCI.100");
-	// We should really check if %PCI[100] == 0 or FFFFFFFF, but at
-	// least one major vendor has mis-interpreted the spec and set
-	// %PCI[100] to 0x10000000 (causing an infinite loop).  So instead
-	// we just look for a capability ID of 0 in %PCI[100].
-	if ((ecaps & pp_value(0xffff)) != 0 && ecaps != 0xffffffff) {
+	if ((DEFINED("^/capability.pcie") || DEFINED("^/capability.pcix"))
+	 && (READ("%PCI.100") != 0)) {
 		pp_value ptr = 0x100;
 		while (ptr != 0 && ptr != 0xfff) {
-			OPEN_SCOPE("ecapability[]");
+			OPEN_SCOPE();
 
 			FIELD("offset", "hex16_t", ptr);
 			REGFIELD16("id", ptr, "pcie_capability_t");
@@ -1393,7 +1393,8 @@ explore_capabilities()
 				//FIXME: not implemented yet
 			} else if (FIELD_EQ("id", "root_internal_link_ctrl")) {
 				//FIXME: not implemented yet
-			} else if (FIELD_EQ("id", "root_event_collector_endpoint_assoc")) {
+			} else if (FIELD_EQ("id",
+				   "root_event_collector_endpoint_assoc")) {
 				//FIXME: not implemented yet
 			} else if (FIELD_EQ("id", "multi_func_vchannel")) {
 				//FIXME: not implemented yet
