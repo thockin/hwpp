@@ -194,28 +194,28 @@ CLOSE_SCOPE();
 extern void
 CLOSE_SCOPE(const string &new_name);
 
-// These are helpers for BIND()
-struct pp_helper_driver_arg {
-	pp_helper_driver_arg(const pp_value &val): m_val(val) {}
+// These are helpers for ARGS()
+struct pp_helper_arg {
+	pp_helper_arg(const pp_value &val): m_val(val) {}
 	pp_value m_val;
 };
-typedef std::vector<pp_value> pp_helper_driver_arg_list;
-inline pp_helper_driver_arg_list
-operator,(const pp_helper_driver_arg &lhs, const pp_value &rhs)
+typedef std::vector<pp_value> pp_helper_arg_list;
+inline pp_helper_arg_list
+operator,(const pp_helper_arg &lhs, const pp_value &rhs)
 {
-	pp_helper_driver_arg_list tmp;
+	pp_helper_arg_list tmp;
 	tmp.push_back(lhs.m_val);
 	tmp.push_back(rhs);
 	return tmp;
 }
-inline pp_helper_driver_arg_list
-operator,(const pp_helper_driver_arg_list &lhs, const pp_value &rhs)
+inline pp_helper_arg_list
+operator,(pp_helper_arg_list lhs, const pp_value &rhs)
 {
-	pp_helper_driver_arg_list tmp(lhs);
-	tmp.push_back(rhs);
-	return tmp;
+	lhs.push_back(rhs);
+	return lhs;
 }
-#define ARGS(...) ((pp_helper_driver_arg)__VA_ARGS__)
+#define ARGS(...) ((pp_helper_arg)__VA_ARGS__)
+
 //
 // Create a new binding.
 //
@@ -223,14 +223,14 @@ operator,(const pp_helper_driver_arg_list &lhs, const pp_value &rhs)
 // 	BIND("mem", ARGS(1, 2, 3, 4));
 //
 inline pp_binding_ptr
-BIND(const string &driver, const pp_helper_driver_arg_list &args)
+BIND(const string &driver, const pp_helper_arg_list &args)
 {
 	return pp_find_driver(driver)->new_binding(args);
 }
 inline pp_binding_ptr
-BIND(const string &driver, const pp_helper_driver_arg &arg)
+BIND(const string &driver, const pp_helper_arg &arg)
 {
-	pp_helper_driver_arg_list al;
+	pp_helper_arg_list al;
 	al.push_back(arg.m_val);
 	return BIND(driver, al);
 }

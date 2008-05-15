@@ -14,7 +14,7 @@ pp_find_driver(const string &name);
 extern void
 pp_register_discovery(const string &driver_name,
 		const std::vector<pp_value> &args,
-		pp_driver::discovery_callback function);
+		pp_driver::discovery_callback function = NULL);
 
 extern void
 pp_do_discovery(const string &driver_name,

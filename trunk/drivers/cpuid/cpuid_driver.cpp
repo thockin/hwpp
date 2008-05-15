@@ -60,6 +60,11 @@ cpuid_driver::discover(pp_scope *platform) const
 	for (it = addresses.begin(); it != addresses.end(); it++) {
 		/* check if anyone registered for this device */
 		const discovery_request *dr = find_discovery_request(*it);
+		if (dr && dr->function == NULL) {
+			continue;
+		}
+
+		/* call the callback */
 		std::vector<pp_value> args;
 		args.push_back(it->cpu);
 		args.push_back(it->function);
