@@ -89,6 +89,8 @@ class pp_driver
 	// Register a discovery_callback which will be called when the
 	// driver's discover() routine finds a device that matches args.
 	// The contents af the args vector depends on the specific driver.
+	// If the callback_function is NULL, the driver should ignore any
+	// devices that match args.
 	//
 	virtual void
 	register_discovery(const std::vector<pp_value> &args,
