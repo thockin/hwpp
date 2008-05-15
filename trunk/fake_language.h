@@ -16,6 +16,7 @@
 
 #include <vector>
 #include <iostream>
+#include <unistd.h>
 
 #include "pp_fields.h"
 
@@ -52,6 +53,15 @@ WARNF(const pp_helper_formatted_arglist &arg)
 
 //FIXME: need LOG or PRINT?
 //FIXME: pass control to host app if it wants it
+
+//
+// Pause
+//
+inline void
+MSLEEP(int msecs)
+{
+	usleep(msecs * 1000);
+}
 
 //
 // Lookup dirents by name.
