@@ -125,11 +125,20 @@ pci_driver::find_discovery_request(const pci_address &addr) const
 	uint16_t vid = dev.read(0, BITS16).get_uint();
 	uint16_t did = dev.read(2, BITS16).get_uint();
 
+	DTRACE(TRACE_DISCOVERY, "discovery: pci "
+			+ to_string(boost::format("0x%04x 0x%04x") %vid %did));
+
 	for (size_t i = 0; i < m_callbacks.size(); i++) {
 		if (m_callbacks[i].vendor == vid
 		 && m_callbacks[i].device == did) {
+			DTRACE(TRACE_DISCOVERY,
+					"discovery: pci found match for "
+					+ to_string(addr));
 			return &m_callbacks[i];
 		}
 	}
+
+	DTRACE(TRACE_DISCOVERY, "discovery: pci no match for "
+			+ to_string(addr));
 	return NULL;
 }
