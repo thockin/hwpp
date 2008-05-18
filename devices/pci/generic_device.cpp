@@ -1,7 +1,16 @@
 #include "pp.h"
+#include "generic_device.h"
 #include "fake_language.h"
 
 //FIXME unify cap, sts, en, dis, msk, svr names everywhere.  Look at aer
+
+void
+PCI_SCOPE(const string &name, const pp_value &seg, const pp_value &bus,
+		const pp_value &dev, const pp_value &func)
+{
+	OPEN_SCOPE(name, BIND("pci", ARGS(seg, bus, dev, func)));
+	pci_generic_device();
+}
 
 // All standard BARs look like this.
 static void
