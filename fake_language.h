@@ -171,6 +171,21 @@ FIELD_AND(const string &field, const pp_value &comparator)
 {
 	return GET_FIELD(field)->test(comparator);
 }
+inline pp_value
+FIELD_AND(const string &field, const string &comparator)
+{
+	return GET_FIELD(field)->test(comparator);
+}
+inline bool
+FIELD_TEST(const string &field, const pp_value &comparator)
+{
+	return (FIELD_AND(field, comparator) != 0);
+}
+inline bool
+FIELD_TEST(const string &field, const string &comparator)
+{
+	return (FIELD_AND(field, comparator) != 0);
+}
 
 //
 // Create a new scope.  Once you open a scope, all subsequent operations
