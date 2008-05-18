@@ -11,8 +11,8 @@
 void
 cpuid_datatypes_init()
 {
-	/* cpu_vendor_t */
-	ENUM("cpu_vendor_t",
+	/* cpuid_vendor_t */
+	ENUM("cpuid_vendor_t",
 		KV("intel",     pp_value("0x6c65746e49656e69756e6547")),
 		KV("amd",       pp_value("0x444d416369746e6568747541")),
 		KV("umc",       pp_value("0x20434d5520434d5520434d55")),
@@ -23,6 +23,34 @@ cpuid_datatypes_init()
 		KV("sis",       pp_value("0x205369532053695320536953")),
 		KV("transmeta", pp_value("0x3638784d54656e69756e6547")),
 		KV("nsc",       pp_value("0x43534e2079622065646f6547")));
+
+	/* cpuid_features_t */
+	BITMASK("cpuid_features_t",
+		KV("fpu", 0),
+		KV("vme", 1),
+		KV("de", 2),
+		KV("pse", 3),
+		KV("tse", 4),
+		KV("msr", 5),
+		KV("pae", 6),
+		KV("mce", 7),
+		KV("cmpxchg8b", 8),
+		KV("apic", 9),
+		KV("sysenter", 11),
+		KV("mtrr", 12),
+		KV("pge", 13),
+		KV("mca", 14),
+		KV("cmov", 15),
+		KV("pat", 16),
+		KV("pse36", 17),
+		KV("clflsh", 19),
+		KV("mmx", 23),
+		KV("fxsr", 24),
+		KV("sse", 25),
+		KV("sse2", 26),
+		KV("htt", 28),
+		KV("sse3", 32+0),
+		KV("cmpxchg16b", 32+13));
 }
 
 static void
