@@ -1,4 +1,5 @@
 #include "pp.h"
+#include "generic_device.h"
 #include "fake_language.h"
 
 void
@@ -51,7 +52,7 @@ cpuid_generic_device(const pp_value &cpu)
 {
 	CPUID_SCOPE("cpuid.0", cpu, 0);
 	FIELD("largest_std_fn", "hex_t", BITS("%eax", 31, 0));
-	FIELD("vendor", "cpu_vendor_t",
+	FIELD("vendor", "cpuid_vendor_t",
 			BITS("%ecx", 31, 0) +
 			BITS("%edx", 31, 0) +
 			BITS("%ebx", 31, 0));
@@ -62,11 +63,25 @@ cpuid_generic_device(const pp_value &cpu)
 		FIELD("family", "int_t", PROCS(cpuid_family_procs));
 		FIELD("model", "int_t", PROCS(cpuid_model_procs));
 		FIELD("stepping", "int_t", BITS("%eax", 3, 0));
-		//FIXME: more
+
+		FIELD("std_features", "cpuid_features_t",
+				BITS("%ecx", 31, 0) + BITS("%edx", 31, 0));
+
+		FIELD("brand_id_8bit", "int_t", BITS("%ebx", 7, 0));
+		FIELD("clflush_size", ANON_INT("QWORDs"), BITS("%ebx", 15, 8));
+		if (FIELD_TEST("std_features", "htt")) {
+			FIELD("logical_proc_count", "int_t",
+					BITS("%ebx", 23, 16));
+		} else {
+			FIELD("logical_proc_count", "int_t", 1);
+		}
+		FIELD("init_lapic_id", "int_t", BITS("%ebx", 31, 24));
 		CLOSE_SCOPE();
 	}
 
-	#if 0 //FIXME: need something like this?
+	//FIXME: more std functions
+
+	#if 0 //FIXME: need something like this for other standard fns?
 	for (int i = 0; i < 4096; i += 4) {
 		REG32(to_string(boost::format("%%PCI.%04x") %i), i);
 	}
