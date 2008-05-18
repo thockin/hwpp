@@ -125,12 +125,20 @@ cpuid_driver::find_discovery_request(const cpuid_address &addr) const
 
 	//FIXME: This might have to be different per vendor.  This is AMD.
 	dev = cpuid_io(cpuid_address(addr.cpu, 1));
-	pp_value tmp = dev.read(1, BITS32);
-	family = ((tmp & pp_value(0xf00)) >> 8)
-	    + ((tmp & pp_value(0xff00000)) >> 20);
-	model = ((tmp & pp_value(0xf0000)) >> 12)
-	    | ((tmp & pp_value(0xf0)) >> 4);
+	pp_value tmp = dev.read(0, BITS32);
+	family = (tmp & pp_value(0xf00)) >> 8;
+	model = (tmp & pp_value(0xf0000)) >> 12;
+	if (family == 0xf) {
+		family += (tmp & pp_value(0xff00000)) >> 20;
+		model |= (tmp & pp_value(0xf0)) >> 4;
+	}
 	stepping = tmp & pp_value(0xf);
+
+	DTRACE(TRACE_DISCOVERY, "discovery: cpuid "
+			+ to_string(boost::format("0x%x") %vendor)
+			+ " " + to_string(family)
+			+ " " + to_string(model)
+			+ " " + to_string(stepping));
 
 	for (size_t i = 0; i < m_callbacks.size(); i++) {
 		if ((vendor == m_callbacks[i].vendor)
@@ -140,9 +148,14 @@ cpuid_driver::find_discovery_request(const cpuid_address &addr) const
 		  && model <= m_callbacks[i].model_max)
 		 && (stepping >= m_callbacks[i].stepping_min
 		  && stepping <= m_callbacks[i].stepping_max)) {
+			DTRACE(TRACE_DISCOVERY,
+					"discovery: cpuid found match for "
+					+ to_string(addr));
 			return &m_callbacks[i];
 		}
 	}
 
+	DTRACE(TRACE_DISCOVERY, "discovery: cpuid no match for "
+			+ to_string(addr));
 	return NULL;
 }

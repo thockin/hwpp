@@ -86,6 +86,10 @@
 #ifndef TRACE_DRIVER_UTILS
 #  define TRACE_DRIVER_UTILS 0
 #endif
+// trace driver utils?
+#ifndef TRACE_DISCOVERY
+#  define TRACE_DISCOVERY 0
+#endif
 
 #else // !DEBUG
 
