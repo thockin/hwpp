@@ -120,7 +120,8 @@ ht_link_freq_err(const pp_value &address)
 			KV("mhz2000", 11),
 			KV("mhz2200", 12),
 			KV("mhz2400", 13),
-			KV("mhz2600", 14));
+			KV("mhz2600", 14),
+			KV("mhz100", 15));
 
 	REG8("%freq_err", address);
 	FIELD("Freq", "ht_link_freq_t", BITS("%freq_err", 3, 0));
@@ -259,6 +260,7 @@ ht_host_capability(const pp_value &address)
 	FIELD("major_rev", "int_t", BITS("%rev", 7, 5));
 	FIELD("minor_rev", "int_t", BITS("%rev", 4, 0));
 
+	//FIXME: some of these only apply to ht3, if you want to be strict
 	REG16("%feature", address + 0x0c);
 	OPEN_SCOPE("feature");
 	FIELD("iso_flow_ctrl", "yesno_t", BITS("../%feature", 0));
