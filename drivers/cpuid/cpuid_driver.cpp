@@ -127,10 +127,10 @@ cpuid_driver::find_discovery_request(const cpuid_address &addr) const
 	dev = cpuid_io(cpuid_address(addr.cpu, 1));
 	pp_value tmp = dev.read(0, BITS32);
 	family = (tmp & pp_value(0xf00)) >> 8;
-	model = (tmp & pp_value(0xf0000)) >> 12;
+	model = (tmp & pp_value(0xf0)) >> 4;
 	if (family == 0xf) {
 		family += (tmp & pp_value(0xff00000)) >> 20;
-		model |= (tmp & pp_value(0xf0)) >> 4;
+		model |= (tmp & pp_value(0xf0000)) >> 12;
 	}
 	stepping = tmp & pp_value(0xf);
 
