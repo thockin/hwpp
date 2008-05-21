@@ -50,6 +50,7 @@ Bugs and features:
 	- pcie_link_speed_t 0 vs 1
  - import the public PCI repository into a vendor enum (and device?)
  - pp_scope::resolve_datatype() should throw, rather than return NULL;
+ - throw parse errors on field and register and scope names
 
 filesystem.h:
 	track full path name in directory and direntry
