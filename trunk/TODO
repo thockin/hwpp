@@ -12,6 +12,9 @@ Device stuff:
    	EXPORT("%foo", REG32(0x100))
    or
    	NAME("%foo", REG32(0x100))
+ - figure out how to do common MSRs (like MTRR)
+ - is there a well-known CPU place or does Opteron have to take that
+   over, too?
 
 Driver stuff:
  - remove the length arg of io/mem bindings? else report PCI BAR sizes
@@ -38,9 +41,6 @@ Bugs and features:
  - scope merge to allow anon scopes
  - preserve/set/clear flags for registers
  - better errors on datatypes
- - do my own simple regex class?
- - validate datatype names (regex)
- - validate enum and bitmask stings (regex)
  - are carats allowed mid-path?  not currently
  - some MSIX access kill the system in !msi_enabled.  Figure out why
    and what the right heuristic is.

@@ -4,6 +4,7 @@
 
 #include "pp.h"
 #include "fake_language.h"
+#include "language.h"
 #include "runtime.h"
 #include "pp_field.h"
 #include "pp_fields.h"
@@ -318,97 +319,122 @@ FIELD(const string &name, const string &type,
 // Define a pp_int datatype.
 //
 pp_int *
-INT(const string &name, const string &units)
+DEF_INT(const string &name, const string &units, const parse_location &loc)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 	DTRACE(TRACE_TYPES, "int: " + name);
 
-	pp_int_ptr int_ptr = new_pp_int(units);
-	if (name == "") {
-		current_context.add_datatype(int_ptr);
-	} else {
-		current_context.add_datatype(name, int_ptr);
+	try {
+		pp_int_ptr int_ptr = new_pp_int(units);
+		if (name == "") {
+			current_context.add_datatype(int_ptr);
+		} else {
+			current_context.add_datatype(name, int_ptr);
+		}
+		return int_ptr.get();
+	} catch (pp_parse_error &e) {
+		e.set_location(loc);
+		throw e;
 	}
-	return int_ptr.get();
 }
 
 //
 // Define a pp_hex datatype.
 //
 pp_hex *
-HEX(const string &name, const pp_bitwidth width, const string &units)
+DEF_HEX(const string &name, const pp_bitwidth width, const string &units,
+		const parse_location &loc)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 	DTRACE(TRACE_TYPES, "hex: " + name);
 
-	pp_hex_ptr hex_ptr = new_pp_hex(width, units);
-	if (name == "") {
-		current_context.add_datatype(hex_ptr);
-	} else {
-		current_context.add_datatype(name, hex_ptr);
+	try {
+		pp_hex_ptr hex_ptr = new_pp_hex(width, units);
+		if (name == "") {
+			current_context.add_datatype(hex_ptr);
+		} else {
+			current_context.add_datatype(name, hex_ptr);
+		}
+		return hex_ptr.get();
+	} catch (pp_parse_error &e) {
+		e.set_location(loc);
+		throw e;
 	}
-	return hex_ptr.get();
 }
 
 //
 // Define a pp_bitmask datatype.
 //
 pp_bitmask *
-BITMASK_(const string &name, const pp_helper_kvpair_list &kvlist)
+DEF_BITMASK(const string &name, const pp_helper_kvpair_list &kvlist,
+		const parse_location &loc)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 	DTRACE(TRACE_TYPES, "bitmask: " + name);
 
-	pp_bitmask_ptr bitmask_ptr = new_pp_bitmask(kvlist);
-
-	if (name == "") {
-		current_context.add_datatype(bitmask_ptr);
-	} else {
-		current_context.add_datatype(name, bitmask_ptr);
+	try {
+		pp_bitmask_ptr bitmask_ptr = new_pp_bitmask(kvlist);
+		if (name == "") {
+			current_context.add_datatype(bitmask_ptr);
+		} else {
+			current_context.add_datatype(name, bitmask_ptr);
+		}
+		return bitmask_ptr.get();
+	} catch (pp_parse_error &e) {
+		e.set_location(loc);
+		throw e;
 	}
-
-	return bitmask_ptr.get();
 }
 
 //
 // Define a pp_enum datatype.
 //
 pp_enum *
-ENUM_(const string &name, const pp_helper_kvpair_list &kvlist)
+DEF_ENUM(const string &name, const pp_helper_kvpair_list &kvlist,
+		const parse_location &loc)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 	DTRACE(TRACE_TYPES, "enum: " + name);
 
-	pp_enum_ptr enum_ptr = new_pp_enum(kvlist);
-	if (name == "") {
-		current_context.add_datatype(enum_ptr);
-	} else {
-		current_context.add_datatype(name, enum_ptr);
+	try {
+		pp_enum_ptr enum_ptr = new_pp_enum(kvlist);
+		if (name == "") {
+			current_context.add_datatype(enum_ptr);
+		} else {
+			current_context.add_datatype(name, enum_ptr);
+		}
+		return enum_ptr.get();
+	} catch (pp_parse_error &e) {
+		e.set_location(loc);
+		throw e;
 	}
-
-	return enum_ptr.get();
 }
 
 //
 // Define a pp_bool datatype.
 //
 pp_bool *
-BOOL(const string &name, const string &true_str, const string &false_str)
+DEF_BOOL(const string &name, const string &true_str, const string &false_str,
+		const parse_location &loc)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 	DTRACE(TRACE_TYPES, "bool: " + name);
 
-	pp_bool_ptr bool_ptr = new_pp_bool(true_str, false_str);
-	if (name == "") {
-		current_context.add_datatype(bool_ptr);
-	} else {
-		current_context.add_datatype(name, bool_ptr);
+	try {
+		pp_bool_ptr bool_ptr = new_pp_bool(true_str, false_str);
+		if (name == "") {
+			current_context.add_datatype(bool_ptr);
+		} else {
+			current_context.add_datatype(name, bool_ptr);
+		}
+		return bool_ptr.get();
+	} catch (pp_parse_error &e) {
+		e.set_location(loc);
+		throw e;
 	}
-
-	return bool_ptr.get();
 }
