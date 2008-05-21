@@ -303,8 +303,8 @@ class pp_bitmask: public pp_datatype
 	void
 	validate_keys()
 	{
-		for (size_t i = 0; i < m_values.size(); i++) {
-			validate_key(m_values.key_at(i));
+		for (size_t i = 0; i < m_bits.size(); i++) {
+			validate_key(m_bits.key_at(i));
 		}
 	}
 };
