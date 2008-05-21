@@ -5,6 +5,7 @@ DRIVER_LIB = drivers/libdrivers.a
 
 SRCS = fake_language.cpp \
 	runtime.cpp \
+	language.cpp \
 	magic_regs.cpp \
 	drivers.cpp \
 	pp_path.cpp \

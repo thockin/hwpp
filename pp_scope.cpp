@@ -10,6 +10,7 @@
 #include "pp_register.h"
 #include "pp_field.h"
 #include "pp_array.h"
+#include "language.h"
 
 /*
  * Get a pointer to the parent scope of this object.  If this
@@ -72,6 +73,9 @@ pp_scope::is_bound() const
 void
 pp_scope::add_datatype(const string &name, const pp_datatype_ptr &datatype)
 {
+	if (!lang_valid_datatype_name(name)) {
+		throw pp_parse_error("invalid datatype name: " + name);
+	}
 	m_datatypes.insert(name, datatype);
 }
 void

@@ -6,6 +6,7 @@
 #define PP_UTILS_H__
 
 #include "pp.h"
+#include "language.h"
 #include "pp_path.h"
 #include "pp_field.h"
 #include "pp_register.h"
@@ -325,23 +326,69 @@ FIELD(const string &name, const string &type,
 // Declare an integer datatype.
 //
 extern pp_int *
-INT(const string &name, const string &units="");
+DEF_INT(const string &name, const string &units, const parse_location &loc);
 inline pp_int *
-ANON_INT(const string &units="")
+DEF_INT(const string &name, const parse_location &loc)
 {
-	return INT("", units);
+	return DEF_INT(name, "", loc);
 }
+inline pp_int *
+DEF_ANON_INT(const string &units, const parse_location &loc)
+{
+	return DEF_INT("", units, loc);
+}
+inline pp_int *
+DEF_ANON_INT(const parse_location &loc)
+{
+	return DEF_INT("", "", loc);
+}
+#define INT(...)	DEF_INT(__VA_ARGS__, THIS_LOCATION)
+#define ANON_INT(...)	DEF_ANON_INT(__VA_ARGS__, THIS_LOCATION)
 
 //
-// Declare an hex datatype.
+// Declare a hex datatype.
 //
 extern pp_hex *
-HEX(const string &name, const pp_bitwidth width=BITS0, const string &units="");
+DEF_HEX(const string &name, const pp_bitwidth width, const string &units,
+		const parse_location &loc);
 inline pp_hex *
-ANON_HEX(const pp_bitwidth width=BITS0, const string &units="")
+DEF_HEX(const string &name, const pp_bitwidth width, const parse_location &loc)
 {
-	return HEX("", width, units);
+	return DEF_HEX(name, width, "", loc);
 }
+inline pp_hex *
+DEF_HEX(const string &name, const string &units, const parse_location &loc)
+{
+	return DEF_HEX(name, BITS0, units, loc);
+}
+inline pp_hex *
+DEF_HEX(const string &name, const parse_location &loc)
+{
+	return DEF_HEX(name, BITS0, "", loc);
+}
+inline pp_hex *
+DEF_ANON_HEX(const pp_bitwidth width, const string &units,
+		const parse_location &loc)
+{
+	return DEF_HEX("", width, units, loc);
+}
+inline pp_hex *
+DEF_ANON_HEX(const pp_bitwidth width, const parse_location &loc)
+{
+	return DEF_HEX("", width, "", loc);
+}
+inline pp_hex *
+DEF_ANON_HEX(const string &units, const parse_location &loc)
+{
+	return DEF_HEX("", BITS0, units, loc);
+}
+inline pp_hex *
+DEF_ANON_HEX(const parse_location &loc)
+{
+	return DEF_HEX("", BITS0, "", loc);
+}
+#define HEX(...)	DEF_HEX(__VA_ARGS__, THIS_LOCATION)
+#define ANON_HEX(...)	DEF_ANON_HEX(__VA_ARGS__, THIS_LOCATION)
 
 // These are helpers for type safety in pp_enum and pp_bitmask.
 struct pp_helper_kvpair
@@ -382,9 +429,10 @@ operator,(const pp_helper_kvpair_list &lhs, const pp_helper_kvpair &rhs)
 // argument list.  I wish I was less proud of this.
 //
 extern pp_bitmask *
-BITMASK_(const string &name, const pp_helper_kvpair_list &kvlist);
-#define BITMASK(name, ...)		BITMASK_(name, (__VA_ARGS__))
-#define ANON_BITMASK(...)		BITMASK_("", (__VA_ARGS__))
+DEF_BITMASK(const string &name, const pp_helper_kvpair_list &kvlist,
+		const parse_location &loc);
+#define BITMASK(name, ...)	DEF_BITMASK(name, (__VA_ARGS__), THIS_LOCATION)
+#define ANON_BITMASK(...)	DEF_BITMASK("", (__VA_ARGS__), THIS_LOCATION)
 
 //
 // Declare an enum datatype.
@@ -395,15 +443,20 @@ BITMASK_(const string &name, const pp_helper_kvpair_list &kvlist);
 // See the NOTE for BITMASK, above.
 //
 extern pp_enum *
-ENUM_(const string &name, const pp_helper_kvpair_list &kvlist);
-#define ENUM(name, ...)			ENUM_(name, (__VA_ARGS__))
-#define ANON_ENUM(...)			ENUM_("", (__VA_ARGS__))
+DEF_ENUM(const string &name, const pp_helper_kvpair_list &kvlist,
+		const parse_location &loc);
+#define ENUM(name, ...)		DEF_ENUM(name, (__VA_ARGS__), THIS_LOCATION)
+#define ANON_ENUM(...)		DEF_ENUM("", (__VA_ARGS__), THIS_LOCATION)
 
 //
 // Declare a boolean datatype.
 //
 extern pp_bool *
-BOOL(const string &name, const string &true_str, const string &false_str);
-#define ANON_BOOL(true_str, false_str) BOOL("", true_str, false_str)
+DEF_BOOL(const string &name, const string &true_str, const string &false_str,
+		const parse_location &loc);
+#define BOOL(name, true_, false_) \
+				DEF_BOOL(name, true_, false_, THIS_LOCATION)
+#define ANON_BOOL(true_, false_) \
+				DEF_BOOL("", true_, false_, THIS_LOCATION)
 
 #endif // PP_UTILS_H__

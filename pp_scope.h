@@ -67,6 +67,10 @@ class pp_scope: public pp_dirent
 
 	/*
 	 * Add a named or unnamed datatype to this scope.
+	 *
+	 * Throws:
+	 * 	pp_parse_error		- invalid name
+	 *
 	 */
 	void
 	add_datatype(const string &name, const pp_datatype_ptr &datatype);
