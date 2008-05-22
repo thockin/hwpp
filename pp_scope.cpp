@@ -93,6 +93,7 @@ pp_scope::n_datatypes() const
 	return m_datatypes.size();
 }
 
+//FIXME: return NULL like dirents?
 /*
  * Provide access to the datatypes vector.
  */
