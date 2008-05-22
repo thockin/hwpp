@@ -23,10 +23,11 @@ Driver stuff:
 
 Code stuff:
  - create and use namespace pp::
- - capitalize PP_foo for types?
+ - capitalize PP_foo or PP_Foo or PpFoo for types?
  - pp_enum -> pp_enum_type, etc
  - move more code to .cpp files
  - use // comments for pp_scope and pp_path
+ - move datatypes.h to a .cpp
 
 Build stuff:
  - write DEFS and other stuff to a dotfile and make that a makefile dependency
@@ -49,7 +50,9 @@ Bugs and features:
  	- pcie_capability_t vchannel vs vc2
 	- pcie_link_speed_t 0 vs 1
  - import the public PCI repository into a vendor enum (and device?)
+ - pp_enum::lookup() throws an exception, but evaluate() doesn't
  - pp_scope::resolve_datatype() should throw, rather than return NULL;
+ - pp_context and current context is awful
  - throw parse errors on field and register and scope names
 
 filesystem.h:
