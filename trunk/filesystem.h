@@ -570,7 +570,7 @@ class direntry
 	is_file(const std::string &path)
 	{
 		struct ::stat st;
-		return (stat(path.c_str(), &st) == 0 && S_ISREG(st.st_mode));
+		return (::stat(path.c_str(), &st) == 0 && S_ISREG(st.st_mode));
 	}
 
 	bool
@@ -583,7 +583,7 @@ class direntry
 	is_dir(const std::string &path)
 	{
 		struct ::stat st;
-		return (stat(path.c_str(), &st) == 0 && S_ISDIR(st.st_mode));
+		return (::stat(path.c_str(), &st) == 0 && S_ISDIR(st.st_mode));
 	}
 
 	bool
@@ -596,7 +596,7 @@ class direntry
 	is_link(const std::string &path)
 	{
 		struct ::stat st;
-		return (stat(path.c_str(), &st) == 0 && S_ISLNK(st.st_mode));
+		return (::stat(path.c_str(), &st) == 0 && S_ISLNK(st.st_mode));
 	}
 
 	bool
@@ -609,7 +609,7 @@ class direntry
 	is_fifo(const std::string &path)
 	{
 		struct ::stat st;
-		return (stat(path.c_str(), &st) == 0 && S_ISFIFO(st.st_mode));
+		return (::stat(path.c_str(), &st) == 0 && S_ISFIFO(st.st_mode));
 	}
 
 	bool
@@ -622,7 +622,7 @@ class direntry
 	is_socket(const std::string &path)
 	{
 		struct ::stat st;
-		return (stat(path.c_str(), &st) == 0 && S_ISSOCK(st.st_mode));
+		return (::stat(path.c_str(), &st) == 0 && S_ISSOCK(st.st_mode));
 	}
 
 	bool
@@ -635,7 +635,7 @@ class direntry
 	is_chrdev(const std::string &path)
 	{
 		struct ::stat st;
-		return (stat(path.c_str(), &st) == 0 && S_ISCHR(st.st_mode));
+		return (::stat(path.c_str(), &st) == 0 && S_ISCHR(st.st_mode));
 	}
 
 	bool
@@ -648,7 +648,7 @@ class direntry
 	is_blkdev(const std::string &path)
 	{
 		struct ::stat st;
-		return (stat(path.c_str(), &st) == 0 && S_ISBLK(st.st_mode));
+		return (::stat(path.c_str(), &st) == 0 && S_ISBLK(st.st_mode));
 	}
 
 	bool
@@ -662,7 +662,7 @@ class direntry
 	is_dev(const std::string &path)
 	{
 		struct ::stat st;
-		return (stat(path.c_str(), &st) == 0
+		return (::stat(path.c_str(), &st) == 0
 		    && (S_ISCHR(st.st_mode) || S_ISBLK(st.st_mode)));
 	}
 
