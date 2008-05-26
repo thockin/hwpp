@@ -142,7 +142,6 @@ fkl_write(const parse_location &loc,
 //
 // Read and wite regbits.
 //
-//FIXME: inline these?
 pp_value
 fkl_read(const parse_location &loc, const pp_regbits &bits)
 {
@@ -162,9 +161,10 @@ void
 fkl_open_scope(const parse_location &loc,
                const string &name, const pp_binding_ptr &binding)
 {
+	DTRACE(TRACE_SCOPES, "open scope: " + name);
+
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
-	DTRACE(TRACE_SCOPES, "scope: " + name);
 
 	try {
 		pp_path::element elem(name);
@@ -194,9 +194,11 @@ fkl_open_scope(const parse_location &loc,
 void
 fkl_close_scope(const parse_location &loc)
 {
+	DTRACE(TRACE_SCOPES, "close scope: " + current_context.name());
+
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
-	DTRACE(TRACE_SCOPES, "end scope: " + current_context.name());
+
 	// there had better be a current scope and a parent scope
 	DASSERT_MSG(!context_stack.empty(), "invalid parent context");
 
@@ -211,8 +213,11 @@ fkl_close_scope(const parse_location &loc)
 void
 fkl_close_scope(const parse_location &loc, const string &new_name)
 {
+	DTRACE(TRACE_SCOPES, "close+rename scope: " + new_name);
+
 	DASSERT_MSG(!current_context.is_readonly(),
 	    "current_context is read-only");
+
 	// there had better be a current scope and a parent scope
 	DASSERT_MSG(!context_stack.empty(), "invalid parent context");
 
@@ -239,13 +244,16 @@ void
 fkl_regn(const parse_location &loc,
          const string &name, const pp_value &address, pp_bitwidth width)
 {
+	DTRACE(TRACE_REGS, "reg: " + name);
+
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
-	DTRACE(TRACE_REGS, "reg: " + name);
+
 	// enforce that registers start with '%'
 	DASSERT_MSG(name[0] == '%', "register must start with %: " + name);
-	const pp_binding *cur_binding = current_context.binding();
+
 	// check that we have a current binding
+	const pp_binding *cur_binding = current_context.binding();
 	DASSERT_MSG(cur_binding, "no binding for register " + name);
 
 	try {
@@ -267,7 +275,6 @@ fkl_regn(const parse_location &loc,
 //
 // Define a regbits from a register name and bit range.
 //
-//FIXME: inline these?
 pp_regbits
 fkl_bits(const parse_location &loc, const string &regname)
 {
@@ -296,13 +303,13 @@ fkl_regfieldn(const parse_location &loc,
               const string &name, const pp_value &address,
               const pp_datatype *type, pp_bitwidth width)
 {
-	DASSERT_MSG(!current_context.is_readonly(),
-		"current_context is read-only");
+	DTRACE(TRACE_FIELDS | TRACE_REGS, "regfield: " + name);
+
+	// create a register and a field, sanity checking is done within
 	string regname = "%" + name;
 	fkl_regn(loc, regname, address, width);
 	fkl_field(loc, name, type, fkl_bits(loc, regname, width-1, 0));
 }
-//FIXME: inline these datatyle lookups?
 void
 fkl_regfieldn(const parse_location &loc,
               const string &name, const pp_value &address,
@@ -312,7 +319,6 @@ fkl_regfieldn(const parse_location &loc,
 			current_context.resolve_datatype(type), width);
 }
 
-//FIXME: as user-facing code, this should sanity check even more!
 //
 // Define a field as a set of register-bits.
 //
@@ -320,11 +326,12 @@ void
 fkl_field(const parse_location &loc,
           const string &name, const pp_datatype *type, const pp_regbits &bits)
 {
+	DTRACE(TRACE_FIELDS, "direct field: " + name);
+
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
-	DTRACE(TRACE_FIELDS, "field: " + name);
-	// sanity
-	DASSERT_MSG(type, "found NULL pp_datatype for field " + name);
+
+	DASSERT_MSG(type, "found NULL datatype for field " + name);
 
 	try {
 		pp_path::element elem(name);
@@ -354,11 +361,12 @@ void
 fkl_field(const parse_location &loc,
           const string &name, const pp_datatype *type, const pp_value &value)
 {
+	DTRACE(TRACE_FIELDS, "constant field: " + name);
+
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
-	DTRACE(TRACE_FIELDS, "field: " + name);
-	// sanity
-	DASSERT_MSG(type, "found NULL pp_datatype for field " + name);
+
+	DASSERT_MSG(type, "found NULL datatype for field " + name);
 
 	try {
 		pp_path::element elem(name);
@@ -390,11 +398,13 @@ fkl_field(const parse_location &loc,
           const string &name, const pp_datatype *type,
           const proc_field_accessor_ptr &access)
 {
+	DTRACE(TRACE_FIELDS, "proc field: " + name);
+
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
-	DTRACE(TRACE_FIELDS, "field: " + name);
-	// sanity
-	DASSERT_MSG(type, "found NULL pp_datatype for field " + name);
+
+	DASSERT_MSG(type, "found NULL datatype for field " + name);
+	DASSERT_MSG(access, "found NULL accessors for field " + name);
 
 	try {
 		pp_path::element elem(name);
@@ -433,9 +443,10 @@ validate_type_name(const string &name, const parse_location &loc)
 pp_int *
 fkl_int(const parse_location &loc, const string &name, const string &units)
 {
+	DTRACE(TRACE_TYPES, "int: " + name);
+
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
-	DTRACE(TRACE_TYPES, "int: " + name);
 
 	pp_int_ptr int_ptr = new_pp_int(units);
 	if (name == "") {
@@ -454,9 +465,10 @@ pp_hex *
 fkl_hex(const parse_location &loc,
         const string &name, const pp_bitwidth width, const string &units)
 {
+	DTRACE(TRACE_TYPES, "hex: " + name);
+
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
-	DTRACE(TRACE_TYPES, "hex: " + name);
 
 	pp_hex_ptr hex_ptr = new_pp_hex(width, units);
 	if (name == "") {
@@ -475,9 +487,10 @@ pp_bitmask *
 fkl_bitmask(const parse_location &loc,
             const string &name, const fkl_kvpair_list &kvlist)
 {
+	DTRACE(TRACE_TYPES, "bitmask: " + name);
+
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
-	DTRACE(TRACE_TYPES, "bitmask: " + name);
 
 	for (size_t i = 0; i < kvlist.size(); i++) {
 		const string &key = kvlist.key_at(i);
@@ -504,9 +517,10 @@ pp_enum *
 fkl_enum(const parse_location &loc,
          const string &name, const fkl_kvpair_list &kvlist)
 {
+	DTRACE(TRACE_TYPES, "enum: " + name);
+
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
-	DTRACE(TRACE_TYPES, "enum: " + name);
 
 	for (size_t i = 0; i < kvlist.size(); i++) {
 		const string &key = kvlist.key_at(i);
@@ -533,9 +547,10 @@ pp_bool *
 fkl_bool(const parse_location &loc,
          const string &name, const string &true_str, const string &false_str)
 {
+	DTRACE(TRACE_TYPES, "bool: " + name);
+
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
-	DTRACE(TRACE_TYPES, "bool: " + name);
 
 	if (!lang_valid_datatype_key(true_str)) {
 		throw pp_parse_error("invalid bool key: " + true_str, loc);

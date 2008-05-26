@@ -7,11 +7,10 @@
 
 #include "pp.h"
 #include "language.h"
-#include "pp_path.h"
-#include "pp_field.h"
-#include "pp_register.h"
 #include "pp_dirent.h"
-#include "pp_scope.h"
+#include "pp_register.h"
+#include "pp_field.h"
+#include "pp_regbits.h"
 #include "pp_binding.h"
 #include "drivers.h"
 
@@ -189,8 +188,6 @@ fkl_regn(const parse_location &loc,
 #define REG64(name, address)  fkl_regn(THIS_LOCATION, name, address, BITS64)
 #define REG128(name, address) fkl_regn(THIS_LOCATION, name, address, BITS128)
 
-#include "pp_regbits.h"
-
 //
 // Create a register-bits structure.
 //
@@ -204,7 +201,6 @@ fkl_bits(const parse_location &loc,
 #define BITS(...)		fkl_bits(THIS_LOCATION, ##__VA_ARGS__)
 
 #include "pp_datatype.h"
-#include "pp_datatypes.h"
 
 //
 // Create a register and a field that consumes it.
@@ -265,6 +261,8 @@ fkl_field(const parse_location &loc,
 #define PROCS(procs)		proc_field_accessor_ptr(new procs)
 
 #define FIELD(...)		fkl_field(THIS_LOCATION, ##__VA_ARGS__)
+
+#include "pp_datatypes.h"
 
 //
 // Declare an integer datatype.
