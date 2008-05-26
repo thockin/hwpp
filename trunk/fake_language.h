@@ -25,34 +25,28 @@
 //
 // this is a helper for WARN()
 struct fkl_formatted_arglist {
-	explicit fkl_formatted_arglist(const string &fmt)
-	    : arglist(fmt)
-	{
-	}
+	explicit fkl_formatted_arglist(const string &fmt): result(fmt) {}
 	// This class will almost always be used as a temporary (const),
-	// but we really want to allow operator%() on the arglist.  This
+	// but we really want to allow operator%() on the result.  This
 	// saves us having to take a non-const copy of this class in
 	// operator,() below.
-	mutable boost::format arglist;
+	mutable boost::format result;
 };
 template <typename Trhs>
 inline const fkl_formatted_arglist &
 operator,(const fkl_formatted_arglist &lhs, const Trhs &rhs)
 {
-	lhs.arglist % rhs;
+	lhs.result % rhs;
 	return lhs;
 }
 inline void
-WARNF(const fkl_formatted_arglist &arg)
+WARNF(const fkl_formatted_arglist &arglist)
 {
-	std::cerr << "WARNING: " << to_string(arg.arglist) << std::endl;
+	PP_WARN(to_string(arglist.result));
 }
 // WARN() operates like printf(), but can take C++ objects (such as string
-// and pp_value).
+// and pp_value) and has a newline added automatically.
 #define WARN(fmt, ...) WARNF((fkl_formatted_arglist(fmt), ##__VA_ARGS__))
-
-//FIXME: need LOG or PRINT?
-//FIXME: pass control to host app if it wants it
 
 //
 // Pause
@@ -137,15 +131,15 @@ fkl_close_scope(const parse_location &loc, const string &new_name);
 
 // These are helpers for ARGS()
 struct fkl_valarg {
-	fkl_valarg(const pp_value &val): m_val(val) {}
-	pp_value m_val;
+	fkl_valarg(const pp_value &val): value(val) {}
+	pp_value value;
 };
 typedef std::vector<pp_value> fkl_valarg_list;
 inline fkl_valarg_list
 operator,(const fkl_valarg &lhs, const pp_value &rhs)
 {
 	fkl_valarg_list tmp;
-	tmp.push_back(lhs.m_val);
+	tmp.push_back(lhs.value);
 	tmp.push_back(rhs);
 	return tmp;
 }
@@ -172,7 +166,7 @@ inline pp_binding_ptr
 BIND(const string &driver, const fkl_valarg &arg)
 {
 	fkl_valarg_list al;
-	al.push_back(arg.m_val);
+	al.push_back(arg.value);
 	return BIND(driver, al);
 }
 
@@ -335,10 +329,9 @@ fkl_anon_hex(const parse_location &loc)
 // These are helpers for type safety in pp_enum and pp_bitmask.
 struct fkl_kvpair
 {
-	fkl_kvpair(const string &k, const pp_value &v)
-	    : m_key(k), m_val(v) {}
-	string m_key;
-	pp_value m_val;
+	fkl_kvpair(const string &k, const pp_value &v): key(k), value(v) {}
+	string key;
+	pp_value value;
 };
 #define KV(k,v) fkl_kvpair(k, v)
 typedef keyed_vector<string, pp_value> fkl_kvpair_list;
@@ -346,15 +339,15 @@ inline fkl_kvpair_list
 operator,(const fkl_kvpair &lhs, const fkl_kvpair &rhs)
 {
 	fkl_kvpair_list tmp;
-	tmp.insert(lhs.m_key, lhs.m_val);
-	tmp.insert(rhs.m_key, rhs.m_val);
+	tmp.insert(lhs.key, lhs.value);
+	tmp.insert(rhs.key, rhs.value);
 	return tmp;
 }
 inline fkl_kvpair_list
 operator,(const fkl_kvpair_list &lhs, const fkl_kvpair &rhs)
 {
 	fkl_kvpair_list tmp(lhs);
-	tmp.insert(rhs.m_key, rhs.m_val);
+	tmp.insert(rhs.key, rhs.value);
 	return tmp;
 }
 
@@ -378,7 +371,7 @@ fkl_bitmask(const parse_location &loc,
             const string &name, const fkl_kvpair &kvpair)
 {
 	fkl_kvpair_list tmp;
-	tmp.insert(kvpair.m_key, kvpair.m_val);
+	tmp.insert(kvpair.key, kvpair.value);
 	return fkl_bitmask(loc, name, tmp);
 }
 #define BITMASK(name, ...)	fkl_bitmask(THIS_LOCATION, name, (__VA_ARGS__))
@@ -401,7 +394,7 @@ fkl_enum(const parse_location &loc,
          const string &name, const fkl_kvpair &kvpair)
 {
 	fkl_kvpair_list tmp;
-	tmp.insert(kvpair.m_key, kvpair.m_val);
+	tmp.insert(kvpair.key, kvpair.value);
 	return fkl_enum(loc, name, tmp);
 }
 #define ENUM(name, ...)		fkl_enum(THIS_LOCATION, name, (__VA_ARGS__))
