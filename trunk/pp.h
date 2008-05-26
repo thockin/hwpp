@@ -102,7 +102,7 @@ PP_MASK(pp_bitwidth nbits)
 }
 
 /*
- * WARN() - issue a runtime warning
+ * PP_WARN() - issue a runtime warning
  */
 #define PP_WARN(message) do { \
 	std::cerr << "WARN: " << message << std::endl; \
