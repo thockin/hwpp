@@ -26,8 +26,11 @@ Code stuff:
  - capitalize PP_foo or PP_Foo or PpFoo for types?
  - pp_enum -> pp_enum_type, etc
  - move more code to .cpp files
- - use // comments for pp_scope and pp_path
  - move datatypes.h to a .cpp
+ - pp_exception: http://marknelson.us/2007/11/13/no-exceptions/
+ - make pp_path::invalid be a subclas of parse_error?
+ - put all fkl_ functions into a namespace?
+ - put all fake_language into a namespace?
 
 Build stuff:
  - write DEFS and other stuff to a dotfile and make that a makefile dependency
@@ -39,7 +42,6 @@ Docs stuff:
 
 Bugs and features:
  - all FIXMEs
- - scope merge to allow anon scopes
  - preserve/set/clear flags for registers
  - better errors on datatypes
  - are carats allowed mid-path?  not currently
@@ -53,7 +55,7 @@ Bugs and features:
  - pp_enum::lookup() throws an exception, but evaluate() doesn't
  - pp_scope::resolve_datatype() should throw, rather than return NULL;
  - pp_context and current context is awful
- - throw parse errors on field and register and scope names
+ - PP_WARN should pass control to an app-specific stream, if the app cares
 
 filesystem.h:
 	track full path name in directory and direntry
