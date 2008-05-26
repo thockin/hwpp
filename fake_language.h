@@ -50,7 +50,7 @@ WARNF(const pp_helper_formatted_arglist &arg)
 }
 // WARN() operates like printf(), but can take C++ objects (such as string
 // and pp_value).
-#define WARN(fmt, ...) WARNF((pp_helper_formatted_arglist(fmt), __VA_ARGS__))
+#define WARN(fmt, ...) WARNF((pp_helper_formatted_arglist(fmt), ##__VA_ARGS__))
 
 //FIXME: need LOG or PRINT?
 //FIXME: pass control to host app if it wants it
