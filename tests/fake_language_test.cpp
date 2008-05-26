@@ -679,6 +679,28 @@ test_parse_errors()
 		ret += TEST_ERROR("ANON_BOOL()");
 	}
 
+	//
+	// BOOKMARK
+	//
+	// should not throw
+	try {
+		BOOKMARK("valid");
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("BOOKMARK()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("BOOKMARK()");
+	}
+	// should throw a parse_error
+	try {
+		BOOKMARK("123_invalid");
+		ret += TEST_ERROR("BOOKMARK()");
+	} catch (pp_parse_error &e) {
+		// expected
+	} catch (exception &e) {
+		ret += TEST_ERROR("BOOKMARK()");
+	}
+
 	return ret;
 }
 

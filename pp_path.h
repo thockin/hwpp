@@ -112,7 +112,8 @@ class pp_path
 		// throws:
 		// 	pp_path::invalid_error
 		element(const string &str)
-		    : m_name(), m_array_mode(ARRAY_NONE), m_array_index(0)
+		    : m_name(), m_array_mode(ARRAY_NONE), m_array_index(0),
+		      m_is_bookmark(false)
 		{
 			parse(str);
 		}
@@ -140,10 +141,14 @@ class pp_path
 		size_t
 		array_index() const;
 
+		bool
+		is_bookmark() const;
+
 	    private:
 		string m_name;
 		enum array_mode m_array_mode;
 		size_t m_array_index;
+		bool m_is_bookmark;
 
 		void
 		parse(const string &input);

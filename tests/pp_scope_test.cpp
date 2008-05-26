@@ -260,6 +260,11 @@ test_dirents()
 	ret += TEST_ASSERT(root->n_dirents() == 1,
 	    "pp_scope::n_dirents()");
 
+	// bookmark it
+	scope0->add_bookmark("bookmark");
+	ret += TEST_ASSERT(scope0->has_bookmark("bookmark"),
+	    "pp_scope::add_bookmark()");
+
 	// create a field and add it to scope0
 	pp_datatype_ptr dt = new_pp_int();
 	pp_constant_field_ptr field1 = new_pp_constant_field(dt.get(), 0);
@@ -362,9 +367,19 @@ test_dirents()
 		ret += TEST_ASSERT(f == field1.get(),
 		    "pp_scope::lookup_field()");
 
+		// search for an item through an absolute path
+		f = root->lookup_field("/scope0/field1");
+		ret += TEST_ASSERT(f == field1.get(),
+		    "pp_scope::lookup_field()");
+
 		// search for an array-held item
 		f = root->lookup_field("scope0/array1[0]");
 		ret += TEST_ASSERT(f == field2.get(),
+		    "pp_scope::lookup_field()");
+
+		// search for an item through a bookmark
+		f = scope1->lookup_field("$bookmark/field1");
+		ret += TEST_ASSERT(f == field1.get(),
 		    "pp_scope::lookup_field()");
 	}
 	// test lookup_register()
@@ -435,6 +450,16 @@ test_dirents()
 		// search for an item through a path with ".."
 		s = root->lookup_scope("scope0/scope1/../scope1");
 		ret += TEST_ASSERT(s == scope1.get(),
+		    "pp_scope::lookup_scope()");
+
+		// search for the root
+		s = root->lookup_scope("/");
+		ret += TEST_ASSERT(s == root.get(),
+		    "pp_scope::lookup_scope()");
+
+		// search for an item through an absolute path
+		s = root->lookup_scope("/scope0");
+		ret += TEST_ASSERT(s == scope0.get(),
 		    "pp_scope::lookup_scope()");
 	}
 	// test lookup_array()

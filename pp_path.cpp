@@ -14,15 +14,19 @@
 string
 pp_path::element::to_string() const
 {
-	string ret = m_name;
+	string ret;
 	if (is_array()) {
-		ret += "[";
+		ret = name() + "[";
 		if (m_array_mode == pp_path::element::ARRAY_INDEX) {
 			ret += ::to_string(m_array_index);
 		} else if (m_array_mode == pp_path::element::ARRAY_TAIL) {
 			ret += "$";
 		}
 		ret += "]";
+	} else if (is_bookmark()) {
+		ret = "$" + name();
+	} else {
+		ret = name();
 	}
 	return ret;
 }
@@ -57,12 +61,18 @@ pp_path::element::array_index() const
 	return m_array_index;
 }
 
+bool
+pp_path::element::is_bookmark() const
+{
+	return m_is_bookmark;
+}
+
 void
 pp_path::element::parse(const string &input)
 {
 	enum {
 		ST_START,
-		ST_PERCENT,
+		ST_FIRSTCHAR,
 		ST_BODY,
 		ST_DOT,
 		ST_ARRAY_OPEN,
@@ -80,10 +90,10 @@ pp_path::element::parse(const string &input)
 		    case ST_START:
 			if (c == '%') {
 				m_name += c;
-				state = ST_PERCENT;
-			} else if (c == '^') {
-				m_name += c;
-				state = ST_DONE;
+				state = ST_FIRSTCHAR;
+			} else if (c == '$') {
+				m_is_bookmark = true;
+				state = ST_FIRSTCHAR;
 			} else if (isalpha(c) || c == '_') {
 				m_name += c;
 				state = ST_BODY;
@@ -95,7 +105,7 @@ pp_path::element::parse(const string &input)
 				return;
 			}
 			break;
-		    case ST_PERCENT:
+		    case ST_FIRSTCHAR:
 			if (isalpha(c) || c == '_') {
 				m_name += c;
 				state = ST_BODY;

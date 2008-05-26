@@ -129,6 +129,13 @@ extern void
 fkl_close_scope(const parse_location &loc, const string &new_name);
 #define CLOSE_SCOPE(...)	fkl_close_scope(THIS_LOCATION, ##__VA_ARGS__)
 
+//
+// Bookmark the current scope.
+//
+extern void
+fkl_bookmark(const parse_location &loc, const string &name);
+#define BOOKMARK(...)		fkl_bookmark(THIS_LOCATION, ##__VA_ARGS__)
+
 // These are helpers for ARGS()
 struct fkl_valarg {
 	fkl_valarg(const pp_value &val): value(val) {}

@@ -139,6 +139,12 @@ class pp_context
 	{
 		return m_scope->lookup_scope(path);
 	}
+
+	void
+	add_bookmark(const string &name)
+	{
+		return m_scope->add_bookmark(name);
+	}
 };
 
 #endif // PP_PP_CONTEXT_H__

@@ -4,6 +4,7 @@
 
 #include "pp.h"
 #include <stdexcept>
+#include <map>
 #include "pp_path.h"
 #include "pp_dirent.h"
 #include "pp_binding.h"
@@ -23,6 +24,14 @@
 //
 class pp_scope: public pp_dirent
 {
+    private:
+	const pp_scope *m_parent;
+	pp_const_binding_ptr m_binding;
+	keyed_vector<string, pp_dirent_ptr> m_dirents;
+	keyed_vector<string, pp_const_datatype_ptr> m_datatypes;
+	std::vector<pp_const_datatype_ptr> m_anon_datatypes;
+	std::map<string, int> m_bookmarks;
+
     public:
 	explicit pp_scope(const pp_binding_ptr &binding = pp_binding_ptr())
 	    : pp_dirent(PP_DIRENT_SCOPE), m_parent(NULL), m_binding(binding)
@@ -212,13 +221,19 @@ class pp_scope: public pp_dirent
 	const pp_array *
 	lookup_array(const pp_path &path) const;
 
-    private:
-	const pp_scope *m_parent;
-	pp_const_binding_ptr m_binding;
-	keyed_vector<string, pp_dirent_ptr> m_dirents;
-	keyed_vector<string, pp_const_datatype_ptr> m_datatypes;
-	std::vector<pp_const_datatype_ptr> m_anon_datatypes;
+	//
+	// Add a bookmark for this scope.
+	//
+	void
+	add_bookmark(const string &name);
 
+	//
+	// See if this scope has a particular bookmark.
+	//
+	bool
+	has_bookmark(const string &name) const;
+
+    private:
 	// Returned desired dirent specified by path, NULL if not found.
 	const pp_dirent *
 	lookup_dirent_internal(pp_path &path) const;
