@@ -153,8 +153,7 @@ pci_discovered(const std::vector<pp_value> &args)
 	    + to_string(dev) + "."
 	    + to_string(func);
 
-	OPEN_SCOPE(name, BIND("pci", args));
-	pci_generic_device();
+	PCI_SCOPE(name, seg, bus, dev, func);
 	CLOSE_SCOPE();
 }
 
