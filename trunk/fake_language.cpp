@@ -190,7 +190,7 @@ CLOSE_SCOPE(const string &new_name)
 // Define a register.
 //
 void
-REGN(const string &name, const pp_value &address, pp_bitwidth width)
+fkl_regn(const string &name, const pp_value &address, pp_bitwidth width)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
@@ -237,20 +237,20 @@ BITS(const string &regname, pp_bitwidth hi_bit, pp_bitwidth lo_bit)
 // Define a register and a field that consumes that register.
 //
 void
-REGFIELDN(const string &name, const pp_value &address, const pp_datatype *type,
+fkl_regfieldn(const string &name, const pp_value &address, const pp_datatype *type,
 		pp_bitwidth width)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 	string regname = "%" + name;
-	REGN(regname, address, width);
+	fkl_regn(regname, address, width);
 	FIELD(name, type, BITS(regname, width-1, 0));
 }
 void
-REGFIELDN(const string &name, const pp_value &address, const string &type,
+fkl_regfieldn(const string &name, const pp_value &address, const string &type,
 		pp_bitwidth width)
 {
-	REGFIELDN(name, address, current_context.resolve_datatype(type), width);
+	fkl_regfieldn(name, address, current_context.resolve_datatype(type), width);
 }
 
 //
@@ -319,7 +319,7 @@ FIELD(const string &name, const string &type,
 // Define a pp_int datatype.
 //
 pp_int *
-DEF_INT(const string &name, const string &units, const parse_location &loc)
+fkl_int(const string &name, const string &units, const parse_location &loc)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
@@ -343,7 +343,7 @@ DEF_INT(const string &name, const string &units, const parse_location &loc)
 // Define a pp_hex datatype.
 //
 pp_hex *
-DEF_HEX(const string &name, const pp_bitwidth width, const string &units,
+fkl_hex(const string &name, const pp_bitwidth width, const string &units,
 		const parse_location &loc)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
@@ -368,7 +368,7 @@ DEF_HEX(const string &name, const pp_bitwidth width, const string &units,
 // Define a pp_bitmask datatype.
 //
 pp_bitmask *
-DEF_BITMASK(const string &name, const pp_helper_kvpair_list &kvlist,
+fkl_bitmask(const string &name, const fkl_kvpair_list &kvlist,
 		const parse_location &loc)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
@@ -393,7 +393,7 @@ DEF_BITMASK(const string &name, const pp_helper_kvpair_list &kvlist,
 // Define a pp_enum datatype.
 //
 pp_enum *
-DEF_ENUM(const string &name, const pp_helper_kvpair_list &kvlist,
+fkl_enum(const string &name, const fkl_kvpair_list &kvlist,
 		const parse_location &loc)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
@@ -418,7 +418,7 @@ DEF_ENUM(const string &name, const pp_helper_kvpair_list &kvlist,
 // Define a pp_bool datatype.
 //
 pp_bool *
-DEF_BOOL(const string &name, const string &true_str, const string &false_str,
+fkl_bool(const string &name, const string &true_str, const string &false_str,
 		const parse_location &loc)
 {
 	DASSERT_MSG(!current_context.is_readonly(),

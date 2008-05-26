@@ -25,8 +25,8 @@
 // Print a message
 //
 // this is a helper for WARN()
-struct pp_helper_formatted_arglist {
-	explicit pp_helper_formatted_arglist(const string &fmt)
+struct fkl_formatted_arglist {
+	explicit fkl_formatted_arglist(const string &fmt)
 	    : arglist(fmt)
 	{
 	}
@@ -37,20 +37,20 @@ struct pp_helper_formatted_arglist {
 	mutable boost::format arglist;
 };
 template <typename Trhs>
-inline const pp_helper_formatted_arglist &
-operator,(const pp_helper_formatted_arglist &lhs, const Trhs &rhs)
+inline const fkl_formatted_arglist &
+operator,(const fkl_formatted_arglist &lhs, const Trhs &rhs)
 {
 	lhs.arglist % rhs;
 	return lhs;
 }
 inline void
-WARNF(const pp_helper_formatted_arglist &arg)
+WARNF(const fkl_formatted_arglist &arg)
 {
 	std::cerr << "WARNING: " << to_string(arg.arglist) << std::endl;
 }
 // WARN() operates like printf(), but can take C++ objects (such as string
 // and pp_value).
-#define WARN(fmt, ...) WARNF((pp_helper_formatted_arglist(fmt), ##__VA_ARGS__))
+#define WARN(fmt, ...) WARNF((fkl_formatted_arglist(fmt), ##__VA_ARGS__))
 
 //FIXME: need LOG or PRINT?
 //FIXME: pass control to host app if it wants it
@@ -190,7 +190,7 @@ FIELD_TEST(const string &field, const string &comparator)
 
 //
 // Create a new scope.  Once you open a scope, all subsequent operations
-// (such as REGN() or FIELD()) will be relative to this new scope. Unnamed
+// (such as REG8() or FIELD()) will be relative to this new scope. Unnamed
 // scopes can be named via CLOSE_SCOPE().
 //
 extern void
@@ -211,26 +211,26 @@ extern void
 CLOSE_SCOPE(const string &new_name);
 
 // These are helpers for ARGS()
-struct pp_helper_arg {
-	pp_helper_arg(const pp_value &val): m_val(val) {}
+struct fkl_valarg {
+	fkl_valarg(const pp_value &val): m_val(val) {}
 	pp_value m_val;
 };
-typedef std::vector<pp_value> pp_helper_arg_list;
-inline pp_helper_arg_list
-operator,(const pp_helper_arg &lhs, const pp_value &rhs)
+typedef std::vector<pp_value> fkl_valarg_list;
+inline fkl_valarg_list
+operator,(const fkl_valarg &lhs, const pp_value &rhs)
 {
-	pp_helper_arg_list tmp;
+	fkl_valarg_list tmp;
 	tmp.push_back(lhs.m_val);
 	tmp.push_back(rhs);
 	return tmp;
 }
-inline pp_helper_arg_list
-operator,(pp_helper_arg_list lhs, const pp_value &rhs)
+inline fkl_valarg_list
+operator,(fkl_valarg_list lhs, const pp_value &rhs)
 {
 	lhs.push_back(rhs);
 	return lhs;
 }
-#define ARGS(...) ((pp_helper_arg)__VA_ARGS__)
+#define ARGS(...) ((fkl_valarg)__VA_ARGS__)
 
 //
 // Create a new binding.
@@ -239,14 +239,14 @@ operator,(pp_helper_arg_list lhs, const pp_value &rhs)
 // 	BIND("mem", ARGS(1, 2, 3, 4));
 //
 inline pp_binding_ptr
-BIND(const string &driver, const pp_helper_arg_list &args)
+BIND(const string &driver, const fkl_valarg_list &args)
 {
 	return pp_find_driver(driver)->new_binding(args);
 }
 inline pp_binding_ptr
-BIND(const string &driver, const pp_helper_arg &arg)
+BIND(const string &driver, const fkl_valarg &arg)
 {
-	pp_helper_arg_list al;
+	fkl_valarg_list al;
 	al.push_back(arg.m_val);
 	return BIND(driver, al);
 }
@@ -255,12 +255,12 @@ BIND(const string &driver, const pp_helper_arg &arg)
 // Declare a named register.
 //
 extern void
-REGN(const string &name, const pp_value &address, pp_bitwidth width);
-#define REG8(name, address)   REGN(name, address, BITS8)
-#define REG16(name, address)  REGN(name, address, BITS16)
-#define REG32(name, address)  REGN(name, address, BITS32)
-#define REG64(name, address)  REGN(name, address, BITS64)
-#define REG128(name, address) REGN(name, address, BITS128)
+fkl_regn(const string &name, const pp_value &address, pp_bitwidth width);
+#define REG8(name, address)   fkl_regn(name, address, BITS8)
+#define REG16(name, address)  fkl_regn(name, address, BITS16)
+#define REG32(name, address)  fkl_regn(name, address, BITS32)
+#define REG64(name, address)  fkl_regn(name, address, BITS64)
+#define REG128(name, address) fkl_regn(name, address, BITS128)
 
 #include "pp_regbits.h"
 
@@ -281,16 +281,21 @@ BITS(const string &regname, pp_bitwidth hi_bit, pp_bitwidth lo_bit);
 // Create a register and a field that consumes it.
 //
 extern void
-REGFIELDN(const string &name, const pp_value &address,
+fkl_regfieldn(const string &name, const pp_value &address,
 		const pp_datatype *type, pp_bitwidth width);
 extern void
-REGFIELDN(const string &name, const pp_value &address,
+fkl_regfieldn(const string &name, const pp_value &address,
 		const string &type, pp_bitwidth width);
-#define REGFIELD8(name, address, type)   REGFIELDN(name, address, type, BITS8)
-#define REGFIELD16(name, address, type)  REGFIELDN(name, address, type, BITS16)
-#define REGFIELD32(name, address, type)  REGFIELDN(name, address, type, BITS32)
-#define REGFIELD64(name, address, type)  REGFIELDN(name, address, type, BITS64)
-#define REGFIELD128(name, address, type) REGFIELDN(name, address, type, BITS128)
+#define REGFIELD8(name, address, type) \
+		fkl_regfieldn(name, address, type, BITS8)
+#define REGFIELD16(name, address, type) \
+		fkl_regfieldn(name, address, type, BITS16)
+#define REGFIELD32(name, address, type) \
+		fkl_regfieldn(name, address, type, BITS32)
+#define REGFIELD64(name, address, type) \
+		fkl_regfieldn(name, address, type, BITS64)
+#define REGFIELD128(name, address, type) \
+		fkl_regfieldn(name, address, type, BITS128)
 
 //
 // Create a field which gets it's value from regbits.
@@ -326,92 +331,92 @@ FIELD(const string &name, const string &type,
 // Declare an integer datatype.
 //
 extern pp_int *
-DEF_INT(const string &name, const string &units, const parse_location &loc);
+fkl_int(const string &name, const string &units, const parse_location &loc);
 inline pp_int *
-DEF_INT(const string &name, const parse_location &loc)
+fkl_int(const string &name, const parse_location &loc)
 {
-	return DEF_INT(name, "", loc);
+	return fkl_int(name, "", loc);
 }
 inline pp_int *
-DEF_ANON_INT(const string &units, const parse_location &loc)
+fkl_anon_int(const string &units, const parse_location &loc)
 {
-	return DEF_INT("", units, loc);
+	return fkl_int("", units, loc);
 }
 inline pp_int *
-DEF_ANON_INT(const parse_location &loc)
+fkl_anon_int(const parse_location &loc)
 {
-	return DEF_INT("", "", loc);
+	return fkl_int("", "", loc);
 }
-#define INT(...)	DEF_INT(__VA_ARGS__, THIS_LOCATION)
-#define ANON_INT(...)	DEF_ANON_INT(__VA_ARGS__, THIS_LOCATION)
+#define INT(...)	fkl_int(__VA_ARGS__, THIS_LOCATION)
+#define ANON_INT(...)	fkl_anon_int(__VA_ARGS__, THIS_LOCATION)
 
 //
 // Declare a hex datatype.
 //
 extern pp_hex *
-DEF_HEX(const string &name, const pp_bitwidth width, const string &units,
+fkl_hex(const string &name, const pp_bitwidth width, const string &units,
 		const parse_location &loc);
 inline pp_hex *
-DEF_HEX(const string &name, const pp_bitwidth width, const parse_location &loc)
+fkl_hex(const string &name, const pp_bitwidth width, const parse_location &loc)
 {
-	return DEF_HEX(name, width, "", loc);
+	return fkl_hex(name, width, "", loc);
 }
 inline pp_hex *
-DEF_HEX(const string &name, const string &units, const parse_location &loc)
+fkl_hex(const string &name, const string &units, const parse_location &loc)
 {
-	return DEF_HEX(name, BITS0, units, loc);
+	return fkl_hex(name, BITS0, units, loc);
 }
 inline pp_hex *
-DEF_HEX(const string &name, const parse_location &loc)
+fkl_hex(const string &name, const parse_location &loc)
 {
-	return DEF_HEX(name, BITS0, "", loc);
+	return fkl_hex(name, BITS0, "", loc);
 }
 inline pp_hex *
-DEF_ANON_HEX(const pp_bitwidth width, const string &units,
+fkl_anon_hex(const pp_bitwidth width, const string &units,
 		const parse_location &loc)
 {
-	return DEF_HEX("", width, units, loc);
+	return fkl_hex("", width, units, loc);
 }
 inline pp_hex *
-DEF_ANON_HEX(const pp_bitwidth width, const parse_location &loc)
+fkl_anon_hex(const pp_bitwidth width, const parse_location &loc)
 {
-	return DEF_HEX("", width, "", loc);
+	return fkl_hex("", width, "", loc);
 }
 inline pp_hex *
-DEF_ANON_HEX(const string &units, const parse_location &loc)
+fkl_anon_hex(const string &units, const parse_location &loc)
 {
-	return DEF_HEX("", BITS0, units, loc);
+	return fkl_hex("", BITS0, units, loc);
 }
 inline pp_hex *
-DEF_ANON_HEX(const parse_location &loc)
+fkl_anon_hex(const parse_location &loc)
 {
-	return DEF_HEX("", BITS0, "", loc);
+	return fkl_hex("", BITS0, "", loc);
 }
-#define HEX(...)	DEF_HEX(__VA_ARGS__, THIS_LOCATION)
-#define ANON_HEX(...)	DEF_ANON_HEX(__VA_ARGS__, THIS_LOCATION)
+#define HEX(...)	fkl_hex(__VA_ARGS__, THIS_LOCATION)
+#define ANON_HEX(...)	fkl_anon_hex(__VA_ARGS__, THIS_LOCATION)
 
 // These are helpers for type safety in pp_enum and pp_bitmask.
-struct pp_helper_kvpair
+struct fkl_kvpair
 {
-	pp_helper_kvpair(const string &k, const pp_value &v)
+	fkl_kvpair(const string &k, const pp_value &v)
 	    : m_key(k), m_val(v) {}
 	string m_key;
 	pp_value m_val;
 };
-#define KV(k,v) pp_helper_kvpair(k, v)
-typedef keyed_vector<string, pp_value> pp_helper_kvpair_list;
-inline pp_helper_kvpair_list
-operator,(const pp_helper_kvpair &lhs, const pp_helper_kvpair &rhs)
+#define KV(k,v) fkl_kvpair(k, v)
+typedef keyed_vector<string, pp_value> fkl_kvpair_list;
+inline fkl_kvpair_list
+operator,(const fkl_kvpair &lhs, const fkl_kvpair &rhs)
 {
-	pp_helper_kvpair_list tmp;
+	fkl_kvpair_list tmp;
 	tmp.insert(lhs.m_key, lhs.m_val);
 	tmp.insert(rhs.m_key, rhs.m_val);
 	return tmp;
 }
-inline pp_helper_kvpair_list
-operator,(const pp_helper_kvpair_list &lhs, const pp_helper_kvpair &rhs)
+inline fkl_kvpair_list
+operator,(const fkl_kvpair_list &lhs, const fkl_kvpair &rhs)
 {
-	pp_helper_kvpair_list tmp(lhs);
+	fkl_kvpair_list tmp(lhs);
 	tmp.insert(rhs.m_key, rhs.m_val);
 	return tmp;
 }
@@ -429,10 +434,10 @@ operator,(const pp_helper_kvpair_list &lhs, const pp_helper_kvpair &rhs)
 // argument list.  I wish I was less proud of this.
 //
 extern pp_bitmask *
-DEF_BITMASK(const string &name, const pp_helper_kvpair_list &kvlist,
+fkl_bitmask(const string &name, const fkl_kvpair_list &kvlist,
 		const parse_location &loc);
-#define BITMASK(name, ...)	DEF_BITMASK(name, (__VA_ARGS__), THIS_LOCATION)
-#define ANON_BITMASK(...)	DEF_BITMASK("", (__VA_ARGS__), THIS_LOCATION)
+#define BITMASK(name, ...)	fkl_bitmask(name, (__VA_ARGS__), THIS_LOCATION)
+#define ANON_BITMASK(...)	fkl_bitmask("", (__VA_ARGS__), THIS_LOCATION)
 
 //
 // Declare an enum datatype.
@@ -443,20 +448,20 @@ DEF_BITMASK(const string &name, const pp_helper_kvpair_list &kvlist,
 // See the NOTE for BITMASK, above.
 //
 extern pp_enum *
-DEF_ENUM(const string &name, const pp_helper_kvpair_list &kvlist,
+fkl_enum(const string &name, const fkl_kvpair_list &kvlist,
 		const parse_location &loc);
-#define ENUM(name, ...)		DEF_ENUM(name, (__VA_ARGS__), THIS_LOCATION)
-#define ANON_ENUM(...)		DEF_ENUM("", (__VA_ARGS__), THIS_LOCATION)
+#define ENUM(name, ...)		fkl_enum(name, (__VA_ARGS__), THIS_LOCATION)
+#define ANON_ENUM(...)		fkl_enum("", (__VA_ARGS__), THIS_LOCATION)
 
 //
 // Declare a boolean datatype.
 //
 extern pp_bool *
-DEF_BOOL(const string &name, const string &true_str, const string &false_str,
+fkl_bool(const string &name, const string &true_str, const string &false_str,
 		const parse_location &loc);
 #define BOOL(name, true_, false_) \
-				DEF_BOOL(name, true_, false_, THIS_LOCATION)
+				fkl_bool(name, true_, false_, THIS_LOCATION)
 #define ANON_BOOL(true_, false_) \
-				DEF_BOOL("", true_, false_, THIS_LOCATION)
+				fkl_bool("", true_, false_, THIS_LOCATION)
 
 #endif // PP_UTILS_H__
