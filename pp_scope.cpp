@@ -1,4 +1,4 @@
-/* Copyright (c) Tim Hockin, 2007 */
+// Copyright (c) Tim Hockin, 2007
 #include "pp.h"
 #include "pp_scope.h"
 #include <stdexcept>
@@ -12,11 +12,11 @@
 #include "pp_array.h"
 #include "language.h"
 
-/*
- * Get a pointer to the parent scope of this object.  If this
- * scope is the top of the hierarchy, this method returns a
- * pointer to this object.
- */
+//
+// Get a pointer to the parent scope of this object.  If this
+// scope is the top of the hierarchy, this method returns a
+// pointer to this object.
+//
 const pp_scope *
 pp_scope::parent() const
 {
@@ -26,32 +26,32 @@ pp_scope::parent() const
 	return m_parent;
 }
 
-/*
- * Set the parent scope of this object.
- */
+//
+// Set the parent scope of this object.
+//
 void
 pp_scope::set_parent(const pp_scope *parent)
 {
 	m_parent = parent;
 }
 
-/*
- * Return a boolean indicating whether this object is the top of the
- * containership hierarchy or not.  This is the same as checking
- * for:
- *     (object->parent() == object)
- */
+//
+// Return a boolean indicating whether this object is the top of the
+// containership hierarchy or not.  This is the same as checking
+// for:
+//     (object->parent() == object)
+//
 bool
 pp_scope::is_root() const
 {
 	return (m_parent == NULL);
 }
 
-/*
- * Get the binding of this scope.  If this scope is not bound,
- * climb the scope hierarchy until you find a binding.  If no
- * scope in the hierarchy is bound, return NULL.
- */
+//
+// Get the binding of this scope.  If this scope is not bound,
+// climb the scope hierarchy until you find a binding.  If no
+// scope in the hierarchy is bound, return NULL.
+//
 const pp_binding *
 pp_scope::binding() const
 {
@@ -67,9 +67,9 @@ pp_scope::is_bound() const
 	return m_binding ? true : false;
 }
 
-/*
- * Add a named or unnamed datatype to this scope.
- */
+//
+// Add a named or unnamed datatype to this scope.
+//
 void
 pp_scope::add_datatype(const string &name, const pp_datatype_ptr &datatype)
 {
@@ -81,9 +81,9 @@ pp_scope::add_datatype(const pp_datatype_ptr &datatype)
 	m_anon_datatypes.push_back(datatype);
 }
 
-/*
- * Return the number of named datatypes in this scope.
- */
+//
+// Return the number of named datatypes in this scope.
+//
 size_t
 pp_scope::n_datatypes() const
 {
@@ -91,9 +91,9 @@ pp_scope::n_datatypes() const
 }
 
 //FIXME: return NULL like dirents?
-/*
- * Provide access to the datatypes vector.
- */
+//
+// Provide access to the datatypes vector.
+//
 const pp_datatype *
 pp_scope::datatype(int index) const
 {
@@ -105,18 +105,18 @@ pp_scope::datatype(string index) const
 	return m_datatypes[index].get();
 }
 
-/*
- * Return the name of the indexed datatype.
- */
+//
+// Return the name of the indexed datatype.
+//
 string
 pp_scope::datatype_name(int index) const
 {
 	return m_datatypes.key_at(index);
 }
 
-/*
- * Look up a datatype by name.
- */
+//
+// Look up a datatype by name.
+//
 const pp_datatype *
 pp_scope::resolve_datatype(const string &name) const
 {
@@ -142,14 +142,14 @@ pp_scope::resolve_datatype(const string &name) const
 	return NULL;
 }
 
-/*
- * Add a named dirent to this scope.
- *
- * Throws:
- * 	pp_path::not_found_error	- path not found
- * 	pp_path::invalid_error		- invalid path element
- * 	pp_dirent::conversion_error	- path element is not a scope
- */
+//
+// Add a named dirent to this scope.
+//
+// Throws:
+// 	pp_path::not_found_error	- path not found
+// 	pp_path::invalid_error		- invalid path element
+// 	pp_dirent::conversion_error	- path element is not a scope
+//
 void
 pp_scope::add_dirent(const pp_path::element &elem,
                      const pp_dirent_ptr &new_dirent)
@@ -187,18 +187,18 @@ pp_scope::add_dirent(const pp_path::element &elem,
 	}
 }
 
-/*
- * Return the number of dirents in this scope.
- */
+//
+// Return the number of dirents in this scope.
+//
 size_t
 pp_scope::n_dirents() const
 {
 	return m_dirents.size();
 }
 
-/*
- * Provide access to the dirents vector.
- */
+//
+// Provide access to the dirents vector.
+//
 pp_dirent *
 pp_scope::dirent(int index)
 {
@@ -232,25 +232,25 @@ pp_scope::dirent(string index) const
 	return scope->dirent(index);
 }
 
-/*
- * Return the name of the indexed dirent.
- */
+//
+// Return the name of the indexed dirent.
+//
 string
 pp_scope::dirent_name(int index) const
 {
 	return m_dirents.key_at(index);
 }
 
-/*
- * Return a pointer to the specified dirent.
- * NOTE: This takes path as a copy.
- *
- * Returns:
- * 	NULL if path not found.
- * Throws:
- * 	pp_path::invalid_error		- invalid path element
- * 	pp_dirent::conversion_error	- path element is not a scope
- */
+//
+// Return a pointer to the specified dirent.
+// NOTE: This takes path as a copy.
+//
+// Returns:
+// 	NULL if path not found.
+// Throws:
+// 	pp_path::invalid_error		- invalid path element
+// 	pp_dirent::conversion_error	- path element is not a scope
+//
 const pp_dirent *
 pp_scope::lookup_dirent(pp_path path) const
 {
@@ -274,7 +274,7 @@ pp_scope::lookup_dirent(pp_path path) const
 const pp_dirent *
 pp_scope::lookup_dirent_internal(pp_path &path) const
 {
-	/* get the next element of the path */
+	// get the next element of the path
 	pp_path::element path_front = path.pop_front();
 
 	// look up the dirent of the next element
@@ -324,40 +324,40 @@ pp_scope::lookup_dirent_internal(pp_path &path) const
 		de = ar->at(index);
 	}
 
-	/* did we find the dirent? */
+	// did we find the dirent?
 	if (path.size() == 0) {
 		return de;
 	}
 
-	/* keep looking */
+	// keep looking
 	if (de->is_scope()) {
 		const pp_scope *s = pp_scope_from_dirent(de);
 		return s->lookup_dirent_internal(path);
 	}
 
-	/* error */
+	// error
 	throw pp_dirent::conversion_error("path element is not a scope: "
 	    + to_string(path) + " (" + to_string(de->dirent_type()) + ")");
 }
 
-/*
- * Test whether the path resolves to a defined dirent.
- */
+//
+// Test whether the path resolves to a defined dirent.
+//
 bool
 pp_scope::dirent_defined(const pp_path &path) const
 {
 	return lookup_dirent(path) != NULL;
 }
 
-/*
- * Return a pointer to the specified register.
- *
- * Returns:
- * 	NULL if path not found.
- * Throws:
- * 	pp_path::invalid_error		- invalid path element
- * 	pp_dirent::conversion_error	- path element is not a scope
- */
+//
+// Return a pointer to the specified register.
+//
+// Returns:
+// 	NULL if path not found.
+// Throws:
+// 	pp_path::invalid_error		- invalid path element
+// 	pp_dirent::conversion_error	- path element is not a scope
+//
 const pp_register *
 pp_scope::lookup_register(const pp_path &path) const
 {
@@ -375,15 +375,15 @@ pp_scope::lookup_register(const pp_path &path) const
 	return pp_register_from_dirent(de);
 }
 
-/*
- * Return a pointer to the specified field.
- *
- * Returns:
- * 	NULL if path not found.
- * Throws:
- * 	pp_path::invalid_error		- invalid path element
- * 	pp_dirent::conversion_error	- path element is not a scope
- */
+//
+// Return a pointer to the specified field.
+//
+// Returns:
+// 	NULL if path not found.
+// Throws:
+// 	pp_path::invalid_error		- invalid path element
+// 	pp_dirent::conversion_error	- path element is not a scope
+//
 const pp_field *
 pp_scope::lookup_field(const pp_path &path) const
 {
@@ -401,15 +401,15 @@ pp_scope::lookup_field(const pp_path &path) const
 	return pp_field_from_dirent(de);
 }
 
-/*
- * Return a pointer to the specified scope.
- *
- * Returns:
- * 	NULL if path not found.
- * Throws:
- * 	pp_path::invalid_error		- invalid path element
- * 	pp_dirent::conversion_error	- path element is not a scope
- */
+//
+// Return a pointer to the specified scope.
+//
+// Returns:
+// 	NULL if path not found.
+// Throws:
+// 	pp_path::invalid_error		- invalid path element
+// 	pp_dirent::conversion_error	- path element is not a scope
+//
 const pp_scope *
 pp_scope::lookup_scope(const pp_path &path) const
 {
@@ -427,15 +427,15 @@ pp_scope::lookup_scope(const pp_path &path) const
 	return pp_scope_from_dirent(de);
 }
 
-/*
- * Return a pointer to the specified array.
- *
- * Returns:
- * 	NULL if path not found.
- * Throws:
- * 	pp_path::invalid_error		- invalid path element
- * 	pp_dirent::conversion_error	- path element is not a scope
- */
+//
+// Return a pointer to the specified array.
+//
+// Returns:
+// 	NULL if path not found.
+// Throws:
+// 	pp_path::invalid_error		- invalid path element
+// 	pp_dirent::conversion_error	- path element is not a scope
+//
 const pp_array *
 pp_scope::lookup_array(const pp_path &path) const
 {
