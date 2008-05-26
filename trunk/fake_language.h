@@ -107,8 +107,8 @@ fkl_write(const parse_location &loc,
 
 //
 // Create a new scope.  Once you open a scope, all subsequent operations
-// (such as REG8() or FIELD()) will be relative to this new scope. Unnamed
-// scopes can be named via CLOSE_SCOPE().
+// (such as REG8() or FIELD()) will be relative to this new scope. Scopes
+// can be renamed via CLOSE_SCOPE().
 //
 extern void
 fkl_open_scope(const parse_location &loc,
