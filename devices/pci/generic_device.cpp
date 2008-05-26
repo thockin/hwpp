@@ -1301,7 +1301,7 @@ explore_capabilities()
 
 		pp_value ptr = READ("capptr");
 		while (ptr != 0 && ptr != 0xff) {
-			OPEN_SCOPE();
+			OPEN_SCOPE("capability");
 
 			FIELD("offset", "hex8_t", ptr);
 			REGFIELD8("id", ptr, "pci_capability_t");
@@ -1383,7 +1383,7 @@ explore_capabilities()
 	 && (READ("%PCI.100") != 0)) {
 		pp_value ptr = 0x100;
 		while (ptr != 0 && ptr != 0xfff) {
-			OPEN_SCOPE();
+			OPEN_SCOPE("ecapability");
 
 			FIELD("offset", "hex16_t", ptr);
 			REGFIELD16("id", ptr, "pcie_capability_t");

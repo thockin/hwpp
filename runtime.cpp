@@ -8,9 +8,10 @@
 #include "device_init.h"
 
 //
-// These comprise the current context within the PP tree.
+// These comprise the current context within the PP tree.  The name
+// doesn't matter, it just has to be *something* valid.
 //
-pp_context current_context("", new_pp_scope());
+pp_context current_context("pp", new_pp_scope());
 std::vector<pp_context> context_stack;
 
 // Initialize the PP runtime.
