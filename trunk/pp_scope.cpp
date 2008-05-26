@@ -254,20 +254,19 @@ pp_scope::dirent_name(int index) const
 const pp_dirent *
 pp_scope::lookup_dirent(pp_path path) const
 {
-	if (path.size() != 0 && path.front() == "^") {
-		const pp_scope *s = this;
-		while (!s->is_bound() && !s->is_root()) {
-			s = s->parent();
+	const pp_scope *scope = this;
+
+	if (path.is_absolute()) {
+		while (!scope->is_root()) {
+			scope = scope->parent();
 		}
-		path.pop_front();
-		return s->lookup_dirent_internal(path);
 	}
 
 	if (path.size() == 0) {
-		return this;
+		return scope;
 	}
 
-	return lookup_dirent_internal(path);
+	return scope->lookup_dirent_internal(path);
 }
 // Returned desired dirent specified by path, NULL if not found.
 // NOTE: this takes path as a non-const reference
@@ -282,10 +281,19 @@ pp_scope::lookup_dirent_internal(pp_path &path) const
 	if (path_front == "..") {
 		// go up one level in the tree
 		de = parent();
+	} else if (path_front.is_bookmark()) {
+		const pp_scope *s = this;
+		while (!s->has_bookmark(path_front.name()) && !s->is_root()) {
+			s = s->parent();
+		}
+		if (!s->has_bookmark(path_front.name())) {
+			return NULL;
+		}
+		de = s;
 	} else {
 		de = dirent(path_front.name());
 		if (de == NULL) {
-			return de;
+			return NULL;
 		}
 	}
 
@@ -451,4 +459,16 @@ pp_scope::lookup_array(const pp_path &path) const
 	}
 
 	return pp_array_from_dirent(de);
+}
+
+void
+pp_scope::add_bookmark(const string &name)
+{
+	m_bookmarks.insert(std::make_pair(name, 1));
+}
+
+bool
+pp_scope::has_bookmark(const string &name) const
+{
+	return (m_bookmarks.find(name) != m_bookmarks.end());
 }

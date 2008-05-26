@@ -238,6 +238,18 @@ fkl_close_scope(const parse_location &loc, const string &new_name)
 }
 
 //
+// Define a bookmark
+//
+void
+fkl_bookmark(const parse_location &loc, const string &name)
+{
+	if (!lang_valid_bookmark_name(name)) {
+		throw pp_parse_error("invalid bookmark name: " + name, loc);
+	}
+	current_context.add_bookmark(name);
+}
+
+//
 // Define a register.
 //
 void

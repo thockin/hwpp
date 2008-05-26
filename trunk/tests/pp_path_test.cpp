@@ -24,6 +24,8 @@ test_element()
 			"pp_path::element::element()");
 		ret += TEST_ASSERT(e.is_array() == false,
 			"pp_path::element::element()");
+		ret += TEST_ASSERT(e.is_bookmark() == false,
+			"pp_path::element::element()");
 	}
 	{
 		pp_path::element e("%foo");
@@ -35,6 +37,8 @@ test_element()
 			"pp_path::element::element()");
 		ret += TEST_ASSERT(e.is_array() == false,
 			"pp_path::element::element()");
+		ret += TEST_ASSERT(e.is_bookmark() == false,
+			"pp_path::element::element()");
 	}
 	{
 		pp_path::element e("foo_123");
@@ -45,6 +49,8 @@ test_element()
 		ret += TEST_ASSERT(!e.equals(pp_path::element("foo_456")),
 			"pp_path::element::element()");
 		ret += TEST_ASSERT(e.is_array() == false,
+			"pp_path::element::element()");
+		ret += TEST_ASSERT(e.is_bookmark() == false,
 			"pp_path::element::element()");
 	}
 	{
@@ -61,6 +67,8 @@ test_element()
 			"pp_path::element::element()");
 		ret += TEST_ASSERT(e.array_mode() == e.ARRAY_APPEND,
 			"pp_path::element::element()");
+		ret += TEST_ASSERT(e.is_bookmark() == false,
+			"pp_path::element::element()");
 	}
 	{
 		pp_path::element e("foo[$]");
@@ -75,6 +83,8 @@ test_element()
 		ret += TEST_ASSERT(e.is_array() == true,
 			"pp_path::element::element()");
 		ret += TEST_ASSERT(e.array_mode() == e.ARRAY_TAIL,
+			"pp_path::element::element()");
+		ret += TEST_ASSERT(e.is_bookmark() == false,
 			"pp_path::element::element()");
 	}
 	{
@@ -92,6 +102,8 @@ test_element()
 		ret += TEST_ASSERT(e.array_mode() == e.ARRAY_INDEX,
 			"pp_path::element::element()");
 		ret += TEST_ASSERT(e.array_index() == 0,
+			"pp_path::element::element()");
+		ret += TEST_ASSERT(e.is_bookmark() == false,
 			"pp_path::element::element()");
 	}
 	{
@@ -114,6 +126,8 @@ test_element()
 			"pp_path::element::element()");
 		ret += TEST_ASSERT(e.array_index() == 8,
 			"pp_path::element::element()");
+		ret += TEST_ASSERT(e.is_bookmark() == false,
+			"pp_path::element::element()");
 	}
 	{
 		pp_path::element e("foo[0x10]");
@@ -135,6 +149,8 @@ test_element()
 			"pp_path::element::element()");
 		ret += TEST_ASSERT(e.array_index() == 16,
 			"pp_path::element::element()");
+		ret += TEST_ASSERT(e.is_bookmark() == false,
+			"pp_path::element::element()");
 	}
 	{
 		pp_path::element e("_");
@@ -142,17 +158,21 @@ test_element()
 			"pp_path::element::element()");
 		ret += TEST_ASSERT(e.is_array() == false,
 			"pp_path::element::element()");
+		ret += TEST_ASSERT(e.is_bookmark() == false,
+			"pp_path::element::element()");
 	}
 	{
-		pp_path::element e("^");
-		ret += TEST_ASSERT(e.to_string() == "^",
+		pp_path::element e("$foo");
+		ret += TEST_ASSERT(e.to_string() == "$foo",
 			"pp_path::element::element()");
 		ret += TEST_ASSERT(e.is_array() == false,
+			"pp_path::element::element()");
+		ret += TEST_ASSERT(e.is_bookmark() == true,
 			"pp_path::element::element()");
 	}
 	{
 		try {
-			pp_path::element e("^foo");
+			pp_path::element e("foo$bar");
 			TEST_ERROR("pp_path::pp_path()");
 			ret++;
 		} catch (pp_path::invalid_error &e) {
@@ -160,7 +180,23 @@ test_element()
 	}
 	{
 		try {
-			pp_path::element e("^^");
+			pp_path::element e("$123");
+			TEST_ERROR("pp_path::pp_path()");
+			ret++;
+		} catch (pp_path::invalid_error &e) {
+		}
+	}
+	{
+		try {
+			pp_path::element e("$");
+			TEST_ERROR("pp_path::pp_path()");
+			ret++;
+		} catch (pp_path::invalid_error &e) {
+		}
+	}
+	{
+		try {
+			pp_path::element e("$$");
 			TEST_ERROR("pp_path::pp_path()");
 			ret++;
 		} catch (pp_path::invalid_error &e) {
@@ -453,26 +489,30 @@ test_ctors()
 
 	// test carats
 	{
-		pp_path path("^");
-		ret += TEST_ASSERT(path == "^",
+		pp_path path("$foo");
+		ret += TEST_ASSERT(path == "$foo",
 			"pp_path::element::element()");
 		ret += TEST_ASSERT(!path.is_absolute(),
 			"pp_path::is_absolute()");
 	}
 	{
-		pp_path path("^/foo");
-		ret += TEST_ASSERT(path == "^/foo",
+		pp_path path("$foo/foo");
+		ret += TEST_ASSERT(path == "$foo/foo",
 			"pp_path::element::element()");
-		ret += TEST_ASSERT(path != pp_path("^/bar"),
+		ret += TEST_ASSERT(path != pp_path("$foo/bar"),
+			"pp_path::element::element()");
+		ret += TEST_ASSERT(path != pp_path("$bar/foo"),
 			"pp_path::element::element()");
 		ret += TEST_ASSERT(!path.is_absolute(),
 			"pp_path::is_absolute()");
 	}
 	{
-		pp_path path("/^/foo");
-		ret += TEST_ASSERT(path == "/^/foo",
+		pp_path path("/$foo/foo");
+		ret += TEST_ASSERT(path == "/$foo/foo",
 			"pp_path::pp_path()");
-		ret += TEST_ASSERT(path != pp_path("/^/bar"),
+		ret += TEST_ASSERT(path != pp_path("/$foo/bar"),
+			"pp_path::pp_path()");
+		ret += TEST_ASSERT(path != pp_path("/$bar/foo"),
 			"pp_path::pp_path()");
 		ret += TEST_ASSERT(path.is_absolute(),
 			"pp_path::is_absolute()");
