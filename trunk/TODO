@@ -12,6 +12,7 @@ Device stuff:
    	EXPORT("%foo", REG32(0x100))
    or
    	NAME("%foo", REG32(0x100))
+ - switch to push/pop context
  - figure out how to do common MSRs (like MTRR)
  - is there a well-known CPU place or does Opteron have to take that
    over, too?
@@ -48,6 +49,7 @@ Bugs and features:
  - some MSIX access kill the system in !msi_enabled.  Figure out why
    and what the right heuristic is.
  - allow enum default values if value is out-of-bounds
+ 	- PCI vendor
  - enums with duplicate names
  	- pcie_capability_t vchannel vs vc2
 	- pcie_link_speed_t 0 vs 1
