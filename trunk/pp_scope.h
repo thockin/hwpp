@@ -112,7 +112,7 @@ class pp_scope: public pp_dirent
 	 * 	pp_dirent::conversion_error	- path element is not a scope
 	 */
 	void
-	add_dirent(const string &name, const pp_dirent_ptr &dirent);
+	add_dirent(const pp_path::element &name, const pp_dirent_ptr &dirent);
 
 	/*
 	 * Return the number of dirents in this scope.

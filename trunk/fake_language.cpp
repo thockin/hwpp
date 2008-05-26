@@ -22,61 +22,80 @@
 // Resolve a path to a dirent, relative to the current scope.
 //
 const pp_dirent *
-GET_DIRENT(const string &path)
+fkl_get_dirent(const parse_location &loc, const string &path_str)
 {
-	const pp_dirent *de = current_context.lookup_dirent(path);
-
-	if (de == NULL) {
-		throw pp_path::not_found_error(path);
+	try {
+		pp_path path(path_str);
+		const pp_dirent *de = current_context.lookup_dirent(path);
+		if (de == NULL) {
+			throw pp_path::not_found_error(path_str);
+		}
+		return de;
+	} catch (pp_path::invalid_error &e) {
+		throw pp_parse_error(e.what(), loc);
 	}
-
-	return de;
 }
 
 //
 // Resolve a path to a field, relative to the current scope.
 //
 const pp_field *
-GET_FIELD(const string &path)
+fkl_get_field(const parse_location &loc, const string &path_str)
 {
-	const pp_field *field = current_context.lookup_field(path);
-
-	if (field == NULL) {
-		throw pp_path::not_found_error(path);
+	try {
+		pp_path path(path_str);
+		const pp_field *field = current_context.lookup_field(path);
+		if (field == NULL) {
+			throw pp_path::not_found_error(path_str);
+		}
+		return field;
+	} catch (pp_path::invalid_error &e) {
+		throw pp_parse_error(e.what(), loc);
 	}
-
-	return field;
 }
 
 //
 // Resolve a path to a register, relative to the current scope.
 //
 const pp_register *
-GET_REGISTER(const string &path)
+fkl_get_register(const parse_location &loc, const string &path_str)
 {
 	// magic registers
 	extern pp_register *magic_zeros;
 	extern pp_register *magic_ones;
 
-	if (path == "%0")
+	if (path_str == "%0")
 		return magic_zeros;
-	if (path == "%1")
+	if (path_str == "%1")
 		return magic_ones;
 
-	const pp_register *reg = current_context.lookup_register(path);
-
-	if (reg == NULL) {
-		throw pp_path::not_found_error(path);
+	try {
+		pp_path path(path_str);
+		const pp_register *reg = current_context.lookup_register(path);
+		if (reg == NULL) {
+			throw pp_path::not_found_error(path_str);
+		}
+		return reg;
+	} catch (pp_path::invalid_error &e) {
+		throw pp_parse_error(e.what(), loc);
 	}
-
-	return reg;
 }
 
 //
 // Check whether a path resolves successfully.
 //
 bool
-DEFINED(const string &path)
+fkl_defined(const parse_location &loc, const string &path_str)
+{
+	try {
+		pp_path path(path_str);
+		return current_context.dirent_defined(path);
+	} catch (pp_path::invalid_error &e) {
+		throw pp_parse_error(e.what(), loc);
+	}
+}
+static bool
+fkl_defined(const parse_location &loc, const pp_path &path)
 {
 	return current_context.dirent_defined(path);
 }
@@ -85,40 +104,53 @@ DEFINED(const string &path)
 // Read and write a field or register.
 //
 pp_value
-READ(const string &path)
+fkl_read(const parse_location &loc, const string &path_str)
 {
-	const pp_dirent *de = GET_DIRENT(path);
-	if (de->is_register()) {
-		return pp_register_from_dirent(de)->read();
-	} else if (de->is_field()) {
-		return pp_field_from_dirent(de)->read();
+	try {
+		const pp_dirent *de = fkl_get_dirent(loc, path_str);
+		if (de->is_register()) {
+			return pp_register_from_dirent(de)->read();
+		} else if (de->is_field()) {
+			return pp_field_from_dirent(de)->read();
+		}
+		throw pp_dirent::conversion_error(
+		    "path is not a register or field: "
+		    + path_str + " (" + to_string(de->dirent_type()) + ")");
+	} catch (pp_path::invalid_error &e) {
+		throw pp_parse_error(e.what(), loc);
 	}
-	throw pp_dirent::conversion_error("path is not a register nor field: "
-	    + to_string(path) + " (" + to_string(de->dirent_type()) + ")");
 }
 void
-WRITE(const string &path, const pp_value &value)
+fkl_write(const parse_location &loc,
+          const string &path_str, const pp_value &value)
 {
-	const pp_dirent *de = GET_DIRENT(path);
-	if (de->is_register()) {
-		pp_register_from_dirent(de)->write(value);
-	} else if (de->is_field()) {
-		pp_field_from_dirent(de)->write(value);
+	try {
+		const pp_dirent *de = GET_DIRENT(path_str);
+		if (de->is_register()) {
+			pp_register_from_dirent(de)->write(value);
+		} else if (de->is_field()) {
+			pp_field_from_dirent(de)->write(value);
+		}
+		throw pp_dirent::conversion_error(
+		    "path is not a register or field: "
+		    + path_str + " (" + to_string(de->dirent_type()) + ")");
+	} catch (pp_path::invalid_error &e) {
+		throw pp_parse_error(e.what(), loc);
 	}
-	throw pp_dirent::conversion_error("path is not a register nor field: "
-	    + to_string(path) + " (" + to_string(de->dirent_type()) + ")");
 }
 
 //
 // Read and wite regbits.
 //
+//FIXME: inline these?
 pp_value
-READ(const pp_regbits &bits)
+fkl_read(const parse_location &loc, const pp_regbits &bits)
 {
 	return bits.read();
 }
 void
-WRITE(const pp_regbits &bits, const pp_value &value)
+fkl_write(const parse_location &loc,
+          const pp_regbits &bits, const pp_value &value)
 {
 	bits.write(value);
 }
@@ -127,33 +159,40 @@ WRITE(const pp_regbits &bits, const pp_value &value)
 // Start a new scope.
 //
 void
-OPEN_SCOPE(const string &name, const pp_binding_ptr &binding)
+fkl_open_scope(const parse_location &loc,
+               const string &name, const pp_binding_ptr &binding)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 	DTRACE(TRACE_SCOPES, "scope: " + name);
 
-	// note: this is not a debug-only test
-	if (name != "" && DEFINED(name)) {
-		PP_WARN("dirent redefined: " + name);
+	try {
+		pp_path::element elem(name);
+
+		// note: this is not a debug-only test
+		if (fkl_defined(loc, pp_path(elem))) {
+			PP_WARN(to_string(loc) + ": '" + name + "' redefined");
+		}
+
+		pp_scope_ptr tmp_scope = new_pp_scope(binding);
+		pp_context new_ctxt(elem, tmp_scope);
+
+		// save the current scope
+		tmp_scope->set_parent(current_context.scope());
+		context_stack.push_back(current_context);
+
+		// set current_context
+		current_context = new_ctxt;
+	} catch (pp_path::invalid_error &e) {
+		throw pp_parse_error(e.what(), loc);
 	}
-
-	pp_scope_ptr tmp_scope = new_pp_scope(binding);
-	pp_context new_ctxt(name, tmp_scope);
-
-	// save the current scope
-	tmp_scope->set_parent(current_context.scope());
-	context_stack.push_back(current_context);
-
-	// set current_context
-	current_context = new_ctxt;
 }
 
 //
 // Close the current scope.
 //
 void
-CLOSE_SCOPE()
+fkl_close_scope(const parse_location &loc)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
@@ -170,27 +209,35 @@ CLOSE_SCOPE()
 	context_stack.pop_back();
 }
 void
-CLOSE_SCOPE(const string &new_name)
+fkl_close_scope(const parse_location &loc, const string &new_name)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 	    "current_context is read-only");
 	// there had better be a current scope and a parent scope
 	DASSERT_MSG(!context_stack.empty(), "invalid parent context");
 
-	// note: this is not a debug-only test
-	if (DEFINED("../" + new_name)) {
-		PP_WARN("dirent redefined: " + new_name);
-	}
+	try {
+		pp_path::element elem(new_name);
 
-	current_context.rename(new_name);
-	CLOSE_SCOPE();
+		// note: this is not a debug-only test
+		if (fkl_defined(loc, pp_path("..", elem))) {
+			PP_WARN(to_string(loc)
+					+ ": '" + new_name + "' redefined");
+		}
+
+		current_context.rename(elem);
+		fkl_close_scope(loc);
+	} catch (pp_path::invalid_error &e) {
+		throw pp_parse_error(e.what(), loc);
+	}
 }
 
 //
 // Define a register.
 //
 void
-fkl_regn(const string &name, const pp_value &address, pp_bitwidth width)
+fkl_regn(const parse_location &loc,
+         const string &name, const pp_value &address, pp_bitwidth width)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
@@ -201,35 +248,43 @@ fkl_regn(const string &name, const pp_value &address, pp_bitwidth width)
 	// check that we have a current binding
 	DASSERT_MSG(cur_binding, "no binding for register " + name);
 
-	// note: this is not a debug-only test
-	if (DEFINED(name)) {
-		PP_WARN("register redefined: " + name);
-	}
+	try {
+		pp_path::element elem(name);
 
-	pp_register_ptr reg_ptr = new_pp_register(
-			cur_binding, address, width);
-	current_context.add_dirent(name, reg_ptr);
+		// note: this is not a debug-only test
+		if (fkl_defined(loc, pp_path(elem))) {
+			PP_WARN(to_string(loc) + ": '" + name + "' redefined");
+		}
+
+		pp_register_ptr reg_ptr = new_pp_register(
+				cur_binding, address, width);
+		current_context.add_dirent(elem, reg_ptr);
+	} catch (pp_path::invalid_error &e) {
+		throw pp_parse_error(e.what(), loc);
+	}
 }
 
 //
 // Define a regbits from a register name and bit range.
 //
+//FIXME: inline these?
 pp_regbits
-BITS(const string &regname)
+fkl_bits(const parse_location &loc, const string &regname)
 {
-	const pp_register *reg = GET_REGISTER(regname);
+	const pp_register *reg = fkl_get_register(loc, regname);
 	return pp_regbits(reg, reg->width()-1, 0);
 }
 pp_regbits
-BITS(const string &regname, pp_bitwidth bit)
+fkl_bits(const parse_location &loc, const string &regname, pp_bitwidth bit)
 {
-	const pp_register *reg = GET_REGISTER(regname);
+	const pp_register *reg = fkl_get_register(loc, regname);
 	return pp_regbits(reg, bit, bit);
 }
 pp_regbits
-BITS(const string &regname, pp_bitwidth hi_bit, pp_bitwidth lo_bit)
+fkl_bits(const parse_location &loc,
+         const string &regname, pp_bitwidth hi_bit, pp_bitwidth lo_bit)
 {
-	const pp_register *reg = GET_REGISTER(regname);
+	const pp_register *reg = fkl_get_register(loc, regname);
 	return pp_regbits(reg, hi_bit, lo_bit);
 }
 
@@ -237,27 +292,33 @@ BITS(const string &regname, pp_bitwidth hi_bit, pp_bitwidth lo_bit)
 // Define a register and a field that consumes that register.
 //
 void
-fkl_regfieldn(const string &name, const pp_value &address, const pp_datatype *type,
-		pp_bitwidth width)
+fkl_regfieldn(const parse_location &loc,
+              const string &name, const pp_value &address,
+              const pp_datatype *type, pp_bitwidth width)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 	string regname = "%" + name;
-	fkl_regn(regname, address, width);
-	FIELD(name, type, BITS(regname, width-1, 0));
+	fkl_regn(loc, regname, address, width);
+	fkl_field(loc, name, type, fkl_bits(loc, regname, width-1, 0));
 }
+//FIXME: inline these datatyle lookups?
 void
-fkl_regfieldn(const string &name, const pp_value &address, const string &type,
-		pp_bitwidth width)
+fkl_regfieldn(const parse_location &loc,
+              const string &name, const pp_value &address,
+              const string &type, pp_bitwidth width)
 {
-	fkl_regfieldn(name, address, current_context.resolve_datatype(type), width);
+	fkl_regfieldn(loc, name, address,
+			current_context.resolve_datatype(type), width);
 }
 
+//FIXME: as user-facing code, this should sanity check even more!
 //
 // Define a field as a set of register-bits.
 //
 void
-FIELD(const string &name, const pp_datatype *type, const pp_regbits &bits)
+fkl_field(const parse_location &loc,
+          const string &name, const pp_datatype *type, const pp_regbits &bits)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
@@ -265,176 +326,230 @@ FIELD(const string &name, const pp_datatype *type, const pp_regbits &bits)
 	// sanity
 	DASSERT_MSG(type, "found NULL pp_datatype for field " + name);
 
-	// note: this is not a debug-only test
-	if (DEFINED(name)) {
-		PP_WARN("scope or field redefined: " + name);
-	}
+	try {
+		pp_path::element elem(name);
 
-	// create a field and add it to the current scope
-	pp_direct_field_ptr field_ptr = new_pp_direct_field(type, bits);
-	current_context.add_dirent(name, field_ptr);
+		// note: this is not a debug-only test
+		if (fkl_defined(loc, pp_path(elem))) {
+			PP_WARN(to_string(loc) + ": '" + name + "' redefined");
+		}
+
+		// create a field and add it to the current scope
+		pp_direct_field_ptr field_ptr = new_pp_direct_field(type, bits);
+		current_context.add_dirent(elem, field_ptr);
+	} catch (pp_path::invalid_error &e) {
+		throw pp_parse_error(e.what(), loc);
+	}
 }
 void
-FIELD(const string &name, const string &type, const pp_regbits &bits)
+fkl_field(const parse_location &loc,
+          const string &name, const string &type, const pp_regbits &bits)
 {
-	FIELD(name, current_context.resolve_datatype(type), bits);
+	fkl_field(loc, name, current_context.resolve_datatype(type), bits);
 }
 //
 // Define a field as a constant value.
 //
 void
-FIELD(const string &name, const pp_datatype *type, const pp_value &value)
+fkl_field(const parse_location &loc,
+          const string &name, const pp_datatype *type, const pp_value &value)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
-	pp_constant_field_ptr field_ptr = new_pp_constant_field(type, value);
-	current_context.add_dirent(name, field_ptr);
+	DTRACE(TRACE_FIELDS, "field: " + name);
+	// sanity
+	DASSERT_MSG(type, "found NULL pp_datatype for field " + name);
+
+	try {
+		pp_path::element elem(name);
+
+		// note: this is not a debug-only test
+		if (fkl_defined(loc, pp_path(elem))) {
+			PP_WARN(to_string(loc) + ": '" + name + "' redefined");
+		}
+
+		// create a field and add it to the current scope
+		pp_constant_field_ptr field_ptr =
+				new_pp_constant_field(type, value);
+		current_context.add_dirent(elem, field_ptr);
+	} catch (pp_path::invalid_error &e) {
+		throw pp_parse_error(e.what(), loc);
+	}
 }
 void
-FIELD(const string &name, const string &type, const pp_value &value)
+fkl_field(const parse_location &loc,
+          const string &name, const string &type, const pp_value &value)
 {
-	FIELD(name, current_context.resolve_datatype(type), value);
+	fkl_field(loc, name, current_context.resolve_datatype(type), value);
 }
-
 //
 // Define a field as a set of procedures.
 //
 void
-FIELD(const string &name, const pp_datatype *type,
-		const proc_field_accessor_ptr &access)
+fkl_field(const parse_location &loc,
+          const string &name, const pp_datatype *type,
+          const proc_field_accessor_ptr &access)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
-	pp_proc_field_ptr field_ptr = new_pp_proc_field(type, access);
-	current_context.add_dirent(name, field_ptr);
+	DTRACE(TRACE_FIELDS, "field: " + name);
+	// sanity
+	DASSERT_MSG(type, "found NULL pp_datatype for field " + name);
+
+	try {
+		pp_path::element elem(name);
+
+		// note: this is not a debug-only test
+		if (fkl_defined(loc, pp_path(elem))) {
+			PP_WARN(to_string(loc) + ": '" + name + "' redefined");
+		}
+
+		// create a field and add it to the current scope
+		pp_proc_field_ptr field_ptr = new_pp_proc_field(type, access);
+		current_context.add_dirent(elem, field_ptr);
+	} catch (pp_path::invalid_error &e) {
+		throw pp_parse_error(e.what(), loc);
+	}
 }
 void
-FIELD(const string &name, const string &type,
-		const proc_field_accessor_ptr &access)
+fkl_field(const parse_location &loc,
+          const string &name, const string &type,
+          const proc_field_accessor_ptr &access)
 {
-	FIELD(name, current_context.resolve_datatype(type), access);
+	fkl_field(loc, name, current_context.resolve_datatype(type), access);
+}
+
+static void
+validate_type_name(const string &name, const parse_location &loc)
+{
+	if (!lang_valid_datatype_name(name)) {
+		throw pp_parse_error("invalid datatype name: " + name, loc);
+	}
 }
 
 //
 // Define a pp_int datatype.
 //
 pp_int *
-fkl_int(const string &name, const string &units, const parse_location &loc)
+fkl_int(const parse_location &loc, const string &name, const string &units)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 	DTRACE(TRACE_TYPES, "int: " + name);
 
-	try {
-		pp_int_ptr int_ptr = new_pp_int(units);
-		if (name == "") {
-			current_context.add_datatype(int_ptr);
-		} else {
-			current_context.add_datatype(name, int_ptr);
-		}
-		return int_ptr.get();
-	} catch (pp_parse_error &e) {
-		e.set_location(loc);
-		throw e;
+	pp_int_ptr int_ptr = new_pp_int(units);
+	if (name == "") {
+		current_context.add_datatype(int_ptr);
+	} else {
+		validate_type_name(name, loc);
+		current_context.add_datatype(name, int_ptr);
 	}
+	return int_ptr.get();
 }
 
 //
 // Define a pp_hex datatype.
 //
 pp_hex *
-fkl_hex(const string &name, const pp_bitwidth width, const string &units,
-		const parse_location &loc)
+fkl_hex(const parse_location &loc,
+        const string &name, const pp_bitwidth width, const string &units)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 	DTRACE(TRACE_TYPES, "hex: " + name);
 
-	try {
-		pp_hex_ptr hex_ptr = new_pp_hex(width, units);
-		if (name == "") {
-			current_context.add_datatype(hex_ptr);
-		} else {
-			current_context.add_datatype(name, hex_ptr);
-		}
-		return hex_ptr.get();
-	} catch (pp_parse_error &e) {
-		e.set_location(loc);
-		throw e;
+	pp_hex_ptr hex_ptr = new_pp_hex(width, units);
+	if (name == "") {
+		current_context.add_datatype(hex_ptr);
+	} else {
+		validate_type_name(name, loc);
+		current_context.add_datatype(name, hex_ptr);
 	}
+	return hex_ptr.get();
 }
 
 //
 // Define a pp_bitmask datatype.
 //
 pp_bitmask *
-fkl_bitmask(const string &name, const fkl_kvpair_list &kvlist,
-		const parse_location &loc)
+fkl_bitmask(const parse_location &loc,
+            const string &name, const fkl_kvpair_list &kvlist)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 	DTRACE(TRACE_TYPES, "bitmask: " + name);
 
-	try {
-		pp_bitmask_ptr bitmask_ptr = new_pp_bitmask(kvlist);
-		if (name == "") {
-			current_context.add_datatype(bitmask_ptr);
-		} else {
-			current_context.add_datatype(name, bitmask_ptr);
+	for (size_t i = 0; i < kvlist.size(); i++) {
+		const string &key = kvlist.key_at(i);
+		if (!lang_valid_datatype_key(key)) {
+			throw pp_parse_error(
+			    "invalid bitmask key: " + key, loc);
 		}
-		return bitmask_ptr.get();
-	} catch (pp_parse_error &e) {
-		e.set_location(loc);
-		throw e;
 	}
+
+	pp_bitmask_ptr bitmask_ptr = new_pp_bitmask(kvlist);
+	if (name == "") {
+		current_context.add_datatype(bitmask_ptr);
+	} else {
+		validate_type_name(name, loc);
+		current_context.add_datatype(name, bitmask_ptr);
+	}
+	return bitmask_ptr.get();
 }
 
 //
 // Define a pp_enum datatype.
 //
 pp_enum *
-fkl_enum(const string &name, const fkl_kvpair_list &kvlist,
-		const parse_location &loc)
+fkl_enum(const parse_location &loc,
+         const string &name, const fkl_kvpair_list &kvlist)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 	DTRACE(TRACE_TYPES, "enum: " + name);
 
-	try {
-		pp_enum_ptr enum_ptr = new_pp_enum(kvlist);
-		if (name == "") {
-			current_context.add_datatype(enum_ptr);
-		} else {
-			current_context.add_datatype(name, enum_ptr);
+	for (size_t i = 0; i < kvlist.size(); i++) {
+		const string &key = kvlist.key_at(i);
+		if (!lang_valid_datatype_key(key)) {
+			throw pp_parse_error(
+			    "invalid enum key: " + key, loc);
 		}
-		return enum_ptr.get();
-	} catch (pp_parse_error &e) {
-		e.set_location(loc);
-		throw e;
 	}
+
+	pp_enum_ptr enum_ptr = new_pp_enum(kvlist);
+	if (name == "") {
+		current_context.add_datatype(enum_ptr);
+	} else {
+		validate_type_name(name, loc);
+		current_context.add_datatype(name, enum_ptr);
+	}
+	return enum_ptr.get();
 }
 
 //
 // Define a pp_bool datatype.
 //
 pp_bool *
-fkl_bool(const string &name, const string &true_str, const string &false_str,
-		const parse_location &loc)
+fkl_bool(const parse_location &loc,
+         const string &name, const string &true_str, const string &false_str)
 {
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 	DTRACE(TRACE_TYPES, "bool: " + name);
 
-	try {
-		pp_bool_ptr bool_ptr = new_pp_bool(true_str, false_str);
-		if (name == "") {
-			current_context.add_datatype(bool_ptr);
-		} else {
-			current_context.add_datatype(name, bool_ptr);
-		}
-		return bool_ptr.get();
-	} catch (pp_parse_error &e) {
-		e.set_location(loc);
-		throw e;
+	if (!lang_valid_datatype_key(true_str)) {
+		throw pp_parse_error("invalid bool key: " + true_str, loc);
 	}
+	if (!lang_valid_datatype_key(false_str)) {
+		throw pp_parse_error("invalid bool key: " + false_str, loc);
+	}
+
+	pp_bool_ptr bool_ptr = new_pp_bool(true_str, false_str);
+	if (name == "") {
+		current_context.add_datatype(bool_ptr);
+	} else {
+		validate_type_name(name, loc);
+		current_context.add_datatype(name, bool_ptr);
+	}
+	return bool_ptr.get();
 }
