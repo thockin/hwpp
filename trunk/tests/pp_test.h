@@ -6,18 +6,21 @@
 #include <iostream>
 #include <stdlib.h>
 
-#define TEST_ERROR_ON_LINE(msg, file, line) \
-	std::cerr << "ERROR: [" << file << ":" << line << "] " \
-		<< msg << std::endl
-#define TEST_ERROR(msg) TEST_ERROR_ON_LINE(msg, __FILE__, __LINE__)
+#define TEST_ERROR(msg) TEST_ERROR_(msg, __FILE__, __LINE__)
+inline int
+TEST_ERROR_(const string &msg, const string &file, int line)
+{
+	std::cerr << "ERROR: [" << file << ":" << line << "] "
+		<< msg << std::endl;
+	return 1;
+}
 
 #define TEST_ASSERT(pred, msg) TEST_ASSERT_(pred, msg, __FILE__, __LINE__)
 inline int
 TEST_ASSERT_(bool predicate, const string &msg, const string &file, int line)
 {
 	if (!predicate) {
-		TEST_ERROR_ON_LINE(msg, file, line);
-		return 1;
+		return TEST_ERROR_(msg, file, line);
 	}
 	return 0;
 }
