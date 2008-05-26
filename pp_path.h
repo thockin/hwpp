@@ -108,11 +108,15 @@ class pp_path
 			ARRAY_APPEND,
 		};
 
-		// explicit ctor from string
+		// implicit ctor from string
 		// throws:
 		// 	pp_path::invalid_error
-		explicit
 		element(const string &str)
+		    : m_name(), m_array_mode(ARRAY_NONE), m_array_index(0)
+		{
+			parse(str);
+		}
+		element(const char *str)
 		    : m_name(), m_array_mode(ARRAY_NONE), m_array_index(0)
 		{
 			parse(str);
@@ -170,6 +174,10 @@ class pp_path
 	typedef std::list<element> Tlist;
 	typedef Tlist::iterator Titer;
 
+	// member variables
+	Tlist m_list;
+	bool m_absolute;
+
     public:
 	typedef pp_path_iterator<Titer, element> iterator;
 	typedef pp_path_iterator<Titer, const element> const_iterator;
@@ -196,6 +204,20 @@ class pp_path
 	    : m_list(), m_absolute(false)
 	{
 		append(path);
+	}
+	// explicit conversion from pp_path::element
+	explicit
+	pp_path(const element &elem)
+	    : m_list(), m_absolute(false)
+	{
+		m_list.push_back(elem);
+	}
+	// explicit conversion from 2 pp_path::elements
+	pp_path(const element &elem1, const element &elem2)
+	    : m_list(), m_absolute(false)
+	{
+		m_list.push_back(elem1);
+		m_list.push_back(elem2);
 	}
 	// copy constructor
 	pp_path(const pp_path &that)
@@ -362,9 +384,6 @@ class pp_path
 	equals(const pp_path &other) const;
 
     private:
-	Tlist m_list;
-	bool m_absolute;
-
 	void
 	append(const string &str);
 };
@@ -388,8 +407,7 @@ operator!=(const pp_path::element &left, const pp_path::element &right)
 	return !(left == right);
 }
 // Allow comparison between path elements and strings, without converting
-// the strings to elements.  Comparison to char* will work because the
-// char* will be converted to string.
+// the strings to elements.
 inline bool
 operator==(const pp_path::element &left, const string &right)
 {
@@ -407,6 +425,28 @@ operator!=(const pp_path::element &left, const string &right)
 }
 inline bool
 operator!=(const string &left, const pp_path::element &right)
+{
+	return !(left == right);
+}
+// These are needed to disambiguate comparisons to string-literals (which
+// could convert to string or pp_path::element).
+inline bool
+operator==(const pp_path::element &left, const char *right)
+{
+	return (left.to_string() == right);
+}
+inline bool
+operator==(const char *left, const pp_path::element &right)
+{
+	return (right == left);
+}
+inline bool
+operator!=(const pp_path::element &left, const char *right)
+{
+	return !(left == right);
+}
+inline bool
+operator!=(const char *left, const pp_path::element &right)
 {
 	return !(left == right);
 }

@@ -26,14 +26,13 @@ class pp_enum: public pp_datatype
 	pp_enum()
 	    : m_custom_unknown(false)
 	{}
-	// Throws: pp_parse_error	- invalid key
 	pp_enum(const keyed_vector<string, pp_value> &values)
 	    : m_values(values), m_custom_unknown(false)
 	{
-		validate_keys();
 	}
 	virtual ~pp_enum()
-	{}
+	{
+	}
 
 	/*
 	 * pp_enum::evaluate(value)
@@ -93,13 +92,10 @@ class pp_enum: public pp_datatype
 	 * pp_enum::add_value(name, value)
 	 *
 	 * Add a possible value to this enumeration.
-	 *
-	 * Throws: pp_parse_error	- invalid key
 	 */
 	void
 	add_value(const string &name, const pp_value &value)
 	{
-		validate_key(name);
 		DASSERT_MSG(m_values.find(name) == m_values.end(),
 				"adding duplicate enum key: "
 					+ name + " = " + to_string(value));
@@ -110,32 +106,12 @@ class pp_enum: public pp_datatype
 	 * pp_enum::set_unknown(name)
 	 *
 	 * Use a string for unknown enumerated values.
-	 *
-	 * Throws: pp_parse_error	- invalid key
 	 */
 	void
 	set_unknown(const string &name)
 	{
-		validate_key(name);
 		m_unknown = name;
 		m_custom_unknown = true;
-	}
-
-    private:
-	void
-	validate_key(const string &key)
-	{
-		if (!lang_valid_datatype_key(key)) {
-			throw pp_parse_error("invalid enum key: " + key);
-		}
-	}
-
-	void
-	validate_keys()
-	{
-		for (size_t i = 0; i < m_values.size(); i++) {
-			validate_key(m_values.key_at(i));
-		}
 	}
 };
 typedef boost::shared_ptr<pp_enum> pp_enum_ptr;
@@ -192,13 +168,13 @@ class pp_bitmask: public pp_datatype
     public:
 	pp_bitmask()
 	{}
-	// throws: pp_parse_error	- invalid key
 	pp_bitmask(const keyed_vector<string, pp_value> &bits)
 	    : m_bits(bits)
 	{
-		validate_keys();
 	}
-	virtual ~pp_bitmask() {}
+	virtual ~pp_bitmask()
+	{
+	}
 
 	/*
 	 * pp_bitmask::evaluate(value)
@@ -278,34 +254,14 @@ class pp_bitmask: public pp_datatype
 	 * pp_bitmask::add_bit(name, value)
 	 *
 	 * Add a named bit to this bitmask.
-	 *
-	 * Throws: pp_parse_error	- invalid key
 	 */
 	void
 	add_bit(const string &name, const pp_value &value)
 	{
-		validate_key(name);
 		DASSERT_MSG(m_bits.find(name) == m_bits.end(),
 				"adding duplicate bitmask key: "
 					+ name + " = " + to_string(value));
 		m_bits.insert(name, value);
-	}
-
-    private:
-	void
-	validate_key(const string &key)
-	{
-		if (!lang_valid_datatype_key(key)) {
-			throw pp_parse_error("invalid bitmask key: " + key);
-		}
-	}
-
-	void
-	validate_keys()
-	{
-		for (size_t i = 0; i < m_bits.size(); i++) {
-			validate_key(m_bits.key_at(i));
-		}
 	}
 };
 typedef boost::shared_ptr<pp_bitmask> pp_bitmask_ptr;

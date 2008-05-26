@@ -73,9 +73,6 @@ pp_scope::is_bound() const
 void
 pp_scope::add_datatype(const string &name, const pp_datatype_ptr &datatype)
 {
-	if (!lang_valid_datatype_name(name)) {
-		throw pp_parse_error("invalid datatype name: " + name);
-	}
 	m_datatypes.insert(name, datatype);
 }
 void
@@ -154,12 +151,10 @@ pp_scope::resolve_datatype(const string &name) const
  * 	pp_dirent::conversion_error	- path element is not a scope
  */
 void
-pp_scope::add_dirent(const string &name, const pp_dirent_ptr &new_dirent)
+pp_scope::add_dirent(const pp_path::element &elem,
+                     const pp_dirent_ptr &new_dirent)
 {
-	// convert name to a path element, which will validate and parse it
-	pp_path::element elem(name);
-
-	// is the name an array access?
+	// is the element an array access?
 	if (elem.is_array()) {
 		// if so, we don't support direct indexed writes, just appends
 		if (elem.array_mode() != elem.ARRAY_APPEND) {
