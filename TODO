@@ -30,6 +30,9 @@ Code stuff:
  - make pp_path::invalid be a subclas of parse_error?
  - put all fkl_ functions into a namespace?
  - put all fake_language into a namespace?
+ - return references from GET_REGISTER and GET_FIELD, for better overload
+   ability?
+ - pp_format same as pp_lambda - in it's own header
 
 Build stuff:
  - write DEFS and other stuff to a dotfile and make that a makefile dependency
@@ -53,6 +56,7 @@ Bugs and features:
  - import the public PCI repository into a vendor enum (and device?)
  - pp_enum::lookup() throws an exception, but evaluate() doesn't
  - pp_scope::resolve_datatype() should throw, rather than return NULL;
+ - make procfield be a template, eliminating the 'new' requirement
  - pp_context and current context is awful
  	- all the scope wrappers - just go to the scope directly!
  - PP_WARN should pass control to an app-specific stream, if the app cares
