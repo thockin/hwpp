@@ -6,6 +6,7 @@ void
 CPUID_SCOPE(const string &name, const pp_value &cpu, const pp_value &func)
 {
 	OPEN_SCOPE(name, BIND("cpuid", ARGS(cpu, func)));
+	BOOKMARK("function");
 	REG32("%eax", 0);
 	REG32("%ebx", 1);
 	REG32("%ecx", 2);
@@ -50,6 +51,8 @@ class cpuid_model_procs: public proc_field_accessor
 void
 cpuid_generic_device(const pp_value &cpu)
 {
+	BOOKMARK("cpuid");
+
 	CPUID_SCOPE("cpuid.0", cpu, 0);
 	FIELD("largest_std_fn", "hex_t", BITS("%eax", 31, 0));
 	FIELD("vendor", "cpuid_vendor_t",
