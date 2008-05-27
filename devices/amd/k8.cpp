@@ -110,12 +110,12 @@ k8_ht_config()
 	//
 	REG32("%node_id", 0x60);
 	FIELD("NodeId", "int_t", BITS("%node_id", 2, 0));
-	//FIXME: this should be a lambda +1
-	FIELD("NodeCnt", "int_t", BITS("%node_id", 6, 4));
+	FIELD("NodeCnt", ANON_XFORM("int_t", LAMBDA(_1+1), LAMBDA(_1-1)),
+			BITS("%node_id", 6, 4));
 	FIELD("SbNode", "int_t", BITS("%node_id", 10, 8));
 	FIELD("LkNode", "int_t", BITS("%node_id", 14, 12));
-	//FIXME: this should be a lambda +1
-	FIELD("CpuCnt", "int_t", BITS("%node_id", 19, 16));
+	FIELD("CpuCnt", ANON_XFORM("int_t", LAMBDA(_1+1), LAMBDA(_1-1)),
+			BITS("%node_id", 19, 16));
 
 	//
 	// Unit ID register
