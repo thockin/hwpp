@@ -441,8 +441,8 @@ fkl_field(const parse_location &loc,
 	fkl_field(loc, name, current_context.resolve_datatype(type), access);
 }
 
-static void
-validate_type_name(const string &name, const parse_location &loc)
+void
+fkl_validate_type_name(const string &name, const parse_location &loc)
 {
 	if (!lang_valid_datatype_name(name)) {
 		throw pp_parse_error("invalid datatype name: " + name, loc);
@@ -464,7 +464,7 @@ fkl_int(const parse_location &loc, const string &name, const string &units)
 	if (name == "") {
 		current_context.add_datatype(int_ptr);
 	} else {
-		validate_type_name(name, loc);
+		fkl_validate_type_name(name, loc);
 		current_context.add_datatype(name, int_ptr);
 	}
 	return int_ptr.get();
@@ -486,7 +486,7 @@ fkl_hex(const parse_location &loc,
 	if (name == "") {
 		current_context.add_datatype(hex_ptr);
 	} else {
-		validate_type_name(name, loc);
+		fkl_validate_type_name(name, loc);
 		current_context.add_datatype(name, hex_ptr);
 	}
 	return hex_ptr.get();
@@ -516,7 +516,7 @@ fkl_bitmask(const parse_location &loc,
 	if (name == "") {
 		current_context.add_datatype(bitmask_ptr);
 	} else {
-		validate_type_name(name, loc);
+		fkl_validate_type_name(name, loc);
 		current_context.add_datatype(name, bitmask_ptr);
 	}
 	return bitmask_ptr.get();
@@ -546,7 +546,7 @@ fkl_enum(const parse_location &loc,
 	if (name == "") {
 		current_context.add_datatype(enum_ptr);
 	} else {
-		validate_type_name(name, loc);
+		fkl_validate_type_name(name, loc);
 		current_context.add_datatype(name, enum_ptr);
 	}
 	return enum_ptr.get();
@@ -576,7 +576,7 @@ fkl_bool(const parse_location &loc,
 	if (name == "") {
 		current_context.add_datatype(bool_ptr);
 	} else {
-		validate_type_name(name, loc);
+		fkl_validate_type_name(name, loc);
 		current_context.add_datatype(name, bool_ptr);
 	}
 	return bool_ptr.get();
