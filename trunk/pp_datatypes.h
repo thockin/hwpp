@@ -380,4 +380,77 @@ typedef boost::shared_ptr<pp_hex_datatype> pp_hex_datatype_ptr;
 #define new_pp_hex_datatype(...) \
 		pp_hex_datatype_ptr(new pp_hex_datatype(__VA_ARGS__))
 
+/*
+ * pp_transform_datatype - datatype wrapper to perform a transform on data
+ * before passing off to another datatype.
+ *
+ * Constructors:
+ * 	(const pp_datatype *real_type, Tdefunc decode_func, Tenfunc encode_func)
+ */
+template<typename Tdefunc, typename Tenfunc>
+class pp_transform_datatype: public pp_datatype
+{
+    private:
+	const pp_datatype *m_real_type;
+	Tdefunc m_decode_func;
+	Tenfunc m_encode_func;
+
+    public:
+	pp_transform_datatype(const pp_datatype *real_type,
+	    const Tdefunc &decode_func, const Tenfunc &encode_func)
+	    : m_real_type(real_type), m_decode_func(decode_func),
+	      m_encode_func(encode_func)
+	{
+	}
+	virtual ~pp_transform_datatype()
+	{
+	}
+
+	/*
+	 * pp_transform_datatype::evaluate(value)
+	 *
+	 * Evaluate a value against this datatype.  This method returns a
+	 * string containing the evaluated representation of the 'value'
+	 * argument.
+	 */
+	virtual string
+	evaluate(const pp_value &raw) const
+	{
+		pp_value cooked = m_decode_func(raw);
+		return m_real_type->evaluate(cooked);
+	}
+
+	/*
+	 * pp_transform_datatype::lookup(value)
+	 *
+	 * Lookup the value of a (potentially valid) evaluation for this
+	 * datatype.
+	 */
+	virtual pp_value
+	lookup(const pp_value &cooked) const
+	{
+		pp_value tmp = m_real_type->lookup(cooked);
+		return m_encode_func(tmp);
+	}
+	virtual pp_value
+	lookup(const string &cooked) const
+	{
+		pp_value tmp = m_real_type->lookup(cooked);
+		return m_encode_func(tmp);
+	}
+};
+typedef boost::shared_ptr<pp_datatype> pp_transform_datatype_ptr;
+
+// This has to be a template, because template argument inference only
+// happens on functions, not classes.
+template<typename Tdefunc, typename Tenfunc>
+pp_transform_datatype_ptr
+new_pp_transform_datatype(const pp_datatype *real_type,
+    const Tdefunc &decode_func, const Tenfunc &encode_func)
+{
+	return pp_transform_datatype_ptr(
+	    new pp_transform_datatype<Tdefunc, Tenfunc>(real_type,
+	        decode_func, encode_func));
+}
+
 #endif // PP_PP_DATATYPES_H__

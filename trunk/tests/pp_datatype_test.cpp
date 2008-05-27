@@ -1,6 +1,7 @@
 #include "pp_datatypes.h"
 #include "pp.h"
 #include "pp_test.h"
+#include "pp_lambda.h"
 using namespace std;
 
 int
@@ -314,10 +315,49 @@ test_pp_hex_datatype()
 	return ret;
 }
 
+int
+test_pp_transform_datatype()
+{
+	int ret = 0;
+
+	// test the basic constructor
+	pp_transform_datatype_ptr t1 = new_pp_transform_datatype(
+		new pp_int_datatype(), _1+1, _1-1);
+
+	// test the evaluate() method
+	if (t1->evaluate(0) != "1") {
+		TEST_ERROR("pp_transform_datatype::evaluate()");
+		ret++;
+	}
+	if (t1->evaluate(1) != "2") {
+		TEST_ERROR("pp_transform_datatype::evaluate()");
+		ret++;
+	}
+
+	// test lookup()
+	ret += TEST_ASSERT(t1->lookup("1") == 0,
+			"pp_transform_datatype::lookup(string)");
+	ret += TEST_ASSERT(t1->lookup("23") == 22,
+			"pp_transform_datatype::lookup(string)");
+	ret += TEST_ASSERT(t1->lookup(1) == 0,
+			"pp_transform_datatype::lookup(int)");
+	ret += TEST_ASSERT(t1->lookup(23) == 22,
+			"pp_transform_datatype::lookup(int)");
+	try {
+		t1->lookup("foo");
+		TEST_ERROR("pp_transform_datatype::lookup(string)");
+		ret++;
+	} catch (pp_datatype::invalid_error &e) {
+	}
+
+	return ret;
+}
+
 TEST_LIST(
 	TEST(test_pp_enum_datatype),
 	TEST(test_pp_bool_datatype),
 	TEST(test_pp_bitmask_datatype),
 	TEST(test_pp_int_datatype),
 	TEST(test_pp_hex_datatype),
+	TEST(test_pp_transform_datatype),
 );

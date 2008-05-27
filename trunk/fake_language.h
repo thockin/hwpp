@@ -12,6 +12,7 @@
 #include "pp_field.h"
 #include "pp_regbits.h"
 #include "pp_binding.h"
+#include "pp_lambda.h"
 #include "drivers.h"
 
 #include <vector>
@@ -263,6 +264,12 @@ fkl_field(const parse_location &loc,
 
 #define FIELD(...)		fkl_field(THIS_LOCATION, ##__VA_ARGS__)
 
+#include "pp_datatypes.h"
+
+// helper for types, exposed here because of templates
+extern void
+fkl_validate_type_name(const string &name, const parse_location &loc);
+
 //
 // Declare an integer datatype.
 //
@@ -415,5 +422,47 @@ fkl_bool(const parse_location &loc,
 				fkl_bool(THIS_LOCATION, name, true_, false_)
 #define ANON_BOOL(true_, false_) \
 				fkl_bool(THIS_LOCATION, "", true_, false_)
+
+//
+// Declare a transform datatype wrapper.
+// This has to be inline because it is a template.  It has to be a
+// template because of boost::lambda.
+//
+template<typename Tdefunc, typename Tenfunc>
+inline pp_datatype *
+fkl_xform(const parse_location &loc,
+          const string &name, const pp_datatype *real_type,
+          const Tdefunc &decode_func, const Tenfunc &encode_func)
+{
+	DTRACE(TRACE_TYPES, "xform: " + name);
+
+	DASSERT_MSG(!current_context.is_readonly(),
+	    "current_context is read-only");
+
+	DASSERT_MSG(real_type, "found NULL real_type for xform " + name);
+
+	pp_transform_datatype_ptr xform_ptr = new_pp_transform_datatype(
+	    real_type, decode_func, encode_func);
+	if (name == "") {
+		current_context.add_datatype(xform_ptr);
+	} else {
+		fkl_validate_type_name(name, loc);
+		current_context.add_datatype(name, xform_ptr);
+	}
+	return xform_ptr.get();
+}
+template<typename Tdefunc, typename Tenfunc>
+inline pp_datatype *
+fkl_xform(const parse_location &loc,
+          const string &name, const string &real_type,
+          const Tdefunc &decode_func, const Tenfunc &encode_func)
+{
+	return fkl_xform(loc, name,
+	    current_context.resolve_datatype(real_type),
+	    decode_func, encode_func);
+}
+#define XFORM(...)		fkl_xform(THIS_LOCATION, ##__VA_ARGS__)
+#define ANON_XFORM(...)		fkl_xform(THIS_LOCATION, "", ##__VA_ARGS__)
+#define LAMBDA // for clarity in callers
 
 #endif // PP_FAKE_LANGUAGE_H__
