@@ -103,7 +103,7 @@ test_datatypes()
 	}
 
 	// test add_datatype() and datatype()
-	pp_datatype_ptr type = new_pp_int();
+	pp_datatype_ptr type = new_pp_int_datatype();
 	scope->add_datatype("type", type);
 	if (scope->datatype(0) != type.get()) {
 		TEST_ERROR("pp_scope::add_datatype()");
@@ -177,7 +177,7 @@ test_exceptions()
 	}
 
 	// add a field
-	pp_datatype_ptr dt = new_pp_int();
+	pp_datatype_ptr dt = new_pp_int_datatype();
 	pp_constant_field_ptr field = new_pp_constant_field(dt.get(), 0);
 	scope->add_dirent("field", field);
 
@@ -266,7 +266,7 @@ test_dirents()
 	    "pp_scope::add_bookmark()");
 
 	// create a field and add it to scope0
-	pp_datatype_ptr dt = new_pp_int();
+	pp_datatype_ptr dt = new_pp_int_datatype();
 	pp_constant_field_ptr field1 = new_pp_constant_field(dt.get(), 0);
 	scope0->add_dirent("field1", field1);
 	ret += TEST_ASSERT(scope0->n_dirents() == 1,

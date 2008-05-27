@@ -8,14 +8,14 @@
 #include "language.h"
 
 /*
- * pp_enum - datatype for enumerated values.
+ * pp_enum_datatype - datatype for enumerated values.
  *
  * Constructors:
  * 	()
  *
  * Notes:
  */
-class pp_enum: public pp_datatype
+class pp_enum_datatype: public pp_datatype
 {
     private:
 	keyed_vector<string, pp_value> m_values;
@@ -23,19 +23,19 @@ class pp_enum: public pp_datatype
 	bool m_custom_unknown;
 
     public:
-	pp_enum()
+	pp_enum_datatype()
 	    : m_custom_unknown(false)
 	{}
-	pp_enum(const keyed_vector<string, pp_value> &values)
+	pp_enum_datatype(const keyed_vector<string, pp_value> &values)
 	    : m_values(values), m_custom_unknown(false)
 	{
 	}
-	virtual ~pp_enum()
+	virtual ~pp_enum_datatype()
 	{
 	}
 
 	/*
-	 * pp_enum::evaluate(value)
+	 * pp_enum_datatype::evaluate(value)
 	 *
 	 * Evaluate a value against this datatype.  This method returns a
 	 * string containing the evaluated representation of the 'value'
@@ -56,8 +56,8 @@ class pp_enum: public pp_datatype
 	}
 
 	/*
-	 * pp_enum::lookup(str)
-	 * pp_enum::lookup(value)
+	 * pp_enum_datatype::lookup(str)
+	 * pp_enum_datatype::lookup(value)
 	 *
 	 * Lookup the value of a (potentially valid) evaluation for this
 	 * datatype.  For an enum type, that means converting a string to
@@ -89,7 +89,7 @@ class pp_enum: public pp_datatype
 	}
 
 	/*
-	 * pp_enum::add_value(name, value)
+	 * pp_enum_datatype::add_value(name, value)
 	 *
 	 * Add a possible value to this enumeration.
 	 */
@@ -103,7 +103,7 @@ class pp_enum: public pp_datatype
 	}
 
 	/*
-	 * pp_enum::set_unknown(name)
+	 * pp_enum_datatype::set_unknown(name)
 	 *
 	 * Use a string for unknown enumerated values.
 	 */
@@ -114,22 +114,23 @@ class pp_enum: public pp_datatype
 		m_custom_unknown = true;
 	}
 };
-typedef boost::shared_ptr<pp_enum> pp_enum_ptr;
+typedef boost::shared_ptr<pp_enum_datatype> pp_enum_datatype_ptr;
 
-#define new_pp_enum(...) pp_enum_ptr(new pp_enum(__VA_ARGS__))
+#define new_pp_enum_datatype(...) \
+		pp_enum_datatype_ptr(new pp_enum_datatype(__VA_ARGS__))
 
 /*
- * pp_bool - datatype for boolean values.
+ * pp_bool_datatype - datatype for boolean values.
  *
  * Constructors:
  * 	(const string &true_str, const string &false_str)
  *
  * Notes:
  */
-class pp_bool: public pp_enum
+class pp_bool_datatype: public pp_enum_datatype
 {
     public:
-	pp_bool(const string &true_str, const string &false_str)
+	pp_bool_datatype(const string &true_str, const string &false_str)
 	{
 		add_value(true_str, 1);
 		add_value(false_str, 0);
@@ -144,15 +145,16 @@ class pp_bool: public pp_enum
 	virtual pp_value
 	lookup(const string &str) const
 	{
-		return pp_enum::lookup(str);
+		return pp_enum_datatype::lookup(str);
 	}
 };
-typedef boost::shared_ptr<pp_bool> pp_bool_ptr;
+typedef boost::shared_ptr<pp_bool_datatype> pp_bool_datatype_ptr;
 
-#define new_pp_bool(...) pp_bool_ptr(new pp_bool(__VA_ARGS__))
+#define new_pp_bool_datatype(...) \
+		pp_bool_datatype_ptr(new pp_bool_datatype(__VA_ARGS__))
 
 /*
- * pp_bitmask - datatype for bitmasks.
+ * pp_bitmask_datatype - datatype for bitmasks.
  * //FIXME: this is operating on bit numbers, not masks - should it?
  *
  * Constructors:
@@ -160,24 +162,24 @@ typedef boost::shared_ptr<pp_bool> pp_bool_ptr;
  *
  * Notes:
  */
-class pp_bitmask: public pp_datatype
+class pp_bitmask_datatype: public pp_datatype
 {
     private:
 	keyed_vector<string, pp_value> m_bits;
 
     public:
-	pp_bitmask()
+	pp_bitmask_datatype()
 	{}
-	pp_bitmask(const keyed_vector<string, pp_value> &bits)
+	pp_bitmask_datatype(const keyed_vector<string, pp_value> &bits)
 	    : m_bits(bits)
 	{
 	}
-	virtual ~pp_bitmask()
+	virtual ~pp_bitmask_datatype()
 	{
 	}
 
 	/*
-	 * pp_bitmask::evaluate(value)
+	 * pp_bitmask_datatype::evaluate(value)
 	 *
 	 * Evaluate a value against this datatype.  This method returns a
 	 * string containing the evaluated representation of the 'value'
@@ -217,8 +219,8 @@ class pp_bitmask: public pp_datatype
 	}
 
 	/*
-	 * pp_bitmask::lookup(str)
-	 * pp_bitmask::lookup(value)
+	 * pp_bitmask_datatype::lookup(str)
+	 * pp_bitmask_datatype::lookup(value)
 	 *
 	 * Lookup the value of a (potentially valid) evaluation for this
 	 * datatype.  For a bitmask type, this means converting a string to
@@ -251,7 +253,7 @@ class pp_bitmask: public pp_datatype
 	}
 
 	/*
-	 * pp_bitmask::add_bit(name, value)
+	 * pp_bitmask_datatype::add_bit(name, value)
 	 *
 	 * Add a named bit to this bitmask.
 	 */
@@ -264,12 +266,13 @@ class pp_bitmask: public pp_datatype
 		m_bits.insert(name, value);
 	}
 };
-typedef boost::shared_ptr<pp_bitmask> pp_bitmask_ptr;
+typedef boost::shared_ptr<pp_bitmask_datatype> pp_bitmask_datatype_ptr;
 
-#define new_pp_bitmask(...) pp_bitmask_ptr(new pp_bitmask(__VA_ARGS__))
+#define new_pp_bitmask_datatype(...) \
+		pp_bitmask_datatype_ptr(new pp_bitmask_datatype(__VA_ARGS__))
 
 /*
- * pp_int - datatype for signed integer values.
+ * pp_int_datatype - datatype for signed integer values.
  *
  * Constructors:
  * 	(const string &units = "")
@@ -277,17 +280,17 @@ typedef boost::shared_ptr<pp_bitmask> pp_bitmask_ptr;
  * Notes:
  * 	This class makes a private copy of the 'units' argument.
  */
-class pp_int: public pp_datatype
+class pp_int_datatype: public pp_datatype
 {
     public:
-	pp_int(const string &units = "")
+	pp_int_datatype(const string &units = "")
 	    : m_units(units)
 	{}
-	virtual ~pp_int()
+	virtual ~pp_int_datatype()
 	{}
 
 	/*
-	 * pp_int::evaluate(value)
+	 * pp_int_datatype::evaluate(value)
 	 *
 	 * Evaluate a value against this datatype.  This method returns a
 	 * string containing the evaluated representation of the 'value'
@@ -305,7 +308,7 @@ class pp_int: public pp_datatype
 	}
 
 	/*
-	 * pp_int::lookup(value)
+	 * pp_int_datatype::lookup(value)
 	 *
 	 * Lookup the value of a (potentially valid) evaluation for this
 	 * datatype.  For an int type, this is a no-op.
@@ -328,29 +331,30 @@ class pp_int: public pp_datatype
     protected:
 	string m_units;
 };
-typedef boost::shared_ptr<pp_int> pp_int_ptr;
+typedef boost::shared_ptr<pp_int_datatype> pp_int_datatype_ptr;
 
-#define new_pp_int(...) pp_int_ptr(new pp_int(__VA_ARGS__))
+#define new_pp_int_datatype(...) \
+		pp_int_datatype_ptr(new pp_int_datatype(__VA_ARGS__))
 
 /*
- * pp_hex - datatype for hexadecimal values.
+ * pp_hex_datatype - datatype for hexadecimal values.
  *
  * Constructors:
  * 	(const pp_bitwidth width, const string &units="")
  *
  * Notes:
  */
-class pp_hex: public pp_int
+class pp_hex_datatype: public pp_int_datatype
 {
     public:
-	pp_hex(const pp_bitwidth width = BITS0, const string &units = "")
-	    : pp_int(units), m_width(width)
+	pp_hex_datatype(const pp_bitwidth width = BITS0, const string &units = "")
+	    : pp_int_datatype(units), m_width(width)
 	{}
-	virtual ~pp_hex()
+	virtual ~pp_hex_datatype()
 	{}
 
 	/*
-	 * pp_hex::evaluate(value)
+	 * pp_hex_datatype::evaluate(value)
 	 *
 	 * Evaluate a value against this datatype.  This method returns a
 	 * string containing the evaluated representation of the 'value'
@@ -371,8 +375,9 @@ class pp_hex: public pp_int
     private:
 	pp_bitwidth m_width;
 };
-typedef boost::shared_ptr<pp_hex> pp_hex_ptr;
+typedef boost::shared_ptr<pp_hex_datatype> pp_hex_datatype_ptr;
 
-#define new_pp_hex(...) pp_hex_ptr(new pp_hex(__VA_ARGS__))
+#define new_pp_hex_datatype(...) \
+		pp_hex_datatype_ptr(new pp_hex_datatype(__VA_ARGS__))
 
 #endif // PP_PP_DATATYPES_H__

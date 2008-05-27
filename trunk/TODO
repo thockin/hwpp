@@ -6,7 +6,6 @@ Testing stuff:
 Device stuff:
  - fix and finish PCI subclass and progintf stuff
  - make PCI capabilities be self-contained to closer emulate the final language
- - filter_field(regbits, procs) or maybe filter_type(real_type, procs)
  - allow anonymous registers, such as READ(BITS(REG32(0x100)))
    maybe change everything to
    	EXPORT("%foo", REG32(0x100))
@@ -25,7 +24,6 @@ Driver stuff:
 Code stuff:
  - create and use namespace pp::
  - capitalize PP_foo or PP_Foo or PpFoo for types?
- - pp_enum -> pp_enum_type, etc
  - move more code to .cpp files
  - move datatypes.h to a .cpp
  - pp_exception: http://marknelson.us/2007/11/13/no-exceptions/

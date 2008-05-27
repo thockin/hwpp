@@ -450,7 +450,7 @@ validate_type_name(const string &name, const parse_location &loc)
 }
 
 //
-// Define a pp_int datatype.
+// Define a pp_int_datatype.
 //
 pp_datatype *
 fkl_int(const parse_location &loc, const string &name, const string &units)
@@ -460,7 +460,7 @@ fkl_int(const parse_location &loc, const string &name, const string &units)
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 
-	pp_int_ptr int_ptr = new_pp_int(units);
+	pp_int_datatype_ptr int_ptr = new_pp_int_datatype(units);
 	if (name == "") {
 		current_context.add_datatype(int_ptr);
 	} else {
@@ -471,7 +471,7 @@ fkl_int(const parse_location &loc, const string &name, const string &units)
 }
 
 //
-// Define a pp_hex datatype.
+// Define a pp_hex_datatype.
 //
 pp_datatype *
 fkl_hex(const parse_location &loc,
@@ -482,7 +482,7 @@ fkl_hex(const parse_location &loc,
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 
-	pp_hex_ptr hex_ptr = new_pp_hex(width, units);
+	pp_hex_datatype_ptr hex_ptr = new_pp_hex_datatype(width, units);
 	if (name == "") {
 		current_context.add_datatype(hex_ptr);
 	} else {
@@ -493,7 +493,7 @@ fkl_hex(const parse_location &loc,
 }
 
 //
-// Define a pp_bitmask datatype.
+// Define a pp_bitmask_datatype.
 //
 pp_datatype *
 fkl_bitmask(const parse_location &loc,
@@ -512,7 +512,7 @@ fkl_bitmask(const parse_location &loc,
 		}
 	}
 
-	pp_bitmask_ptr bitmask_ptr = new_pp_bitmask(kvlist);
+	pp_bitmask_datatype_ptr bitmask_ptr = new_pp_bitmask_datatype(kvlist);
 	if (name == "") {
 		current_context.add_datatype(bitmask_ptr);
 	} else {
@@ -523,7 +523,7 @@ fkl_bitmask(const parse_location &loc,
 }
 
 //
-// Define a pp_enum datatype.
+// Define a pp_enum_datatype.
 //
 pp_datatype *
 fkl_enum(const parse_location &loc,
@@ -542,7 +542,7 @@ fkl_enum(const parse_location &loc,
 		}
 	}
 
-	pp_enum_ptr enum_ptr = new_pp_enum(kvlist);
+	pp_enum_datatype_ptr enum_ptr = new_pp_enum_datatype(kvlist);
 	if (name == "") {
 		current_context.add_datatype(enum_ptr);
 	} else {
@@ -553,7 +553,7 @@ fkl_enum(const parse_location &loc,
 }
 
 //
-// Define a pp_bool datatype.
+// Define a pp_bool_datatype.
 //
 pp_datatype *
 fkl_bool(const parse_location &loc,
@@ -571,7 +571,8 @@ fkl_bool(const parse_location &loc,
 		throw pp_parse_error("invalid bool key: " + false_str, loc);
 	}
 
-	pp_bool_ptr bool_ptr = new_pp_bool(true_str, false_str);
+	pp_bool_datatype_ptr bool_ptr = new_pp_bool_datatype(
+			true_str, false_str);
 	if (name == "") {
 		current_context.add_datatype(bool_ptr);
 	} else {
