@@ -263,24 +263,22 @@ fkl_field(const parse_location &loc,
 
 #define FIELD(...)		fkl_field(THIS_LOCATION, ##__VA_ARGS__)
 
-#include "pp_datatypes.h"
-
 //
 // Declare an integer datatype.
 //
-extern pp_int *
+extern pp_datatype *
 fkl_int(const parse_location &loc, const string &name, const string &units);
-inline pp_int *
+inline pp_datatype *
 fkl_int(const parse_location &loc, const string &name)
 {
 	return fkl_int(loc, name, "");
 }
-inline pp_int *
+inline pp_datatype *
 fkl_anon_int(const parse_location &loc, const string &units)
 {
 	return fkl_int(loc, "", units);
 }
-inline pp_int *
+inline pp_datatype *
 fkl_anon_int(const parse_location &loc)
 {
 	return fkl_int(loc, "", "");
@@ -291,41 +289,41 @@ fkl_anon_int(const parse_location &loc)
 //
 // Declare a hex datatype.
 //
-extern pp_hex *
+extern pp_datatype *
 fkl_hex(const parse_location &loc,
         const string &name, const pp_bitwidth width, const string &units);
-inline pp_hex *
+inline pp_datatype *
 fkl_hex(const parse_location &loc, const string &name, const pp_bitwidth width)
 {
 	return fkl_hex(loc, name, width, "");
 }
-inline pp_hex *
+inline pp_datatype *
 fkl_hex(const parse_location &loc, const string &name, const string &units)
 {
 	return fkl_hex(loc, name, BITS0, units);
 }
-inline pp_hex *
+inline pp_datatype *
 fkl_hex(const parse_location &loc, const string &name)
 {
 	return fkl_hex(loc, name, BITS0, "");
 }
-inline pp_hex *
+inline pp_datatype *
 fkl_hex(const parse_location &loc,
              const pp_bitwidth width, const string &units)
 {
 	return fkl_hex(loc, "", width, units);
 }
-inline pp_hex *
+inline pp_datatype *
 fkl_anon_hex(const parse_location &loc, const pp_bitwidth width)
 {
 	return fkl_hex(loc, "", width, "");
 }
-inline pp_hex *
+inline pp_datatype *
 fkl_anon_hex(const parse_location &loc, const string &units)
 {
 	return fkl_hex(loc, "", BITS0, units);
 }
-inline pp_hex *
+inline pp_datatype *
 fkl_anon_hex(const parse_location &loc)
 {
 	return fkl_hex(loc, "", BITS0, "");
@@ -370,10 +368,10 @@ operator,(const fkl_kvpair_list &lhs, const fkl_kvpair &rhs)
 // Fortunately, a touch of macro magic makes it look like an unlimited
 // argument list.  I wish I was less proud of this.
 //
-extern pp_bitmask *
+extern pp_datatype *
 fkl_bitmask(const parse_location &loc,
             const string &name, const fkl_kvpair_list &kvlist);
-inline pp_bitmask *
+inline pp_datatype *
 fkl_bitmask(const parse_location &loc,
             const string &name, const fkl_kvpair &kvpair)
 {
@@ -392,11 +390,11 @@ fkl_bitmask(const parse_location &loc,
 //
 // See the NOTE for BITMASK, above.
 //
-extern pp_enum *
+extern pp_datatype *
 fkl_enum(const parse_location &loc,
          const string &name, const fkl_kvpair_list &kvlist);
 
-inline pp_enum *
+inline pp_datatype *
 fkl_enum(const parse_location &loc,
          const string &name, const fkl_kvpair &kvpair)
 {
@@ -410,7 +408,7 @@ fkl_enum(const parse_location &loc,
 //
 // Declare a boolean datatype.
 //
-extern pp_bool *
+extern pp_datatype *
 fkl_bool(const parse_location &loc,
          const string &name, const string &true_str, const string &false_str);
 #define BOOL(name, true_, false_) \
