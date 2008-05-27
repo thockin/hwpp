@@ -515,31 +515,14 @@ msi_capability(const pp_value &address)
 	}
 }
 
-// this has to be out-of-line, to make C++ happy.
-class msix_table_size_procs: public proc_field_accessor
-{
-	pp_value
-	read() const
-	{
-		return READ(BITS("%msg_ctrl", 9, 0)) + 1;
-	}
-	void
-	write(const pp_value &value) const
-	{
-		WRITE(BITS("%msg_ctrl", 9, 0), value-1);
-	}
-};
 static void
 msix_capability(const pp_value &address)
 {
 	REG16("%msg_ctrl", address + 2);
 	FIELD("msix_enable", "yesno_t", BITS("%msg_ctrl", 15));
-	FIELD("table_size", "int_t", PROCS(msix_table_size_procs));
+	FIELD("table_size", ANON_XFORM("int_t", LAMBDA(_1+1), LAMBDA(_1-1)),
+			BITS("%msg_ctrl", 9, 0));
 	FIELD("func_mask", "yesno_t", BITS("%msg_ctrl", 14));
-
-	// these will be used a bit later
-	string bar;
-	pp_value base, size;
 
 	// the table is memory mapped through a BAR
 	REG32("%table_ptr", address + 4);
@@ -555,12 +538,17 @@ msix_capability(const pp_value &address)
 			BITS("%table_ptr", 31, 3) +
 			BITS("%0", 2, 0));
 
+	pp_value table_size = READ("table_size") + 1;
+
 	//FIXME: a better way to do this?
+	string bar;
+	pp_value base, size;
+
 	bar = "$pci/" + GET_FIELD("table_bir")->evaluate() + "/address";
 	base = READ(bar) + READ("table_offset");
-	size = READ("table_size") * 16;
+	size = table_size * 16;
 	OPEN_SCOPE("table", BIND("mem", ARGS(base, size))); {
-		for (unsigned i = 0; i < READ("../table_size"); i++) {
+		for (unsigned i = 0; i < table_size; i++) {
 			OPEN_SCOPE("entry[]"); {
 				REG32("%msg_addr", i*16 + 0);
 				REG32("%msg_upper_addr", i*16 + 4);
@@ -593,11 +581,11 @@ msix_capability(const pp_value &address)
 	//FIXME: a better way to do this?
 	bar = "$pci/" + GET_FIELD("pba_bir")->evaluate() + "/address";
 	base = READ(bar) + READ("table_offset");
-	size = ((READ("table_size")+63)/64) * 8;
-	OPEN_SCOPE("pba", BIND("mem", ARGS(base, size))); {
-		pp_value tmp_size = READ("../table_size");
+	size = (table_size+63) / 64;
+	OPEN_SCOPE("pba", BIND("mem", ARGS(base, size * 8))); {
+		pp_value tmp_size = table_size;
 		// loop for each PBA QWORD
-		for (unsigned i = 0; i < (READ("../table_size")+63)/64; i++) {
+		for (unsigned i = 0; i < table_size; i++) {
 			REG64("%pending[]", i);
 			for (size_t j = 0; j < 64; j++) {
 				if (j >= tmp_size)
