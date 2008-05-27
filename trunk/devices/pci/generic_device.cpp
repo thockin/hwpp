@@ -9,6 +9,7 @@ PCI_SCOPE(const string &name, const pp_value &seg, const pp_value &bus,
 		const pp_value &dev, const pp_value &func)
 {
 	OPEN_SCOPE(name, BIND("pci", ARGS(seg, bus, dev, func)));
+	BOOKMARK("pci");
 	pci_generic_device();
 }
 
@@ -555,7 +556,7 @@ msix_capability(const pp_value &address)
 			BITS("%0", 2, 0));
 
 	//FIXME: a better way to do this?
-	bar = "^/" + GET_FIELD("table_bir")->evaluate() + "/address";
+	bar = "$pci/" + GET_FIELD("table_bir")->evaluate() + "/address";
 	base = READ(bar) + READ("table_offset");
 	size = READ("table_size") * 16;
 	OPEN_SCOPE("table", BIND("mem", ARGS(base, size))); {
@@ -590,7 +591,7 @@ msix_capability(const pp_value &address)
 			BITS("%0", 2, 0));
 
 	//FIXME: a better way to do this?
-	bar = "^/" + GET_FIELD("pba_bir")->evaluate() + "/address";
+	bar = "$pci/" + GET_FIELD("pba_bir")->evaluate() + "/address";
 	base = READ(bar) + READ("table_offset");
 	size = ((READ("table_size")+63)/64) * 8;
 	OPEN_SCOPE("pba", BIND("mem", ARGS(base, size))); {
@@ -816,7 +817,7 @@ pcie_capability(const pp_value &address)
 	FIELD("aux_pm", "yesno_t", BITS("%dev_control", 10));
 	FIELD("aux_pm_det", "yesno_t", BITS("%dev_status", 4));
 	FIELD("en_no_snoop", "yesno_t", BITS("%dev_control", 11));
-	if (!DEFINED("func_reset") && FIELD_EQ("^/class", "bridge")) {
+	if (!DEFINED("func_reset") && FIELD_EQ("$pci/class", "bridge")) {
 		FIELD("bridge_retry_en", "yesno_t", BITS("%dev_control", 15));
 	}
 	FIELD("txn_pend", "yesno_t", BITS("%dev_status", 5));
@@ -1250,8 +1251,8 @@ aer_ecapability(const pp_value &address)
 			BITS("%header_log_0", 31, 0));
 
 	// if this device is a root port or root complex event collector
-	if (FIELD_EQ("^/capability.pcie[0]/type", "root_event_collector")
-	 || FIELD_EQ("^/capability.pcie[0]/type", "root_port")) {
+	if (FIELD_EQ("$pci/capability.pcie[0]/type", "root_event_collector")
+	 || FIELD_EQ("$pci/capability.pcie[0]/type", "root_port")) {
 		// root error command and status
 		REG32("%root_error_command", address + 0x2c);
 		REG32("%root_error_status", address + 0x30);
@@ -1379,7 +1380,7 @@ explore_capabilities()
 	// non-zero capability header, walk the extended capabilities
 	// linked-list.
 	// FIXME: need RCRB support
-	if ((DEFINED("^/capability.pcie") || DEFINED("^/capability.pcix"))
+	if ((DEFINED("$pci/capability.pcie") || DEFINED("$pci/capability.pcix"))
 	 && (READ("%PCI.100") != 0)) {
 		pp_value ptr = 0x100;
 		while (ptr != 0 && ptr != 0xfff) {
