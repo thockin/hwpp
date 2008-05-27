@@ -2,8 +2,8 @@
 // Copyright 2007 Google, Inc. All Rights Reserved.
 // Copyright 2008 Tim Hockin.
 //
-#ifndef PP_UTILS_H__
-#define PP_UTILS_H__
+#ifndef PP_FAKE_LANGUAGE_H__
+#define PP_FAKE_LANGUAGE_H__
 
 #include "pp.h"
 #include "language.h"
@@ -416,4 +416,4 @@ fkl_bool(const parse_location &loc,
 #define ANON_BOOL(true_, false_) \
 				fkl_bool(THIS_LOCATION, "", true_, false_)
 
-#endif // PP_UTILS_H__
+#endif // PP_FAKE_LANGUAGE_H__
