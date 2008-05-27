@@ -23,7 +23,7 @@ test_int_field()
 	bind2->write(0, BITS16, 0x2222);
 	pp_register_ptr r2 = new_pp_register(bind2.get(), 1, BITS16);
 
-	pp_datatype_ptr integer = new_pp_int();
+	pp_datatype_ptr integer = new_pp_int_datatype();
 	pp_direct_field f1(integer.get(),
 		pp_regbits(r2.get(), 7, 0) + pp_regbits(r1.get(), 7, 0));
 
@@ -69,7 +69,7 @@ test_hex_field()
 	pp_register_ptr r2 = new_pp_register(bind2.get(), 1, BITS16);
 
 	/* test a hex16 field */
-	pp_datatype_ptr hex16 = new_pp_hex(BITS16);
+	pp_datatype_ptr hex16 = new_pp_hex_datatype(BITS16);
 	pp_direct_field f1(hex16.get(),
 		pp_regbits(r2.get(), 7, 0) + pp_regbits(r1.get(), 7, 0));
 
@@ -115,7 +115,7 @@ test_enum_field()
 	pp_register_ptr r2 = new_pp_register(bind2.get(), 1, BITS16);
 
 	/* test an enum field */
-	pp_enum_ptr e1 = new_pp_enum();
+	pp_enum_datatype_ptr e1 = new_pp_enum_datatype();
 	e1->add_value("one", 1);
 	e1->add_value("two", 2);
 	e1->add_value("three", 3);
@@ -166,7 +166,7 @@ test_bitmask_field()
 	pp_register_ptr r2 = new_pp_register(bind2.get(), 1, BITS16);
 
 	/* test a bitmask field */
-	pp_bitmask_ptr b1 = new_pp_bitmask();
+	pp_bitmask_datatype_ptr b1 = new_pp_bitmask_datatype();
 	b1->add_bit("zero", 0);
 	b1->add_bit("one", 1);
 	b1->add_bit("two", 2);
@@ -231,7 +231,7 @@ test_proc_field()
 {
 	int ret = 0;
 
-	pp_datatype *hex = new pp_hex();
+	pp_datatype *hex = new pp_hex_datatype();
 	proc_field_accessor_ptr accessor(new test_proc_field_accessor);
 	pp_proc_field f(hex, accessor);
 	f.write(0x12345678);
@@ -252,7 +252,7 @@ test_constant_field()
 {
 	int ret = 0;
 
-	pp_datatype *hex = new pp_hex();
+	pp_datatype *hex = new pp_hex_datatype();
 	pp_constant_field f(hex, 0x12345678);
 	if (f.read() != 0x12345678) {
 		TEST_ERROR("pp_constant_field::read()");
