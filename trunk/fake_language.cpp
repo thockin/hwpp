@@ -452,7 +452,7 @@ validate_type_name(const string &name, const parse_location &loc)
 //
 // Define a pp_int datatype.
 //
-pp_int *
+pp_datatype *
 fkl_int(const parse_location &loc, const string &name, const string &units)
 {
 	DTRACE(TRACE_TYPES, "int: " + name);
@@ -473,7 +473,7 @@ fkl_int(const parse_location &loc, const string &name, const string &units)
 //
 // Define a pp_hex datatype.
 //
-pp_hex *
+pp_datatype *
 fkl_hex(const parse_location &loc,
         const string &name, const pp_bitwidth width, const string &units)
 {
@@ -495,7 +495,7 @@ fkl_hex(const parse_location &loc,
 //
 // Define a pp_bitmask datatype.
 //
-pp_bitmask *
+pp_datatype *
 fkl_bitmask(const parse_location &loc,
             const string &name, const fkl_kvpair_list &kvlist)
 {
@@ -525,7 +525,7 @@ fkl_bitmask(const parse_location &loc,
 //
 // Define a pp_enum datatype.
 //
-pp_enum *
+pp_datatype *
 fkl_enum(const parse_location &loc,
          const string &name, const fkl_kvpair_list &kvlist)
 {
@@ -555,7 +555,7 @@ fkl_enum(const parse_location &loc,
 //
 // Define a pp_bool datatype.
 //
-pp_bool *
+pp_datatype *
 fkl_bool(const parse_location &loc,
          const string &name, const string &true_str, const string &false_str)
 {
