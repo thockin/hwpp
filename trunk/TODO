@@ -45,7 +45,6 @@ Bugs and features:
  - all FIXMEs
  - preserve/set/clear flags for registers
  - better errors on datatypes
- - are carats allowed mid-path?  not currently
  - some MSIX access kill the system in !msi_enabled.  Figure out why
    and what the right heuristic is.
  - allow enum default values if value is out-of-bounds
@@ -57,7 +56,10 @@ Bugs and features:
  - pp_enum::lookup() throws an exception, but evaluate() doesn't
  - pp_scope::resolve_datatype() should throw, rather than return NULL;
  - pp_context and current context is awful
+ 	- all the scope wrappers - just go to the scope directly!
  - PP_WARN should pass control to an app-specific stream, if the app cares
+ - provide a foo{bar} syntax rather than foo.bar (pp_hash)
+ - is array[$] really needed - is [] not good enough as an rval?
 
 filesystem.h:
 	track full path name in directory and direntry
