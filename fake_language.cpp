@@ -504,14 +504,6 @@ fkl_bitmask(const parse_location &loc,
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 
-	for (size_t i = 0; i < kvlist.size(); i++) {
-		const string &key = kvlist.key_at(i);
-		if (!lang_valid_datatype_key(key)) {
-			throw pp_parse_error(
-			    "invalid bitmask key: " + key, loc);
-		}
-	}
-
 	pp_bitmask_datatype_ptr bitmask_ptr = new_pp_bitmask_datatype(kvlist);
 	if (name == "") {
 		current_context.add_datatype(bitmask_ptr);
@@ -534,14 +526,6 @@ fkl_enum(const parse_location &loc,
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 
-	for (size_t i = 0; i < kvlist.size(); i++) {
-		const string &key = kvlist.key_at(i);
-		if (!lang_valid_datatype_key(key)) {
-			throw pp_parse_error(
-			    "invalid enum key: " + key, loc);
-		}
-	}
-
 	pp_enum_datatype_ptr enum_ptr = new_pp_enum_datatype(kvlist);
 	if (name == "") {
 		current_context.add_datatype(enum_ptr);
@@ -563,13 +547,6 @@ fkl_bool(const parse_location &loc,
 
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
-
-	if (!lang_valid_datatype_key(true_str)) {
-		throw pp_parse_error("invalid bool key: " + true_str, loc);
-	}
-	if (!lang_valid_datatype_key(false_str)) {
-		throw pp_parse_error("invalid bool key: " + false_str, loc);
-	}
 
 	pp_bool_datatype_ptr bool_ptr = new_pp_bool_datatype(
 			true_str, false_str);

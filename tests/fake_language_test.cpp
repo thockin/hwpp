@@ -571,12 +571,12 @@ test_parse_errors()
 	} catch (exception &e) {
 		ret += TEST_ERROR("BITMASK()");
 	}
-	// should throw a parse_error
+	// should not throw
 	try {
-		BITMASK("bitmask3", KV("123_invalid", 1));
-		ret += TEST_ERROR("BITMASK()");
-	} catch (pp_parse_error &e) {
+		BITMASK("bitmask3", KV("123_valid", 1));
 		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("BITMASK()");
 	} catch (exception &e) {
 		ret += TEST_ERROR("BITMASK()");
 	}
@@ -620,12 +620,12 @@ test_parse_errors()
 	} catch (exception &e) {
 		ret += TEST_ERROR("ENUM()");
 	}
-	// should throw a parse_error
+	// should not throw
 	try {
-		ENUM("enum3", KV("123_invalid", 1));
-		ret += TEST_ERROR("ENUM()");
-	} catch (pp_parse_error &e) {
+		ENUM("enum3", KV("123_valid", 1));
 		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("ENUM()");
 	} catch (exception &e) {
 		ret += TEST_ERROR("ENUM()");
 	}
@@ -660,12 +660,12 @@ test_parse_errors()
 	} catch (exception &e) {
 		ret += TEST_ERROR("BOOL()");
 	}
-	// should throw a parse_error
+	// should not throw
 	try {
-		BOOL("bool3", "123_invalid", "123_invalid");
-		ret += TEST_ERROR("BOOL()");
-	} catch (pp_parse_error &e) {
+		BOOL("bool3", "123_valid", "456_valid");
 		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("BOOL()");
 	} catch (exception &e) {
 		ret += TEST_ERROR("BOOL()");
 	}
