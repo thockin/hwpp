@@ -12,12 +12,6 @@ lang_valid_datatype_name(const string &name)
 }
 
 bool
-lang_valid_datatype_key(const string &name)
-{
-	return c_token.matches(name);
-}
-
-bool
 lang_valid_bookmark_name(const string &name)
 {
 	return c_token.matches(name);

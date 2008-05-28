@@ -92,9 +92,6 @@ extern bool
 lang_valid_datatype_name(const string &name);
 
 extern bool
-lang_valid_datatype_key(const string &name);
-
-extern bool
 lang_valid_bookmark_name(const string &name);
 
 #endif // PP_PP_LANGUAGE_H__
