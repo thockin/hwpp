@@ -62,6 +62,8 @@ Bugs and features:
  - PP_WARN should pass control to an app-specific stream, if the app cares
  - provide a foo{bar} syntax rather than foo.bar (pp_hash)
  - is array[$] really needed - is [] not good enough as an rval?
+ - enforce % on registers but not fields
+ - drop INT(name) and HEX(name) and drop all ANON_ prefixes!
 
 filesystem.h:
 	track full path name in directory and direntry
