@@ -59,7 +59,7 @@ MSLEEP(int msecs)
 }
 
 //
-// Lookup dirents by name.
+// Lookup dirents by name.  These are rarely needed.
 //
 extern const pp_dirent *
 fkl_get_dirent(const parse_location &loc, const string &path);
@@ -70,6 +70,10 @@ fkl_get_field(const parse_location &loc, const string &path);
 extern const pp_register *
 fkl_get_register(const parse_location &loc, const string &path);
 #define GET_REGISTER(...)	fkl_get_register(THIS_LOCATION, ##__VA_ARGS__)
+
+//
+// Test for the existence of a dirent.
+//
 extern bool
 fkl_defined(const parse_location &loc, const string &path);
 #define DEFINED(...)		fkl_defined(THIS_LOCATION, ##__VA_ARGS__)
@@ -313,12 +317,6 @@ inline pp_datatype *
 fkl_hex(const parse_location &loc, const string &name)
 {
 	return fkl_hex(loc, name, BITS0, "");
-}
-inline pp_datatype *
-fkl_hex(const parse_location &loc,
-             const pp_bitwidth width, const string &units)
-{
-	return fkl_hex(loc, "", width, units);
 }
 inline pp_datatype *
 fkl_anon_hex(const parse_location &loc, const pp_bitwidth width)
