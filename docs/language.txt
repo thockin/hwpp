@@ -1,0 +1,559 @@
+Describing Devices with the PP "Language"
+
+  The PP language is how we describe hardware devices.  Though the eventual
+  goal is to define a domain specific language, it is currently implemented as
+  a dialect of C++.  What is meant by a "dialect" is that we have defined a
+  set of function overloads and macros that make up a new, simple language
+  which should be easy to follow for anyone who understands C or C++.
+
+  The remainder of this document assumes that you have passing familiarity
+  with the C language and with the general concepts of PP.  If you don't, you
+  should pause now and read overview.txt first.
+
+The Device Tree
+
+  Everything defined in the PP language is part of the PP "tree".  This
+  include scopes, registers, and fields as well as datatypes.  In many
+  respects the tree acts like a filesystem.  Scopes act as directories and
+  registers and fields act as files.  You can uniquely address any scope,
+  register, or field by a "path", just like a filesystem.
+
+Paths
+
+  A PP path is a a series of path "elements" seperated by forward slashes
+  ('/').  Just like a filesystem path, you can have absolute paths, which have
+  a leading slash, and relative paths, which do not.  Also like a filesystem
+  path, PP supports referencing the parent scope with the dot-dot element
+  ('..').  This element may be repeated any number of times to "climb" the
+  tree, one scope at a time.
+
+  The simplest path elements are the names of scopes, registers, or fields,
+  which are collectively called "dirents" (since they model filesystem
+  directory entries).
+
+  Syntax: dirent_name
+    All dirent names are similar to C-style tokens, with a few changes noted
+    here.  That is to say:
+    	- must start with an alphabetic character or underscore.
+    	- may be followed by any sequence of alphbetic or numeric characters,
+    	  underscores or periods.
+    	- register dirents must begin with a percent character.
+
+  There are two other types of path elements - arrays and bookmarks.  Each of
+  these will be discussed later.
+
+Scopes
+
+  A scope is a container for other PP entities.  Scopes act very much
+  like directories on a filesystem. They can contain any number of registers,
+  fields, and other scopes.
+
+  All of the PP device tree starts with a "root" scope.  As devices are
+  discovered and defined, new scopes are created.  PP tracks the "current
+  scope" as you open and close scopes.
+
+  Scopes also function something like lexical scopes in the C programming
+  language.  When you define a named PP datatype (more on that later), the
+  type definition is available to any field in the current scope and to any
+  field in any sub-scope of the current scope.
+
+  Syntax: OPEN_SCOPE(dirent_name)
+    Create and open a new named scope.  All scopes must be named, though it is
+    possible to rename a scope via CLOSE_SCOPE().  Since a scope is a dirent,
+    scope names must follow the rules for dirent names.
+
+  Syntax: CLOSE_SCOPE()
+    Close the current scope and resume the previous scope.
+
+  Syntax: CLOSE_SCOPE(dirent_name)
+    Close the current scope, rename it, and resume the previous scope.
+
+Bindings
+
+  PP provides access to actual hardware devices via it's driver model.  Any
+  scope can be bound to a driver via a "binding".  To bind to a specific
+  device, each binding takes a list of numeric arguments.  For example, to
+  bind to a specific PCI device, you must specify the segment, bus, device,
+  and function numbers.  The argument list is defined per-driver.
+
+  Syntax: ARGS(values...)
+    Create an argument_list.
+
+  Syntax: BIND(driver_name, argument_list)
+    Create a new binding.
+
+  Syntax: OPEN_SCOPE(dirent_name, binding)
+    Create and open a new named scope which is bound to a specific driver.
+    Like the current scope, PP tracks the current binding.
+
+Registers
+
+  Registers are the basic unit of access to hardware devices.  All registers
+  have a fixed width and address.  When defining a new register, the current
+  binding (and its driver) is used for access.
+
+  Syntax: REG8(register_name, address)
+    Define a new 8 bit register at the specified address.  Since a register is
+    a dirent, register names must follow the rules for dirent names.  The only
+    difference is that register names must begin with a percent ('%').
+
+  Syntax: REG16(register_name, address)
+    Define a new 16 bit register at the specified address.  Since a register
+    is a dirent, register names must follow the rules for dirent names.  The
+    only difference is that register names must begin with a percent ('%').
+
+  Syntax: REG32(register_name, address)
+    Define a new 32 bit register at the specified address.  Since a register
+    is a dirent, register names must follow the rules for dirent names.  Thes
+    only difference is that register names must begin with a percent ('%').
+
+  Syntax: REG64(register_name, address)
+    Define a new 64 bit register at the specified address.  Since a register
+    is a dirent, register names must follow the rules for dirent names.  The
+    only difference is that register names must begin with a percent ('%').
+
+  Syntax: REG128(register_name, address)
+    Define a new 128 bit register at the specified address.  Since a register
+    is a dirent, register names must follow the rules for dirent names.  The
+    only difference is that register names must begin with a percent ('%').
+
+  The address is essentially a cookie which the associated driver will use to
+  access the register.  There does not need to be a correlation between a
+  register's width and it's address.  This is best illustrated by two
+  examples, both valid:
+    1) a REG32 at address 0, followed by a REG32 at address 4
+    2) a REG32 at address 0, followed by a REG32 at address 1
+
+Regbits
+
+  Most fields are defined as a set of bits from one or more registers.  A
+  "regbits" is a PP construct which allows simple access to bits of registers.
+
+  Syntax: BITS(register_name)
+    Create a regbits which includes all the bits of the specified register.
+
+  Syntax: BITS(register_name, bit_num)
+    Create a regbits which includes a single bit of the specified register.
+
+  Syntax: BITS(register_name, high_bit_num, low_bit_num)
+    Create a regbits which includes a range of bits from the specified
+    register.
+
+  Bit numbers are defined starting with 0, which is the least significant bit.
+  Bit ranges are inclusive.
+
+  Regbits can be concatenated with the '+' operator.  Concatenated regbits are
+  always appended at the LSB.  Example:
+    Assume REG8 "reg1" = 0x01234567
+    BITS("reg1", 3, 0) + BITS("reg1", 11, 8) + BITS("reg1", 19, 16) = 0x753
+
+  Regbits can be comprised of up any number of bits, there is no practical
+  limit.
+
+Datatypes
+
+  PP evaluates fields (more on that below) against "datatypes".  There are
+  several built-in datatypes which are defined in terms of the PP datatype
+  primitives.  Datatypes can be named, in which case they are visible to any
+  field in or below the current scope, or they can be anonymous.
+
+  Syntax: datatype names
+    All datatype names are C-style tokens.  That is to say:
+    	- must start with an alphabetic character or underscore.
+    	- may be followed by any sequence of alphbetic or numeric characters
+    	  or underscores.
+
+  The simplest types are the direct interpretation types: INT and HEX.
+
+  Syntax: INT(datatype_name)
+    Define a new integer datatype.
+
+    Example: INT("x") evaluates 123 as "123"
+
+  Syntax: INT(datatype_name, units_string)
+    Define a new integer datatype with the specified units appended.
+
+    Example: INT("x", "bytes") evaluates 123 as "123 bytes"
+
+  Syntax: ANON_INT()
+    Define an anonymous integer datatype.
+
+  Syntax: ANON_INT(units_string)
+    Define an anonymous integer datatype with the specific units appended.
+
+  Syntax: HEX(datatype_name)
+    Define a new hexadecimal datatype with best-fit notation.  No zeros are
+    appended after the most significant set bit.
+
+    Example: HEX("x") evaluates 0x123 as "0x123"
+
+  Syntax: HEX(datatype_name, bitwidth)
+    Define a new hexadecimal datatype with a minimum width notation.
+
+    Example: HEX("x", 16) evaluates 0x123 as "0x0123"
+
+  Syntax: HEX(datatype_name, units_string)
+    Define a new hexadecimal datatype with best-fit notation and the specified
+    units appended.
+
+    Example: HEX("x", "bytes") evaluates 0x123 as "0x123 bytes"
+
+  Syntax: HEX(datatype_name, bitwidth, units_string)
+    Define a new hexadecimal datatype with a minimum width notation and the
+    specified units appended.
+
+    Example: HEX("x", 16, "bytes") evaluates 0x123 as "0x0123 bytes"
+
+  Syntax: ANON_HEX()
+    Define a new hexadecimal datatype with best-fit notation.  No zeros are
+    appended after the most significant set bit.
+
+  Syntax: ANON_HEX(bitwidth)
+    Define a new hexadecimal datatype with a minimum width notation.
+
+  Syntax: ANON_HEX(units_string)
+    Define a new hexadecimal datatype with best-fit notation and the specified
+    units appended.
+
+  Syntax: ANON_HEX(bitwidth, units_string)
+    Define a new hexadecimal datatype with a minimum width notation and the
+    specified units appended.
+
+  Not all fields can be directly interpretted.  Two common ways of evaluating
+  fields are as bitmasks and enumerated lists.  For these we define BITMASK
+  and ENUM types.
+
+  Syntax: KV(datatype_name, value)
+    Define a new key-value pair.  This is used in BITMASK and ENUM types.
+
+  Syntax: BITMASK(datatype_name, KV, KV...)
+    Define a new bitmask type with the specified list of key-value pairs.
+    There must be at least one key-value pair, and no two keys may be the
+    same.  There are no restrictions on what a key string may be.
+
+    Example: BITMASK("x", KV("zero", 0), KV("one", 1)) evaluates 3 as "zero
+    one"
+
+  Syntax: ANON_BITMASK(KV, KV...)
+    Define a new bitmask type with the specified list of key-value pairs.
+    There must be at least one key-value pair, and no two keys may be the
+    same.  There are no restrictions on what a key string may be.
+
+  Syntax: ENUM(datatype_name, KV, KV...)
+    Define a new enumerated type with the specified list of key-value pairs.
+    There must be at least one key-value pair, and no two keys may be the
+    same.  There are no restrictions on what a key string may be.
+
+    Example: ENUM("x", KV("zero", 0), KV("one", 1)) evaluates 1 as "one"
+
+  Syntax: ANON_ENUM(datatype_name, KV, KV...)
+    Define a new enumerated type with the specified list of key-value pairs.
+    There must be at least one key-value pair, and no two keys may be the
+    same.  There are no restrictions on what a key string may be.
+
+  Very often fields will be defined as a single bit.  To make this easy PP
+  provides the BOOL type.
+
+  Syntax: BOOL(datatype_name, true_string, false_string)
+    Define a new boolean datatype which evaluates 0 as false_string and any
+    other value as true_string.
+
+  Example: BOOL("x", "yes", "no") evaluates 0 as "no" and 123 as "yes"
+
+  Syntax: ANON_BOOL(datatype_name, true_string, false_string)
+    Define a new boolean datatype which evaluates 0 as false_string and any
+    other value as true_string.
+
+  Sometimes the data in a field needs a slight transformation before being
+  presented to one of the standard datatypes.  For example, some fields are
+  fundamentally integers, but are encoded as "N - 1".  For that we have the
+  XFORM datatype.
+
+  Syntax: XFORM(datatype_name, datatype_name, decode_func, encode_func)
+    Define a new xform datatype which runs the decode_func before passing the
+    value to the real_type for reads.  The encode_func is run when data is
+    being written to a field, and should be the inverse of the decode_func.
+
+  Syntax: XFORM(datatype_name, datatype, decode_func, encode_func)
+    Define a new xform datatype which runs the decode_func before passing the
+    value to the real_type for reads.  The encode_func is run when data is
+    being written to a field, and should be the inverse of the decode_func.
+
+    Example: XFORM("x", INT(), add_one, sub_one) evaluates 7 as "8", assuming
+    the function add_one(x) returns x+1.
+
+  Syntax: ANON_XFORM(datatype_name, decode_func, encode_func)
+  Syntax: ANON_XFORM(datatype, decode_func, encode_func)
+    Define a new xform datatype which runs the decode_func before passing the
+    value to the real datatype for reads.  The encode_func is run when data is
+    being written to a field, and should be the inverse of the decode_func.
+
+  To make XFORM even easier, PP supports lambda expressions.  The variables
+  _1, _2, _3 are special, and represent the first, second and third arguments
+  to the lambda function.  In the case of XFORM, only _1 is used.
+
+  Syntax: LAMBDA(...)
+    Define a new lambda expression.  For example, the add_one function assumed
+    above could be expressed as LAMBDA(_1 + 1).
+
+Builtin Datatypes
+
+  PP supports the following datatypes by default:
+
+  * int_t		- a simple integer
+  * hex_t		- a simple hexadecimal number
+  * hex4_t		- a 4 bit hexadecimal number
+  * hex8_t		- an 8 bit hexadecimal number
+  * hex12_t		- a 12 bit hexadecimal number
+  * hex16_t		- a 16 bit hexadecimal number
+  * hex20_t		- a 20 bit hexadecimal number
+  * hex32_t		- a 32 bit hexadecimal number
+  * hex64_t		- a 64 bit hexadecimal number
+  * hex128_t		- a 128 bit hexadecimal number
+  * addr16_t		- a 16 bit address
+  * addr32_t		- a 32 bit address
+  * addr64_t		- a 64 bit address
+  * yesno_t		- a yes/no boolean
+  * truefalse_t		- a true/false boolean
+  * onoff_t		- an on/off boolean
+  * enabledisable_t	- an enabled/disabled boolean
+  * bitmask_t		- a simple bitmask
+
+Fields
+
+  Now that we can read bits from hardware registers, we can define fields.
+  Every field has a datatype against which it is evaluated.  For all field
+  definitions, the datatype parameter can be either a string name of an
+  already defined type, or it can be an anonymous type definition.
+
+  Syntax: FIELD(dirent_name, datatype_name, regbits)
+  Syntax: FIELD(dirent_name, datatype, regbits)
+    Define a new field with the specified datatype and the specified regbits.
+
+  Sometimes it is desireable to define a field which does not map to a
+  hardware device.  For example, you may want to expose a particular constant
+  value as a field.
+
+  Syntax: FIELD(dirent_name, datatype_name, value)
+  Syntax: FIELD(dirent_name, datatype, value)
+    Define a new constant value field.
+
+  Sometimes there is not a simple way to access a field, and you need to write
+  some code to do it.  For example, index-data pairs require special handling.
+
+  Syntax: FIELD(dirent_name, datatype_name, proc_field_accessor)
+  Syntax: FIELD(dirent_name, datatype, proc_field_accessor)
+    Define a procedure field.  The proc_field_accessor is the name of a C++
+    class which inherits from proc_field_accessor.  The proc_field_accessor
+    class must implement the read() and write() methods.  When the field is
+    read or written, the accessor's methods will be run.  See below for
+    information on the READ and WRITE functions.
+
+Regfields
+
+  Frequently a field maps directly to a register.  Rather than using two
+  statements to define both a register and a field, PP provides a shortcut:
+
+  Syntax: REGFIELD8(dirent_name, address, type)
+    Define a REG8 at the specified address, and a field which consumes that
+    register.
+
+  Syntax: REGFIELD16(dirent_name, address, type)
+    Define a REG16 at the specified address, and a field which consumes that
+    register.
+
+  Syntax: REGFIELD32(dirent_name, address, type)
+    Define a REG32 at the specified address, and a field which consumes that
+    register.
+
+  Syntax: REGFIELD64(dirent_name, address, type)
+    Define a REG64 at the specified address, and a field which consumes that
+    register.
+
+  Syntax: REGFIELD128(dirent_name, address, type)
+    Define a REG128 at the specified address, and a field which consumes that
+    register.
+
+Flow Control
+
+  Because PP uses a dialect of C++, all the standard C++ flow control syntax
+  works.  You can use conditionals and loops and functions as you would in any
+  C++ program.
+
+  There are a few caveats, though.
+
+  Internally PP uses a bignum class for arbitrary width numbers.  This is
+  known as 'pp_value'.  When dealing with values read from registers, fields,
+  or regbits, always use pp_value.  It is OK to use native types for things
+  like loop counters.
+
+  Because pp_value is not a native integral type, C++ can not switch on it.
+
+  Because pp_value can be arbitrarily large, it may be initialized from an
+  integer literal (signed or unsigned) or from a string literal.
+
+  Sometimes C++ does not know whether you intended to use a string or a
+  pp_value.  When in doubt, convert to pp_value explicitly.  For example:
+  pp_value(0) or pp_value("0x1234").
+
+  When you need to analyze the value of a field, you should use the following
+  comparison functions.
+
+  Syntax: FIELD_EQ(field_name, value)
+    Compare the specified field against the value.  Value may be either a
+    number or a string (such as an enum key).  Return true if the field is an
+    exact match.
+
+  Syntax: FIELD_NE(field_name, value)
+    Compare the specified field against the value.  Value may be either a
+    number or a string (such as an enum key).  Return true if the field is not
+    a match.
+
+  Syntax: FIELD_LT(field_name, value)
+    Compare the specified field against the value.  Value may be either a
+    number or a string (such as an enum key).  Return true if the field is
+    less than the comparator.
+
+  Syntax: FIELD_LE(field_name, value)
+    Compare the specified field against the value.  Value may be either a
+    number or a string (such as an enum key).  Return true if the field is
+    less than or equal to the comparator.
+
+  Syntax: FIELD_GT(field_name, value)
+    Compare the specified field against the value.  Value may be either a
+    number or a string (such as an enum key).  Return true if the field is
+    greater than the comparator.
+
+  Syntax: FIELD_GE(field_name, value)
+    Compare the specified field against the value.  Value may be either a
+    number or a string (such as an enum key).  Return true if the field is
+    greater than or equal to the comparator.
+
+  Syntax: FIELD_BOOL(field_name)
+    Use the specified field as a boolean.
+
+  Syntax: FIELD_AND(field_name, value)
+    Logically AND the specified field with the value.  Value may be either a
+    number or a string (such as an enum key).  Return the modified value.
+
+  Syntax: FIELD_TEST(field_name, value)
+    Test the specified field with the value.  Value may be either a number or
+    a string (such as an enum key).  Return true if the field partially
+    matches the value.
+
+  Sometimes, the flag you need is the existence or non-existence of a dirent.
+  For that, PP provides the ability to query whether a dirent has been
+  defined.
+
+  Syntax: DEFINED(path)
+    Test if a specified path (absolute or relative) is currently defined.
+
+Arrays
+
+  It is often useful to define multiple closely related dirents.  PP provides
+  a simple array contruct to denote this.
+
+  Syntax: array[]
+    When used as a dirent name to create a scope, register, or field, this
+    notation appends the new dirent to the array.  If the array does not yet
+    exist, it is created with the new dirent as the first element.
+
+  Syntax: array[n]
+    When used as a path element, such as when testing a field, this notation
+    accesses the nth element of the array.  Accessing an index beyond the end
+    of the array is an error.  This notation can not be used for creating a
+    dirent.
+
+  Syntax: array[$]
+    When used as a path element, such as when testing a field, this notation
+    accesses the last element in the array.
+
+  Like C arrays, PP arrays are zero-based.  That is to say the first element
+  in the array is [0].
+
+  Arrays are dirents themselves and they may be referenced as part of a path,
+  such as in a call to DEFINED().  If an array is defined, it must have at
+  least one member.  There is no way to define an array without an initial
+  element, nor is there any way to define a fixed length array.
+
+Bookmarks
+
+  When working with hardware-specific code, it is sometimes necessary to
+  reference paths that are not "local" to the current scope.  While PP
+  supports '..' as a path element, it can be inelegenat.  Using a long string
+  of '..' elements is hard to maintain if the structure of your device code
+  changes.  Worse, sometimes you do not know exactly how many levels you need
+  to climb.  PP also supports absolute paths.  This is also imperfect for some
+  situations, where you might not know your own path relative to the root.
+  For this case, PP provides "bookmarks".
+
+  Bookmarks are annotations which can be attached to scopes.  When a path
+  includes a bookmark, the current scope is checked for the annotation.  If it
+  is not found, the parent scope is checked.  This process repeats backwards
+  up tree from the current scope.  If the bookmark is found, path evaluation
+  resumes from the bookmarked scope.  If the bookmark is not found, it is an
+  error.
+
+  Syntax: BOOKMARK(bookmark_name)
+    Define a new bookmark on the current scope.
+
+  Syntax: bookmark_name
+    All bookmark names are C-style tokens.  That is to say:
+    	- must start with an alphabetic character or underscore.
+    	- may be followed by any sequence of alphbetic or numeric characters
+    	  or underscores.
+
+
+  Syntax: $bookmark
+    When used as a path element, path evaluation climbs the tree backwards
+    looking for a scope with the specified bookmark.
+
+Reading and Writing
+
+  PP provides simple ways to read and write registers and fields.  This can
+  be used as part of flow control or in procedure field accessor functions.
+
+  Syntax: READ(register_name)
+  Syntax: READ(field_name)
+    Read the value of the specified field or register.  Note that for
+    fields, READ() returns a raw pp_value which has not been evaluated by a
+    datatype.  If the datatype does a non-trivial evaluation, the value
+    returned from READ() may not resemble the evaluated form of the field.
+
+  Syntax: WRITE(register_name, pp_value)
+  Syntax: WRITE(field_name, pp_value)
+    Write a value to the specified field or register.  Note that for fields,
+    WRITE() takes a raw pp_value, which which has not been evaluated by a
+    datatype.  If the datatype does a non-trivial evaluation, the value
+    passed to WRITE() may not resemble the evaluated form of the field.
+
+  PP also allows you to read and write regbits directly.
+
+  Syntax: READ(regbits)
+    Read a pp_value from a regbits.  This can be a single bit or any number
+    of bits from multiple registers.
+
+  Syntax: WRITE(regbits, pp_value)
+    Write a pp_value to a regbits.  This can be a single bit or any number
+    of bits from multiple registers.
+
+Handling the Unexpected
+
+  Occasionally, your device code will hit an unexpected situation that is
+  worth diagnosing.  PP provides a simple way to issue warnings.
+
+  Syntax: WARN(fmt, ...)
+    Issue a warning message.  The arguments to this function are similar to
+    printf, except that pp_value objects are supported.
+
+Killing Time
+
+  Sometimes you need to delay between accesses.  PP provides a simple way to
+  sleep for a while.
+
+  Syntax: MSLEEP(num_millisecs)
+    Delay for num_millisecs milliseconds.
+
+FIXME:
+registration
+dirent and datatype redefinitions
