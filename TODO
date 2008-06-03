@@ -64,6 +64,10 @@ Bugs and features:
  - is array[$] really needed - is [] not good enough as an rval?
  - enforce % on registers but not fields
  - drop INT(name) and HEX(name) and drop all ANON_ prefixes!
+ - provide a way to write a string to a field?
+ 	- WRITE("field", string) ?
+ 	- WRITE("field", LOOKUP("field", string)) ?
+ - Can I provide a more consistent model of strings vs values?
 
 filesystem.h:
 	track full path name in directory and direntry
@@ -71,3 +75,8 @@ filesystem.h:
 	directory iterators
 		- needs direntry comparison
 	fs::realpath()
+
+Open large-scale issues:
+	- per-field xforms?
+	- unify registers and fields to just be value objects?
+
