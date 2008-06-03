@@ -1,0 +1,48 @@
+Prettyprint - An Overview
+
+Prettyprint started as a way to produce human-friendly and diff-friendly dumps
+of hardware.  To be human-friendly, the output can't just be opaque numbers.
+To be diff-friendly, the data needs to be somewhat structured.  The scope of
+the problem eventually grew to include a desire to be able to write back to
+the hardware in a way that was more human friendly than memorizing register
+offsets, bit numbers, and bit encodings.  In order to enable these things,
+we need a way to describe the hardware.
+
+The primary interface between hardware and software is registers.  While
+registers are exposed through a variety of ways, such as PCI or IO, they are
+not fundamentally different from each other in their major characteristics.
+PP starts with the ability to access registers.  Each register has a fixed
+bitwidth, by which it is accessed, and an address.  The value in a register
+may or may not have any meaning on it's own.  Many registers contain several
+logical values, yet other registers contain only a portion of a logical
+value.
+
+PP calls these logical values "fields".  A field can be defined as a set of
+1 or more bits from 1 or more registers.  Registers can contain multiple
+fields and fields can span registers.  Fields are really the only things that
+have a meaningful value.  Sometimes a field does map exactly to a register,
+which is perfectly within the definition of a field.
+
+Because they have meanings, fields are the entities that allow PP to reach
+it's goals.  In order to produce human-friendly results, each field is
+associated with a "datatype", which is applied when evaluating the fields.
+For example: some fields are simply integers, such as IRQs, which make
+most sense represented as base-10 numbers.  Other fields, while still
+numbers, make most sense when represented as hexadecimal, such as addresses.
+Other fields are more complex, and can best be represented as enumerated
+lists or bitmasks.
+
+Within a particular hardware device, some registers and fields have strong
+inter-relationships than others.  PP provides a way fo grouping related
+fields and registers, called "scopes".  Scopes are named containers for
+other entities, including other scopes.
+
+The full set of scopes, registers, and fields build up a logical tree of
+entities.  Each entity in the tree has an associated name, and can be
+addressed by the "path" of names, from the root of the tree.  Anyone who has
+ever used a filesystem will find this model familiar.
+
+PP provides mechanisms to describe the tree of registers and fields for
+devices, as well as ways to bind those trees to actual hardware addresses.
+Once this tree has been built and bound, programs can walk through the tree
+and access the registers and fields.
