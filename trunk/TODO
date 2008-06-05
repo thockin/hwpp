@@ -68,6 +68,10 @@ Bugs and features:
  	- WRITE("field", string) ?
  	- WRITE("field", LOOKUP("field", string)) ?
  - Can I provide a more consistent model of strings vs values?
+ - proc scopes ?
+ - can a binding have no args?
+ - proc_dirents (run a proc to see if the dirent exists?)
+ - accessing an array as "foo" should be the same as "foo[0]"
 
 filesystem.h:
 	track full path name in directory and direntry
