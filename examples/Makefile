@@ -2,7 +2,8 @@ TOPDIR = ..
 include $(TOPDIR)/rules.mk
 
 BINS = pp_discover \
-	pp_pci
+	pp_pci \
+	pp_read
 BINS_SRCS = $(BINS:=.cpp)
 
 
