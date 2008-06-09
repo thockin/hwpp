@@ -72,6 +72,7 @@ Bugs and features:
  - can a binding have no args?
  - proc_dirents (run a proc to see if the dirent exists?)
  - accessing an array as "foo" should be the same as "foo[0]"
+ - CPUID index for some CPUIDs
 
 filesystem.h:
 	track full path name in directory and direntry
