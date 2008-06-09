@@ -1369,7 +1369,7 @@ explore_capabilities()
 	// linked-list.
 	// FIXME: need RCRB support
 	if ((DEFINED("$pci/capability.pcie") || DEFINED("$pci/capability.pcix"))
-	 && (READ("%PCI.100") != 0)) {
+	    && (READ("%PCI.100") != 0) && (READ("%PCI.100") != 0xffffffff)) {
 		pp_value ptr = 0x100;
 		while (ptr != 0 && ptr != 0xfff) {
 			OPEN_SCOPE("ecapability");
