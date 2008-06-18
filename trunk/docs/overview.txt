@@ -32,10 +32,10 @@ numbers, make most sense when represented as hexadecimal, such as addresses.
 Other fields are more complex, and can best be represented as enumerated
 lists or bitmasks.
 
-Within a particular hardware device, some registers and fields have strong
-inter-relationships than others.  PP provides a way fo grouping related
-fields and registers, called "scopes".  Scopes are named containers for
-other entities, including other scopes.
+Within a particular hardware device, some registers and fields have
+stronger inter-relationships than others.  PP provides a way of grouping
+related fields and registers, called "scopes".  Scopes are named
+containers for other entities, including other scopes.
 
 The full set of scopes, registers, and fields build up a logical tree of
 entities.  Each entity in the tree has an associated name, and can be
