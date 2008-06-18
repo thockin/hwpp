@@ -433,8 +433,8 @@ Flow Control
     Use the specified field as a boolean.
 
   Syntax: FIELD_AND(field_name, value)
-    Logically AND the specified field with the value.  Value may be either a
-    number or a string (such as an enum key).  Return the modified value.
+    AND the specified field with the value.  Value may be either a number
+    or a string (such as an enum key).  Return the modified value.
 
   Syntax: FIELD_TEST(field_name, value)
     Test the specified field with the value.  Value may be either a number or
