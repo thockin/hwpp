@@ -210,6 +210,125 @@ k8_ht_config()
 static void
 k8_address_map()
 {
+	//
+	// DRAM base/limit registers
+	//
+	for (int addr = 0x40; addr < 0x80; addr += 0x08) {
+		OPEN_SCOPE("dram[]");
+
+		REG32("%dram_base", addr);
+		REG32("%dram_limit", addr + 0x04);
+
+		FIELD("RE", "enabledisable_t", BITS("%dram_base", 0));
+		FIELD("WE", "enabledisable_t", BITS("%dram_base", 1));
+		if (FIELD_BOOL("RE") || FIELD_BOOL("WE")) {
+			FIELD("DRAMBase", "addr64_t",
+			    BITS("%dram_base", 31, 16) + BITS("%0", 23, 0));
+			FIELD("DRAMLimit", "addr64_t",
+			    BITS("%dram_limit", 31, 16) + BITS("%1", 23, 0));
+			FIELD("DstNode", "int_t", BITS("%dram_limit", 2, 0));
+			FIELD("IntlvEn", ANON_ENUM(KV("none", 0),
+					KV("a12", 1),
+					KV("a12_a13", 3),
+					KV("a12_a13_a14", 7)),
+				BITS("%dram_base", 10, 8));
+			FIELD("IntlvSel", ANON_BITMASK(
+					KV("a12", 0),
+					KV("a13", 1),
+					KV("a14", 2)),
+				BITS("%dram_limit", 10, 8));
+		}
+
+		CLOSE_SCOPE();
+	}
+
+	//
+	// Memory-mapped I/O base/limit registers
+	//
+	for (int addr = 0x80; addr < 0xc0; addr += 0x08) {
+		OPEN_SCOPE("mmio[]");
+
+		REG32("%mmio_base", addr);
+		REG32("%mmio_limit", addr + 0x04);
+
+		FIELD("RE", "enabledisable_t", BITS("%mmio_base", 0));
+		FIELD("WE", "enabledisable_t", BITS("%mmio_base", 1));
+		if (FIELD_BOOL("RE") || FIELD_BOOL("WE")) {
+			FIELD("MMIOBase", "addr64_t",
+			    BITS("%mmio_base", 31, 8) + BITS("%0", 15, 0));
+			FIELD("MMIOLimit", "addr64_t",
+			    BITS("%mmio_limit", 31, 8) + BITS("%1", 15, 0));
+			FIELD("DstNode", "int_t", BITS("%mmio_limit", 2, 0));
+			FIELD("DstLink", "int_t", BITS("%mmio_limit", 5, 4));
+			FIELD("NP", "yesno_t", BITS("%mmio_limit", 7));
+			FIELD("CpuDis", "yesno_t", BITS("%mmio_base", 2));
+			FIELD("Lock", "yesno_t", BITS("%mmio_base", 3));
+		}
+
+		CLOSE_SCOPE();
+	}
+
+	//
+	// PCI I/O base/limit registers
+	//
+	for (int addr = 0xc0; addr < 0xe0; addr += 0x08) {
+		OPEN_SCOPE("pciio[]");
+
+		REG32("%pciio_base", addr);
+		REG32("%pciio_limit", addr + 0x04);
+
+		FIELD("RE", "enabledisable_t", BITS("%pciio_base", 0));
+		FIELD("WE", "enabledisable_t", BITS("%pciio_base", 1));
+		if (FIELD_BOOL("RE") || FIELD_BOOL("WE")) {
+			FIELD("PCIIOBase", "addr64_t",
+			    BITS("%pciio_base", 24, 12) + BITS("%0", 11, 0));
+			FIELD("PCIIOLimit", "addr64_t",
+			    BITS("%pciio_limit", 24, 12) + BITS("%1", 11, 0));
+			FIELD("DstNode", "int_t", BITS("%pciio_limit", 2, 0));
+			FIELD("DstLink", "int_t", BITS("%pciio_limit", 5, 4));
+			FIELD("VE", "enabledisable_t", BITS("%pciio_base", 4));
+			FIELD("IE", "enabledisable_t", BITS("%pciio_base", 5));
+		}
+
+		CLOSE_SCOPE();
+	}
+
+	//
+	// Configuration base/limit registers
+	//
+	for (int addr = 0xe0; addr < 0xf0; addr += 0x04) {
+		OPEN_SCOPE("config[]");
+
+		REG32("%config", addr);
+		FIELD("RE", "enabledisable_t", BITS("%config", 0));
+		FIELD("WE", "enabledisable_t", BITS("%config", 1));
+		if (FIELD_BOOL("RE") || FIELD_BOOL("WE")) {
+			FIELD("DstNode", "int_t", BITS("%config", 6, 4));
+			FIELD("DstLink", "int_t", BITS("%config", 9, 8));
+			FIELD("BusNumBase", "int_t", BITS("%config", 23, 16));
+			FIELD("BusNumLimit", "int_t", BITS("%config", 31, 24));
+			FIELD("DevCmpEn", "enabledisable_t",
+					BITS("%config", 2));
+		}
+
+		CLOSE_SCOPE();
+	}
+
+	//
+	// DRAM hole address register
+	//
+	REG32("%DRAMHole", 0xf0);
+	OPEN_SCOPE("dram_hole");
+
+	FIELD("DramHoleValid", "truefalse_t", BITS("../%DRAMHole", 0));
+	if (FIELD_BOOL("DramHoleValid")) {
+		FIELD("DramHoleOffset", "hex32_t",
+			BITS("../%DRAMHole", 15, 8) + BITS("%0", 23, 0));
+		FIELD("DramHoleBase", "hex32_t",
+			BITS("../%DRAMHole", 31, 24) + BITS("%0", 23, 0));
+	}
+
+	CLOSE_SCOPE();
 }
 
 static void
