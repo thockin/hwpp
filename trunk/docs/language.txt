@@ -246,7 +246,7 @@ Datatypes
 
     Example: ENUM("x", KV("zero", 0), KV("one", 1)) evaluates 1 as "one"
 
-  Syntax: ANON_ENUM(datatype_name, KV, KV...)
+  Syntax: ANON_ENUM(KV, KV...)
     Define a new enumerated type with the specified list of key-value pairs.
     There must be at least one key-value pair, and no two keys may be the
     same.  There are no restrictions on what a key string may be.
@@ -260,7 +260,7 @@ Datatypes
 
   Example: BOOL("x", "yes", "no") evaluates 0 as "no" and 123 as "yes"
 
-  Syntax: ANON_BOOL(datatype_name, true_string, false_string)
+  Syntax: ANON_BOOL(true_string, false_string)
     Define a new boolean datatype which evaluates 0 as false_string and any
     other value as true_string.
 
