@@ -37,10 +37,10 @@ k8_ht_config()
 			KV("link1", 2),
 			KV("link2", 3));
 
-	for (int addr = 0x40; i < 0x60; i += 4) {
+	for (int addr = 0x40; addr < 0x60; addr += 4) {
 		OPEN_SCOPE("node[]");
 
-		REG32("%ht_route", address);
+		REG32("%ht_route", addr);
 		FIELD("RQRoute", "ht_route_t", BITS("%ht_route", 3, 0));
 		FIELD("RPRoute", "ht_route_t", BITS("%ht_route", 11, 8));
 		FIELD("BCRoute", "ht_route_t", BITS("%ht_route", 19, 16));
@@ -148,13 +148,13 @@ k8_ht_config()
 	// k8-specific HT registers
 	//
 	//FIXME: rename fields to match AMD docs
-	for (int addr = 0x90; i < 0x100; i += 0x20) {
+	for (int addr = 0x90; addr < 0x100; addr += 0x20) {
 		OPEN_SCOPE("ldt[]");
 
 		//
 		// HT buffer count
 		//
-		REG32("%ldt_buf_count", address);
+		REG32("%ldt_buf_count", addr);
 		FIELD("request_count", "int_t", BITS("%ldt_buf_count", 3, 0));
 		FIELD("posted_request_count", "int_t", BITS("%ldt_buf_count", 7, 4));
 		FIELD("response_count", "int_t", BITS("%ldt_buf_count", 11, 8));
@@ -167,7 +167,7 @@ k8_ht_config()
 		//
 		// HT bus nums
 		//
-		REG32("%ldt_bus_nums", address+4);
+		REG32("%ldt_bus_nums", addr+4);
 		FIELD("primary_bus", "int_t", BITS("%ldt_bus_nums", 7, 0));
 		FIELD("secondary_bus", "int_t", BITS("%ldt_bus_nums", 15, 8));
 		FIELD("subordinate_bus", "int_t", BITS("%ldt_bus_nums", 23, 16));
@@ -175,7 +175,7 @@ k8_ht_config()
 		//
 		// HT type
 		//
-		REG32("%ldt_type", address+8);
+		REG32("%ldt_type", addr+8);
 		FIELD("link_connected", "yesno_t", BITS("%ldt_type", 0));
 		FIELD("init_complete", "yesno_t", BITS("%ldt_type", 1));
 		FIELD("coherency", ANON_ENUM(
