@@ -526,14 +526,7 @@ msix_capability(const pp_value &address)
 
 	// the table is memory mapped through a BAR
 	REG32("%table_ptr", address + 4);
-	FIELD("table_bir", ANON_ENUM(
-				KV("bar0", 0),
-				KV("bar1", 1),
-				KV("bar2", 2),
-				KV("bar3", 3),
-				KV("bar4", 4),
-				KV("bar5", 5)),
-			BITS("%table_ptr", 2, 0));
+	FIELD("table_bir", "pci_bar_t", BITS("%table_ptr", 2, 0));
 	FIELD("table_offset", "hex_t",
 			BITS("%table_ptr", 31, 3) +
 			BITS("%0", 2, 0));
@@ -544,6 +537,7 @@ msix_capability(const pp_value &address)
 	string bar;
 	pp_value base, size;
 
+	//FIXME: EVAL("table_bir")?
 	bar = "$pci/" + GET_FIELD("table_bir")->evaluate() + "/address";
 	base = READ(bar) + READ("table_offset");
 	size = table_size * 16;
@@ -566,14 +560,7 @@ msix_capability(const pp_value &address)
 
 	// the pending bit array is memory mapped through a BAR
 	REG32("%pba_ptr", address + 8);
-	FIELD("pba_bir", ANON_ENUM(
-				KV("bar0", 0),
-				KV("bar1", 1),
-				KV("bar2", 2),
-				KV("bar3", 3),
-				KV("bar4", 4),
-				KV("bar5", 5)),
-			BITS("%pba_ptr", 2, 0));
+	FIELD("pba_bir", "pci_bar_t", BITS("%pba_ptr", 2, 0));
 	FIELD("pba_offset", "hex_t",
 			BITS("%pba_ptr", 31, 3) +
 			BITS("%0", 2, 0));
