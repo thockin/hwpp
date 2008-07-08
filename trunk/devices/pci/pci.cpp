@@ -99,6 +99,15 @@ pci_datatypes_init()
 			KV("other", 0x80));
 	//FIXME: classes 0x07-0x11
 
+	// pci_bar_t
+	ENUM("pci_bar_t",
+			KV("bar0", 0),
+			KV("bar1", 1),
+			KV("bar2", 2),
+			KV("bar3", 3),
+			KV("bar4", 4),
+			KV("bar5", 5));
+
 	// pci_capability_t
 	ENUM("pci_capability_t",
 			KV("unknown", 0),
