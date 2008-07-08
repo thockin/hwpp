@@ -1,4 +1,9 @@
 //
+// This file includes support for AMD K8 family processors.  The following
+// revisions are supported:
+// 	- Rev E
+// 	- Rev F (NPT, Family 0F)
+//
 // This file has been developed purely from publicly available
 // documentation.
 //
@@ -17,68 +22,6 @@ k8_cpuid(const pp_value &node, const pp_value &ncores, const pp_value &cpu)
 }
 
 static void
-k8_ht_route(const string &name, const pp_value &address)
-{
-	OPEN_SCOPE(name);
-
-	REG32("%ht_route", address);
-	FIELD("RQRoute", "ht_route_t", BITS("%ht_route", 3, 0));
-	FIELD("RPRoute", "ht_route_t", BITS("%ht_route", 11, 8));
-	FIELD("BCRoute", "ht_route_t", BITS("%ht_route", 19, 16));
-
-	CLOSE_SCOPE();
-}
-
-static void
-k8_ht_buffer_count(const pp_value &address)
-{
-	REG32("%ldt_buf_count", address);
-	FIELD("request_count", "int_t", BITS("%ldt_buf_count", 3, 0));
-	FIELD("posted_request_count", "int_t", BITS("%ldt_buf_count", 7, 4));
-	FIELD("response_count", "int_t", BITS("%ldt_buf_count", 11, 8));
-	FIELD("probe_count", "int_t", BITS("%ldt_buf_count", 15, 12));
-	FIELD("request_data_count", "int_t", BITS("%ldt_buf_count", 18, 16));
-	FIELD("posted_request_data_count", "int_t",
-			BITS("%ldt_buf_count", 22, 20));
-	FIELD("response_data_count", "int_t", BITS("%ldt_buf_count", 26, 24));
-}
-
-static void
-k8_ht_bus_nums(const pp_value &address)
-{
-	REG32("%ldt_bus_nums", address);
-	FIELD("primary_bus", "int_t", BITS("%ldt_bus_nums", 7, 0));
-	FIELD("secondary_bus", "int_t", BITS("%ldt_bus_nums", 15, 8));
-	FIELD("subordinate_bus", "int_t", BITS("%ldt_bus_nums", 23, 16));
-}
-
-static void
-k8_ht_type(const pp_value &address)
-{
-	REG32("%ldt_type", address);
-	FIELD("link_connected", "yesno_t", BITS("%ldt_type", 0));
-	FIELD("init_complete", "yesno_t", BITS("%ldt_type", 1));
-	FIELD("coherency", ANON_ENUM(
-				KV("coherent", 0),
-				KV("noncoherent", 1),
-				KV("uniproc_coherent_nb", 2)),
-			BITS("%ldt_type", 3, 2));
-	FIELD("link_connect_pending", "yesno_t", BITS("%ldt_type", 4));
-}
-
-static void
-k8_ht_regs(const string &name, const pp_value &address)
-{
-	OPEN_SCOPE(name);
-
-	k8_ht_buffer_count(address);
-	k8_ht_bus_nums(address+4);
-	k8_ht_type(address+8);
-
-	CLOSE_SCOPE();
-}
-
-static void
 k8_ht_config()
 {
 	//
@@ -94,14 +37,16 @@ k8_ht_config()
 			KV("link1", 2),
 			KV("link2", 3));
 
-	k8_ht_route("node0", 0x40);
-	k8_ht_route("node1", 0x44);
-	k8_ht_route("node2", 0x48);
-	k8_ht_route("node3", 0x4c);
-	k8_ht_route("node4", 0x50);
-	k8_ht_route("node5", 0x54);
-	k8_ht_route("node6", 0x58);
-	k8_ht_route("node7", 0x5c);
+	for (int addr = 0x40; i < 0x60; i += 4) {
+		OPEN_SCOPE("node[]");
+
+		REG32("%ht_route", address);
+		FIELD("RQRoute", "ht_route_t", BITS("%ht_route", 3, 0));
+		FIELD("RPRoute", "ht_route_t", BITS("%ht_route", 11, 8));
+		FIELD("BCRoute", "ht_route_t", BITS("%ht_route", 19, 16));
+
+		CLOSE_SCOPE();
+	}
 
 	CLOSE_SCOPE();
 
@@ -202,9 +147,46 @@ k8_ht_config()
 	//
 	// k8-specific HT registers
 	//
-	k8_ht_regs("ldt0", 0x90);
-	k8_ht_regs("ldt1", 0xb0);
-	k8_ht_regs("ldt2", 0xd0);
+	//FIXME: rename fields to match AMD docs
+	for (int addr = 0x90; i < 0x100; i += 0x20) {
+		OPEN_SCOPE("ldt[]");
+
+		//
+		// HT buffer count
+		//
+		REG32("%ldt_buf_count", address);
+		FIELD("request_count", "int_t", BITS("%ldt_buf_count", 3, 0));
+		FIELD("posted_request_count", "int_t", BITS("%ldt_buf_count", 7, 4));
+		FIELD("response_count", "int_t", BITS("%ldt_buf_count", 11, 8));
+		FIELD("probe_count", "int_t", BITS("%ldt_buf_count", 15, 12));
+		FIELD("request_data_count", "int_t", BITS("%ldt_buf_count", 18, 16));
+		FIELD("posted_request_data_count", "int_t",
+				BITS("%ldt_buf_count", 22, 20));
+		FIELD("response_data_count", "int_t", BITS("%ldt_buf_count", 26, 24));
+
+		//
+		// HT bus nums
+		//
+		REG32("%ldt_bus_nums", address+4);
+		FIELD("primary_bus", "int_t", BITS("%ldt_bus_nums", 7, 0));
+		FIELD("secondary_bus", "int_t", BITS("%ldt_bus_nums", 15, 8));
+		FIELD("subordinate_bus", "int_t", BITS("%ldt_bus_nums", 23, 16));
+
+		//
+		// HT type
+		//
+		REG32("%ldt_type", address+8);
+		FIELD("link_connected", "yesno_t", BITS("%ldt_type", 0));
+		FIELD("init_complete", "yesno_t", BITS("%ldt_type", 1));
+		FIELD("coherency", ANON_ENUM(
+					KV("coherent", 0),
+					KV("noncoherent", 1),
+					KV("uniproc_coherent_nb", 2)),
+				BITS("%ldt_type", 3, 2));
+		FIELD("link_connect_pending", "yesno_t", BITS("%ldt_type", 4));
+
+		CLOSE_SCOPE();
+	}
 }
 
 static void
