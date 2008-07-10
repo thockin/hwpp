@@ -27,6 +27,7 @@ all: libpptest.a $(TESTS)
 
 libpptest.a: $(OBJS)
 	ar rcs $@ $^
+	ranlib $@
 
 $(TESTS): %: %.o $(TOPDIR)/libpp.a libpptest.a
 

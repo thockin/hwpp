@@ -27,6 +27,7 @@ lib: $(DRIVER_LIB)
 
 $(DRIVER_LIB): $(OBJS) $(DRIVERS_TO_ADD)
 	ar rcs $@ $^
+	ranlib $@
 
 all_drivers.o ... : DEFS += -DDRIVER_INIT_FUNCS="$(DRIVER_INIT_FUNCS)" \
 		-DDRIVER_INIT_PROTOS="$(DRIVER_INIT_PROTOS)"

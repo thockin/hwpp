@@ -25,6 +25,7 @@ endef
 libpp.a: $(OBJS) devices/all_devices.o $(DRIVER_LIB)
 	ar rcs $@ $(OBJS) devices/all_devices.o
 	@$(foreach drvobj,$(shell ar -t $(DRIVER_LIB)),$(call add_driver,$(drvobj),$@))
+	ranlib $@
 
 $(DRIVER_LIB): drivers
 	@$(MAKE) -C drivers lib
