@@ -2,7 +2,7 @@
 #include "pp.h"
 #include "pp_test.h"
 #include "pp_datatypes.h"
-#include "pp_register.h"
+#include "pp_registers.h"
 #include "pp_regbits.h"
 #include "test_binding.h"
 using namespace std;
@@ -18,10 +18,10 @@ test_int_field()
 	/* two bindings with one reg each */
 	pp_binding_ptr bind1 = new_test_binding();
 	bind1->write(0, BITS16, 0x1111);
-	pp_register_ptr r1 = new_pp_register(bind1.get(), 1, BITS16);
+	pp_register_ptr r1 = new_pp_bound_register(bind1.get(), 1, BITS16);
 	pp_binding_ptr bind2 = new_test_binding();
 	bind2->write(0, BITS16, 0x2222);
-	pp_register_ptr r2 = new_pp_register(bind2.get(), 1, BITS16);
+	pp_register_ptr r2 = new_pp_bound_register(bind2.get(), 1, BITS16);
 
 	pp_datatype_ptr integer = new_pp_int_datatype();
 	pp_direct_field f1(integer.get(),
@@ -63,10 +63,10 @@ test_hex_field()
 	/* two bindings with one reg each */
 	pp_binding_ptr bind1 = new_test_binding();
 	bind1->write(0, BITS16, 0x1111);
-	pp_register_ptr r1 = new_pp_register(bind1.get(), 1, BITS16);
+	pp_register_ptr r1 = new_pp_bound_register(bind1.get(), 1, BITS16);
 	pp_binding_ptr bind2 = new_test_binding();
 	bind2->write(0, BITS16, 0x2222);
-	pp_register_ptr r2 = new_pp_register(bind2.get(), 1, BITS16);
+	pp_register_ptr r2 = new_pp_bound_register(bind2.get(), 1, BITS16);
 
 	/* test a hex16 field */
 	pp_datatype_ptr hex16 = new_pp_hex_datatype(BITS16);
@@ -109,10 +109,10 @@ test_enum_field()
 	/* two bindings with one reg each */
 	pp_binding_ptr bind1 = new_test_binding();
 	bind1->write(0, BITS16, 0x1111);
-	pp_register_ptr r1 = new_pp_register(bind1.get(), 1, BITS16);
+	pp_register_ptr r1 = new_pp_bound_register(bind1.get(), 1, BITS16);
 	pp_binding_ptr bind2 = new_test_binding();
 	bind2->write(0, BITS16, 0x2222);
-	pp_register_ptr r2 = new_pp_register(bind2.get(), 1, BITS16);
+	pp_register_ptr r2 = new_pp_bound_register(bind2.get(), 1, BITS16);
 
 	/* test an enum field */
 	pp_enum_datatype_ptr e1 = new_pp_enum_datatype();
@@ -160,10 +160,10 @@ test_bitmask_field()
 	/* two bindings with one reg each */
 	pp_binding_ptr bind1 = new_test_binding();
 	bind1->write(0, BITS16, 0x1111);
-	pp_register_ptr r1 = new_pp_register(bind1.get(), 1, BITS16);
+	pp_register_ptr r1 = new_pp_bound_register(bind1.get(), 1, BITS16);
 	pp_binding_ptr bind2 = new_test_binding();
 	bind2->write(0, BITS16, 0x2222);
-	pp_register_ptr r2 = new_pp_register(bind2.get(), 1, BITS16);
+	pp_register_ptr r2 = new_pp_bound_register(bind2.get(), 1, BITS16);
 
 	/* test a bitmask field */
 	pp_bitmask_datatype_ptr b1 = new_pp_bitmask_datatype();
@@ -206,24 +206,21 @@ test_bitmask_field()
 	return ret;
 }
 
-class
-test_proc_field_accessor: public proc_field_accessor
+class test_procs: public pp_rwprocs
 {
+    private:
+	mutable pp_value m_data;
     public:
 	virtual pp_value
 	read() const
 	{
 		return m_data;
 	}
-
 	virtual void
 	write(const pp_value &value) const
 	{
 		m_data = value;
 	}
-
-    private:
-	mutable pp_value m_data;
 };
 
 int
@@ -232,8 +229,8 @@ test_proc_field()
 	int ret = 0;
 
 	pp_datatype *hex = new pp_hex_datatype();
-	proc_field_accessor_ptr accessor(new test_proc_field_accessor);
-	pp_proc_field f(hex, accessor);
+	pp_rwprocs_ptr procs(new test_procs);
+	pp_proc_field f(hex, procs);
 	f.write(0x12345678);
 	if (f.read() != 0x12345678) {
 		TEST_ERROR("pp_proc_field::write()");

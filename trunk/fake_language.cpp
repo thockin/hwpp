@@ -10,7 +10,7 @@
 #include "pp_fields.h"
 #include "pp_path.h"
 #include "pp_dirent.h"
-#include "pp_register.h"
+#include "pp_registers.h"
 #include "pp_scope.h"
 #include "pp_datatypes.h"
 
@@ -253,8 +253,8 @@ fkl_bookmark(const parse_location &loc, const string &name)
 // Define a register.
 //
 void
-fkl_regn(const parse_location &loc,
-         const string &name, const pp_value &address, pp_bitwidth width)
+fkl_reg(const parse_location &loc,
+        const string &name, const pp_value &address, pp_bitwidth width)
 {
 	DTRACE(TRACE_REGS, "reg: " + name);
 
@@ -276,8 +276,38 @@ fkl_regn(const parse_location &loc,
 			PP_WARN(to_string(loc) + ": '" + name + "' redefined");
 		}
 
-		pp_register_ptr reg_ptr = new_pp_register(
+		pp_register_ptr reg_ptr = new_pp_bound_register(
 				cur_binding, address, width);
+		current_context.add_dirent(elem, reg_ptr);
+	} catch (pp_path::invalid_error &e) {
+		throw pp_parse_error(e.what(), loc);
+	}
+}
+
+//
+// Define a proc-register
+//
+void
+fkl_reg(const parse_location &loc,
+        const string &name, const pp_rwprocs_ptr &access, pp_bitwidth width)
+{
+	DTRACE(TRACE_REGS, "reg: " + name);
+
+	DASSERT_MSG(!current_context.is_readonly(),
+		"current_context is read-only");
+
+	// enforce that registers start with '%'
+	DASSERT_MSG(name[0] == '%', "register must start with %: " + name);
+
+	try {
+		pp_path::element elem(name);
+
+		// note: this is not a debug-only test
+		if (fkl_defined(loc, pp_path(elem))) {
+			PP_WARN(to_string(loc) + ": '" + name + "' redefined");
+		}
+
+		pp_register_ptr reg_ptr = new_pp_proc_register(access, width);
 		current_context.add_dirent(elem, reg_ptr);
 	} catch (pp_path::invalid_error &e) {
 		throw pp_parse_error(e.what(), loc);
@@ -311,24 +341,48 @@ fkl_bits(const parse_location &loc,
 // Define a register and a field that consumes that register.
 //
 void
-fkl_regfieldn(const parse_location &loc,
-              const string &name, const pp_value &address,
-              const pp_datatype *type, pp_bitwidth width)
+fkl_regfield(const parse_location &loc,
+             const string &name, const pp_value &address,
+             const pp_datatype *type, pp_bitwidth width)
 {
 	DTRACE(TRACE_FIELDS | TRACE_REGS, "regfield: " + name);
 
 	// create a register and a field, sanity checking is done within
 	string regname = "%" + name;
-	fkl_regn(loc, regname, address, width);
+	fkl_reg(loc, regname, address, width);
 	fkl_field(loc, name, type, fkl_bits(loc, regname, width-1, 0));
 }
 void
-fkl_regfieldn(const parse_location &loc,
-              const string &name, const pp_value &address,
-              const string &type, pp_bitwidth width)
+fkl_regfield(const parse_location &loc,
+             const string &name, const pp_value &address,
+             const string &type, pp_bitwidth width)
 {
-	fkl_regfieldn(loc, name, address,
-			current_context.resolve_datatype(type), width);
+	fkl_regfield(loc, name, address,
+	             current_context.resolve_datatype(type), width);
+}
+
+//
+// Define a regfield from a proc-reg
+//
+void
+fkl_regfield(const parse_location &loc,
+        const string &name, const pp_rwprocs_ptr &access,
+        const pp_datatype *type, pp_bitwidth width)
+{
+	DTRACE(TRACE_FIELDS | TRACE_REGS, "regfield: " + name);
+
+	// create a register and a field, sanity checking is done within
+	string regname = "%" + name;
+	fkl_reg(loc, regname, access, width);
+	fkl_field(loc, name, type, fkl_bits(loc, regname, width-1, 0));
+}
+void
+fkl_regfield(const parse_location &loc,
+        const string &name, const pp_rwprocs_ptr &access,
+        const string &type, pp_bitwidth width)
+{
+	fkl_regfield(loc, name, access,
+	             current_context.resolve_datatype(type), width);
 }
 
 //
@@ -408,7 +462,7 @@ fkl_field(const parse_location &loc,
 void
 fkl_field(const parse_location &loc,
           const string &name, const pp_datatype *type,
-          const proc_field_accessor_ptr &access)
+          const pp_rwprocs_ptr &access)
 {
 	DTRACE(TRACE_FIELDS, "proc field: " + name);
 
@@ -436,7 +490,7 @@ fkl_field(const parse_location &loc,
 void
 fkl_field(const parse_location &loc,
           const string &name, const string &type,
-          const proc_field_accessor_ptr &access)
+          const pp_rwprocs_ptr &access)
 {
 	fkl_field(loc, name, current_context.resolve_datatype(type), access);
 }

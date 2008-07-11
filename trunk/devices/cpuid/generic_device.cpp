@@ -14,7 +14,7 @@ CPUID_SCOPE(const string &name, const pp_value &cpu, const pp_value &func)
 }
 
 /* populate the current scope with generic CPUID fields */
-class cpuid_family_procs: public proc_field_accessor
+class cpuid_family_procs: public pp_rwprocs
 {
 	pp_value
 	read() const
@@ -31,7 +31,7 @@ class cpuid_family_procs: public proc_field_accessor
 		// not supported
 	}
 };
-class cpuid_model_procs: public proc_field_accessor
+class cpuid_model_procs: public pp_rwprocs
 {
 	pp_value
 	read() const

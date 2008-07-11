@@ -10,7 +10,7 @@
 using namespace std;
 
 // used later, must be out-of-line
-class test_procs: public proc_field_accessor
+class test_procs: public pp_rwprocs
 {
 	pp_value
 	read() const
@@ -304,6 +304,96 @@ test_parse_errors()
 	} catch (exception &e) {
 		ret += TEST_ERROR("REG128()");
 	}
+	// should not throw
+	try {
+		REG8("%proc_reg8", PROCS(test_procs));
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("REG8()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("REG8()");
+	}
+	// should throw a parse_error
+	try {
+		REG8("%123_invalid", PROCS(test_procs));
+		ret += TEST_ERROR("REG8()");
+	} catch (pp_parse_error &e) {
+		// expected
+	} catch (exception &e) {
+		ret += TEST_ERROR("REG8()");
+	}
+	// should not throw
+	try {
+		REG16("%proc_reg16", PROCS(test_procs));
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("REG16()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("REG16()");
+	}
+	// should throw a parse_error
+	try {
+		REG16("%123_invalid", PROCS(test_procs));
+		ret += TEST_ERROR("REG16()");
+	} catch (pp_parse_error &e) {
+		// expected
+	} catch (exception &e) {
+		ret += TEST_ERROR("REG16()");
+	}
+	// should not throw
+	try {
+		REG32("%proc_reg32", PROCS(test_procs));
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("REG32()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("REG32()");
+	}
+	// should throw a parse_error
+	try {
+		REG32("%123_invalid", PROCS(test_procs));
+		ret += TEST_ERROR("REG32()");
+	} catch (pp_parse_error &e) {
+		// expected
+	} catch (exception &e) {
+		ret += TEST_ERROR("REG32()");
+	}
+	// should not throw
+	try {
+		REG64("%proc_reg64", PROCS(test_procs));
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("REG64()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("REG64()");
+	}
+	// should throw a parse_error
+	try {
+		REG64("%123_invalid", PROCS(test_procs));
+		ret += TEST_ERROR("REG64()");
+	} catch (pp_parse_error &e) {
+		// expected
+	} catch (exception &e) {
+		ret += TEST_ERROR("REG64()");
+	}
+	// should not throw
+	try {
+		REG128("%proc_reg128", PROCS(test_procs));
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("REG128()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("REG128()");
+	}
+	// should throw a parse_error
+	try {
+		REG128("%123_invalid", PROCS(test_procs));
+		ret += TEST_ERROR("REG128()");
+	} catch (pp_parse_error &e) {
+		// expected
+	} catch (exception &e) {
+		ret += TEST_ERROR("REG128()");
+	}
 
 	//
 	// BITS
@@ -414,6 +504,96 @@ test_parse_errors()
 	// should throw a parse_error
 	try {
 		REGFIELD128("123_invalid", 0, "int_t");
+		ret += TEST_ERROR("REGFIELD128()");
+	} catch (pp_parse_error &e) {
+		// expected
+	} catch (exception &e) {
+		ret += TEST_ERROR("REGFIELD128()");
+	}
+	// should not throw
+	try {
+		REGFIELD8("proc_regfield8", 0, "int_t");
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("REGFIELD8()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("REGFIELD8()");
+	}
+	// should throw a parse_error
+	try {
+		REGFIELD8("123_invalid", PROCS(test_procs), "int_t");
+		ret += TEST_ERROR("REGFIELD8()");
+	} catch (pp_parse_error &e) {
+		// expected
+	} catch (exception &e) {
+		ret += TEST_ERROR("REGFIELD8()");
+	}
+	// should not throw
+	try {
+		REGFIELD16("proc_regfield16", PROCS(test_procs), "int_t");
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("REGFIELD16()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("REGFIELD16()");
+	}
+	// should throw a parse_error
+	try {
+		REGFIELD16("123_invalid", PROCS(test_procs), "int_t");
+		ret += TEST_ERROR("REGFIELD16()");
+	} catch (pp_parse_error &e) {
+		// expected
+	} catch (exception &e) {
+		ret += TEST_ERROR("REGFIELD16()");
+	}
+	// should not throw
+	try {
+		REGFIELD32("proc_regfield32", PROCS(test_procs), "int_t");
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("REGFIELD32()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("REGFIELD32()");
+	}
+	// should throw a parse_error
+	try {
+		REGFIELD32("123_invalid", PROCS(test_procs), "int_t");
+		ret += TEST_ERROR("REGFIELD32()");
+	} catch (pp_parse_error &e) {
+		// expected
+	} catch (exception &e) {
+		ret += TEST_ERROR("REGFIELD32()");
+	}
+	// should not throw
+	try {
+		REGFIELD64("proc_regfield64", PROCS(test_procs), "int_t");
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("REGFIELD64()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("REGFIELD64()");
+	}
+	// should throw a parse_error
+	try {
+		REGFIELD64("123_invalid", PROCS(test_procs), "int_t");
+		ret += TEST_ERROR("REGFIELD64()");
+	} catch (pp_parse_error &e) {
+		// expected
+	} catch (exception &e) {
+		ret += TEST_ERROR("REGFIELD64()");
+	}
+	// should not throw
+	try {
+		REGFIELD128("proc_regfield128", PROCS(test_procs), "int_t");
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("REGFIELD128()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("REGFIELD128()");
+	}
+	// should throw a parse_error
+	try {
+		REGFIELD128("123_invalid", PROCS(test_procs), "int_t");
 		ret += TEST_ERROR("REGFIELD128()");
 	} catch (pp_parse_error &e) {
 		// expected
