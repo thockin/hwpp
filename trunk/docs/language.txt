@@ -93,29 +93,25 @@ Registers
   binding (and its driver) is used for access.
 
   Syntax: REG8(register_name, address)
-    Define a new 8 bit register at the specified address.  Since a register is
-    a dirent, register names must follow the rules for dirent names.  The only
-    difference is that register names must begin with a percent ('%').
-
   Syntax: REG16(register_name, address)
-    Define a new 16 bit register at the specified address.  Since a register
-    is a dirent, register names must follow the rules for dirent names.  The
-    only difference is that register names must begin with a percent ('%').
-
   Syntax: REG32(register_name, address)
-    Define a new 32 bit register at the specified address.  Since a register
-    is a dirent, register names must follow the rules for dirent names.  Thes
-    only difference is that register names must begin with a percent ('%').
-
   Syntax: REG64(register_name, address)
-    Define a new 64 bit register at the specified address.  Since a register
-    is a dirent, register names must follow the rules for dirent names.  The
-    only difference is that register names must begin with a percent ('%').
-
   Syntax: REG128(register_name, address)
-    Define a new 128 bit register at the specified address.  Since a register
-    is a dirent, register names must follow the rules for dirent names.  The
-    only difference is that register names must begin with a percent ('%').
+    Define a new fixed-width register at the specified address in the
+    current binding.  Since a register is a dirent, register names must
+    follow the rules for dirent names.  The only difference is that
+    register names must begin with a percent ('%').
+
+  Syntax: REG8(register_name, accessor)
+  Syntax: REG16(register_name, accessor)
+  Syntax: REG32(register_name, accessor)
+  Syntax: REG64(register_name, accessor)
+  Syntax: REG128(register_name, accessor)
+    Define a procedure register.  The accessor is the name of a C++ class
+    which inherits from pp_rwprocs.  The accessor class must implement the
+    read() and write() methods.  When the register is read or written, the
+    accessor's methods will be run.  See below for information on the READ
+    and WRITE functions.
 
   The address is essentially a cookie which the associated driver will use to
   access the register.  There does not need to be a correlation between a
@@ -341,13 +337,13 @@ Fields
   Sometimes there is not a simple way to access a field, and you need to write
   some code to do it.  For example, index-data pairs require special handling.
 
-  Syntax: FIELD(dirent_name, datatype_name, proc_field_accessor)
-  Syntax: FIELD(dirent_name, datatype, proc_field_accessor)
-    Define a procedure field.  The proc_field_accessor is the name of a C++
-    class which inherits from proc_field_accessor.  The proc_field_accessor
-    class must implement the read() and write() methods.  When the field is
-    read or written, the accessor's methods will be run.  See below for
-    information on the READ and WRITE functions.
+  Syntax: FIELD(dirent_name, datatype_name, accessor)
+  Syntax: FIELD(dirent_name, datatype, accessor)
+    Define a procedure field.  The accessor is the name of a C++ class
+    which inherits from pp_rwprocs.  The accessor class must implement the
+    read() and write() methods.  When the field is read or written, the
+    accessor's methods will be run.  See below for information on the READ
+    and WRITE functions.
 
 Regfields
 
@@ -355,24 +351,23 @@ Regfields
   statements to define both a register and a field, PP provides a shortcut:
 
   Syntax: REGFIELD8(dirent_name, address, type)
-    Define a REG8 at the specified address, and a field which consumes that
-    register.
-
   Syntax: REGFIELD16(dirent_name, address, type)
-    Define a REG16 at the specified address, and a field which consumes that
-    register.
-
   Syntax: REGFIELD32(dirent_name, address, type)
-    Define a REG32 at the specified address, and a field which consumes that
-    register.
-
   Syntax: REGFIELD64(dirent_name, address, type)
-    Define a REG64 at the specified address, and a field which consumes that
-    register.
-
   Syntax: REGFIELD128(dirent_name, address, type)
-    Define a REG128 at the specified address, and a field which consumes that
-    register.
+    Define a register at the specified address, and a field which consumes
+    that register.
+
+  Syntax: REGFIELD8(dirent_name, accessor, type)
+  Syntax: REGFIELD16(dirent_name, accessor, type)
+  Syntax: REGFIELD32(dirent_name, accessor, type)
+  Syntax: REGFIELD64(dirent_name, accessor, type)
+  Syntax: REGFIELD128(dirent_name, accessor, type)
+    Define a procedure regfield.  The accessor is the name of a C++ class
+    which inherits from pp_rwprocs.  The accessor class must implement the
+    read() and write() methods.  When the register is read or written, the
+    accessor's methods will be run.  See below for information on the READ
+    and WRITE functions.
 
 Flow Control
 
