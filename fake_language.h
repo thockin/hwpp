@@ -8,7 +8,7 @@
 #include "pp.h"
 #include "language.h"
 #include "pp_dirent.h"
-#include "pp_register.h"
+#include "pp_registers.h"
 #include "pp_field.h"
 #include "pp_regbits.h"
 #include "pp_binding.h"
@@ -186,13 +186,22 @@ BIND(const string &driver, const fkl_valarg &arg)
 // Declare a named register.
 //
 extern void
-fkl_regn(const parse_location &loc,
-         const string &name, const pp_value &address, pp_bitwidth width);
-#define REG8(name, address)   fkl_regn(THIS_LOCATION, name, address, BITS8)
-#define REG16(name, address)  fkl_regn(THIS_LOCATION, name, address, BITS16)
-#define REG32(name, address)  fkl_regn(THIS_LOCATION, name, address, BITS32)
-#define REG64(name, address)  fkl_regn(THIS_LOCATION, name, address, BITS64)
-#define REG128(name, address) fkl_regn(THIS_LOCATION, name, address, BITS128)
+fkl_reg(const parse_location &loc,
+        const string &name, const pp_value &address, pp_bitwidth width);
+#define REG8(...)   fkl_reg(THIS_LOCATION, ##__VA_ARGS__, BITS8)
+#define REG16(...)  fkl_reg(THIS_LOCATION, ##__VA_ARGS__, BITS16)
+#define REG32(...)  fkl_reg(THIS_LOCATION, ##__VA_ARGS__, BITS32)
+#define REG64(...)  fkl_reg(THIS_LOCATION, ##__VA_ARGS__, BITS64)
+#define REG128(...) fkl_reg(THIS_LOCATION, ##__VA_ARGS__, BITS128)
+
+//
+// Declare a named proc-register
+//
+extern void
+fkl_reg(const parse_location &loc,
+        const string &name, const pp_rwprocs_ptr &access,
+        pp_bitwidth width);
+#define PROCS(procs)		pp_rwprocs_ptr(new procs)
 
 //
 // Create a register-bits structure.
@@ -212,23 +221,35 @@ fkl_bits(const parse_location &loc,
 // Create a register and a field that consumes it.
 //
 extern void
-fkl_regfieldn(const parse_location &loc,
-              const string &name, const pp_value &address,
-              const pp_datatype *type, pp_bitwidth width);
+fkl_regfield(const parse_location &loc,
+             const string &name, const pp_value &address,
+             const pp_datatype *type, pp_bitwidth width);
 extern void
-fkl_regfieldn(const parse_location &loc,
-              const string &name, const pp_value &address,
-              const string &type, pp_bitwidth width);
-#define REGFIELD8(name, address, type) \
-		fkl_regfieldn(THIS_LOCATION, name, address, type, BITS8)
-#define REGFIELD16(name, address, type) \
-		fkl_regfieldn(THIS_LOCATION, name, address, type, BITS16)
-#define REGFIELD32(name, address, type) \
-		fkl_regfieldn(THIS_LOCATION, name, address, type, BITS32)
-#define REGFIELD64(name, address, type) \
-		fkl_regfieldn(THIS_LOCATION, name, address, type, BITS64)
-#define REGFIELD128(name, address, type) \
-		fkl_regfieldn(THIS_LOCATION, name, address, type, BITS128)
+fkl_regfield(const parse_location &loc,
+             const string &name, const pp_value &address,
+             const string &type, pp_bitwidth width);
+#define REGFIELD8(...) \
+		fkl_regfield(THIS_LOCATION, ##__VA_ARGS__, BITS8)
+#define REGFIELD16(...) \
+		fkl_regfield(THIS_LOCATION, ##__VA_ARGS__, BITS16)
+#define REGFIELD32(...) \
+		fkl_regfield(THIS_LOCATION, ##__VA_ARGS__, BITS32)
+#define REGFIELD64(...) \
+		fkl_regfield(THIS_LOCATION, ##__VA_ARGS__, BITS64)
+#define REGFIELD128(...) \
+		fkl_regfield(THIS_LOCATION, ##__VA_ARGS__, BITS128)
+
+//
+// Declare a procfield from a proc-register
+//
+extern void
+fkl_regfield(const parse_location &loc,
+        const string &name, const pp_rwprocs_ptr &access,
+        const pp_datatype *type, pp_bitwidth width);
+extern void
+fkl_regfield(const parse_location &loc,
+        const string &name, const pp_rwprocs_ptr &access,
+        const string &type, pp_bitwidth width);
 
 //
 // Create a field which gets it's value from regbits.
@@ -259,12 +280,11 @@ fkl_field(const parse_location &loc,
 extern void
 fkl_field(const parse_location &loc,
           const string &name, const pp_datatype *type,
-          const proc_field_accessor_ptr &access);
+          const pp_rwprocs_ptr &access);
 extern void
 fkl_field(const parse_location &loc,
           const string &name, const string &type,
-          const proc_field_accessor_ptr &access);
-#define PROCS(procs)		proc_field_accessor_ptr(new procs)
+          const pp_rwprocs_ptr &access);
 
 #define FIELD(...)		fkl_field(THIS_LOCATION, ##__VA_ARGS__)
 

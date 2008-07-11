@@ -4,41 +4,27 @@
 
 #include "pp.h"
 #include "pp_dirent.h"
-#include "pp_binding.h"
-
-#include <stdexcept>
 
 /*
- * pp_register - a register definition.
+ * pp_register - abstract base class for a register
  *
  * Constructors:
- *	(pp_binding *binding, const pp_value &address,
- *	    const pp_bitwidth width)
+ * 	(const pp_bitwidth width)
  *
  * Notes:
  */
 class pp_register: public pp_dirent
 {
+    protected:
+	pp_bitwidth m_width;
+
     public:
-	explicit pp_register(const pp_binding *binding,
-	    const pp_value &address, const pp_bitwidth width)
-	    : pp_dirent(PP_DIRENT_REGISTER),
-	      m_binding(binding), m_address(address), m_width(width)
+	explicit pp_register(const pp_bitwidth width)
+	    : pp_dirent(PP_DIRENT_REGISTER), m_width(width)
 	{
 	}
 	virtual ~pp_register()
 	{
-	}
-
-	/*
-	 * pp_register::address()
-	 *
-	 * Get the address of this register.
-	 */
-	pp_value
-	address() const
-	{
-		return m_address;
 	}
 
 	/*
@@ -53,40 +39,31 @@ class pp_register: public pp_dirent
 	}
 
 	/*
+	 * pp_register::describe()
+	 *
+	 * Get a string which describes this register
+	 */
+	virtual string
+	describe() const = 0;
+
+	/*
 	 * pp_register::read()
 	 *
 	 * Read the value of this register.
-	 *
-	 * Throws: pp_driver::io_error
 	 */
-	pp_value
-	read() const
-	{
-		return m_binding->read(m_address, m_width);
-	}
+	virtual pp_value
+	read() const = 0;
 
 	/*
 	 * pp_register::write(value)
 	 *
 	 * Write a value to this register.
-	 *
-	 * Throws: pp_driver::io_error
 	 */
-	void
-	write(const pp_value &value) const
-	{
-		m_binding->write(m_address, m_width, value);
-	}
-
-    private:
-	const pp_binding *m_binding;
-	pp_value m_address;
-	pp_bitwidth m_width;
+	virtual void
+	write(const pp_value &value) const = 0;
 };
 typedef boost::shared_ptr<pp_register> pp_register_ptr;
 typedef boost::shared_ptr<const pp_register> pp_const_register_ptr;
-
-#define new_pp_register(...) pp_register_ptr(new pp_register(__VA_ARGS__))
 
 // const
 inline const pp_register *

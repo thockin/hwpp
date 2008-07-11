@@ -6,6 +6,7 @@
 #include "pp_datatype.h"
 #include "pp_register.h"
 #include "pp_regbits.h"
+#include "pp_rwprocs.h"
 #include "pp_context.h"
 #include "runtime.h"
 #include <vector>
@@ -70,21 +71,8 @@ typedef boost::shared_ptr<pp_direct_field> pp_direct_field_ptr;
 #define new_pp_direct_field(...) \
 	pp_direct_field_ptr(new pp_direct_field(__VA_ARGS__))
 
-// a helper for proc_fields
-class proc_field_accessor
-{
-    public:
-	virtual ~proc_field_accessor() {}
-	virtual pp_value read() const = 0;
-	virtual void write(const pp_value &value) const = 0;
-};
-typedef boost::shared_ptr<const proc_field_accessor> proc_field_accessor_ptr;
-
 /*
  * pp_proc_field - a field that is a procedure.
- *
- * Constructors:
- * 	(const pp_datatype *datatype, const proc_field_accessor_ptr &access)
  *
  * Notes:
  */
@@ -92,7 +80,7 @@ class pp_proc_field: public pp_field
 {
     public:
 	pp_proc_field(const pp_datatype *datatype,
-	    const proc_field_accessor_ptr &access)
+	    const pp_rwprocs_ptr &access)
 	    : pp_field(datatype), m_access(access),
 	      m_context(pp_get_current_context())
 	{}
@@ -137,7 +125,7 @@ class pp_proc_field: public pp_field
 	}
 
     private:
-	proc_field_accessor_ptr m_access;
+	pp_rwprocs_ptr m_access;
 	pp_context m_context;
 };
 typedef boost::shared_ptr<pp_proc_field> pp_proc_field_ptr;

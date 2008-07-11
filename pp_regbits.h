@@ -98,8 +98,8 @@ class pp_regbits
 	describe() const
 	{
 		if (m_register) {
-			return to_string(boost::format("0x%x[%d:%d]")
-			    %m_register->address() %m_hi_bit %m_lo_bit);
+			return to_string(boost::format("0x%s[%d:%d]")
+			    %m_register->describe() %m_hi_bit %m_lo_bit);
 		}
 
 		string ret;

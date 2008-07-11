@@ -4,7 +4,7 @@
 #include "test_binding.h"
 #include "test_helpers.h"
 #include "pp_datatypes.h"
-#include "pp_register.h"
+#include "pp_registers.h"
 #include "pp_fields.h"
 #include "keyed_vector.h"
 using namespace std;
@@ -273,7 +273,7 @@ test_dirents()
 	    "pp_scope::n_dirents()");
 
 	// create a register and add it to scope0
-	pp_register_ptr reg1 = new_pp_register(scope0->binding(), 1, BITS16);
+	pp_register_ptr reg1 = new_pp_bound_register(scope0->binding(), 1, BITS16);
 	scope0->add_dirent("reg1", reg1);
 	ret += TEST_ASSERT(scope0->n_dirents() == 2,
 	    "pp_scope::n_dirents()");
