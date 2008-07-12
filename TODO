@@ -1,3 +1,6 @@
+Huge stuff:
+ - everything is just a datum with read and write methods and attributes
+
 Testing stuff:
  - link against a good memory debugger
  - test field lookup() methods
@@ -15,6 +18,9 @@ Device stuff:
  - figure out how to do common MSRs (like MTRR)
  - is there a well-known CPU place or does Opteron have to take that
    over, too?
+ - when to use yesno vs enabledisable vs truefalse ?  Be consistent
+ - make a decision on "for (int addr = 0x40; i < 0x60; i += 4) {" vs
+   unrolling via functions.
 
 Driver stuff:
  - remove the length arg of io/mem bindings? else report PCI BAR sizes
@@ -33,6 +39,8 @@ Code stuff:
  - return references from GET_REGISTER and GET_FIELD, for better overload
    ability?
  - pp_format same as pp_lambda - in it's own header
+ - decide on what can be in an enum key and make them more readable (and
+   writable)
 
 Build stuff:
  - write DEFS and other stuff to a dotfile and make that a makefile dependency
@@ -68,13 +76,17 @@ Bugs and features:
  	- WRITE("field", string) ?
  	- WRITE("field", LOOKUP("field", string)) ?
  - Can I provide a more consistent model of strings vs values?
- - proc scopes ?
+ - proc scopes ?  Might require anonymous scopes
  - can a binding have no args?
  - proc_dirents (run a proc to see if the dirent exists?)
  - accessing an array as "foo" should be the same as "foo[0]"
  - CPUID index for some CPUIDs
+ - fixed-point datatype
+ - add ALIAS to symlink to dirents
+ - add altnames for registers and fields (to unify naming?)
 
 filesystem.h:
+	mmap: closing the FD does no unmap an mmap!!  Use this.
 	track full path name in directory and direntry
 		- enables direntry->open() := file::open(direntry->path)
 	directory iterators
