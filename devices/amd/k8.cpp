@@ -147,7 +147,6 @@ k8_ht_config()
 	//
 	// k8-specific HT registers
 	//
-	//FIXME: rename fields to match AMD docs
 	for (int addr = 0x90; addr < 0x100; addr += 0x20) {
 		OPEN_SCOPE("ldt[]");
 
@@ -155,35 +154,33 @@ k8_ht_config()
 		// HT buffer count
 		//
 		REG32("%ldt_buf_count", addr);
-		FIELD("request_count", "int_t", BITS("%ldt_buf_count", 3, 0));
-		FIELD("posted_request_count", "int_t", BITS("%ldt_buf_count", 7, 4));
-		FIELD("response_count", "int_t", BITS("%ldt_buf_count", 11, 8));
-		FIELD("probe_count", "int_t", BITS("%ldt_buf_count", 15, 12));
-		FIELD("request_data_count", "int_t", BITS("%ldt_buf_count", 18, 16));
-		FIELD("posted_request_data_count", "int_t",
-				BITS("%ldt_buf_count", 22, 20));
-		FIELD("response_data_count", "int_t", BITS("%ldt_buf_count", 26, 24));
+		FIELD("Req", "int_t", BITS("%ldt_buf_count", 3, 0));
+		FIELD("PReq", "int_t", BITS("%ldt_buf_count", 7, 4));
+		FIELD("Rsp", "int_t", BITS("%ldt_buf_count", 11, 8));
+		FIELD("Probe", "int_t", BITS("%ldt_buf_count", 15, 12));
+		FIELD("ReqD", "int_t", BITS("%ldt_buf_count", 18, 16));
+		FIELD("PReqD", "int_t", BITS("%ldt_buf_count", 22, 20));
+		FIELD("RspD", "int_t", BITS("%ldt_buf_count", 26, 24));
 
 		//
 		// HT bus nums
 		//
 		REG32("%ldt_bus_nums", addr+4);
-		FIELD("primary_bus", "int_t", BITS("%ldt_bus_nums", 7, 0));
-		FIELD("secondary_bus", "int_t", BITS("%ldt_bus_nums", 15, 8));
-		FIELD("subordinate_bus", "int_t", BITS("%ldt_bus_nums", 23, 16));
+		FIELD("PriBusNum", "int_t", BITS("%ldt_bus_nums", 7, 0));
+		FIELD("SecBusNum", "int_t", BITS("%ldt_bus_nums", 15, 8));
+		FIELD("SubBusNum", "int_t", BITS("%ldt_bus_nums", 23, 16));
 
 		//
 		// HT type
 		//
 		REG32("%ldt_type", addr+8);
-		FIELD("link_connected", "yesno_t", BITS("%ldt_type", 0));
-		FIELD("init_complete", "yesno_t", BITS("%ldt_type", 1));
-		FIELD("coherency", ANON_ENUM(
-					KV("coherent", 0),
-					KV("noncoherent", 1),
-					KV("uniproc_coherent_nb", 2)),
-				BITS("%ldt_type", 3, 2));
-		FIELD("link_connect_pending", "yesno_t", BITS("%ldt_type", 4));
+		FIELD("LinkCon", "yesno_t", BITS("%ldt_type", 0));
+		FIELD("InitComplete", "yesno_t", BITS("%ldt_type", 1));
+		FIELD("NC", ANON_BOOL("noncoherent", "coherent"),
+				BITS("%ldt_type", 2));
+		FIELD("UniP_cLDT", ANON_BOOL("uniproc_coherent_nb", "normal"),
+				BITS("%ldt_type", 3));
+		FIELD("LinkConPend", "yesno_t", BITS("%ldt_type", 4));
 
 		CLOSE_SCOPE();
 	}
