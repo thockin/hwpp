@@ -53,10 +53,14 @@ if [ -z "$FILES" ]; then
 fi
 
 if [ -z "$GOOGLE_USER" ]; then
-	echo -ne "what is your google username (e.g. user@gmail.com):  "
+	echo -ne "Google username (e.g. user@gmail.com):  "
 	read GOOGLE_USER
 fi
-./tools/upload.py -e $GOOGLE_USER -- $FILES
+
+echo -ne "Subject for this review:  "
+read SUBJECT
+
+./tools/upload.py -e "$GOOGLE_USER" -m "$SUBJECT" -- $FILES
 
 cleanup
 exit 0
