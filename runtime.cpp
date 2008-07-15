@@ -26,6 +26,7 @@ pp_init()
 	platform_global_init();
 	pci_datatypes_init();
 	cpuid_datatypes_init();
+	msr_datatypes_init();
 
 	return current_context.scope();
 }

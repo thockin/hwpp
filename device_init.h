@@ -13,5 +13,7 @@ extern void
 pci_datatypes_init();
 extern void
 cpuid_datatypes_init();
+extern void
+msr_datatypes_init();
 
 #endif // PP_DEVICE_INIT_H__

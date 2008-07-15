@@ -14,16 +14,38 @@
 #include "fake_language.h"
 #include "devices/pci/generic_device.h"
 #include "devices/cpuid/generic_device.h"
+#include "devices/msr/generic_device.h"
+
 
 static void
-k8_cpuid(const pp_value &node, const pp_value &ncores, const pp_value &cpu)
+k8_cpuid(const pp_value &cpu)
 {
-	cpuid_generic_device(node * ncores + cpu);
+	cpuid_generic_device(cpu);
 }
 
 static void
-k8_ht_config()
+k8_msr(const pp_value &cpu)
 {
+	MSR_SCOPE("msr", cpu);
+
+	//FIXME: more
+
+	CLOSE_SCOPE(); // msr
+}
+
+static void
+k8_cpu(const pp_value &node, const pp_value &ncores, const pp_value &cpu)
+{
+	k8_cpuid(node * ncores + cpu);
+	k8_msr(node * ncores + cpu);
+}
+
+static void
+k8_ht_config(const pp_value &seg, const pp_value &bus,
+             const pp_value &dev, const pp_value &func)
+{
+	PCI_SCOPE("ht_config", seg, bus, dev, func);
+
 	//
 	// HT routing table registers
 	//
@@ -184,11 +206,16 @@ k8_ht_config()
 
 		CLOSE_SCOPE();
 	}
+
+	CLOSE_SCOPE(); // ht_config
 }
 
 static void
-k8_address_map()
+k8_address_map(const pp_value &seg, const pp_value &bus,
+               const pp_value &dev, const pp_value &func)
 {
+	PCI_SCOPE("address_map", seg, bus, dev, func+1);
+
 	//
 	// DRAM base/limit registers
 	//
@@ -308,16 +335,24 @@ k8_address_map()
 	}
 
 	CLOSE_SCOPE();
+
+	CLOSE_SCOPE(); // address_map
 }
 
 static void
-k8_dram_controller()
+k8_dram_controller(const pp_value &seg, const pp_value &bus,
+                   const pp_value &dev, const pp_value &func)
 {
+	PCI_SCOPE("dram_ctrl", seg, bus, dev, func+2);
+	CLOSE_SCOPE(); // dram_ctrl
 }
 
 static void
-k8_misc_control()
+k8_misc_control(const pp_value &seg, const pp_value &bus,
+                const pp_value &dev, const pp_value &func)
 {
+	PCI_SCOPE("misc_ctrl", seg, bus, dev, func+3);
+	CLOSE_SCOPE(); //misc_ctrl
 }
 
 static void
@@ -329,11 +364,10 @@ k8_discovered(const std::vector<pp_value> &args)
 	pp_value func = args[3];
 
 	pp_value node = dev-24;
+	pp_value ncores;
 
 	OPEN_SCOPE("k8[]");
 	BOOKMARK("k8");
-
-	pp_value ncores;
 
 	OPEN_SCOPE("core[]");
 	BOOKMARK("core");
@@ -345,20 +379,20 @@ k8_discovered(const std::vector<pp_value> &args)
 	// out of the k8 device itself?  We need to know
 	// family/model/stepping for PCI stuff, though.
 	if (node == 0) {
-		k8_cpuid(node, 1, 0);
+		k8_cpu(node, 1, 0);
 		ncores = READ("cpuid.1/logical_proc_count");
 	} else {
 		//FIXME: this assumes all k8s are the same
 		//FIXME: uggh.  Maybe allow ALIAS in the node0 case?
 		ncores = READ("/k8[0]/core[0]/cpuid.1/logical_proc_count");
-		k8_cpuid(node, ncores, 0);
+		k8_cpu(node, ncores, 0);
 	}
 
 	CLOSE_SCOPE(); // core[]
 	for (unsigned i = 1; i < ncores; i++) {
 		OPEN_SCOPE("core[]");
 		BOOKMARK("core");
-		k8_cpuid(node, ncores, i);
+		k8_cpu(node, ncores, i);
 		CLOSE_SCOPE();
 	}
 
@@ -380,24 +414,16 @@ k8_discovered(const std::vector<pp_value> &args)
 	}
 
 	/* function 0 */
-	PCI_SCOPE("ht_config", seg, bus, dev, func);
-	k8_ht_config();
-	CLOSE_SCOPE();
+	k8_ht_config(seg, bus, dev, func);
 
 	/* function 1 */
-	PCI_SCOPE("address_map", seg, bus, dev, func+1);
-	k8_address_map();
-	CLOSE_SCOPE();
+	k8_address_map(seg, bus, dev, func);
 
 	/* function 2 */
-	PCI_SCOPE("dram_ctrl", seg, bus, dev, func+2);
-	k8_dram_controller();
-	CLOSE_SCOPE();
+	k8_dram_controller(seg, bus, dev, func);
 
 	/* function 3 */
-	PCI_SCOPE("misc_ctrl", seg, bus, dev, func+3);
-	k8_misc_control();
-	CLOSE_SCOPE();
+	k8_misc_control(seg, bus, dev, func);
 
 	CLOSE_SCOPE(); // k8[]
 }
