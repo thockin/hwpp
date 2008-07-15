@@ -6,6 +6,8 @@ SRCS = global.cpp \
 	pci/generic_device.cpp \
 	cpuid/cpuid.cpp \
 	cpuid/generic_device.cpp \
+	msr/msr.cpp \
+	msr/generic_device.cpp \
 	amd/k8.cpp
 OBJS = $(SRCS:.cpp=.o)
 
