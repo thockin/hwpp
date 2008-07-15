@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 OFILE=.tmp.do_review.$$
 
