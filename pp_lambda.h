@@ -3,10 +3,12 @@
 #define PP_PP_LAMBDA_H__
 
 #include <boost/lambda/lambda.hpp>
+#include <boost/lambda/if.hpp>
 
 using boost::lambda::_1;
 using boost::lambda::_2;
 using boost::lambda::_3;
+using boost::lambda::if_then_else_return;
 
 //
 // Define some specializations for boost::lamba.  It should 'Just Work'.
