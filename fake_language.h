@@ -240,7 +240,7 @@ fkl_regfield(const parse_location &loc,
 		fkl_regfield(THIS_LOCATION, ##__VA_ARGS__, BITS128)
 
 //
-// Declare a procfield from a proc-register
+// Declare a proc regfield
 //
 extern void
 fkl_regfield(const parse_location &loc,
