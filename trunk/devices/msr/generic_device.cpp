@@ -275,14 +275,14 @@ msr_generic_device()
 	CLOSE_SCOPE(); // mtrr
 
 	REG64("%PAT", 0x277);
-	FIELD("PA0", "mtrr_type_t", BITS("%PAT", 2, 0));
-	FIELD("PA1", "mtrr_type_t", BITS("%PAT", 10, 8));
-	FIELD("PA2", "mtrr_type_t", BITS("%PAT", 18, 16));
-	FIELD("PA3", "mtrr_type_t", BITS("%PAT", 26, 24));
-	FIELD("PA4", "mtrr_type_t", BITS("%PAT", 34, 32));
-	FIELD("PA5", "mtrr_type_t", BITS("%PAT", 42, 40));
-	FIELD("PA6", "mtrr_type_t", BITS("%PAT", 50, 48));
-	FIELD("PA7", "mtrr_type_t", BITS("%PAT", 58, 56));
+	FIELD("PA0", "pat_type_t", BITS("%PAT", 2, 0));
+	FIELD("PA1", "pat_type_t", BITS("%PAT", 10, 8));
+	FIELD("PA2", "pat_type_t", BITS("%PAT", 18, 16));
+	FIELD("PA3", "pat_type_t", BITS("%PAT", 26, 24));
+	FIELD("PA4", "pat_type_t", BITS("%PAT", 34, 32));
+	FIELD("PA5", "pat_type_t", BITS("%PAT", 42, 40));
+	FIELD("PA6", "pat_type_t", BITS("%PAT", 50, 48));
+	FIELD("PA7", "pat_type_t", BITS("%PAT", 58, 56));
 
 	//FIXME: more
 }
