@@ -17,7 +17,7 @@
 
 /* constructor */
 cpuid_io::cpuid_io(const cpuid_address &address, const string &devdir,
-		int major, int minor)
+                   int major, int minor)
     : m_address(address)
 {
 	open_device(devdir, major, minor);
@@ -42,7 +42,7 @@ cpuid_io::read(const pp_value &address, const pp_bitwidth width) const
 	check_width(width);
 	check_bounds(address, BITS_TO_BYTES(width));
 
-	seek(m_address.function);
+	seek(address & PP_MASK(32));
 	// /dev/cpuid requires us to read 16 bytes
 	uint8_t ar[16];
 	if (m_file->read(ar, 16) != 16) {
@@ -51,7 +51,7 @@ cpuid_io::read(const pp_value &address, const pp_bitwidth width) const
 		    boost::format("error reading register 0x%x") %address));
 	}
 	bitbuffer bitbuf(width);
-	memcpy(bitbuf.get(), ar + (address.get_int()*4), width/CHAR_BIT);
+	memcpy(bitbuf.get(), ar, width/CHAR_BIT);
 
 	return pp_value(bitbuf);
 }
@@ -94,7 +94,7 @@ cpuid_io::enumerate(std::vector<cpuid_address> *addresses)
 			continue;
 		}
 
-		addresses->push_back(cpuid_address(cpu, 0));
+		addresses->push_back(cpuid_address(cpu));
 	}
 	std::sort(addresses->begin(), addresses->end());
 }
@@ -144,7 +144,7 @@ void
 cpuid_io::check_width(pp_bitwidth width) const
 {
 	switch (width) {
-	    case BITS32:
+	    case BITS128:
 		break;
 	    default:
 		do_io_error(to_string(
@@ -155,8 +155,8 @@ cpuid_io::check_width(pp_bitwidth width) const
 void
 cpuid_io::check_bounds(const pp_value &offset, unsigned bytes) const
 {
-	/* CPUID has a very small register space per function */
-	if (offset < 0 || offset >= 4) {
+	/* CPUID has a 32 bit address space */
+	if (offset < 0 || offset > PP_MASK(32)) {
 		do_io_error(to_string(
 		    boost::format("invalid register: %d bytes @ 0x%x")
 		    %bytes %offset));

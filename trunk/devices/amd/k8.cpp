@@ -20,7 +20,11 @@
 static void
 k8_cpuid(const pp_value &cpu)
 {
-	cpuid_generic_device(cpu);
+	CPUID_SCOPE("cpuid", cpu);
+
+	//FIXME: more
+
+	CLOSE_SCOPE(); // msr
 }
 
 static void
@@ -380,11 +384,11 @@ k8_discovered(const std::vector<pp_value> &args)
 	// family/model/stepping for PCI stuff, though.
 	if (node == 0) {
 		k8_cpu(node, 1, 0);
-		ncores = READ("cpuid.1/logical_proc_count");
+		ncores = READ("cpuid/logical_proc_count");
 	} else {
 		//FIXME: this assumes all k8s are the same
 		//FIXME: uggh.  Maybe allow ALIAS in the node0 case?
-		ncores = READ("/k8[0]/core[0]/cpuid.1/logical_proc_count");
+		ncores = READ("/k8[0]/core[0]/cpuid/logical_proc_count");
 		k8_cpu(node, ncores, 0);
 	}
 
@@ -401,10 +405,10 @@ k8_discovered(const std::vector<pp_value> &args)
 		KV("rev_e", 'e'),
 		KV("rev_f", 'f'),
 		KV("unknown", 0));
-	if (FIELD_EQ("core[0]/cpuid.1/family", 0xf)) {
-		if (FIELD_GE("core[0]/cpuid.1/model", 0x40)) {
+	if (FIELD_EQ("core[0]/cpuid/family", 0xf)) {
+		if (FIELD_GE("core[0]/cpuid/model", 0x40)) {
 			FIELD("k8_rev", "k8_rev_t", 'f');
-		} else if (FIELD_GE("core[0]/cpuid.1/model", 0x20)) {
+		} else if (FIELD_GE("core[0]/cpuid/model", 0x20)) {
 			FIELD("k8_rev", "k8_rev_t", 'e');
 		} else {
 			FIELD("k8_rev", "k8_rev_t", pp_value(0));

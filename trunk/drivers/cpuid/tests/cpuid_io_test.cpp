@@ -17,7 +17,7 @@ test_cpuid_io()
 
 	try {
 		/* test ctors (for a dev file that exists) and address() */
-		cpuid_io io1(cpuid_address(93, 0), "test_data",
+		cpuid_io io1(cpuid_address(93), "test_data",
 				NULL_MAJOR, NULL_MINOR);
 		if (io1.address().cpu != 93) {
 			TEST_ERROR("cpuid_io::cpuid_io(cpuid_address)");
@@ -25,11 +25,8 @@ test_cpuid_io()
 		}
 
 		/* test the read() method */
-		if (io1.read(0, BITS32) != pp_value("0x33323130")) {
-			TEST_ERROR("cpuid_io::read()");
-			ret++;
-		}
-		if (io1.read(1, BITS32) != pp_value("0x37363534")) {
+		if (io1.read(0, BITS128) != pp_value(
+		    "0x35343332313039383736353433323130")) {
 			TEST_ERROR("cpuid_io::read()");
 			ret++;
 		}
@@ -46,49 +43,50 @@ test_cpuid_io()
 		} catch (exception &e) {
 		}
 		try {
-			io1.read(0, BITS64);
+			io1.read(0, BITS32);
 			TEST_ERROR("cpuid_io::read()");
 			ret++;
 		} catch (exception &e) {
 		}
 		try {
-			io1.read(0, BITS128);
+			io1.read(0, BITS64);
 			TEST_ERROR("cpuid_io::read()");
 			ret++;
 		} catch (exception &e) {
 		}
 		/* test read() around the bounds */
 		try {
-			io1.read(3, BITS32);
+			io1.read(0, BITS128);
 		} catch (exception &e) {
-			TEST_ERROR("cpuid_io::read(BITS8)");
+			TEST_ERROR("cpuid_io::read()");
 			ret++;
 		}
 		try {
-			io1.read(4, BITS32);
-			TEST_ERROR("cpuid_io::read(BITS16)");
+			io1.read(1, BITS128);
+			TEST_ERROR("cpuid_io::read()");
 			ret++;
 		} catch (exception &e) {
 		}
 
 		/* test read for a bad offset */
 		try {
-			io1.read(5, BITS32);
+			io1.read(5, BITS128);
 			TEST_ERROR("cpuid_io::read()");
 			ret++;
 		} catch (exception &e) {
 		}
 
 		/* test the write() method, which should be a no-op */
-		io1.write(0, BITS32, 0xbbaa9988);
-		if (io1.read(0, BITS32) != 0x33323130) {
+		io1.write(0, BITS128, 0xbbaa9988);
+		if (io1.read(0, BITS128) != pp_value(
+		    "0x35343332313039383736353433323130")) {
 			TEST_ERROR("cpuid_io::write()");
 			ret++;
 		}
 
 		/* test ctor for a dev file that does not exist */
 		try {
-			cpuid_io io2(cpuid_address(76, 0),
+			cpuid_io io2(cpuid_address(76),
 					"test_data", NULL_MAJOR, NULL_MINOR);
 			TEST_ERROR("cpuid_io::cpuid_io()");
 			ret++;

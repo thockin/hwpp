@@ -14,27 +14,23 @@
 struct cpuid_address
 {
 	/* constructors */
-	cpuid_address(int c, uint32_t f)
-	    : cpu(c), function(f)
+	cpuid_address(int c)
+	    : cpu(c)
 	{
 	}
 	unsigned cpu;
-	uint32_t function;
 };
 
 inline bool
 operator<(const cpuid_address &left, const cpuid_address &right)
 {
-	if (left.cpu != right.cpu) {
-		return (left.cpu < right.cpu);
-	}
-	return (left.function < right.function);
+	return (left.cpu < right.cpu);
 }
 
 inline std::ostream &
 operator<<(std::ostream& out, const cpuid_address &addr)
 {
-	out << "cpuid<" << addr.cpu << "," << addr.function << ">";
+	out << "cpuid<" << addr.cpu << ">";
 	return out;
 }
 
