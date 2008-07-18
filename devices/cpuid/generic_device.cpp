@@ -3,14 +3,26 @@
 #include "fake_language.h"
 
 void
-CPUID_SCOPE(const string &name, const pp_value &cpu, const pp_value &func)
+CPUID_SCOPE(const string &name, const pp_value &cpu)
 {
-	OPEN_SCOPE(name, BIND("cpuid", ARGS(cpu, func)));
-	BOOKMARK("function");
-	REG32("%eax", 0);
-	REG32("%ebx", 1);
-	REG32("%ecx", 2);
-	REG32("%edx", 3);
+	OPEN_SCOPE(name, BIND("cpuid", ARGS(cpu)));
+	BOOKMARK("cpuid");
+	cpuid_generic_device();
+}
+
+// create a scope and simple fields for an "opaque" MSR
+void
+CPUID_REGSCOPE(const string &name, const pp_value &address)
+{
+	string regname = "%" + name;
+	REG64(regname, address);
+	OPEN_SCOPE(name);
+	FIELD("addr", "hex64_t", address);
+	FIELD("eax", "hex32_t", BITS(regname, 31, 0));
+	FIELD("ebx", "hex32_t", BITS(regname, 63, 32));
+	FIELD("ecx", "hex32_t", BITS(regname, 95, 64));
+	FIELD("edx", "hex32_t", BITS(regname, 127, 96));
+	CLOSE_SCOPE();
 }
 
 /* populate the current scope with generic CPUID fields */
@@ -19,9 +31,9 @@ class cpuid_family_procs: public pp_rwprocs
 	pp_value
 	read() const
 	{
-		pp_value base_family = READ(BITS("%eax", 11, 8));
+		pp_value base_family = READ(BITS("%fn1", 11, 8));
 		if (base_family == 0xf) {
-			return READ(BITS("%eax", 27, 20)) + 0xf;
+			return READ(BITS("%fn1", 27, 20)) + 0xf;
 		}
 		return base_family;
 	}
@@ -36,11 +48,11 @@ class cpuid_model_procs: public pp_rwprocs
 	pp_value
 	read() const
 	{
-		pp_value base_family = READ(BITS("%eax", 11, 8));
+		pp_value base_family = READ(BITS("%fn1", 11, 8));
 		if (base_family == 0xf) {
-			return READ(BITS("%eax", 19, 16) + BITS("%eax", 7, 4));
+			return READ(BITS("%fn1", 19, 16) + BITS("%fn1", 7, 4));
 		}
-		return READ(BITS("%eax", 7, 4));
+		return READ(BITS("%fn1", 7, 4));
 	}
 	void
 	write(const pp_value &value) const
@@ -49,37 +61,33 @@ class cpuid_model_procs: public pp_rwprocs
 	}
 };
 void
-cpuid_generic_device(const pp_value &cpu)
+cpuid_generic_device()
 {
-	BOOKMARK("cpuid");
-
-	CPUID_SCOPE("cpuid.0", cpu, 0);
-	FIELD("largest_std_fn", "hex_t", BITS("%eax", 31, 0));
+	REG128("%fn0", 0);
+	FIELD("largest_std_fn", "hex_t", BITS("%fn0", 31, 0));
 	FIELD("vendor", "cpuid_vendor_t",
-			BITS("%ecx", 31, 0) +
-			BITS("%edx", 31, 0) +
-			BITS("%ebx", 31, 0));
-	CLOSE_SCOPE();
+			BITS("%fn0", 95, 64) +
+			BITS("%fn0", 127, 96) +
+			BITS("%fn0", 63, 32));
 
-	if (FIELD_GE("cpuid.0/largest_std_fn", 1)) {
-		CPUID_SCOPE("cpuid.1" , cpu, 1);
+	if (FIELD_GE("largest_std_fn", 1)) {
+		REG128("%fn1", 1);
 		FIELD("family", "int_t", PROCS(cpuid_family_procs));
 		FIELD("model", "int_t", PROCS(cpuid_model_procs));
-		FIELD("stepping", "int_t", BITS("%eax", 3, 0));
+		FIELD("stepping", "int_t", BITS("%fn1", 3, 0));
 
 		FIELD("std_features", "cpuid_features_t",
-				BITS("%ecx", 31, 0) + BITS("%edx", 31, 0));
+				BITS("%fn1", 95, 64) + BITS("%fn1", 127, 96));
 
-		FIELD("brand_id_8bit", "int_t", BITS("%ebx", 7, 0));
-		FIELD("clflush_size", ANON_INT("QWORDs"), BITS("%ebx", 15, 8));
+		FIELD("brand_id_8bit", "int_t", BITS("%fn1", 39, 32));
+		FIELD("clflush_size", ANON_INT("QWORDs"), BITS("%fn1", 47, 40));
 		if (FIELD_TEST("std_features", "htt")) {
 			FIELD("logical_proc_count", "int_t",
-					BITS("%ebx", 23, 16));
+					BITS("%fn1", 55, 48));
 		} else {
 			FIELD("logical_proc_count", "int_t", 1);
 		}
-		FIELD("init_lapic_id", "int_t", BITS("%ebx", 31, 24));
-		CLOSE_SCOPE();
+		FIELD("init_lapic_id", "int_t", BITS("%fn1", 63, 56));
 	}
 
 	//FIXME: more std functions

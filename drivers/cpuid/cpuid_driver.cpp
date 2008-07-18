@@ -29,22 +29,18 @@ cpuid_driver::name() const
 pp_binding_ptr
 cpuid_driver::new_binding(const std::vector<pp_value> &args) const
 {
-	if (args.size() != 2) {
-		throw pp_driver::args_error("cpuid<>: <cpu,function>");
+	if (args.size() != 1) {
+		throw pp_driver::args_error("cpuid<>: <cpu>");
 	}
 
 	pp_value cpu = args[0];
-	pp_value function = args[1];
 
 	if (cpu < 0) {
 		throw pp_driver::args_error("cpuid<>: invalid cpu");
 	}
-	if (function < 0) {
-		throw pp_driver::args_error("cpuid<>: invalid function");
-	}
 
 	return new_cpuid_binding(
-		cpuid_address(cpu.get_uint(), function.get_uint()));
+		cpuid_address(cpu.get_uint()));
 }
 
 void
@@ -67,7 +63,6 @@ cpuid_driver::discover(pp_scope *platform) const
 		/* call the callback */
 		std::vector<pp_value> args;
 		args.push_back(it->cpu);
-		args.push_back(it->function);
 		if (dr) {
 			/* call the callback */
 			dr->function(args);
@@ -116,16 +111,18 @@ cpuid_driver::find_discovery_request(const cpuid_address &addr) const
 	pp_value family;
 	pp_value model;
 	pp_value stepping;
+	pp_value tmp;
 
 	// This is the ordering the CPU vendors use.  I don't know why.
-	cpuid_io dev(cpuid_address(addr.cpu, 0));
-	vendor = dev.read(1, BITS32)
-		| (dev.read(3, BITS32)<<32)
-		| (dev.read(2, BITS32)<<64);
+	cpuid_io dev(cpuid_address(addr.cpu));
+	tmp = dev.read(0, BITS128);
+	vendor = ((((tmp >> 32*1) & PP_MASK(32)) << 0)
+		| (((tmp >> 32*3) & PP_MASK(32)) << 32)
+		| (((tmp >> 32*2) & PP_MASK(32)) << 64));
 
 	//FIXME: This might have to be different per vendor.  This is AMD.
-	dev = cpuid_io(cpuid_address(addr.cpu, 1));
-	pp_value tmp = dev.read(0, BITS32);
+	dev = cpuid_io(cpuid_address(addr.cpu));
+	tmp = dev.read(1, BITS128);
 	family = (tmp & pp_value(0xf00)) >> 8;
 	model = (tmp & pp_value(0xf0)) >> 4;
 	if (family == 0xf) {
