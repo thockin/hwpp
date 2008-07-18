@@ -21,6 +21,9 @@ Device stuff:
  - when to use yesno vs enabledisable vs truefalse ?  Be consistent
  - make a decision on "for (int addr = 0x40; i < 0x60; i += 4) {" vs
    unrolling via functions.
+ - allow sub-regs (regbits-regs), for %eax %ebx, %ecx, %edx in cpuid?
+ - convert address into a list?
+   - add "regaddr_t" type to print them
 
 Driver stuff:
  - remove the length arg of io/mem bindings? else report PCI BAR sizes
