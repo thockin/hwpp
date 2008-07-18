@@ -120,16 +120,24 @@ cpuid_driver::find_discovery_request(const cpuid_address &addr) const
 		| (((tmp >> 32*3) & PP_MASK(32)) << 32)
 		| (((tmp >> 32*2) & PP_MASK(32)) << 64));
 
-	//FIXME: This might have to be different per vendor.  This is AMD.
 	dev = cpuid_io(cpuid_address(addr.cpu));
 	tmp = dev.read(1, BITS128);
 	family = (tmp & pp_value(0xf00)) >> 8;
 	model = (tmp & pp_value(0xf0)) >> 4;
-	if (family == 0xf) {
+	stepping = tmp & pp_value(0xf);
+
+	// handle slight differences in AMD and Intel specs
+	if (vendor == pp_value("0x6c65746e49656e69756e6547")) {
+		// intel
 		family += (tmp & pp_value(0xff00000)) >> 20;
 		model |= (tmp & pp_value(0xf0000)) >> 12;
+	} else if (vendor == pp_value("0x444d416369746e6568747541")) {
+		// amd
+		if (family == 0xf) {
+			family += (tmp & pp_value(0xff00000)) >> 20;
+			model |= (tmp & pp_value(0xf0000)) >> 12;
+		}
 	}
-	stepping = tmp & pp_value(0xf);
 
 	DTRACE(TRACE_DISCOVERY, "discovery: cpuid "
 			+ to_string(boost::format("0x%x") %vendor)

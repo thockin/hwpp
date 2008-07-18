@@ -31,11 +31,19 @@ class cpuid_family_procs: public pp_rwprocs
 	pp_value
 	read() const
 	{
-		pp_value base_family = READ(BITS("%fn1", 11, 8));
-		if (base_family == 0xf) {
-			return READ(BITS("%fn1", 27, 20)) + 0xf;
+		if (FIELD_EQ("vendor", "intel")) {
+			pp_value family = READ(BITS("%fn1", 11, 8))
+			                + READ(BITS("%fn1", 27, 20));
+			return family;
+		} else if (FIELD_EQ("vendor", "amd")) {
+			pp_value base_family = READ(BITS("%fn1", 11, 8));
+			if (base_family == 0xf) {
+				return READ(BITS("%fn1", 27, 20)) + 0xf;
+			}
+			return base_family;
 		}
-		return base_family;
+		WARN("unknown CPUID vendor, using base family");
+		return READ(BITS("%fn1", 11, 8));
 	}
 	void
 	write(const pp_value &value) const
@@ -48,10 +56,16 @@ class cpuid_model_procs: public pp_rwprocs
 	pp_value
 	read() const
 	{
-		pp_value base_family = READ(BITS("%fn1", 11, 8));
-		if (base_family == 0xf) {
+		if (FIELD_EQ("vendor", "intel")) {
 			return READ(BITS("%fn1", 19, 16) + BITS("%fn1", 7, 4));
+		} else if (FIELD_EQ("vendor", "amd")) {
+			pp_value base_family = READ(BITS("%fn1", 11, 8));
+			if (base_family == 0xf) {
+				return READ(BITS("%fn1", 19, 16) + BITS("%fn1", 7, 4));
+			}
+			return READ(BITS("%fn1", 7, 4));
 		}
+		WARN("unknown CPUID vendor, using base_model");
 		return READ(BITS("%fn1", 7, 4));
 	}
 	void
@@ -76,18 +90,28 @@ cpuid_generic_device()
 		FIELD("model", "int_t", PROCS(cpuid_model_procs));
 		FIELD("stepping", "int_t", BITS("%fn1", 3, 0));
 
-		FIELD("std_features", "cpuid_features_t",
-				BITS("%fn1", 95, 64) + BITS("%fn1", 127, 96));
-
-		FIELD("brand_id_8bit", "int_t", BITS("%fn1", 39, 32));
-		FIELD("clflush_size", ANON_INT("QWORDs"), BITS("%fn1", 47, 40));
-		if (FIELD_TEST("std_features", "htt")) {
-			FIELD("logical_proc_count", "int_t",
-					BITS("%fn1", 55, 48));
-		} else {
-			FIELD("logical_proc_count", "int_t", 1);
+		if (FIELD_EQ("vendor", "intel")) {
+			FIELD("type", ANON_ENUM(
+					KV("oem", 0),
+					KV("overdrive", 1),
+					KV("dual", 2)),
+				BITS("%fn1", 13, 12));
 		}
-		FIELD("init_lapic_id", "int_t", BITS("%fn1", 63, 56));
+
+		if (FIELD_EQ("vendor", "amd")) {
+			FIELD("std_features", "cpuid_features_t",
+					BITS("%fn1", 95, 64) + BITS("%fn1", 127, 96));
+
+			FIELD("brand_id_8bit", "int_t", BITS("%fn1", 39, 32));
+			FIELD("clflush_size", ANON_INT("QWORDs"), BITS("%fn1", 47, 40));
+			if (FIELD_TEST("std_features", "htt")) {
+				FIELD("logical_proc_count", "int_t",
+						BITS("%fn1", 55, 48));
+			} else {
+				FIELD("logical_proc_count", "int_t", 1);
+			}
+			FIELD("init_lapic_id", "int_t", BITS("%fn1", 63, 56));
+		}
 	}
 
 	//FIXME: more std functions
