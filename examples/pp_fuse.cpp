@@ -5,6 +5,15 @@
 //   PP: multi-thread safety
 //   FS: multi-thread safety
 //   FS: open() - check fi->flags against the reg/field rwmode
+//
+
+// Suggested commandline options
+// 	-f		- run in foreground
+// 	-s		- run single threaded
+// 	-oallow_other	- allow non-root users to access the FS
+// 	-odirect_io	- do not do caching in the kernel
+// 	-ofsname=ppfs	- set the FS type in mtab
+
 #define FUSE_USE_VERSION 22
 
 #define _FILE_OFFSET_BITS 64
