@@ -3,9 +3,11 @@ include $(TOPDIR)/rules.mk
 
 BINS = pp_discover \
 	pp_pci \
-	pp_read
+	pp_read \
+	pp_fuse
 BINS_SRCS = $(BINS:=.cpp)
 
+pp_fuse_LDLIBS = -lfuse -lpthread
 
 all: $(BINS)
 
