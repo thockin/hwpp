@@ -11,22 +11,17 @@
 #include "filesystem.h"
 #include "simple_regex.h"
 
-#define CPUID_DEVICE_DIR	"/dev/cpu"
-#define CPUID_DEV_MAJOR		203
 #define CPU_SYSFS_DIR		"/sys/devices/system/cpu"
 
 /* constructor */
-cpuid_io::cpuid_io(const cpuid_address &address, const string &devdir,
-                   int major, int minor)
+cpuid_io::cpuid_io(const cpuid_address &address)
     : m_address(address)
 {
-	open_device(devdir, major, minor);
 }
 
 /* destructor */
 cpuid_io::~cpuid_io()
 {
-	// m_file will close() when it's last reference goes away
 }
 
 const cpuid_address &
@@ -38,20 +33,45 @@ cpuid_io::address() const
 pp_value
 cpuid_io::read(const pp_value &address, const pp_bitwidth width) const
 {
-	/* make sure this is a valid access */
+	// make sure this is a valid access
 	check_width(width);
 	check_bounds(address, BITS_TO_BYTES(width));
 
-	seek(address & PP_MASK(32));
-	// /dev/cpuid requires us to read 16 bytes
-	uint8_t ar[16];
-	if (m_file->read(ar, 16) != 16) {
-		// We already did bounds checking, so this must be bad.
-		do_io_error(to_string(
-		    boost::format("error reading register 0x%x") %address));
+	// save original affinity
+	cpu_set_t new_set, orig_set;
+
+	if (sched_getaffinity(getpid(), sizeof(orig_set), &orig_set) < 0) {
+		do_io_error("cannot get CPU affinity");
 	}
+
+	// set affinity to desired CPU
+	CPU_ZERO(&new_set);
+	CPU_SET(m_address.cpu, &new_set);
+	if (sched_setaffinity(getpid(), sizeof(new_set), &new_set) < 0) {
+		do_io_error(to_string(
+		    boost::format("cannot set affinity to CPU %d")
+		    %m_address.cpu));
+	}
+
+	// call CPUID
+	uint32_t regs[4];
+	asm volatile(
+		"cpuid"
+		: "=a" (regs[0]),
+		  "=b" (regs[1]),
+		  "=c" (regs[2]),
+		  "=d" (regs[3])
+		: "0"  (pp_value(address & PP_MASK(32)).get_uint()),
+		  "2"  (pp_value((address >> 32) & PP_MASK(32)).get_uint())
+		);
+	
+	// set affinity back to original
+	if (sched_setaffinity(getpid(), sizeof(orig_set), &orig_set) < 0) {
+		do_io_error("cannot reset CPU affinity");
+	}
+
 	bitbuffer bitbuf(width);
-	memcpy(bitbuf.get(), ar, width/CHAR_BIT);
+	memcpy(bitbuf.get(), regs, width/CHAR_BIT);
 
 	return pp_value(bitbuf);
 }
@@ -106,41 +126,6 @@ cpuid_io::do_io_error(const string &str) const
 }
 
 void
-cpuid_io::open_device(string devdir, int major, int minor)
-{
-	string filename;
-
-	if (devdir == "")
-		devdir = CPUID_DEVICE_DIR;
-	if (major == -1)
-		major = CPUID_DEV_MAJOR;
-	if (minor == -1)
-		minor = m_address.cpu;
-
-	/* try to open it through /dev */
-	filename = to_string(
-	    boost::format("%s/%d/cpuid") %devdir %m_address.cpu);
-	try {
-		m_file = fs::file::open(filename, O_RDONLY);
-		return;
-	} catch (sys_error::not_found &e) {
-		/* do nothing yet */
-	}
-
-	/* fall back on a self-made device node */
-	filename = fs::file::tempname();
-	try {
-		fs::device::mkdev(filename, 0600, S_IFCHR, major, minor);
-		m_file = fs::device::open(filename, O_RDONLY);
-		return;
-	} catch (std::exception &e) {
-		//FIXME: better errors
-		/* the device seems to not exist */
-		do_io_error(string("can't open a cpuid device: ") + e.what());
-	}
-}
-
-void
 cpuid_io::check_width(pp_bitwidth width) const
 {
 	switch (width) {
@@ -155,16 +140,10 @@ cpuid_io::check_width(pp_bitwidth width) const
 void
 cpuid_io::check_bounds(const pp_value &offset, unsigned bytes) const
 {
-	/* CPUID has a 32 bit address space */
-	if (offset < 0 || offset > PP_MASK(32)) {
+	/* CPUID has a 64 bit address space */
+	if (offset < 0 || offset > PP_MASK(64)) {
 		do_io_error(to_string(
 		    boost::format("invalid register: %d bytes @ 0x%x")
 		    %bytes %offset));
 	}
-}
-
-void
-cpuid_io::seek(const pp_value &offset) const
-{
-	m_file->seek(offset.get_uint(), SEEK_SET);
 }
