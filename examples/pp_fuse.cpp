@@ -88,6 +88,8 @@ printf("%d getattr: path = %s\n", getpid(), path);
 		res = fill_stat(de, st);
 	} catch (std::out_of_range &e) {
 		res = -ENOENT;
+	} catch (pp_path::invalid_error &e) {
+		res = -ENOENT;
 	}
 
 	return res;
