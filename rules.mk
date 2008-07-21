@@ -13,6 +13,7 @@ PROFILE ?= 0
 
 CXX = $(CROSS_COMPILE)g++
 CC = $(CXX)
+CPP = $(CROSS_COMPILE)cpp
 
 # build flags
 
@@ -20,7 +21,7 @@ PP_CXXFLAGS = $(ARCHFLAGS) $($@_CXXFLAGS)
 PP_LDFLAGS = $(ARCHFLAGS) $($@_LDFLAGS)
 PP_WARNS = -Wall -Werror -Woverloaded-virtual $(WARNS) $($@_WARNS)
 PP_DEFS = -DPP_VERSION="\"$(PP_VERSION)\"" $(DEFS) $($@_DEFS)
-PP_INCLUDES = -I$(TOPDIR) $(INCLUDES) $($@_INCLUDES)
+PP_INCLUDES = -I$(TOPDIR) $(DIR_INCLUDES) $(INCLUDES) $($@_INCLUDES)
 PP_LDLIBS = -lgmpxx -lgmp $(LIBS) $($@_LDLIBS)
 
 ifeq ($(strip $(STATIC)),1)

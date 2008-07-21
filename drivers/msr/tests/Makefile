@@ -1,7 +1,7 @@
 TOPDIR = ../../..
 include $(TOPDIR)/rules.mk
 
-INCLUDES += -I.. -I$(TOPDIR)/tests
+DIR_INCLUDES = -I.. -I$(TOPDIR)/tests
 
 TESTS = msr_io_test
 TESTS_SRCS = $(TESTS:=.cpp)
