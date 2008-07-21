@@ -6,12 +6,12 @@ PP_VERSION = 0.2.0
 # Otherwise 'DEBUG= make all' would still build with debugging enabled.
 
 DEBUG ?= 1
-STATIC ?= 1
+STATIC ?= 0
 PROFILE ?= 0
 
 # build tools
 
-CXX = g++
+CXX = $(CROSS_COMPILE)g++
 CC = $(CXX)
 
 # build flags
