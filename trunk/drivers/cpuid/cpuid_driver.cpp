@@ -39,8 +39,7 @@ cpuid_driver::new_binding(const std::vector<pp_value> &args) const
 		throw pp_driver::args_error("cpuid<>: invalid cpu");
 	}
 
-	return new_cpuid_binding(
-		cpuid_address(cpu.get_uint()));
+	return new_cpuid_binding(cpuid_address(cpu.get_uint()));
 }
 
 void
