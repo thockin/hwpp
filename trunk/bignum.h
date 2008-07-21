@@ -117,7 +117,7 @@ class bignum: public mpz_class
 		}
 
 		unsigned long vlo = that;
-		unsigned long vhi = (that >> BITS_PER_LONG-1) >> 1;
+		unsigned long vhi = (that >> (BITS_PER_LONG-1)) >> 1;
 		*this = vhi;
 		*this <<= BITS_PER_LONG;
 		*this += vlo;
@@ -137,7 +137,7 @@ class bignum: public mpz_class
 
 		// not so simple
 		unsigned long vlo = that;
-		unsigned long vhi = (that >> BITS_PER_LONG-1) >> 1;
+		unsigned long vhi = (that >> (BITS_PER_LONG-1)) >> 1;
 		*this = vhi;
 		*this <<= BITS_PER_LONG;
 		*this += vlo;
@@ -185,7 +185,7 @@ class bignum: public mpz_class
 		myval >>= BITS_PER_LONG;
 		unsigned long long rhi = myval.mpz_class::get_ui();
 		unsigned long long result =
-		    (((rhi << BITS_PER_LONG-1)<<1) | rlo);
+		    (((rhi << (BITS_PER_LONG-1))<<1) | rlo);
 		result *= multiplier;
 
 		return result;
@@ -211,7 +211,7 @@ class bignum: public mpz_class
 		myval >>= BITS_PER_LONG;
 		unsigned long long rhi = myval.mpz_class::get_ui();
 		unsigned long long result =
-		    (((rhi << BITS_PER_LONG-1)<<1) | rlo);
+		    (((rhi << (BITS_PER_LONG-1))<<1) | rlo);
 
 		return result;
 	}
