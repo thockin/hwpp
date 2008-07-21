@@ -55,14 +55,17 @@ cpuid_io::read(const pp_value &address, const pp_bitwidth width) const
 
 	// call CPUID
 	uint32_t regs[4];
+	unsigned int function = pp_value(address & PP_MASK(32)).get_uint();
+	unsigned int argument = 
+		pp_value((address >> 32) & PP_MASK(32)).get_uint();
 	asm volatile(
 		"cpuid"
 		: "=a" (regs[0]),
 		  "=b" (regs[1]),
 		  "=c" (regs[2]),
 		  "=d" (regs[3])
-		: "0"  (pp_value(address & PP_MASK(32)).get_uint()),
-		  "2"  (pp_value((address >> 32) & PP_MASK(32)).get_uint())
+		: "0"  (function),
+		  "2"  (argument)
 		);
 	
 	// set affinity back to original
