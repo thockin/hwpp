@@ -1,13 +1,39 @@
 # project version
 PP_VERSION = 0.2.0
 
+
 # build options
 # use '?=' variable assignment so ENV variables can be used.
 # Otherwise 'DEBUG= make all' would still build with debugging enabled.
 
-DEBUG ?= 1
-STATIC ?= 0
-PROFILE ?= 0
+DEBUG ?= 1	# boolean: 0=no, 1=yes
+STATIC ?= 0	# option: 0=no, 1=yes, 2=partial
+PROFILE ?= 0	# boolean: 0=no, 1=yes
+
+
+# user-overrideable variables
+
+# CPPFLAGS	# extra pre-processor flags
+# CXXFLAGS	# extra compiler flags
+# ARCHFLAGS	# output architecture flags
+# LDFLAGS	# extra linker flags
+# INCLUDES	# extra includes
+# LIBS		# extra linker libs, linked statically for non-zero STATIC=
+# LIBS_DYN	# extra linker libs, linked dynamically unless STATIC=1
+# WARNS		# extra compiler warnings
+# DEFS		# extra pre-processor definitions
+
+
+# per-target variables
+
+# $@_CXXFLAGS	# extra compiler flags
+# $@_LDFLAGS	# extra linker flags
+# $@_INCLUDES	# extra includes
+# $@_LIBS	# extra linker libs, linked statically for non-zero STATIC=
+# $@_LIBS_DYN	# extra linker libs, linked dynamically unless STATIC=1
+# $@_WARNS	# extra compiler warnings
+# $@_DEFS	# extra pre-processor definitions
+
 
 # build tools
 
@@ -23,9 +49,15 @@ PP_WARNS = -Wall -Werror -Woverloaded-virtual $(WARNS) $($@_WARNS)
 PP_DEFS = -DPP_VERSION="\"$(PP_VERSION)\"" $(DEFS) $($@_DEFS)
 PP_INCLUDES = -I$(TOPDIR) $(DIR_INCLUDES) $(INCLUDES) $($@_INCLUDES)
 PP_LDLIBS = -lgmpxx -lgmp $(LIBS) $($@_LDLIBS)
+PP_LDLIBS_DYN = $(LIBS_DYN) $($@_LDLIBS_DYN)
 
 ifeq ($(strip $(STATIC)),1)
 PP_STATIC = -static
+PP_DYNAMIC =
+endif
+ifeq ($(strip $(STATIC)),2)
+PP_STATIC = -Wl,-Bstatic
+PP_DYNAMIC = -Wl,-Bdynamic
 endif
 
 ifeq ($(strip $(PROFILE)),1)
@@ -47,9 +79,10 @@ endif
 
 CXXFLAGS += $(PP_CXXFLAGS) $(PP_WARNS) $(PP_DEFS) $(PP_INCLUDES) $(PP_DEBUG)
 LDFLAGS += $(PP_LDFLAGS)
-LDLIBS += $(PP_STATIC) $(PP_LDLIBS)
+LDLIBS += $(PP_STATIC) $(PP_LDLIBS) $(PP_DYNAMIC) $(PP_LDLIBS_DYN)
 
 MAKEFLAGS += --no-print-directory
+
 
 # common rules
 

@@ -7,7 +7,8 @@ BINS = pp_discover \
 	pp_fuse
 BINS_SRCS = $(BINS:=.cpp)
 
-pp_fuse_LDLIBS = -lfuse -lpthread
+pp_fuse_LDLIBS = -lfuse
+pp_fuse_LDLIBS_DYN = -lpthread
 ifeq ($(strip $(STATIC)),1)
     pp_fuse_LDLIBS += -ldl -lrt
 endif
