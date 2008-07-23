@@ -45,10 +45,6 @@ Code stuff:
  - decide on what can be in an enum key and make them more readable (and
    writable)
 
-Docs stuff:
- - write fake_language spec
- - write overview doc
-
 Bugs and features:
  - all FIXMEs
  - preserve/set/clear flags for registers
@@ -79,7 +75,6 @@ Bugs and features:
  - can a binding have no args?
  - proc_dirents (run a proc to see if the dirent exists?)
  - accessing an array as "foo" should be the same as "foo[0]"
- - CPUID index for some CPUIDs
  - fixed-point datatype
  - add ALIAS to symlink to dirents
  - add altnames for registers and fields (to unify naming?)
@@ -91,6 +86,10 @@ filesystem.h:
 	directory iterators
 		- needs direntry comparison
 	fs::realpath()
+
+keyed_vector.h:
+	drop one index?  I think it is possible to just have a map and array
+	of map iterators..
 
 Open large-scale issues:
 	- per-field xforms?
