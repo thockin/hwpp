@@ -48,7 +48,7 @@ CPP = $(CROSS_COMPILE)cpp
 PP_CPPFLAGS = $($@_CPPFLAGS)
 PP_CXXFLAGS = $(ARCHFLAGS) $($@_CXXFLAGS)
 PP_LDFLAGS = $(ARCHFLAGS) $($@_LDFLAGS)
-PP_WARNS = -Wall -Werror -Woverloaded-virtual $(WARNS) $($@_WARNS)
+PP_WARNS = -Wall -Wextra -Werror -Woverloaded-virtual $(WARNS) $($@_WARNS)
 PP_DEFS = -DPP_VERSION="\"$(PP_VERSION)\"" $(DEFS) $($@_DEFS)
 PP_INCLUDES = -I$(TOPDIR) $(DIR_INCLUDES) $(INCLUDES) $($@_INCLUDES)
 PP_LDLIBS = -lgmpxx -lgmp $(LIBS) $($@_LDLIBS)
@@ -96,13 +96,14 @@ all: make_flags
 
 make_flags:
 	@\
-	NEW=$$(echo "CXXFLAGS='$(CXXFLAGS)'\n" \
+	NEW=$$(echo "CXX='$(shell which $(CXX))'\n" \
+	            "CROSS_COMPILE='$(CROSS_COMPILE)'\n" \
+	            "CXXFLAGS='$(CXXFLAGS)'\n" \
 	            "CPPFLAGS='$(CPPFLAGS)'\n" \
 	            "LDFLAGS='$(LDFLAGS)'\n" \
 	            "LDLIBS='$(LDLIBS)'\n"); \
 	OLD=$$(cat .make_flags 2>/dev/null); \
 	if [ "$$NEW" != "$$OLD" ]; then \
-		echo "make flags have changed: making clean first"; \
 		$(MAKE) clean; \
 		echo "$$NEW" > .make_flags; \
 	fi
