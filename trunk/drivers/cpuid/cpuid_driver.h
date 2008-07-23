@@ -39,13 +39,13 @@ class cpuid_driver: public pp_driver
 	new_binding(const std::vector<pp_value> &args) const;
 
 	/*
-	 * cpuid_driver::discover(platform)
+	 * cpuid_driver::discover()
 	 *
 	 * Discover devices owned by this driver, and add them to the
 	 * platform.
 	 */
 	virtual void
-	discover(pp_scope *platform) const;
+	discover() const;
 
 	/*
 	 * cpuid_driver::register_discovery(args, function)

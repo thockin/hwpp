@@ -61,10 +61,8 @@ pci_driver::new_binding(const std::vector<pp_value> &args) const
 }
 
 void
-pci_driver::discover(pp_scope *platform) const
+pci_driver::discover() const
 {
-	//FIXME: drop this arg?
-	(void)platform;
 	std::vector<pci_address> addresses;
 
 	/* find all PCI addresses */

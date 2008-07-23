@@ -17,13 +17,12 @@ pp_register_discovery(const string &driver_name,
 		pp_driver::discovery_callback function = NULL);
 
 extern void
-pp_do_discovery(const string &driver_name,
-		pp_scope *scope = current_context.scope());
+pp_do_discovery(const string &driver_name);
 
 inline void
-pp_do_discovery(pp_scope *scope = current_context.scope())
+pp_do_discovery()
 {
-	pp_do_discovery("", scope);
+	pp_do_discovery("");
 }
 
 #endif // PP_DRIVERS_H__

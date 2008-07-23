@@ -62,15 +62,14 @@ class pp_driver
 	new_binding(const std::vector<pp_value> &args) const = 0;
 
 	//
-	// pp_driver::discover(platform)
+	// pp_driver::discover()
 	//
 	// Enumerate devices owned by this driver, and add them to the
 	// platform.
 	//
 	virtual void
-	discover(pp_scope *platform) const
+	discover() const
 	{
-		(void)platform;
 		// do nothing by default
 	}
 
