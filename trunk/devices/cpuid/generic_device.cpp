@@ -14,6 +14,11 @@ EAX(const string &name, const pp_bitwidth &bit)
 	return BITS(name, bit);
 }
 inline pp_regbits
+EAX(const string &name)
+{
+	return BITS(name, 31, 0);
+}
+inline pp_regbits
 EBX(const string &name, const pp_bitwidth &hi, const pp_bitwidth &lo)
 {
 	return BITS(name, hi + 32, lo + 32);
@@ -22,6 +27,11 @@ inline pp_regbits
 EBX(const string &name, const pp_bitwidth &bit)
 {
 	return BITS(name, bit + 32);
+}
+inline pp_regbits
+EBX(const string &name)
+{
+	return BITS(name, 63, 32);
 }
 inline pp_regbits
 ECX(const string &name, const pp_bitwidth &hi, const pp_bitwidth &lo)
@@ -34,6 +44,11 @@ ECX(const string &name, const pp_bitwidth &bit)
 	return BITS(name, bit + 64);
 }
 inline pp_regbits
+ECX(const string &name)
+{
+	return BITS(name, 95, 64);
+}
+inline pp_regbits
 EDX(const string &name, const pp_bitwidth &hi, const pp_bitwidth &lo)
 {
 	return BITS(name, hi + 96, lo + 96);
@@ -42,6 +57,11 @@ inline pp_regbits
 EDX(const string &name, const pp_bitwidth &bit)
 {
 	return BITS(name, bit + 96);
+}
+inline pp_regbits
+EDX(const string &name)
+{
+	return BITS(name, 127, 96);
 }
 
 void
