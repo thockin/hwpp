@@ -45,10 +45,6 @@ Code stuff:
  - decide on what can be in an enum key and make them more readable (and
    writable)
 
-Build stuff:
- - write DEFS and other stuff to a dotfile and make that a makefile dependency
- - prep from cross-compile and hermetic builds
-
 Docs stuff:
  - write fake_language spec
  - write overview doc
