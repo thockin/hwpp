@@ -1,6 +1,3 @@
-Huge stuff:
- - everything is just a datum with read and write methods and attributes
-
 Testing stuff:
  - link against a good memory debugger
  - test field lookup() methods
@@ -15,9 +12,6 @@ Device stuff:
    or
    	NAME("%foo", REG32(0x100))
  - switch to push/pop context
- - figure out how to do common MSRs (like MTRR)
- - is there a well-known CPU place or does Opteron have to take that
-   over, too?
  - when to use yesno vs enabledisable vs truefalse ?  Be consistent
  - make a decision on "for (int addr = 0x40; i < 0x60; i += 4) {" vs
    unrolling via functions.
@@ -39,11 +33,11 @@ Code stuff:
  - make pp_path::invalid be a subclas of parse_error?
  - put all fkl_ functions into a namespace?
  - put all fake_language into a namespace?
- - return references from GET_REGISTER and GET_FIELD, for better overload
-   ability?
  - pp_format same as pp_lambda - in it's own header
  - decide on what can be in an enum key and make them more readable (and
    writable)
+ - are field/reg name restrictions pointless?
+ - enforce % on registers but not fields
 
 Bugs and features:
  - all FIXMEs
@@ -59,13 +53,10 @@ Bugs and features:
  - import the public PCI repository into a vendor enum (and device?)
  - pp_enum::lookup() throws an exception, but evaluate() doesn't
  - pp_scope::resolve_datatype() should throw, rather than return NULL;
- - make procfield be a template, eliminating the 'new' requirement
  - pp_context and current context is awful
  	- all the scope wrappers - just go to the scope directly!
  - PP_WARN should pass control to an app-specific stream, if the app cares
  - provide a foo{bar} syntax rather than foo.bar (pp_hash)
- - is array[$] really needed - is [] not good enough as an rval?
- - enforce % on registers but not fields
  - drop INT(name) and HEX(name) and drop all ANON_ prefixes!
  - provide a way to write a string to a field?
  	- WRITE("field", string) ?
@@ -74,10 +65,14 @@ Bugs and features:
  - proc scopes ?  Might require anonymous scopes
  - can a binding have no args?
  - proc_dirents (run a proc to see if the dirent exists?)
- - accessing an array as "foo" should be the same as "foo[0]"
+ - accessing an array as "foo" should be the same as "foo[0]" ??
  - fixed-point datatype
  - add ALIAS to symlink to dirents
  - add altnames for registers and fields (to unify naming?)
+ - drop "ANON" prefixes for types
+ - unify array[] and [$] syntax
+ - bindings on registers
+ - anonymous registers
 
 filesystem.h:
 	mmap: closing the FD does no unmap an mmap!!  Use this.
@@ -94,4 +89,5 @@ keyed_vector.h:
 Open large-scale issues:
 	- per-field xforms?
 	- unify registers and fields to just be value objects?
-
+		- read() and write()
+		- named attributes
