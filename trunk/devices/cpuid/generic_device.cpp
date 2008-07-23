@@ -121,7 +121,7 @@ class cpuid_model_procs: public pp_rwprocs
 	{
 		if (FIELD_EQ("vendor", "intel")) {
 			return READ(EAX("%function_1", 19, 16)
-				    + EAX("%fn1", 7, 4));
+				    + EAX("%function_1", 7, 4));
 		} else if (FIELD_EQ("vendor", "amd")) {
 			pp_value base_family = READ(EAX("%function_1", 11, 8));
 			if (base_family == 0xf) {
