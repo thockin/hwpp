@@ -118,7 +118,8 @@ class pp_path
 			parse(str);
 		}
 		element(const char *str)
-		    : m_name(), m_array_mode(ARRAY_NONE), m_array_index(0)
+		    : m_name(), m_array_mode(ARRAY_NONE), m_array_index(0),
+		      m_is_bookmark(false)
 		{
 			parse(str);
 		}
