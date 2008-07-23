@@ -10,7 +10,7 @@ test_cpuid_io()
 	int ret = 0;
 
 	/* test ctor and address() */
-	cpuid_io io1(cpuid_address(0, 0));
+	cpuid_io io1(cpuid_address(0));
 	if (io1.address().cpu != 0) {
 		TEST_ERROR("cpuid_io::cpuid_io(cpuid_address)");
 		ret++;
@@ -84,8 +84,9 @@ test_cpuid_io()
 	}
 
 	/* test the write() method, which should be a no-op */
-	io1.write(0, BITS128, 0xaaaaaaaabbbbbbbbccccccccdddddddd);
-	if (io1.read(0, BITS128) == 0xaaaaaaaabbbbbbbbccccccccdddddddd) {
+	io1.write(0, BITS128, pp_value("0xaaaaaaaabbbbbbbbccccccccdddddddd"));
+	if (io1.read(0, BITS128)
+	    == pp_value("0xaaaaaaaabbbbbbbbccccccccdddddddd")) {
 		TEST_ERROR("cpuid_io::write()");
 		ret++;
 	}
