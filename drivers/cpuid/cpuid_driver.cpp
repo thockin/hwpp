@@ -43,9 +43,8 @@ cpuid_driver::new_binding(const std::vector<pp_value> &args) const
 }
 
 void
-cpuid_driver::discover(pp_scope *platform) const
+cpuid_driver::discover() const
 {
-	(void)platform;
 	std::vector<cpuid_address> addresses;
 
 	/* find all CPUID addresses */

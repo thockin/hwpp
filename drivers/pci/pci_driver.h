@@ -39,13 +39,13 @@ class pci_driver: public pp_driver
 	new_binding(const std::vector<pp_value> &args) const;
 
 	/*
-	 * pci_driver::discover(platform)
+	 * pci_driver::discover()
 	 *
 	 * Discover devices owned by this driver, and add them to the
 	 * platform.
 	 */
 	virtual void
-	discover(pp_scope *platform) const;
+	discover() const;
 
 	/*
 	 * pci_driver::register_discovery(args, function)
