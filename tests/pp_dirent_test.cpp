@@ -21,6 +21,7 @@ class test_dirent: public pp_dirent
 	virtual void
 	write(const pp_value &val) const
 	{
+		(void)val;
 	}
 };
 

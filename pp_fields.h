@@ -180,6 +180,7 @@ class pp_constant_field: public pp_field
 	virtual void
 	write(const pp_value &value) const
 	{
+		(void)value;
 		// discard writes
 	}
 

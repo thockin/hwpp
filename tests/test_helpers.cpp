@@ -30,11 +30,15 @@ indent(int tab_count)
 static void
 display_field(const pp_field *field, int depth)
 {
+	(void)field;
+	(void)depth;
 }
 
 static void
 display_reg(const pp_register *reg, int depth)
 {
+	(void)reg;
+	(void)depth;
 }
 
 static void

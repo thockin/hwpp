@@ -83,6 +83,9 @@ void
 cpuid_io::write(const pp_value &address, const pp_bitwidth width,
     const pp_value &value) const
 {
+	(void)address;
+	(void)width;
+	(void)value;
 	// do nothing - CPUID is read-only
 }
 

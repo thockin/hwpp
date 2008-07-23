@@ -19,6 +19,8 @@ class magic_binding: public pp_binding
 	virtual pp_value
 	read(const pp_value &address, const pp_bitwidth width) const
 	{
+		(void)address;
+		(void)width;
 		return m_value;
 	}
 
@@ -26,6 +28,9 @@ class magic_binding: public pp_binding
 	write(const pp_value &address, const pp_bitwidth width,
 		const pp_value &value) const
 	{
+		(void)address;
+		(void)width;
+		(void)value;
 		/* do nothing */
 	}
 

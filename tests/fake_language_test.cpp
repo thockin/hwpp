@@ -20,6 +20,7 @@ class test_procs: public pp_rwprocs
 	void
 	write(const pp_value &value) const
 	{
+		(void)value;
 	}
 };
 

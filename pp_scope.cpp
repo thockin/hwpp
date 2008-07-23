@@ -326,7 +326,7 @@ pp_scope::lookup_dirent_internal(pp_path &path) const
 			index = path_front.array_index();
 		}
 		// index into the array
-		if (index < 0 || index >= ar->size()) {
+		if (index >= ar->size()) {
 			return NULL;
 		}
 		de = ar->at(index);

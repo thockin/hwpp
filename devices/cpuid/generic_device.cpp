@@ -110,6 +110,7 @@ class cpuid_family_procs: public pp_rwprocs
 	void
 	write(const pp_value &value) const
 	{
+		(void)value;
 		// not supported
 	}
 };
@@ -135,6 +136,7 @@ class cpuid_model_procs: public pp_rwprocs
 	void
 	write(const pp_value &value) const
 	{
+		(void)value;
 		// not supported
 	}
 };

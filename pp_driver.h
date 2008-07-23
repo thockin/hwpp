@@ -70,6 +70,7 @@ class pp_driver
 	virtual void
 	discover(pp_scope *platform) const
 	{
+		(void)platform;
 		// do nothing by default
 	}
 
@@ -96,6 +97,8 @@ class pp_driver
 	register_discovery(const std::vector<pp_value> &args,
 			discovery_callback function)
 	{
+		(void)args;
+		(void)function;
 		throw not_supported_error(this->name() + ": " +
 				"discovery not supported for this driver");
 	}

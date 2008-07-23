@@ -97,6 +97,7 @@ fkl_defined(const parse_location &loc, const string &path_str)
 static bool
 fkl_defined(const parse_location &loc, const pp_path &path)
 {
+	(void)loc;
 	return current_context.dirent_defined(path);
 }
 
@@ -145,12 +146,14 @@ fkl_write(const parse_location &loc,
 pp_value
 fkl_read(const parse_location &loc, const pp_regbits &bits)
 {
+	(void)loc;
 	return bits.read();
 }
 void
 fkl_write(const parse_location &loc,
           const pp_regbits &bits, const pp_value &value)
 {
+	(void)loc;
 	bits.write(value);
 }
 
@@ -194,6 +197,7 @@ fkl_open_scope(const parse_location &loc,
 void
 fkl_close_scope(const parse_location &loc)
 {
+	(void)loc;
 	DTRACE(TRACE_SCOPES, "close scope: " + current_context.name());
 
 	DASSERT_MSG(!current_context.is_readonly(),
