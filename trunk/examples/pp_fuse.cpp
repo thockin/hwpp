@@ -159,6 +159,8 @@ printf("%d readdir: path = %s\n", getpid(), path);
 static int
 ppfs_truncate(const char *path, off_t size)
 {
+	(void)path;
+	(void)size;
 	return 0;
 }
 
@@ -195,7 +197,7 @@ printf("%d read: path = %s\n", getpid(), path);
 		str += '\n';
 
 		size_t len = str.length();
-		if (offset < len) {
+		if ((size_t)offset < len) {
 			if (offset + size > len) {
 				size = len - offset;
 			}
@@ -237,6 +239,7 @@ static int
 ppfs_write(const char *path, const char *data, size_t size,
 		off_t offset, struct fuse_file_info *fi)
 {
+	(void)offset;
 	(void)fi;
 
 	int ret;
