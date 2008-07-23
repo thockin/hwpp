@@ -26,6 +26,7 @@ PROFILE ?= 0	# boolean: 0=no, 1=yes
 
 # per-target variables
 
+# $@_CPPFLAGS	# extra pre-processor flags
 # $@_CXXFLAGS	# extra compiler flags
 # $@_LDFLAGS	# extra linker flags
 # $@_INCLUDES	# extra includes
@@ -41,8 +42,10 @@ CXX = $(CROSS_COMPILE)g++
 CC = $(CXX)
 CPP = $(CROSS_COMPILE)cpp
 
+
 # build flags
 
+PP_CPPFLAGS = $($@_CPPFLAGS)
 PP_CXXFLAGS = $(ARCHFLAGS) $($@_CXXFLAGS)
 PP_LDFLAGS = $(ARCHFLAGS) $($@_LDFLAGS)
 PP_WARNS = -Wall -Werror -Woverloaded-virtual $(WARNS) $($@_WARNS)
@@ -77,7 +80,8 @@ else
 PP_DEBUG = -O2 -DNDEBUG
 endif
 
-CXXFLAGS += $(PP_CXXFLAGS) $(PP_WARNS) $(PP_DEFS) $(PP_INCLUDES) $(PP_DEBUG)
+CPPFLAGS += $(PP_DEFS) $(PP_INCLUDES)
+CXXFLAGS += $(PP_CXXFLAGS) $(PP_WARNS) $(PP_DEBUG)
 LDFLAGS += $(PP_LDFLAGS)
 LDLIBS += $(PP_STATIC) $(PP_LDLIBS) $(PP_DYNAMIC) $(PP_LDLIBS_DYN)
 
@@ -87,7 +91,28 @@ MAKEFLAGS += --no-print-directory
 # common rules
 
 # this is the default rule, which the calling Makefile should define
-all:
+.PHONY: all
+all: make_flags
+
+make_flags:
+	@\
+	NEW=$$(echo "CXXFLAGS='$(CXXFLAGS)'\n" \
+	            "CPPFLAGS='$(CPPFLAGS)'\n" \
+	            "LDFLAGS='$(LDFLAGS)'\n" \
+	            "LDLIBS='$(LDLIBS)'\n"); \
+	OLD=$$(cat .make_flags 2>/dev/null); \
+	if [ "$$NEW" != "$$OLD" ]; then \
+		echo "make flags have changed: making clean first"; \
+		$(MAKE) clean; \
+		echo "$$NEW" > .make_flags; \
+	fi
+
+.PHONY: clean_make_flags
+clean_make_flags:
+	@$(RM) .make_flags
+
+.PHONY: clean
+clean: clean_make_flags
 
 .PHONY: dep
 dep depend:
@@ -97,8 +122,28 @@ dep depend:
 .depend:
 	@for f in $^; do \
 		OBJ=$$(echo $$f | sed 's/\.cp*$$/.o/'); \
-		$(CPP) $(PP_INCLUDES) -MM $$f -MT $$OBJ; \
+		$(CPP) $(CPPFLAGS) -MM $$f -MT $$OBJ; \
 	done > $@
+
+# a generic empty target to force some rules
+.PHONY: FORCE
+FORCE:
+
+.PHONY: run_tests
+run_tests:
+	@for f in $(RUN_TESTS); do \
+		echo -n "TEST $$f: "; \
+		./$$f > $$f.err 2>&1; \
+		if [ "$$?" -eq "0" ]; then \
+			echo PASS; \
+		else \
+			echo FAIL; \
+		fi; \
+		cat $$f.err | while read LINE; do \
+			echo "    $$LINE"; \
+		done; \
+		$(RM) -f $$f.err; \
+	done
 
 # NOTE: 'sinclude' is "silent-include".  This suppresses a warning if
 # .depend does not exist.  Since Makefile includes this file, and this
@@ -117,22 +162,4 @@ dep depend:
 # Makefile depend on .depend, even if .depend doesn't exist yet.  But we
 # don't want that pesky warning.
 sinclude .depend
-
-# a generic empty target to force some rules
-FORCE:
-
-run_tests:
-	@for f in $(RUN_TESTS); do \
-		echo -n "TEST $$f: "; \
-		./$$f > $$f.err 2>&1; \
-		if [ "$$?" -eq "0" ]; then \
-			echo PASS; \
-		else \
-			echo FAIL; \
-		fi; \
-		cat $$f.err | while read LINE; do \
-			echo "    $$LINE"; \
-		done; \
-		$(RM) -f $$f.err; \
-	done
 
