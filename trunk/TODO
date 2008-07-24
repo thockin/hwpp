@@ -82,10 +82,6 @@ filesystem.h:
 		- needs direntry comparison
 	fs::realpath()
 
-keyed_vector.h:
-	drop one index?  I think it is possible to just have a map and array
-	of map iterators..
-
 Open large-scale issues:
 	- per-field xforms?
 	- unify registers and fields to just be value objects?
