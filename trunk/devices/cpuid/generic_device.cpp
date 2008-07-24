@@ -217,34 +217,46 @@ cpuid_generic_device()
 
 			if (READ(EAX("%function_2[$]", 31)) == pp_value(0)) {
 				for (int i = 31; i > 7; i -= 8) {
-					FIELD("descriptor[]",
-						cache_descriptor_t,
-						EAX("%function_2[$]",
-						    i, i - 7));
+					if (READ(EAX("%function_2[$]",
+					    i, i-7)) != 0) {
+						FIELD("descriptor[]",
+						      cache_descriptor_t,
+						      EAX("%function_2[$]",
+						          i, i - 7));
+					}
 				}
 			}
 			if (READ(EBX("%function_2[$]", 31)) == pp_value(0)) {
 				for (int i = 31; i > 0; i -= 8) {
-					FIELD("descriptor[]",
-						cache_descriptor_t,
-						EBX("%function_2[$]",
-						    i, i - 7));
+					if (READ(EBX("%function_2[$]",
+					    i, i-7)) != 0) {
+						FIELD("descriptor[]",
+						      cache_descriptor_t,
+						      EBX("%function_2[$]",
+						          i, i - 7));
+					}
 				}
 			}
 			if (READ(ECX("%function_2[$]", 31)) == pp_value(0)) {
 				for (int i = 31; i > 0; i -= 8) {
-					FIELD("descriptor[]",
-						cache_descriptor_t,
-						ECX("%function_2[$]",
-						    i, i - 7));
+					if (READ(ECX("%function_2[$]",
+					    i, i-7)) != 0) {
+						FIELD("descriptor[]",
+						      cache_descriptor_t,
+						      ECX("%function_2[$]",
+						          i, i - 7));
+					}
 				}
 			}
 			if (READ(EDX("%function_2[$]", 31)) == pp_value(0)) {
 				for (int i = 31; i > 0; i -= 8) {
-					FIELD("descriptor[]",
-						cache_descriptor_t,
-						EDX("%function_2[$]",
-						    i, i - 7));
+					if (READ(EDX("%function_2[$]",
+					    i, i-7)) != 0) {
+						FIELD("descriptor[]",
+						      cache_descriptor_t,
+						      EDX("%function_2[$]",
+						          i, i - 7));
+					}
 				}
 			}
 			CLOSE_SCOPE();
