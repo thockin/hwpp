@@ -42,4 +42,4 @@ clean:
 	@for d in $(DRIVERS); do \
 		$(MAKE) -C $$d $@; \
 	done
-	@$(RM) $(DRIVER_LIB) .depend
+	@$(RM) $(DRIVER_LIB) $(OBJS) .depend
