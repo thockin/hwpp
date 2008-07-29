@@ -95,7 +95,7 @@ mem_io::open_device(string device)
 		device = MEM_DEVICE;
 
 	try {
-		m_file = fs::file::open(device, O_RDONLY);
+		m_file = fs::file::open(device, O_RDONLY | O_DIRECT | O_SYNC);
 		return;
 	} catch (std::exception &e) {
 		/* the device seems to not exist */
@@ -157,7 +157,7 @@ mem_io::do_write(const pp_value &offset, const pp_value &value) const
 {
 	/* see if we are already open RW or can change to RW */
 	if (m_file->mode() == O_RDONLY) {
-		m_file->reopen(O_RDWR);
+		m_file->reopen(O_RDWR | O_DIRECT | O_SYNC);
 	}
 
 	fs::file_mapping_ptr mapping = map(offset, sizeof(Tdata));
