@@ -5,12 +5,14 @@
 #ifndef FILESYSTEM_HPP__
 #define FILESYSTEM_HPP__
 
+#undef _FILE_OFFSET_BITS
+#define _FILE_OFFSET_BITS 64
+
 #include <string>
 #include <stdexcept>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
-#define _FILE_OFFSET_BITS 64
 #include <unistd.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -154,18 +156,18 @@ class file
 {
     private:
 	// constructors - private to prevent abuse
-	file(): m_path(""), m_mode(-1), m_fd(-1)
+	file(): m_path(""), m_flags(-1), m_fd(-1)
 	{
 	}
 	file(const file &that)
-	    : m_path(that.m_path), m_mode(that.m_mode), m_fd(that.m_fd)
+	    : m_path(that.m_path), m_flags(that.m_flags), m_fd(that.m_fd)
 	{
 	}
 	file &
 	operator=(const file &that)
 	{
 		m_path = that.m_path;
-		m_mode = that.m_mode;
+		m_flags = that.m_flags;
 		m_fd = that.m_fd;
 		return *this;
 	}
@@ -180,14 +182,14 @@ class file
 	}
 
 	static file_ptr
-	open(const std::string &path, int mode)
+	open(const std::string &path, int flags)
 	{
 		file_ptr f(new file());
 
 		f->m_this_ptr = f;
 		f->m_path = path;
-		f->m_mode = mode;
-		f->m_fd = ::open(path.c_str(), mode);
+		f->m_flags = flags;
+		f->m_fd = ::open(path.c_str(), flags);
 		if (f->m_fd < 0) {
 			throw sys_error(errno,
 			    "fs::file::open(" + path + ")");
@@ -197,13 +199,13 @@ class file
 	}
 
 	static file_ptr
-	fdopen(int fd, const std::string &path = "", int mode = -1)
+	fdopen(int fd, const std::string &path = "", int flags = -1)
 	{
 		file_ptr f(new file());
 
 		f->m_this_ptr = f;
 		f->m_path = path;
-		f->m_mode = mode;
+		f->m_flags = flags;
 		f->m_fd = fd;
 
 		return f;
@@ -243,18 +245,18 @@ class file
 	}
 
 	void
-	reopen(int new_mode)
+	reopen(int new_flags)
 	{
 		int new_fd;
 
-		new_fd = ::open(m_path.c_str(), new_mode);
+		new_fd = ::open(m_path.c_str(), new_flags);
 		if (new_fd < 0) {
 			throw sys_error(errno,
 			    "fs::file::open(" + m_path + ")");
 		}
 
 		int tmp = m_fd;
-		m_mode = new_mode;
+		m_flags = new_flags;
 		m_fd = new_fd;
 		if (::close(tmp) < 0) {
 			throw sys_error(errno,
@@ -433,7 +435,13 @@ class file
 	int
 	mode() const
 	{
-		return m_mode & O_ACCMODE;
+		return m_flags & O_ACCMODE;
+	}
+
+	int
+	flags() const
+	{
+		return m_flags;
 	}
 
 	int
@@ -445,7 +453,7 @@ class file
     private:
 	weak_file_ptr m_this_ptr;
 	std::string m_path;
-	int m_mode;
+	int m_flags;
 	int m_fd;
 
 	static std::string
