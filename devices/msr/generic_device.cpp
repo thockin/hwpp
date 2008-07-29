@@ -42,6 +42,7 @@ msr_generic_device()
 
 	CLOSE_SCOPE(); // apic
 
+	//FIXME: need to wrap this with a CPUID check for MTRR capability
 	OPEN_SCOPE("mtrr");
 
 	REG64("%MTRRCap", 0xfe);
