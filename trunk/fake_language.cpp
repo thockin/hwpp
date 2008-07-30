@@ -398,75 +398,6 @@ fkl_bits(const parse_location &loc,
 
 
 //
-// Define a register and a field that consumes that register.
-//
-pp_field_ptr
-fkl_regfield(const parse_location &loc,
-             const string &name, const pp_value &address,
-             const pp_datatype_const_ptr &type, pp_bitwidth width)
-{
-	return fkl_regfield(loc, name, pp_binding_const_ptr(), address,
-	                    type, width);
-}
-pp_field_ptr
-fkl_regfield(const parse_location &loc,
-             const string &name, const pp_value &address,
-             const string &type, pp_bitwidth width)
-{
-	return fkl_regfield(loc, name, pp_binding_const_ptr(), address,
-	                    type, width);
-}
-pp_field_ptr
-fkl_regfield(const parse_location &loc,
-             const string &name, const pp_binding_const_ptr &binding,
-             const pp_value &address, const pp_datatype_const_ptr &type,
-             pp_bitwidth width)
-{
-	DTRACE(TRACE_FIELDS | TRACE_REGS, "regfield: " + name);
-
-	// create a register and a field, sanity checking is done within
-	pp_register_ptr reg;
-	if (binding) {
-		reg = fkl_reg(loc, binding, address, width);
-	} else {
-		reg = fkl_reg(loc, address, width);
-	}
-	return fkl_field(loc, name, type, fkl_bits(loc, reg));
-}
-pp_field_ptr
-fkl_regfield(const parse_location &loc,
-             const string &name, const pp_binding_const_ptr &binding,
-             const pp_value &address, const string &type, pp_bitwidth width)
-{
-	return fkl_regfield(loc, name, binding, address,
-	                    current_context.resolve_datatype(type), width);
-}
-
-
-//
-// Define a regfield from a proc-reg
-//
-pp_field_ptr
-fkl_regfield(const parse_location &loc,
-        const string &name, const pp_rwprocs_ptr &access,
-        const pp_datatype_const_ptr &type, pp_bitwidth width)
-{
-	DTRACE(TRACE_FIELDS | TRACE_REGS, "regfield: " + name);
-
-	// create a register and a field, sanity checking is done within
-	pp_register_ptr reg = fkl_reg(loc, access, width);
-	return fkl_field(loc, name, type, fkl_bits(loc, reg));
-}
-pp_field_ptr
-fkl_regfield(const parse_location &loc,
-        const string &name, const pp_rwprocs_ptr &access,
-        const string &type, pp_bitwidth width)
-{
-	return fkl_regfield(loc, name, access,
-	                    current_context.resolve_datatype(type), width);
-}
-
-//
 // Define a field as a set of register-bits.
 //
 pp_field_ptr
@@ -504,6 +435,8 @@ fkl_field(const parse_location &loc,
 	return fkl_field(loc, name, current_context.resolve_datatype(type),
 	                 bits);
 }
+
+
 //
 // Define a field as a constant value.
 //

@@ -27,7 +27,7 @@ void
 msr_generic_device()
 {
 	/* timestamp counter */
-	REGFIELD64("TSC", 0x10, "hex64_t");
+	FIELD("TSC", "hex64_t", REG64(0x10));
 
 	OPEN_SCOPE("apic");
 

@@ -241,49 +241,6 @@ fkl_bits(const parse_location &loc,
 #include "pp_datatype.h"
 
 //
-// Create a register and a field that consumes it.
-//
-extern pp_field_ptr
-fkl_regfield(const parse_location &loc,
-             const string &name, const pp_value &address,
-             const pp_datatype_const_ptr &type, pp_bitwidth width);
-extern pp_field_ptr
-fkl_regfield(const parse_location &loc,
-             const string &name, const pp_value &address,
-             const string &type, pp_bitwidth width);
-extern pp_field_ptr
-fkl_regfield(const parse_location &loc,
-             const string &name, const pp_binding_const_ptr &binding,
-             const pp_value &address, const pp_datatype_const_ptr &type,
-             pp_bitwidth width);
-extern pp_field_ptr
-fkl_regfield(const parse_location &loc,
-             const string &name, const pp_binding_const_ptr &binding,
-             const pp_value &address, const string &type, pp_bitwidth width);
-#define REGFIELD8(...) \
-		fkl_regfield(THIS_LOCATION, ##__VA_ARGS__, BITS8)
-#define REGFIELD16(...) \
-		fkl_regfield(THIS_LOCATION, ##__VA_ARGS__, BITS16)
-#define REGFIELD32(...) \
-		fkl_regfield(THIS_LOCATION, ##__VA_ARGS__, BITS32)
-#define REGFIELD64(...) \
-		fkl_regfield(THIS_LOCATION, ##__VA_ARGS__, BITS64)
-#define REGFIELD128(...) \
-		fkl_regfield(THIS_LOCATION, ##__VA_ARGS__, BITS128)
-
-//
-// Declare a proc regfield
-//
-extern pp_field_ptr
-fkl_regfield(const parse_location &loc,
-        const string &name, const pp_rwprocs_ptr &access,
-        const pp_datatype_const_ptr &type, pp_bitwidth width);
-extern pp_field_ptr
-fkl_regfield(const parse_location &loc,
-        const string &name, const pp_rwprocs_ptr &access,
-        const string &type, pp_bitwidth width);
-
-//
 // Create a field which gets it's value from regbits.
 //
 // It can take an "unlimited" number of regbits, in the form:
@@ -296,6 +253,35 @@ fkl_field(const parse_location &loc,
 extern pp_field_ptr
 fkl_field(const parse_location &loc,
           const string &name, const string &type, const pp_regbits &bits);
+// these are needed to disambiguate smart pointers
+inline pp_field_ptr
+fkl_field(const parse_location &loc,
+          const string &name, const pp_datatype_const_ptr &type,
+          const pp_register_ptr &reg)
+{
+	return fkl_field(loc, name, type, fkl_bits(loc, reg));
+}
+inline pp_field_ptr
+fkl_field(const parse_location &loc,
+          const string &name, const string &type,
+          const pp_register_ptr &reg)
+{
+	return fkl_field(loc, name, type, fkl_bits(loc, reg));
+}
+inline pp_field_ptr
+fkl_field(const parse_location &loc,
+          const string &name, const pp_datatype_const_ptr &type,
+          const pp_register_const_ptr &reg)
+{
+	return fkl_field(loc, name, type, fkl_bits(loc, reg));
+}
+inline pp_field_ptr
+fkl_field(const parse_location &loc,
+          const string &name, const string &type,
+          const pp_register_const_ptr &reg)
+{
+	return fkl_field(loc, name, type, fkl_bits(loc, reg));
+}
 
 //
 // Create a field from a constant value.
