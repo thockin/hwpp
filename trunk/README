@@ -15,3 +15,4 @@ Requirements:
   	- boost version 1.33 or higher
 	  These should not be hard to get for just about any distro.
 
+	- fuse (if you want to build the pp_fuse application)
