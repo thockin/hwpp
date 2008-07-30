@@ -223,7 +223,7 @@ fkl_bits(const parse_location &loc,
 extern void
 fkl_regfield(const parse_location &loc,
              const string &name, const pp_value &address,
-             const pp_datatype *type, pp_bitwidth width);
+             const pp_datatype_const_ptr &type, pp_bitwidth width);
 extern void
 fkl_regfield(const parse_location &loc,
              const string &name, const pp_value &address,
@@ -245,7 +245,7 @@ fkl_regfield(const parse_location &loc,
 extern void
 fkl_regfield(const parse_location &loc,
         const string &name, const pp_rwprocs_ptr &access,
-        const pp_datatype *type, pp_bitwidth width);
+        const pp_datatype_const_ptr &type, pp_bitwidth width);
 extern void
 fkl_regfield(const parse_location &loc,
         const string &name, const pp_rwprocs_ptr &access,
@@ -259,7 +259,8 @@ fkl_regfield(const parse_location &loc,
 //
 extern void
 fkl_field(const parse_location &loc,
-          const string &name, const pp_datatype *type, const pp_regbits &bits);
+          const string &name, const pp_datatype_const_ptr &type,
+          const pp_regbits &bits);
 extern void
 fkl_field(const parse_location &loc,
           const string &name, const string &type, const pp_regbits &bits);
@@ -269,7 +270,8 @@ fkl_field(const parse_location &loc,
 //
 extern void
 fkl_field(const parse_location &loc,
-          const string &name, const pp_datatype *type, const pp_value &value);
+          const string &name, const pp_datatype_const_ptr &type,
+          const pp_value &value);
 extern void
 fkl_field(const parse_location &loc,
           const string &name, const string &type, const pp_value &value);
@@ -279,7 +281,7 @@ fkl_field(const parse_location &loc,
 //
 extern void
 fkl_field(const parse_location &loc,
-          const string &name, const pp_datatype *type,
+          const string &name, const pp_datatype_const_ptr &type,
           const pp_rwprocs_ptr &access);
 extern void
 fkl_field(const parse_location &loc,
@@ -297,19 +299,19 @@ fkl_validate_type_name(const string &name, const parse_location &loc);
 //
 // Declare an integer datatype.
 //
-extern pp_datatype *
+extern pp_datatype_ptr
 fkl_int(const parse_location &loc, const string &name, const string &units);
-inline pp_datatype *
+inline pp_datatype_ptr
 fkl_int(const parse_location &loc, const string &name)
 {
 	return fkl_int(loc, name, "");
 }
-inline pp_datatype *
+inline pp_datatype_ptr
 fkl_anon_int(const parse_location &loc, const string &units)
 {
 	return fkl_int(loc, "", units);
 }
-inline pp_datatype *
+inline pp_datatype_ptr
 fkl_anon_int(const parse_location &loc)
 {
 	return fkl_int(loc, "", "");
@@ -320,35 +322,35 @@ fkl_anon_int(const parse_location &loc)
 //
 // Declare a hex datatype.
 //
-extern pp_datatype *
+extern pp_datatype_ptr
 fkl_hex(const parse_location &loc,
         const string &name, const pp_bitwidth width, const string &units);
-inline pp_datatype *
+inline pp_datatype_ptr
 fkl_hex(const parse_location &loc, const string &name, const pp_bitwidth width)
 {
 	return fkl_hex(loc, name, width, "");
 }
-inline pp_datatype *
+inline pp_datatype_ptr
 fkl_hex(const parse_location &loc, const string &name, const string &units)
 {
 	return fkl_hex(loc, name, BITS0, units);
 }
-inline pp_datatype *
+inline pp_datatype_ptr
 fkl_hex(const parse_location &loc, const string &name)
 {
 	return fkl_hex(loc, name, BITS0, "");
 }
-inline pp_datatype *
+inline pp_datatype_ptr
 fkl_anon_hex(const parse_location &loc, const pp_bitwidth width)
 {
 	return fkl_hex(loc, "", width, "");
 }
-inline pp_datatype *
+inline pp_datatype_ptr
 fkl_anon_hex(const parse_location &loc, const string &units)
 {
 	return fkl_hex(loc, "", BITS0, units);
 }
-inline pp_datatype *
+inline pp_datatype_ptr
 fkl_anon_hex(const parse_location &loc)
 {
 	return fkl_hex(loc, "", BITS0, "");
@@ -393,10 +395,10 @@ operator,(const fkl_kvpair_list &lhs, const fkl_kvpair &rhs)
 // Fortunately, a touch of macro magic makes it look like an unlimited
 // argument list.  I wish I was less proud of this.
 //
-extern pp_datatype *
+extern pp_datatype_ptr
 fkl_bitmask(const parse_location &loc,
             const string &name, const fkl_kvpair_list &kvlist);
-inline pp_datatype *
+inline pp_datatype_ptr
 fkl_bitmask(const parse_location &loc,
             const string &name, const fkl_kvpair &kvpair)
 {
@@ -415,11 +417,11 @@ fkl_bitmask(const parse_location &loc,
 //
 // See the NOTE for BITMASK, above.
 //
-extern pp_datatype *
+extern pp_datatype_ptr
 fkl_enum(const parse_location &loc,
          const string &name, const fkl_kvpair_list &kvlist);
 
-inline pp_datatype *
+inline pp_datatype_ptr
 fkl_enum(const parse_location &loc,
          const string &name, const fkl_kvpair &kvpair)
 {
@@ -433,7 +435,7 @@ fkl_enum(const parse_location &loc,
 //
 // Declare a boolean datatype.
 //
-extern pp_datatype *
+extern pp_datatype_ptr
 fkl_bool(const parse_location &loc,
          const string &name, const string &true_str, const string &false_str);
 #define BOOL(name, true_, false_) \
@@ -447,9 +449,9 @@ fkl_bool(const parse_location &loc,
 // template because of boost::lambda.
 //
 template<typename Tdefunc, typename Tenfunc>
-inline pp_datatype *
+inline pp_datatype_ptr
 fkl_xform(const parse_location &loc,
-          const string &name, const pp_datatype *real_type,
+          const string &name, const pp_datatype_const_ptr &real_type,
           const Tdefunc &decode_func, const Tenfunc &encode_func)
 {
 	DTRACE(TRACE_TYPES, "xform: " + name);
@@ -461,16 +463,14 @@ fkl_xform(const parse_location &loc,
 
 	pp_transform_datatype_ptr xform_ptr = new_pp_transform_datatype(
 	    real_type, decode_func, encode_func);
-	if (name == "") {
-		current_context.add_datatype(xform_ptr);
-	} else {
+	if (name != "") {
 		fkl_validate_type_name(name, loc);
 		current_context.add_datatype(name, xform_ptr);
 	}
-	return xform_ptr.get();
+	return xform_ptr;
 }
 template<typename Tdefunc, typename Tenfunc>
-inline pp_datatype *
+inline pp_datatype_ptr
 fkl_xform(const parse_location &loc,
           const string &name, const string &real_type,
           const Tdefunc &decode_func, const Tenfunc &encode_func)

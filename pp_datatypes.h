@@ -385,18 +385,18 @@ typedef boost::shared_ptr<pp_hex_datatype> pp_hex_datatype_ptr;
  * before passing off to another datatype.
  *
  * Constructors:
- * 	(const pp_datatype *real_type, Tdefunc decode_func, Tenfunc encode_func)
+ * 	(const pp_datatype_const_ptr &real_type, Tdefunc decode_func, Tenfunc encode_func)
  */
 template<typename Tdefunc, typename Tenfunc>
 class pp_transform_datatype: public pp_datatype
 {
     private:
-	const pp_datatype *m_real_type;
+	pp_datatype_const_ptr m_real_type;
 	Tdefunc m_decode_func;
 	Tenfunc m_encode_func;
 
     public:
-	pp_transform_datatype(const pp_datatype *real_type,
+	pp_transform_datatype(const pp_datatype_const_ptr &real_type,
 	    const Tdefunc &decode_func, const Tenfunc &encode_func)
 	    : m_real_type(real_type), m_decode_func(decode_func),
 	      m_encode_func(encode_func)
@@ -445,7 +445,7 @@ typedef boost::shared_ptr<pp_datatype> pp_transform_datatype_ptr;
 // happens on functions, not classes.
 template<typename Tdefunc, typename Tenfunc>
 pp_transform_datatype_ptr
-new_pp_transform_datatype(const pp_datatype *real_type,
+new_pp_transform_datatype(const pp_datatype_const_ptr &real_type,
     const Tdefunc &decode_func, const Tenfunc &encode_func)
 {
 	return pp_transform_datatype_ptr(

@@ -35,7 +35,6 @@ class pp_scope: public pp_dirent,
 	pp_binding_const_ptr m_binding;
 	keyed_vector<string, pp_dirent_ptr> m_dirents;
 	keyed_vector<string, pp_datatype_const_ptr> m_datatypes;
-	std::vector<pp_datatype_const_ptr> m_anon_datatypes;
 	std::map<string, int> m_bookmarks;
 
     public:
@@ -89,8 +88,6 @@ class pp_scope: public pp_dirent,
 	//
 	void
 	add_datatype(const string &name, const pp_datatype_ptr &datatype);
-	void
-	add_datatype(const pp_datatype_ptr &datatype);
 
 	//
 	// Return the number of named datatypes in this scope.
@@ -101,9 +98,9 @@ class pp_scope: public pp_dirent,
 	//
 	// Provide access to the datatypes vector.
 	//
-	const pp_datatype *
+	const pp_datatype_const_ptr &
 	datatype(int index) const;
-	const pp_datatype *
+	const pp_datatype_const_ptr &
 	datatype(string index) const;
 
 	//
@@ -115,7 +112,7 @@ class pp_scope: public pp_dirent,
 	//
 	// Look up a datatype by name.
 	//
-	const pp_datatype *
+	const pp_datatype_const_ptr &
 	resolve_datatype(const string &name) const;
 
 	//

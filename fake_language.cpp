@@ -16,8 +16,6 @@
 
 #include <stdexcept>
 
-//FIXME: need tests
-
 //
 // Resolve a path to a dirent, relative to the current scope.
 //
@@ -350,7 +348,7 @@ fkl_bits(const parse_location &loc,
 void
 fkl_regfield(const parse_location &loc,
              const string &name, const pp_value &address,
-             const pp_datatype *type, pp_bitwidth width)
+             const pp_datatype_const_ptr &type, pp_bitwidth width)
 {
 	DTRACE(TRACE_FIELDS | TRACE_REGS, "regfield: " + name);
 
@@ -374,7 +372,7 @@ fkl_regfield(const parse_location &loc,
 void
 fkl_regfield(const parse_location &loc,
         const string &name, const pp_rwprocs_ptr &access,
-        const pp_datatype *type, pp_bitwidth width)
+        const pp_datatype_const_ptr &type, pp_bitwidth width)
 {
 	DTRACE(TRACE_FIELDS | TRACE_REGS, "regfield: " + name);
 
@@ -397,7 +395,8 @@ fkl_regfield(const parse_location &loc,
 //
 void
 fkl_field(const parse_location &loc,
-          const string &name, const pp_datatype *type, const pp_regbits &bits)
+          const string &name, const pp_datatype_const_ptr &type,
+          const pp_regbits &bits)
 {
 	DTRACE(TRACE_FIELDS, "direct field: " + name);
 
@@ -432,7 +431,8 @@ fkl_field(const parse_location &loc,
 //
 void
 fkl_field(const parse_location &loc,
-          const string &name, const pp_datatype *type, const pp_value &value)
+          const string &name, const pp_datatype_const_ptr &type,
+          const pp_value &value)
 {
 	DTRACE(TRACE_FIELDS, "constant field: " + name);
 
@@ -468,7 +468,7 @@ fkl_field(const parse_location &loc,
 //
 void
 fkl_field(const parse_location &loc,
-          const string &name, const pp_datatype *type,
+          const string &name, const pp_datatype_const_ptr &type,
           const pp_rwprocs_ptr &access)
 {
 	DTRACE(TRACE_FIELDS, "proc field: " + name);
@@ -513,7 +513,7 @@ fkl_validate_type_name(const string &name, const parse_location &loc)
 //
 // Define a pp_int_datatype.
 //
-pp_datatype *
+pp_datatype_ptr
 fkl_int(const parse_location &loc, const string &name, const string &units)
 {
 	DTRACE(TRACE_TYPES, "int: " + name);
@@ -522,19 +522,17 @@ fkl_int(const parse_location &loc, const string &name, const string &units)
 		"current_context is read-only");
 
 	pp_int_datatype_ptr int_ptr = new_pp_int_datatype(units);
-	if (name == "") {
-		current_context.add_datatype(int_ptr);
-	} else {
+	if (name != "") {
 		fkl_validate_type_name(name, loc);
 		current_context.add_datatype(name, int_ptr);
 	}
-	return int_ptr.get();
+	return int_ptr;
 }
 
 //
 // Define a pp_hex_datatype.
 //
-pp_datatype *
+pp_datatype_ptr
 fkl_hex(const parse_location &loc,
         const string &name, const pp_bitwidth width, const string &units)
 {
@@ -544,19 +542,17 @@ fkl_hex(const parse_location &loc,
 		"current_context is read-only");
 
 	pp_hex_datatype_ptr hex_ptr = new_pp_hex_datatype(width, units);
-	if (name == "") {
-		current_context.add_datatype(hex_ptr);
-	} else {
+	if (name != "") {
 		fkl_validate_type_name(name, loc);
 		current_context.add_datatype(name, hex_ptr);
 	}
-	return hex_ptr.get();
+	return hex_ptr;
 }
 
 //
 // Define a pp_bitmask_datatype.
 //
-pp_datatype *
+pp_datatype_ptr
 fkl_bitmask(const parse_location &loc,
             const string &name, const fkl_kvpair_list &kvlist)
 {
@@ -566,19 +562,17 @@ fkl_bitmask(const parse_location &loc,
 		"current_context is read-only");
 
 	pp_bitmask_datatype_ptr bitmask_ptr = new_pp_bitmask_datatype(kvlist);
-	if (name == "") {
-		current_context.add_datatype(bitmask_ptr);
-	} else {
+	if (name != "") {
 		fkl_validate_type_name(name, loc);
 		current_context.add_datatype(name, bitmask_ptr);
 	}
-	return bitmask_ptr.get();
+	return bitmask_ptr;
 }
 
 //
 // Define a pp_enum_datatype.
 //
-pp_datatype *
+pp_datatype_ptr
 fkl_enum(const parse_location &loc,
          const string &name, const fkl_kvpair_list &kvlist)
 {
@@ -588,19 +582,17 @@ fkl_enum(const parse_location &loc,
 		"current_context is read-only");
 
 	pp_enum_datatype_ptr enum_ptr = new_pp_enum_datatype(kvlist);
-	if (name == "") {
-		current_context.add_datatype(enum_ptr);
-	} else {
+	if (name != "") {
 		fkl_validate_type_name(name, loc);
 		current_context.add_datatype(name, enum_ptr);
 	}
-	return enum_ptr.get();
+	return enum_ptr;
 }
 
 //
 // Define a pp_bool_datatype.
 //
-pp_datatype *
+pp_datatype_ptr
 fkl_bool(const parse_location &loc,
          const string &name, const string &true_str, const string &false_str)
 {
@@ -611,11 +603,9 @@ fkl_bool(const parse_location &loc,
 
 	pp_bool_datatype_ptr bool_ptr = new_pp_bool_datatype(
 			true_str, false_str);
-	if (name == "") {
-		current_context.add_datatype(bool_ptr);
-	} else {
+	if (name != "") {
 		fkl_validate_type_name(name, loc);
 		current_context.add_datatype(name, bool_ptr);
 	}
-	return bool_ptr.get();
+	return bool_ptr;
 }

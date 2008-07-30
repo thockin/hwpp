@@ -24,7 +24,7 @@ test_int_field()
 	pp_register_ptr r2 = new_pp_bound_register(bind2, 1, BITS16);
 
 	pp_datatype_ptr integer = new_pp_int_datatype();
-	pp_direct_field f1(integer.get(),
+	pp_direct_field f1(integer,
 		pp_regbits(r2, 7, 0) + pp_regbits(r1, 7, 0));
 
 	/* test read() */
@@ -70,7 +70,7 @@ test_hex_field()
 
 	/* test a hex16 field */
 	pp_datatype_ptr hex16 = new_pp_hex_datatype(BITS16);
-	pp_direct_field f1(hex16.get(),
+	pp_direct_field f1(hex16,
 		pp_regbits(r2, 7, 0) + pp_regbits(r1, 7, 0));
 
 	/* test read() */
@@ -120,7 +120,7 @@ test_enum_field()
 	e1->add_value("two", 2);
 	e1->add_value("three", 3);
 	e1->add_value("correct", 0x2211);
-	pp_direct_field_ptr f1 = new_pp_direct_field(e1.get(),
+	pp_direct_field_ptr f1 = new_pp_direct_field(e1,
 		pp_regbits(r2, 7, 0) + pp_regbits(r1, 7, 0));
 
 	/* test read() */
@@ -174,7 +174,7 @@ test_bitmask_field()
 	b1->add_bit("four", 4);
 	b1->add_bit("nine", 9);
 	b1->add_bit("thirteen", 13);
-	pp_direct_field_ptr f1 = new_pp_direct_field(b1.get(),
+	pp_direct_field_ptr f1 = new_pp_direct_field(b1,
 		pp_regbits(r2, 7, 0) + pp_regbits(r1, 7, 0));
 
 	/* test read() */
@@ -228,7 +228,7 @@ test_proc_field()
 {
 	int ret = 0;
 
-	pp_datatype *hex = new pp_hex_datatype();
+	pp_datatype_ptr hex = new_pp_hex_datatype();
 	pp_rwprocs_ptr procs(new test_procs);
 	pp_proc_field f(hex, procs);
 	f.write(0x12345678);
@@ -249,7 +249,7 @@ test_constant_field()
 {
 	int ret = 0;
 
-	pp_datatype *hex = new pp_hex_datatype();
+	pp_datatype_ptr hex = new_pp_hex_datatype();
 	pp_constant_field f(hex, 0x12345678);
 	if (f.read() != 0x12345678) {
 		TEST_ERROR("pp_constant_field::read()");

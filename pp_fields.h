@@ -15,14 +15,15 @@
  * pp_direct_field - a field that maps directly to register bits.
  *
  * Constructors:
- * 	(const pp_datatype *datatype, const pp_regbits &regbits)
+ * 	(const pp_datatype_const_ptr &datatype, const pp_regbits &regbits)
  *
  * Notes:
  */
 class pp_direct_field: public pp_field
 {
     public:
-	pp_direct_field(const pp_datatype *datatype, const pp_regbits &regbits)
+	pp_direct_field(const pp_datatype_const_ptr &datatype,
+	    const pp_regbits &regbits)
 	    : pp_field(datatype), m_regbits(regbits)
 	{}
 	virtual ~pp_direct_field()
@@ -79,7 +80,7 @@ typedef boost::shared_ptr<pp_direct_field> pp_direct_field_ptr;
 class pp_proc_field: public pp_field
 {
     public:
-	pp_proc_field(const pp_datatype *datatype,
+	pp_proc_field(const pp_datatype_const_ptr &datatype,
 	    const pp_rwprocs_ptr &access)
 	    : pp_field(datatype), m_access(access),
 	      m_context(pp_get_current_context())
@@ -137,14 +138,15 @@ typedef boost::shared_ptr<pp_proc_field> pp_proc_field_ptr;
  * pp_constant_field - a field that returns a constant value.
  *
  * Constructors:
- * 	(const pp_datatype *datatype, const pp_value &value)
+ * 	(const pp_datatype_const_ptr &datatype, const pp_value &value)
  *
  * Notes:
  */
 class pp_constant_field: public pp_field
 {
     public:
-	pp_constant_field(const pp_datatype *datatype, const pp_value &value)
+	pp_constant_field(const pp_datatype_const_ptr &datatype,
+	    const pp_value &value)
 	    : pp_field(datatype), m_value(value)
 	{}
 	virtual ~pp_constant_field()
