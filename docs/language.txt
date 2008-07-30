@@ -89,8 +89,7 @@ Bindings
 Registers
 
   Registers are the basic unit of access to hardware devices.  All registers
-  have a fixed width and address.  When defining a new register, the current
-  binding (and its driver) is used for access.
+  have a fixed width and address.
 
   Syntax: REG8(register_name, address)
   Syntax: REG16(register_name, address)
@@ -99,6 +98,16 @@ Registers
   Syntax: REG128(register_name, address)
     Define a new fixed-width register at the specified address in the
     current binding.  Since a register is a dirent, register names must
+    follow the rules for dirent names.  The only difference is that
+    register names must begin with a percent ('%').
+
+  Syntax: REG8(register_name, binding, address)
+  Syntax: REG16(register_name, binding, address)
+  Syntax: REG32(register_name, binding, address)
+  Syntax: REG64(register_name, binding, address)
+  Syntax: REG128(register_name, binding, address)
+    Define a new fixed-width register at the specified address in the
+    specified binding.  Since a register is a dirent, register names must
     follow the rules for dirent names.  The only difference is that
     register names must begin with a percent ('%').
 
@@ -120,18 +129,30 @@ Registers
     1) a REG32 at address 0, followed by a REG32 at address 4
     2) a REG32 at address 0, followed by a REG32 at address 1
 
+  In all cases, the name of a register is optional.  If a name is provided,
+  the register will be defined in the current scope.  If a name is not
+  provided the register will be anonymous.  This is useful in certain cases,
+  such as when a single field consumes an entire register (previously called a
+  REGFIELD), or when you must READ a regiter to determine if it exists.  For
+  example:
+
+  Syntax: READ(REG32(0))
+
 Regbits
 
   Most fields are defined as a set of bits from one or more registers.  A
   "regbits" is a PP construct which allows simple access to bits of registers.
 
   Syntax: BITS(register_name)
+  Syntax: BITS(register)
     Create a regbits which includes all the bits of the specified register.
 
   Syntax: BITS(register_name, bit_num)
+  Syntax: BITS(register, bit_num)
     Create a regbits which includes a single bit of the specified register.
 
   Syntax: BITS(register_name, high_bit_num, low_bit_num)
+  Syntax: BITS(register, high_bit_num, low_bit_num)
     Create a regbits which includes a range of bits from the specified
     register.
 
@@ -324,6 +345,8 @@ Fields
 
   Syntax: FIELD(dirent_name, datatype_name, regbits)
   Syntax: FIELD(dirent_name, datatype, regbits)
+  Syntax: FIELD(dirent_name, datatype_name, register)
+  Syntax: FIELD(dirent_name, datatype, register)
     Define a new field with the specified datatype and the specified regbits.
 
   Sometimes it is desireable to define a field which does not map to a
@@ -342,30 +365,6 @@ Fields
     Define a procedure field.  The accessor is the name of a C++ class
     which inherits from pp_rwprocs.  The accessor class must implement the
     read() and write() methods.  When the field is read or written, the
-    accessor's methods will be run.  See below for information on the READ
-    and WRITE functions.
-
-Regfields
-
-  Frequently a field maps directly to a register.  Rather than using two
-  statements to define both a register and a field, PP provides a shortcut:
-
-  Syntax: REGFIELD8(dirent_name, address, type)
-  Syntax: REGFIELD16(dirent_name, address, type)
-  Syntax: REGFIELD32(dirent_name, address, type)
-  Syntax: REGFIELD64(dirent_name, address, type)
-  Syntax: REGFIELD128(dirent_name, address, type)
-    Define a register at the specified address, and a field which consumes
-    that register.
-
-  Syntax: REGFIELD8(dirent_name, accessor, type)
-  Syntax: REGFIELD16(dirent_name, accessor, type)
-  Syntax: REGFIELD32(dirent_name, accessor, type)
-  Syntax: REGFIELD64(dirent_name, accessor, type)
-  Syntax: REGFIELD128(dirent_name, accessor, type)
-    Define a procedure regfield.  The accessor is the name of a C++ class
-    which inherits from pp_rwprocs.  The accessor class must implement the
-    read() and write() methods.  When the register is read or written, the
     accessor's methods will be run.  See below for information on the READ
     and WRITE functions.
 

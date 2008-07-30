@@ -275,49 +275,47 @@ cpuid_generic_device()
 	if (FIELD_GE("largest_std_fn", 0x4) &&
 	    FIELD_EQ("vendor", "intel")) {
 		for (int i = 0; true; i++) {
-			OPEN_SCOPE("cache_info[]");
-			REG128("%function_4[]",
-			       (pp_value(i) << 32) | pp_value(0x4));
-			FIELD("type", ANON_ENUM(KV("null", 0),
-						KV("data_cache", 1),
-						KV("instr_cache", 2),
-						KV("unified_cache", 3)),
-					EAX("%function_4[$]", 4, 0));
-			if (FIELD_EQ("type", "null")) {
-				// FIXME: is there a way to delete this 
-				// null scope?
-				CLOSE_SCOPE();
-				break;
-			}
-			FIELD("max_cores_per_pkg", ANON_XFORM("int_t",
+			pp_value addr = (pp_value(i) << 32) | pp_value(0x4);
+			if (READ(REG128(addr)) != 0) {
+				OPEN_SCOPE("cache_info[]");
+				REG128("%function_4[]", addr);
+				FIELD("type", ANON_ENUM(KV("null", 0),
+							KV("data_cache", 1),
+							KV("instr_cache", 2),
+							KV("unified_cache", 3)),
+						EAX("%function_4[$]", 4, 0));
+				FIELD("max_cores_per_pkg", ANON_XFORM("int_t",
 						LAMBDA(_1 + 1), LAMBDA(_1 - 1)),
 					EAX("%function_4[$]", 31, 26));
-			FIELD("max_threads_sharing_cache", ANON_XFORM("int_t",
+				FIELD("max_threads_sharing_cache", ANON_XFORM("int_t",
 						LAMBDA(_1 + 1), LAMBDA(_1 - 1)),
 					EAX("%function_4[$]", 25, 14));
-			FIELD("fully_assoc", "yesno_t",
-					EAX("%function_4[$]", 9));
-			FIELD("self_init", "yesno_t", EAX("%function_4[$]", 8));
-			FIELD("level", "int_t", EAX("%function_4[$]", 7, 5));
-			FIELD("ways_of_assoc", ANON_XFORM("int_t",
+				FIELD("fully_assoc", "yesno_t",
+				      EAX("%function_4[$]", 9));
+				FIELD("self_init", "yesno_t",
+				      EAX("%function_4[$]", 8));
+				FIELD("level", "int_t",
+				      EAX("%function_4[$]", 7, 5));
+				FIELD("ways_of_assoc", ANON_XFORM("int_t",
 						LAMBDA(_1 + 1), LAMBDA(_1 - 1)),
 					EBX("%function_4[$]", 31, 22));
-			FIELD("phys_line_partitions", ANON_XFORM("int_t",
+				FIELD("phys_line_partitions", ANON_XFORM("int_t",
 						LAMBDA(_1 + 1), LAMBDA(_1 - 1)),
 					EBX("%function_4[$]", 21, 12));
-			FIELD("sys_coherency_line_size", "int_t",
-					EBX("%function_4[$]", 11, 0));
-			FIELD("num_sets", ANON_XFORM("int_t",
+				FIELD("sys_coherency_line_size", "int_t",
+				      EBX("%function_4[$]", 11, 0));
+				FIELD("num_sets", ANON_XFORM("int_t",
 						LAMBDA(_1 + 1), LAMBDA(_1 - 1)),
 					ECX("%function_4[$]", 31, 0));
-			FIELD("prefetch_stride", /*ANON_XFORM( */
+				FIELD("prefetch_stride", /*ANON_XFORM( */
 						ANON_INT("bytes"),
-				// FIXME: why doesn't this work?
-				// this causes huge amounts of nonsense
-				// numbers to be printed as output
-				/*LAMBDA(if_then_else_return(_1 == 0, 64, _1)),
-				LAMBDA(if_then_else_return(_1 == 64, 0, _1))),*/
+					// FIXME: why doesn't this work?
+					// this causes huge amounts of nonsense
+					// numbers to be printed as output
+					/*LAMBDA(if_then_else_return(_1 == 0, 64, _1)),
+					LAMBDA(if_then_else_return(_1 == 64, 0, _1))),*/
 					EDX("%function_4[$]", 9, 0));
+			}
 			CLOSE_SCOPE();
 		}
 	} // CPUID Function 0x4

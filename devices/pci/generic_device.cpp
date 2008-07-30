@@ -222,13 +222,13 @@ ht_slave_capability(const pp_value &address)
 	FIELD("source_id", "yesno_t", BITS("../%feature", 6));
 	CLOSE_SCOPE();
 
-	REGFIELD16("scratchpad", address + 0x14, "hex16_t");
+	FIELD("scratchpad", "hex16_t", REG16(address + 0x14));
 
 	ht_error_handling(address + 0x16);
 
-	REGFIELD8("mem_base_hi", address + 0x18, "addr16_t");
-	REGFIELD8("mem_limit_hi", address + 0x19, "addr16_t");
-	REGFIELD8("bus", address + 0x1a, "int_t");
+	FIELD("mem_base_hi", "addr16_t", REG8(address + 0x18));
+	FIELD("mem_limit_hi", "addr16_t", REG8(address + 0x19));
+	FIELD("bus", "int_t", REG8(address + 0x1a));
 }
 
 static void
@@ -276,10 +276,10 @@ ht_host_capability(const pp_value &address)
 	CLOSE_SCOPE();
 
 	if (FIELD_BOOL("feature/ext_regs")) {
-		REGFIELD16("scratchpad", address + 0x10, "hex16_t");
+		FIELD("scratchpad", "hex16_t", REG16(address + 0x10));
 		ht_error_handling(address + 0x12);
-		REGFIELD8("mem_base_hi", address + 0x14, "addr16_t");
-		REGFIELD8("mem_limit_hi", address + 0x15, "addr16_t");
+		FIELD("mem_base_hi", "addr16_t", REG8(address + 0x14));
+		FIELD("mem_limit_hi", "addr16_t", REG8(address + 0x15));
 	}
 }
 
@@ -305,7 +305,7 @@ ht_extended_config_capability(const pp_value &address)
 	FIELD("register", "hex_t",
 			BITS("%address", 11, 2) +
 			BITS("%0", 1, 0));
-	REGFIELD32("data", address+8, "hex32_t");
+	FIELD("data", "hex32_t", REG32(address+8));
 }
 
 static void
@@ -446,7 +446,7 @@ slot_id_capability(const pp_value &address)
 	REG8("%slot", address+2);
 	FIELD("nslots", "int_t", BITS("%slot", 4, 0));
 	FIELD("first", "yesno_t", BITS("%slot", 5));
-	REGFIELD8("chassis", address+3, "int_t");
+	FIELD("chassis", "int_t", REG8(address+3));
 }
 
 static void
@@ -483,7 +483,7 @@ msi_capability(const pp_value &address)
 		FIELD("msg_addr", "addr32_t",
 				BITS("%msg_addr", 31, 2) +
 				BITS("%0", 1, 0));
-		REGFIELD16("msg_data", address + 8, "hex16_t");
+		FIELD("msg_data", "hex16_t", REG16(address + 8));
 
 		if (FIELD_BOOL("mask_per_vec")) {
 			// mask and pending bits
@@ -497,7 +497,7 @@ msi_capability(const pp_value &address)
 				BITS("%msg_addr_hi", 31, 0) +
 				BITS("%msg_addr", 31, 2) +
 				BITS("%0", 1, 0));
-		REGFIELD16("msg_data", address + 12, "hex16_t");
+		FIELD("msg_data", "hex16_t", REG16(address + 12));
 
 		if (FIELD_BOOL("mask_per_vec")) {
 			// mask and pending bits
@@ -550,7 +550,7 @@ msix_capability(const pp_value &address)
 						BITS("%msg_upper_addr", 31, 0) +
 						BITS("%msg_addr", 31, 2) +
 						BITS("%0", 1, 0));
-				REGFIELD32("msg_data", i*16 + 8, "hex_t");
+				FIELD("msg_data", "hex_t", REG32(i*16 + 8));
 				REG32("%vector_ctrl", i*16 + 12);
 				FIELD("mask", "yesno_t",
 						BITS("%vector_ctrl", 0));
@@ -663,8 +663,8 @@ ht_capability(const pp_value &address)
 static void
 ssid_capability(const pp_value &address)
 {
-	REGFIELD16("ssvid", address + 0x04, "pci_vendor_t");
-	REGFIELD16("ssid", address + 0x06, "hex16_t");
+	FIELD("ssvid", "pci_vendor_t", REG16(address + 0x04));
+	FIELD("ssid", "hex16_t", REG16(address + 0x06));
 }
 
 static void
@@ -1273,15 +1273,15 @@ explore_capabilities()
 {
 	// Walk the PCI capabilities linked-list.
 	if (FIELD_BOOL("status/caps")) {
-		REGFIELD8("capptr", 0x34, "hex8_t");
+		FIELD("capptr", "hex8_t", REG8(0x34));
 
 		pp_value ptr = READ("capptr");
 		while (ptr != 0 && ptr != 0xff) {
 			OPEN_SCOPE("capability");
 
 			FIELD("offset", "hex8_t", ptr);
-			REGFIELD8("id", ptr, "pci_capability_t");
-			REGFIELD8("next", ptr+1, "hex8_t");
+			FIELD("id", "pci_capability_t", REG8(ptr));
+			FIELD("next", "hex8_t", REG8(ptr+1));
 
 			if (FIELD_EQ("id", "power_mgmt")) {
 				// PCI spec
@@ -1356,13 +1356,13 @@ explore_capabilities()
 	// linked-list.
 	// FIXME: need RCRB support
 	if ((DEFINED("$pci/capability.pcie") || DEFINED("$pci/capability.pcix"))
-	    && (READ("%PCI.100") != 0) && (READ("%PCI.100") != 0xffffffff)) {
+	 && (READ("%PCI.100") != 0)) {
 		pp_value ptr = 0x100;
 		while (ptr != 0 && ptr != 0xfff) {
 			OPEN_SCOPE("ecapability");
 
 			FIELD("offset", "hex16_t", ptr);
-			REGFIELD16("id", ptr, "pcie_capability_t");
+			FIELD("id", "pcie_capability_t", REG16(ptr));
 			REG16("%ver_next", ptr+2);
 			FIELD("version", "hex4_t", BITS("%ver_next", 3, 0));
 			FIELD("next", "hex12_t", BITS("%ver_next", 15, 4));
@@ -1415,10 +1415,10 @@ explore_capabilities()
 static void
 create_pci_bridge()
 {
-	REGFIELD8("pri_bus", 0x18, "int_t");
-	REGFIELD8("sec_bus", 0x19, "int_t");
-	REGFIELD8("sub_bus", 0x1a, "int_t");
-	REGFIELD8("sec_latency", 0x1b, ANON_INT("clocks"));
+	FIELD("pri_bus", "int_t", REG8(0x18));
+	FIELD("sec_bus", "int_t", REG8(0x19));
+	FIELD("sub_bus", "int_t", REG8(0x1a));
+	FIELD("sec_latency", ANON_INT("clocks"), REG8(0x1b));
 
 	// Secondary status
 	REG16("%sec_status", 0x1e);
@@ -1581,11 +1581,11 @@ create_device()
 		BAR("bar5", 0x24);
 	}
 
-	REGFIELD32("cisptr", 0x28, "addr32_t");
+	FIELD("cisptr", "addr32_t", REG32(0x28));
 
 	// Subsystem IDs
-	REGFIELD16("subvendor", 0x2c, "pci_vendor_t");
-	REGFIELD16("subsystem", 0x2e, "hex16_t");
+	FIELD("subvendor", "pci_vendor_t", REG16(0x2c));
+	FIELD("subsystem", "hex16_t", REG16(0x2e));
 
 	// Capabilities
 	explore_capabilities();
@@ -1599,8 +1599,8 @@ create_device()
 				BITS("%0", 10, 0));
 	CLOSE_SCOPE();
 
-	REGFIELD8("mingnt", 0x3e, ANON_INT("1/4 usecs"));
-	REGFIELD8("maxlat", 0x3f, ANON_INT("1/4 usecs"));
+	FIELD("mingnt", ANON_INT("1/4 usecs"), REG8(0x3e));
+	FIELD("maxlat", ANON_INT("1/4 usecs"), REG8(0x3f));
 }
 
 /* populate the current scope with generic PCI device fields */
@@ -1611,16 +1611,15 @@ pci_generic_device()
 	for (unsigned i = 0; i < 256; i += 4) {
 		REG32(to_string(boost::format("%%PCI.%03x") %i), i);
 	}
-	// if %PCI.100 is not FFFFFFFF, we have a 4 KByte config space
-	REG32("%PCI.100", 0x100);
-	if (READ("%PCI.100") != 0xffffffff) {
-		for (unsigned i = 256+4; i < 4096; i += 4) {
+	// if 0x100 is not FFFFFFFF, we have a 4 KByte config space
+	if (READ(REG32(0x100)) != 0xffffffff) {
+		for (unsigned i = 256; i < 4096; i += 4) {
 			REG32(to_string(boost::format("%%PCI.%03x") %i), i);
 		}
 	}
 
-	REGFIELD16("vendor", 0x00, "pci_vendor_t");
-	REGFIELD16("device", 0x02, "hex16_t");
+	FIELD("vendor", "pci_vendor_t", REG16(0x00));
+	FIELD("device", "hex16_t", REG16(0x02));
 
 	REG16("%command", 0x04);
 	OPEN_SCOPE("command");
@@ -1657,56 +1656,56 @@ pci_generic_device()
 		FIELD("perr", "yesno_t", BITS("../%status", 15));
 	CLOSE_SCOPE();
 
-	REGFIELD8("class", 0x0b, "pci_class_t");
+	FIELD("class", "pci_class_t", REG8(0x0b));
 
 	//FIXME: figure the best way to use the types in pci.c
 	if (FIELD_EQ("class", "pre_classcode")) {
-		REGFIELD8("subclass", 0x0a, "pci_subclass_pre_classcode");
+		FIELD("subclass", "pci_subclass_pre_classcode", REG8(0x0a));
 	} else if (FIELD_EQ("class", "mass_storage")) {
-		REGFIELD8("subclass", 0x0a, "pci_subclass_mass_storage");
+		FIELD("subclass", "pci_subclass_mass_storage", REG8(0x0a));
 	} else if (FIELD_EQ("class", "network")) {
-		REGFIELD8("subclass", 0x0a, "pci_subclass_network");
+		FIELD("subclass", "pci_subclass_network", REG8(0x0a));
 	} else if (FIELD_EQ("class", "display")) {
-		REGFIELD8("subclass", 0x0a, "pci_subclass_display");
+		FIELD("subclass", "pci_subclass_display", REG8(0x0a));
 	} else if (FIELD_EQ("class", "multimedia")) {
-		REGFIELD8("subclass", 0x0a, "pci_subclass_multimedia");
+		FIELD("subclass", "pci_subclass_multimedia", REG8(0x0a));
 	} else if (FIELD_EQ("class", "memory")) {
-		REGFIELD8("subclass", 0x0a, "pci_subclass_memory");
+		FIELD("subclass", "pci_subclass_memory", REG8(0x0a));
 	} else if (FIELD_EQ("class", "bridge")) {
-		REGFIELD8("subclass", 0x0a, "pci_subclass_bridge");
+		FIELD("subclass", "pci_subclass_bridge", REG8(0x0a));
 	//FIXME: not implemented yet
 	//} else if (FIELD_EQ("class", "simple_comm")) {
-		//REGFIELD8("subclass", 0x0a, "pci_subclass_simple_comm");
+		//FIELD("subclass", "pci_subclass_simple_comm", REG8(0x0a));
 	//} else if (FIELD_EQ("class", "base_system")) {
-		//REGFIELD8("subclass", 0x0a, "pci_subclass_base_system");
+		//FIELD("subclass", "pci_subclass_base_system", REG8(0x0a));
 	//} else if (FIELD_EQ("class", "input")) {
-		//REGFIELD8("subclass", 0x0a, "pci_subclass_input");
+		//FIELD("subclass", "pci_subclass_input", REG8(0x0a));
 	//} else if (FIELD_EQ("class", "docking")) {
-		//REGFIELD8("subclass", 0x0a, "pci_subclass_docking");
+		//FIELD("subclass", "pci_subclass_docking", REG8(0x0a));
 	//} else if (FIELD_EQ("class", "processor")) {
-		//REGFIELD8("subclass", 0x0a, "pci_subclass_processor");
+		//FIELD("subclass", "pci_subclass_processor", REG8(0x0a));
 	//} else if (FIELD_EQ("class", "serial")) {
-		//REGFIELD8("subclass", 0x0a, "pci_subclass_serial");
+		//FIELD("subclass", "pci_subclass_serial", REG8(0x0a));
 	//} else if (FIELD_EQ("class", "wireless")) {
-		//REGFIELD8("subclass", 0x0a, "pci_subclass_wireless");
+		//FIELD("subclass", "pci_subclass_wireless", REG8(0x0a));
 	//} else if (FIELD_EQ("class", "intelligent_io")) {
-		//REGFIELD8("subclass", 0x0a, "pci_subclass_intelligent_io");
+		//FIELD("subclass", "pci_subclass_intelligent_io", REG8(0x0a));
 	//} else if (FIELD_EQ("class", "satellite")) {
-		//REGFIELD8("subclass", 0x0a, "pci_subclass_satellite");
+		//FIELD("subclass", "pci_subclass_satellite", REG8(0x0a));
 	//} else if (FIELD_EQ("class", "crypto")) {
-		//REGFIELD8("subclass", 0x0a, "pci_subclass_crypto");
+		//FIELD("subclass", "pci_subclass_crypto", REG8(0x0a));
 	//} else if (FIELD_EQ("class", "dsp")) {
-		//REGFIELD8("subclass", 0x0a, "pci_subclass_dsp");
+		//FIELD("subclass", "pci_subclass_dsp", REG8(0x0a));
 	} else {
-		REGFIELD8("subclass", 0x0a, "hex8_t");
+		FIELD("subclass", "hex8_t", REG8(0x0a));
 	}
 
 	//FIXME: it would be better to have detailed progintfs
-	REGFIELD8("progintf", 0x09, "hex8_t");
+	FIELD("progintf", "hex8_t", REG8(0x09));
 
-	REGFIELD8("revision", 0x08, "hex8_t");
+	FIELD("revision", "hex8_t", REG8(0x08));
 
-	REGFIELD8("cacheline", 0x0c, ANON_INT("DWORDs"));
+	FIELD("cacheline", ANON_INT("DWORDs"), REG8(0x0c));
 
 	REG8("%hdrtype", 0x0e);
 	FIELD("hdrtype", ANON_ENUM(
@@ -1723,14 +1722,15 @@ pci_generic_device()
 		FIELD("code", "hex8_t", BITS("../%bist", 3, 0));
 	CLOSE_SCOPE();
 
-	REGFIELD8("intline", 0x3c, "int_t");
+	FIELD("intline", "int_t", REG8(0x3c));
 
-	REGFIELD8("intpin", 0x3d, ANON_ENUM(
+	FIELD("intpin", ANON_ENUM(
 				KV("none", 0),
 				KV("inta", 1),
 				KV("intb", 2),
 				KV("intc", 3),
-				KV("intd", 4)));
+				KV("intd", 4)),
+			REG8(0x3d));
 
 	// Base Address Registers - all devices have at least 2 BARs.
 	BAR("bar0", 0x10);
