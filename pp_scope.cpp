@@ -52,14 +52,14 @@ pp_scope::is_root() const
 // climb the scope hierarchy until you find a binding.  If no
 // scope in the hierarchy is bound, return NULL.
 //
-const pp_binding *
+const pp_binding_const_ptr &
 pp_scope::binding() const
 {
 	const pp_scope *s = this;
 	while (!s->is_bound() && !s->is_root()) {
 		s = s->parent().get();
 	}
-	return s->m_binding.get();
+	return s->m_binding;
 }
 bool
 pp_scope::is_bound() const

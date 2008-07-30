@@ -272,7 +272,7 @@ fkl_reg(const parse_location &loc,
 	DASSERT_MSG(name[0] == '%', "register must start with %: " + name);
 
 	// check that we have a current binding
-	const pp_binding *cur_binding = current_context.binding();
+	const pp_binding_const_ptr &cur_binding = current_context.binding();
 	DASSERT_MSG(cur_binding, "no binding for register " + name);
 
 	try {

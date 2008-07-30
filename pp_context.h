@@ -71,7 +71,7 @@ class pp_context
 	 * Encapsulate for ease of use.
 	 */
 
-	const pp_binding *
+	const pp_binding_const_ptr &
 	binding() const
 	{
 		return m_scope->binding();

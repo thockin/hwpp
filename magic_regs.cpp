@@ -45,7 +45,8 @@ class magic_binding: public pp_binding
 };
 
 pp_register_const_ptr magic_zeros(new pp_bound_register(
-		new magic_binding(0), 0x0, PP_BITWIDTH_MAX));
+		pp_binding_ptr(new magic_binding(0)),
+		0x0, PP_BITWIDTH_MAX));
 pp_register_const_ptr magic_ones(new pp_bound_register(
-		new magic_binding(PP_MASK(PP_BITWIDTH_MAX)),
+		pp_binding_ptr(new magic_binding(PP_MASK(PP_BITWIDTH_MAX))),
 		0x0, PP_BITWIDTH_MAX));

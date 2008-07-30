@@ -46,7 +46,7 @@ test_ctors()
 		TEST_ERROR("pp_scope::parent()");
 		ret++;
 	}
-	if (scope2->binding() != bind.get()) {
+	if (scope2->binding() != bind) {
 		TEST_ERROR("pp_scope::binding()");
 		ret++;
 	}
