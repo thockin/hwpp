@@ -7,11 +7,6 @@
 
 /*
  * pp_register - abstract base class for a register
- *
- * Constructors:
- * 	(const pp_bitwidth width)
- *
- * Notes:
  */
 class pp_register: public pp_dirent
 {

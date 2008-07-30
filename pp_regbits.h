@@ -8,12 +8,6 @@
 /*
  * pp_regbits - a bit range from a register.
  *
- * Constructors:
- *	()
- *	(pp_register_const_ptr &reg)
- *	(pp_register_const_ptr &reg, unsigned bit)
- *	(pp_register_const_ptr &reg, unsigned hi_bit, unsigned lo_bit)
- *
  * Examples:
  *	pp_regbits A(reg1, 15, 0);
  *	cout << A.read() << endl;    // 0x1234

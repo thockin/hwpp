@@ -77,9 +77,6 @@ class msr_io
 
 /*
  * msr_binding - MSR binding for register spaces
- *
- * Constructors:
- *	(msr_address address)
  */
 typedef simple_binding<msr_io, msr_address> msr_binding;
 

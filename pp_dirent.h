@@ -35,11 +35,6 @@ operator<<(std::ostream& o, const pp_dirent_type &type)
 
 /*
  * pp_dirent - a directory entry in a scope
- *
- * Constructors:
- * 	(const pp_dirent_type type)
- *
- * Notes:
  */
 class pp_dirent {
     public:

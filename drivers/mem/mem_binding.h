@@ -84,9 +84,6 @@ class mem_io
 
 /*
  * mem_binding - IO binding for register spaces
- *
- * Constructors:
- *	(mem_address address)
  */
 typedef simple_binding<mem_io, mem_address> mem_binding;
 

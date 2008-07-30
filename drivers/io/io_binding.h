@@ -76,9 +76,6 @@ class io_io
 
 /*
  * io_binding - IO binding for register spaces
- *
- * Constructors:
- *	(io_address address)
  */
 typedef simple_binding<io_io, io_address> io_binding;
 

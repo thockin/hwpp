@@ -8,11 +8,6 @@
 
 /*
  * msr_driver - MSR driver plugin.
- *
- * Constructors:
- *	none
- *
- * Notes:
  */
 class msr_driver: public pp_driver
 {

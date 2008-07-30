@@ -9,11 +9,6 @@
 //
 // pp_driver - abstract base class for driver plugins.
 //
-// Constructors:
-//	none
-//
-// Notes:
-//
 class pp_driver
 {
     public:

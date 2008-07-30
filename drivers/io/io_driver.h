@@ -8,11 +8,6 @@
 
 /*
  * io_driver - IO driver plugin.
- *
- * Constructors:
- *	none
- *
- * Notes:
  */
 class io_driver: public pp_driver
 {

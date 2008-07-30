@@ -8,11 +8,6 @@
 
 /*
  * pci_driver - PCI driver plugin.
- *
- * Constructors:
- *	none
- *
- * Notes:
  */
 class pci_driver: public pp_driver
 {

@@ -10,11 +10,6 @@
 
 /*
  * pp_field - abstract base class for a data field.
- *
- * Constructors:
- * 	(const pp_datatype_const_ptr &datatype)
- *
- * Notes:
  */
 class pp_field: public pp_dirent
 {
