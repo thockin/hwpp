@@ -24,7 +24,7 @@ k8_cpuid(const pp_value &cpu)
 
 	//FIXME: more
 
-	CLOSE_SCOPE(); // msr
+	CLOSE_SCOPE(); // cpuid
 }
 
 static void
