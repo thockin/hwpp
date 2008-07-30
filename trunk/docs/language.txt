@@ -334,6 +334,7 @@ Builtin Datatypes
   * truefalse_t		- a true/false boolean
   * onoff_t		- an on/off boolean
   * enabledisable_t	- an enabled/disabled boolean
+  * disableenable_t	- a disabled/enabled boolean
   * bitmask_t		- a simple bitmask
 
 Fields
