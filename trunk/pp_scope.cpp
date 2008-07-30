@@ -75,11 +75,6 @@ pp_scope::add_datatype(const string &name, const pp_datatype_ptr &datatype)
 {
 	m_datatypes.insert(name, datatype);
 }
-void
-pp_scope::add_datatype(const pp_datatype_ptr &datatype)
-{
-	m_anon_datatypes.push_back(datatype);
-}
 
 //
 // Return the number of named datatypes in this scope.
@@ -94,15 +89,15 @@ pp_scope::n_datatypes() const
 //
 // Provide access to the datatypes vector.
 //
-const pp_datatype *
+const pp_datatype_const_ptr &
 pp_scope::datatype(int index) const
 {
-	return m_datatypes[index].get();
+	return m_datatypes[index];
 }
-const pp_datatype *
+const pp_datatype_const_ptr &
 pp_scope::datatype(string index) const
 {
-	return m_datatypes[index].get();
+	return m_datatypes[index];
 }
 
 //
@@ -117,16 +112,19 @@ pp_scope::datatype_name(int index) const
 //
 // Look up a datatype by name.
 //
-const pp_datatype *
+const pp_datatype_const_ptr &
 pp_scope::resolve_datatype(const string &name) const
 {
+	// this is so that we can return a reference
+	static pp_datatype_const_ptr null_datatype_ptr;
+
 	DTRACE(TRACE_TYPES && TRACE_SCOPES,
 		"trying to resolve type \"" + name + "\"");
 
 	keyed_vector<string, pp_datatype_const_ptr>::const_iterator it;
 	it = m_datatypes.find(name);
 	if (it != m_datatypes.end()) {
-		return (*it).get();
+		return (*it);
 	}
 
 	// if not found in currrent scope fall through to parent scope
@@ -139,7 +137,7 @@ pp_scope::resolve_datatype(const string &name) const
 
 	DTRACE(TRACE_TYPES && TRACE_SCOPES,
 		"type \"" + name + "\" not found");
-	return NULL;
+	return null_datatype_ptr;
 }
 
 //

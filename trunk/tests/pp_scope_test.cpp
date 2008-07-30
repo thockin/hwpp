@@ -105,11 +105,11 @@ test_datatypes()
 	// test add_datatype() and datatype()
 	pp_datatype_ptr type = new_pp_int_datatype();
 	scope->add_datatype("type", type);
-	if (scope->datatype(0) != type.get()) {
+	if (scope->datatype(0) != type) {
 		TEST_ERROR("pp_scope::add_datatype()");
 		ret++;
 	}
-	if (scope->datatype("type") != type.get()) {
+	if (scope->datatype("type") != type) {
 		TEST_ERROR("pp_scope::add_datatype()");
 		ret++;
 	}
@@ -127,8 +127,8 @@ test_datatypes()
 	}
 
 	// test resolve_datatype()
-	const pp_datatype *type2 = scope->resolve_datatype("type");
-	if (type2 != type.get()) {
+	pp_datatype_const_ptr type2 = scope->resolve_datatype("type");
+	if (type2 != type) {
 		TEST_ERROR("pp_scope::resolve_datatype()");
 		ret++;
 	}
@@ -137,7 +137,7 @@ test_datatypes()
 	pp_scope_ptr psub = new_pp_scope();
 	psub->set_parent(scope);
 	type2 = psub->resolve_datatype("type");
-	if (type2 != type.get()) {
+	if (type2 != type) {
 		TEST_ERROR("pp_scope::resolve_datatype()");
 		ret++;
 	}
@@ -178,7 +178,7 @@ test_exceptions()
 
 	// add a field
 	pp_datatype_ptr dt = new_pp_int_datatype();
-	pp_constant_field_ptr field = new_pp_constant_field(dt.get(), 0);
+	pp_constant_field_ptr field = new_pp_constant_field(dt, 0);
 	scope->add_dirent("field", field);
 
 	// add an array
@@ -267,7 +267,7 @@ test_dirents()
 
 	// create a field and add it to scope0
 	pp_datatype_ptr dt = new_pp_int_datatype();
-	pp_constant_field_ptr field1 = new_pp_constant_field(dt.get(), 0);
+	pp_constant_field_ptr field1 = new_pp_constant_field(dt, 0);
 	scope0->add_dirent("field1", field1);
 	ret += TEST_ASSERT(scope0->n_dirents() == 1,
 	    "pp_scope::n_dirents()");
@@ -287,7 +287,7 @@ test_dirents()
 	// create an array
 	pp_array_ptr array1 = new_pp_array(PP_DIRENT_FIELD);
 	// create a field and add it to array1
-	pp_constant_field_ptr field2 = new_pp_constant_field(dt.get(), 0);
+	pp_constant_field_ptr field2 = new_pp_constant_field(dt, 0);
 	array1->append(field2);
 	// add array1 to scope0
 	scope0->add_dirent("array1", array1);
@@ -295,13 +295,13 @@ test_dirents()
 	    "pp_scope::n_dirents()");
 
 	// create an array of fields in scope0
-	pp_constant_field_ptr field3 = new_pp_constant_field(dt.get(), 0);
+	pp_constant_field_ptr field3 = new_pp_constant_field(dt, 0);
 	scope0->add_dirent("array2[]", field3);
 	ret += TEST_ASSERT(scope0->n_dirents() == 5,
 	    "pp_scope::n_dirents()");
 	ret += TEST_ASSERT(scope0->lookup_array("array2")->size() == 1,
 	    "pp_scope::n_dirents()");
-	pp_constant_field_ptr field4 = new_pp_constant_field(dt.get(), 0);
+	pp_constant_field_ptr field4 = new_pp_constant_field(dt, 0);
 	scope0->add_dirent("array2[]", field4);
 	ret += TEST_ASSERT(scope0->n_dirents() == 5,
 	    "pp_scope::n_dirents()");

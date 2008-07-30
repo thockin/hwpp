@@ -322,7 +322,7 @@ test_pp_transform_datatype()
 
 	// test the basic constructor
 	pp_transform_datatype_ptr t1 = new_pp_transform_datatype(
-		new pp_int_datatype(), _1+1, _1-1);
+		new_pp_int_datatype(), _1+1, _1-1);
 
 	// test the evaluate() method
 	if (t1->evaluate(0) != "1") {
