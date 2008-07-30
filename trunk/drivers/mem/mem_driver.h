@@ -8,11 +8,6 @@
 
 /*
  * mem_driver - IO driver plugin.
- *
- * Constructors:
- *	none
- *
- * Notes:
  */
 class mem_driver: public pp_driver
 {

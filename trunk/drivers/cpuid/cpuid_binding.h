@@ -71,9 +71,6 @@ class cpuid_io
 
 /*
  * cpuid_binding - CPUID binding for register spaces
- *
- * Constructors:
- *	(cpuid_address address)
  */
 typedef simple_binding<cpuid_io, cpuid_address> cpuid_binding;
 

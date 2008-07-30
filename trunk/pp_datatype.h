@@ -7,11 +7,6 @@
 
 /*
  * pp_datatype - abstract base class for all datatypes.
- *
- * Constructors:
- * 	none
- *
- * Notes:
  */
 class pp_datatype
 {

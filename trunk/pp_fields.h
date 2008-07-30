@@ -13,11 +13,6 @@
 
 /*
  * pp_direct_field - a field that maps directly to register bits.
- *
- * Constructors:
- * 	(const pp_datatype_const_ptr &datatype, const pp_regbits &regbits)
- *
- * Notes:
  */
 class pp_direct_field: public pp_field
 {
@@ -136,11 +131,6 @@ typedef boost::shared_ptr<pp_proc_field> pp_proc_field_ptr;
 
 /*
  * pp_constant_field - a field that returns a constant value.
- *
- * Constructors:
- * 	(const pp_datatype_const_ptr &datatype, const pp_value &value)
- *
- * Notes:
  */
 class pp_constant_field: public pp_field
 {

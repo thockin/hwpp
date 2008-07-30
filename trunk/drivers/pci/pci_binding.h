@@ -99,9 +99,6 @@ class pci_io
 
 /*
  * pci_binding - PCI binding for register spaces
- *
- * Constructors:
- *	(pci_address address)
  */
 typedef simple_binding<pci_io, pci_address> pci_binding;
 

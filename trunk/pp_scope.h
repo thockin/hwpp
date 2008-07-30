@@ -18,11 +18,6 @@
 //
 // pp_scope - a lexical scope.
 //
-// Constructors:
-// 	(binding?)
-//
-// Notes:
-//
 class pp_scope;
 typedef boost::shared_ptr<pp_scope> pp_scope_ptr;
 typedef boost::shared_ptr<const pp_scope> pp_scope_const_ptr;

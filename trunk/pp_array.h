@@ -11,11 +11,6 @@
 //
 // pp_array - an array of dirents.
 //
-// Constructors:
-//	(pp_dirent_type)
-//
-// Notes:
-//
 class pp_array: public pp_dirent
 {
     public:

@@ -8,11 +8,6 @@
 
 /*
  * pp_binding - abstract base class for bound register spaces.
- *
- * Constructors:
- *	none
- *
- * Notes:
  */
 class pp_binding
 {
@@ -60,11 +55,6 @@ operator<<(std::ostream& o, const pp_binding &binding)
 
 /*
  * simple_binding - a simple binding
- *
- * Constructors:
- *	(Taddress address)
- *
- * Notes:
  */
 template<class Tio, class Taddress>
 class simple_binding: public pp_binding

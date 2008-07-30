@@ -8,11 +8,6 @@
 
 /*
  * cpuid_driver - CPUID driver plugin.
- *
- * Constructors:
- *	none
- *
- * Notes:
  */
 class cpuid_driver: public pp_driver
 {

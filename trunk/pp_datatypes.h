@@ -9,11 +9,6 @@
 
 /*
  * pp_enum_datatype - datatype for enumerated values.
- *
- * Constructors:
- * 	()
- *
- * Notes:
  */
 class pp_enum_datatype: public pp_datatype
 {
@@ -121,11 +116,6 @@ typedef boost::shared_ptr<pp_enum_datatype> pp_enum_datatype_ptr;
 
 /*
  * pp_bool_datatype - datatype for boolean values.
- *
- * Constructors:
- * 	(const string &true_str, const string &false_str)
- *
- * Notes:
  */
 class pp_bool_datatype: public pp_enum_datatype
 {
@@ -156,11 +146,6 @@ typedef boost::shared_ptr<pp_bool_datatype> pp_bool_datatype_ptr;
 /*
  * pp_bitmask_datatype - datatype for bitmasks.
  * //FIXME: this is operating on bit numbers, not masks - should it?
- *
- * Constructors:
- * 	()
- *
- * Notes:
  */
 class pp_bitmask_datatype: public pp_datatype
 {
@@ -274,9 +259,6 @@ typedef boost::shared_ptr<pp_bitmask_datatype> pp_bitmask_datatype_ptr;
 /*
  * pp_int_datatype - datatype for signed integer values.
  *
- * Constructors:
- * 	(const string &units = "")
- *
  * Notes:
  * 	This class makes a private copy of the 'units' argument.
  */
@@ -338,11 +320,6 @@ typedef boost::shared_ptr<pp_int_datatype> pp_int_datatype_ptr;
 
 /*
  * pp_hex_datatype - datatype for hexadecimal values.
- *
- * Constructors:
- * 	(const pp_bitwidth width, const string &units="")
- *
- * Notes:
  */
 class pp_hex_datatype: public pp_int_datatype
 {
@@ -383,9 +360,6 @@ typedef boost::shared_ptr<pp_hex_datatype> pp_hex_datatype_ptr;
 /*
  * pp_transform_datatype - datatype wrapper to perform a transform on data
  * before passing off to another datatype.
- *
- * Constructors:
- * 	(const pp_datatype_const_ptr &real_type, Tdefunc decode_func, Tenfunc encode_func)
  */
 template<typename Tdefunc, typename Tenfunc>
 class pp_transform_datatype: public pp_datatype
