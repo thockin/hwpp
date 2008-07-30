@@ -40,15 +40,34 @@ class pp_regbits
 	pp_regbits(): m_register(), m_mask(0)
 	{}
 	// create a simple regbits
+	// NOTE: These ctors all take either a const_ptr or a plain _ptr, so
+	// that any register can be implicitly converted to regbits (otherwise
+	// a plain _ptr converts to _const_ptr, but not to regbits).
+	pp_regbits(const pp_register_ptr &reg)
+	{
+		// use the full register
+		init(reg, reg ? reg->width()-1 : 0, 0);
+	}
 	pp_regbits(const pp_register_const_ptr &reg)
 	{
 		// use the full register
 		init(reg, reg ? reg->width()-1 : 0, 0);
 	}
+	pp_regbits(const pp_register_ptr &reg, unsigned bit)
+	{
+		// use a single bit
+		init(reg, bit, bit);
+	}
 	pp_regbits(const pp_register_const_ptr &reg, unsigned bit)
 	{
 		// use a single bit
 		init(reg, bit, bit);
+	}
+	pp_regbits(const pp_register_ptr &reg,
+	           unsigned hi_bit, unsigned lo_bit)
+	{
+		// use the specified bits
+		init(reg, hi_bit, lo_bit);
 	}
 	pp_regbits(const pp_register_const_ptr &reg,
 	           unsigned hi_bit, unsigned lo_bit)

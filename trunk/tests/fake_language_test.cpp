@@ -33,6 +33,11 @@ test_parse_errors()
 	platform_global_init();
 
 	//
+	// set up a bound scope for testing
+	//
+	OPEN_SCOPE("bound", new_test_binding());
+
+	//
 	// GET_DIRENT
 	//
 	// should throw, but not a parse_error
@@ -132,6 +137,14 @@ test_parse_errors()
 	} catch (exception &e) {
 		// expected
 	}
+	try {
+		READ(REG32(0));
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("READ()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("READ()");
+	}
 	// should throw a parse_error
 	try {
 		READ("123_invalid");
@@ -153,6 +166,14 @@ test_parse_errors()
 		ret += TEST_ERROR("WRITE()");
 	} catch (exception &e) {
 		// expected
+	}
+	try {
+		WRITE(REG32(0), 0);
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("READ()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("READ()");
 	}
 	// should throw a parse_error
 	try {
@@ -208,16 +229,38 @@ test_parse_errors()
 	}
 
 	//
-	// set up a bound scope for testing
-	//
-	OPEN_SCOPE("bound", new_test_binding());
-
-	//
 	// REGN
 	//
 	// should not throw
 	try {
 		REG8("%reg8", 0);
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("REG8()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("REG8()");
+	}
+	// should not throw
+	try {
+		REG8(0);
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("REG8()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("REG8()");
+	}
+	// should not throw
+	try {
+		REG8("%bound_reg8", new_test_binding(), 0);
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("REG8()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("REG8()");
+	}
+	// should not throw
+	try {
+		REG8(new_test_binding(), 0);
 		// expected
 	} catch (pp_parse_error &e) {
 		ret += TEST_ERROR("REG8()");
@@ -308,6 +351,15 @@ test_parse_errors()
 	// should not throw
 	try {
 		REG8("%proc_reg8", PROCS(test_procs));
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("REG8()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("REG8()");
+	}
+	// should not throw
+	try {
+		REG8(PROCS(test_procs));
 		// expected
 	} catch (pp_parse_error &e) {
 		ret += TEST_ERROR("REG8()");
@@ -408,6 +460,51 @@ test_parse_errors()
 	} catch (exception &e) {
 		ret += TEST_ERROR("BITS()");
 	}
+	// should not throw
+	try {
+		BITS("%reg8", 0);
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("BITS()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("BITS()");
+	}
+	// should not throw
+	try {
+		BITS("%reg8", 7, 0);
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("BITS()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("BITS()");
+	}
+	// should not throw
+	try {
+		BITS(REG8(0));
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("BITS()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("BITS()");
+	}
+	// should not throw
+	try {
+		BITS(REG8(0), 0);
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("BITS()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("BITS()");
+	}
+	// should not throw
+	try {
+		BITS(REG8(0), 7, 0);
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("BITS()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("BITS()");
+	}
 	// should throw a parse_error
 	try {
 		BITS("%123_invalid");
@@ -416,6 +513,42 @@ test_parse_errors()
 		// expected
 	} catch (exception &e) {
 		ret += TEST_ERROR("BITS()");
+	}
+	// should throw, but not a parse error
+	try {
+		BITS("%reg8", 8);
+		ret += TEST_ERROR("BITS()");
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("BITS()");
+	} catch (exception &e) {
+		// expected
+	}
+	// should throw, but not a parse error
+	try {
+		BITS("%reg8", 8, 0);
+		ret += TEST_ERROR("BITS()");
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("BITS()");
+	} catch (exception &e) {
+		// expected
+	}
+	// should throw, but not a parse error
+	try {
+		BITS(REG8(0), 8);
+		ret += TEST_ERROR("BITS()");
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("BITS()");
+	} catch (exception &e) {
+		// expected
+	}
+	// should throw, but not a parse error
+	try {
+		BITS(REG8(0), 8, 0);
+		ret += TEST_ERROR("BITS()");
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("BITS()");
+	} catch (exception &e) {
+		// expected
 	}
 
 	//
