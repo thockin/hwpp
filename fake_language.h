@@ -183,15 +183,22 @@ BIND(const string &driver, const fkl_valarg &arg)
 }
 
 //
-// Declare a named register.
+// Define a register.
 //
-extern void
+extern pp_register_ptr
 fkl_reg(const parse_location &loc,
         const string &name, const pp_value &address, pp_bitwidth width);
-extern void
+extern pp_register_ptr
 fkl_reg(const parse_location &loc,
         const string &name, const pp_binding_const_ptr &binding,
         const pp_value &address, pp_bitwidth width);
+extern pp_register_ptr
+fkl_reg(const parse_location &loc,
+        const pp_value &address, pp_bitwidth width);
+extern pp_register_ptr
+fkl_reg(const parse_location &loc,
+        const pp_binding_const_ptr &binding, const pp_value &address,
+        pp_bitwidth width);
 #define REG8(...)   fkl_reg(THIS_LOCATION, ##__VA_ARGS__, BITS8)
 #define REG16(...)  fkl_reg(THIS_LOCATION, ##__VA_ARGS__, BITS16)
 #define REG32(...)  fkl_reg(THIS_LOCATION, ##__VA_ARGS__, BITS32)
@@ -199,12 +206,15 @@ fkl_reg(const parse_location &loc,
 #define REG128(...) fkl_reg(THIS_LOCATION, ##__VA_ARGS__, BITS128)
 
 //
-// Declare a named proc-register
+// Declare a proc-register
 //
-extern void
+extern pp_register_ptr
 fkl_reg(const parse_location &loc,
         const string &name, const pp_rwprocs_ptr &access,
         pp_bitwidth width);
+extern pp_register_ptr
+fkl_reg(const parse_location &loc,
+        const pp_rwprocs_ptr &access, pp_bitwidth width);
 #define PROCS(procs)		pp_rwprocs_ptr(new procs)
 
 //
@@ -217,6 +227,15 @@ fkl_bits(const parse_location &loc, const string &regname, pp_bitwidth bit);
 extern pp_regbits
 fkl_bits(const parse_location &loc,
          const string &regname, pp_bitwidth hi_bit, pp_bitwidth lo_bit);
+extern pp_regbits
+fkl_bits(const parse_location &loc, const pp_register_const_ptr &regname);
+extern pp_regbits
+fkl_bits(const parse_location &loc,
+         const pp_register_const_ptr &regname, pp_bitwidth bit);
+extern pp_regbits
+fkl_bits(const parse_location &loc,
+         const pp_register_const_ptr &regname,
+         pp_bitwidth hi_bit, pp_bitwidth lo_bit);
 #define BITS(...)		fkl_bits(THIS_LOCATION, ##__VA_ARGS__)
 
 #include "pp_datatype.h"
@@ -224,20 +243,20 @@ fkl_bits(const parse_location &loc,
 //
 // Create a register and a field that consumes it.
 //
-extern void
+extern pp_field_ptr
 fkl_regfield(const parse_location &loc,
              const string &name, const pp_value &address,
              const pp_datatype_const_ptr &type, pp_bitwidth width);
-extern void
+extern pp_field_ptr
 fkl_regfield(const parse_location &loc,
              const string &name, const pp_value &address,
              const string &type, pp_bitwidth width);
-extern void
+extern pp_field_ptr
 fkl_regfield(const parse_location &loc,
              const string &name, const pp_binding_const_ptr &binding,
              const pp_value &address, const pp_datatype_const_ptr &type,
              pp_bitwidth width);
-extern void
+extern pp_field_ptr
 fkl_regfield(const parse_location &loc,
              const string &name, const pp_binding_const_ptr &binding,
              const pp_value &address, const string &type, pp_bitwidth width);
@@ -255,11 +274,11 @@ fkl_regfield(const parse_location &loc,
 //
 // Declare a proc regfield
 //
-extern void
+extern pp_field_ptr
 fkl_regfield(const parse_location &loc,
         const string &name, const pp_rwprocs_ptr &access,
         const pp_datatype_const_ptr &type, pp_bitwidth width);
-extern void
+extern pp_field_ptr
 fkl_regfield(const parse_location &loc,
         const string &name, const pp_rwprocs_ptr &access,
         const string &type, pp_bitwidth width);
@@ -270,33 +289,33 @@ fkl_regfield(const parse_location &loc,
 // It can take an "unlimited" number of regbits, in the form:
 // 	FIELD("name", "type", BITS("abc", 1, 0) + BITS("def", 7, 2))
 //
-extern void
+extern pp_field_ptr
 fkl_field(const parse_location &loc,
           const string &name, const pp_datatype_const_ptr &type,
           const pp_regbits &bits);
-extern void
+extern pp_field_ptr
 fkl_field(const parse_location &loc,
           const string &name, const string &type, const pp_regbits &bits);
 
 //
 // Create a field from a constant value.
 //
-extern void
+extern pp_field_ptr
 fkl_field(const parse_location &loc,
           const string &name, const pp_datatype_const_ptr &type,
           const pp_value &value);
-extern void
+extern pp_field_ptr
 fkl_field(const parse_location &loc,
           const string &name, const string &type, const pp_value &value);
 
 //
 // Create a field which triggers procedures on read/write.
 //
-extern void
+extern pp_field_ptr
 fkl_field(const parse_location &loc,
           const string &name, const pp_datatype_const_ptr &type,
           const pp_rwprocs_ptr &access);
-extern void
+extern pp_field_ptr
 fkl_field(const parse_location &loc,
           const string &name, const string &type,
           const pp_rwprocs_ptr &access);

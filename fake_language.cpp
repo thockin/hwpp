@@ -257,16 +257,16 @@ fkl_bookmark(const parse_location &loc, const string &name)
 //
 // Define a register.
 //
-void
+pp_register_ptr
 fkl_reg(const parse_location &loc,
         const string &name, const pp_value &address, pp_bitwidth width)
 {
 	// check that we have a current binding
 	const pp_binding_const_ptr &cur_binding = current_context.binding();
 	DASSERT_MSG(cur_binding, "no binding for register " + name);
-	fkl_reg(loc, name, cur_binding, address, width);
+	return fkl_reg(loc, name, cur_binding, address, width);
 }
-void
+pp_register_ptr
 fkl_reg(const parse_location &loc,
         const string &name, const pp_binding_const_ptr &binding,
         const pp_value &address, pp_bitwidth width)
@@ -290,16 +290,34 @@ fkl_reg(const parse_location &loc,
 		pp_register_ptr reg_ptr = new_pp_bound_register(
 				binding, address, width);
 		current_context.add_dirent(elem, reg_ptr);
+		return reg_ptr;
 	} catch (pp_path::invalid_error &e) {
 		throw pp_parse_error(e.what(), loc);
 	}
+}
+pp_register_ptr
+fkl_reg(const parse_location &loc,
+        const pp_value &address, pp_bitwidth width)
+{
+	// check that we have a current binding
+	const pp_binding_const_ptr &cur_binding = current_context.binding();
+	DASSERT_MSG(cur_binding, "no binding for register");
+	return fkl_reg(loc, cur_binding, address, width);
+}
+pp_register_ptr
+fkl_reg(const parse_location &loc,
+        const pp_binding_const_ptr &binding, const pp_value &address,
+        pp_bitwidth width)
+{
+	(void)loc;
+	return new_pp_bound_register(binding, address, width);
 }
 
 
 //
 // Define a proc-register
 //
-void
+pp_register_ptr
 fkl_reg(const parse_location &loc,
         const string &name, const pp_rwprocs_ptr &access, pp_bitwidth width)
 {
@@ -321,9 +339,17 @@ fkl_reg(const parse_location &loc,
 
 		pp_register_ptr reg_ptr = new_pp_proc_register(access, width);
 		current_context.add_dirent(elem, reg_ptr);
+		return reg_ptr;
 	} catch (pp_path::invalid_error &e) {
 		throw pp_parse_error(e.what(), loc);
 	}
+}
+pp_register_ptr
+fkl_reg(const parse_location &loc,
+        const pp_rwprocs_ptr &access, pp_bitwidth width)
+{
+	(void)loc;
+	return new_pp_proc_register(access, width);
 }
 
 //
@@ -333,40 +359,64 @@ pp_regbits
 fkl_bits(const parse_location &loc, const string &regname)
 {
 	const pp_register_const_ptr &reg = fkl_get_register(loc, regname);
-	return pp_regbits(reg, reg->width()-1, 0);
+	return fkl_bits(loc, reg);
 }
 pp_regbits
 fkl_bits(const parse_location &loc, const string &regname, pp_bitwidth bit)
 {
 	const pp_register_const_ptr &reg = fkl_get_register(loc, regname);
-	return pp_regbits(reg, bit, bit);
+	return fkl_bits(loc, reg, bit);
 }
 pp_regbits
 fkl_bits(const parse_location &loc,
          const string &regname, pp_bitwidth hi_bit, pp_bitwidth lo_bit)
 {
 	const pp_register_const_ptr &reg = fkl_get_register(loc, regname);
+	return fkl_bits(loc, reg, hi_bit, lo_bit);
+}
+pp_regbits
+fkl_bits(const parse_location &loc, const pp_register_const_ptr &reg)
+{
+	(void)loc;
+	return pp_regbits(reg, reg->width()-1, 0);
+}
+pp_regbits
+fkl_bits(const parse_location &loc,
+         const pp_register_const_ptr &reg, pp_bitwidth bit)
+{
+	(void)loc;
+	return pp_regbits(reg, bit, bit);
+}
+pp_regbits
+fkl_bits(const parse_location &loc,
+         const pp_register_const_ptr &reg,
+         pp_bitwidth hi_bit, pp_bitwidth lo_bit)
+{
+	(void)loc;
 	return pp_regbits(reg, hi_bit, lo_bit);
 }
+
 
 //
 // Define a register and a field that consumes that register.
 //
-void
+pp_field_ptr
 fkl_regfield(const parse_location &loc,
              const string &name, const pp_value &address,
              const pp_datatype_const_ptr &type, pp_bitwidth width)
 {
-	fkl_regfield(loc, name, pp_binding_const_ptr(), address, type, width);
+	return fkl_regfield(loc, name, pp_binding_const_ptr(), address,
+	                    type, width);
 }
-void
+pp_field_ptr
 fkl_regfield(const parse_location &loc,
              const string &name, const pp_value &address,
              const string &type, pp_bitwidth width)
 {
-	fkl_regfield(loc, name, pp_binding_const_ptr(), address, type, width);
+	return fkl_regfield(loc, name, pp_binding_const_ptr(), address,
+	                    type, width);
 }
-extern void
+pp_field_ptr
 fkl_regfield(const parse_location &loc,
              const string &name, const pp_binding_const_ptr &binding,
              const pp_value &address, const pp_datatype_const_ptr &type,
@@ -375,28 +425,28 @@ fkl_regfield(const parse_location &loc,
 	DTRACE(TRACE_FIELDS | TRACE_REGS, "regfield: " + name);
 
 	// create a register and a field, sanity checking is done within
-	string regname = "%" + name;
+	pp_register_ptr reg;
 	if (binding) {
-		fkl_reg(loc, regname, binding, address, width);
+		reg = fkl_reg(loc, binding, address, width);
 	} else {
-		fkl_reg(loc, regname, address, width);
+		reg = fkl_reg(loc, address, width);
 	}
-	fkl_field(loc, name, type, fkl_bits(loc, regname, width-1, 0));
+	return fkl_field(loc, name, type, fkl_bits(loc, reg));
 }
-extern void
+pp_field_ptr
 fkl_regfield(const parse_location &loc,
              const string &name, const pp_binding_const_ptr &binding,
              const pp_value &address, const string &type, pp_bitwidth width)
 {
-	fkl_regfield(loc, name, binding, address,
-	             current_context.resolve_datatype(type), width);
+	return fkl_regfield(loc, name, binding, address,
+	                    current_context.resolve_datatype(type), width);
 }
 
 
 //
 // Define a regfield from a proc-reg
 //
-void
+pp_field_ptr
 fkl_regfield(const parse_location &loc,
         const string &name, const pp_rwprocs_ptr &access,
         const pp_datatype_const_ptr &type, pp_bitwidth width)
@@ -404,23 +454,22 @@ fkl_regfield(const parse_location &loc,
 	DTRACE(TRACE_FIELDS | TRACE_REGS, "regfield: " + name);
 
 	// create a register and a field, sanity checking is done within
-	string regname = "%" + name;
-	fkl_reg(loc, regname, access, width);
-	fkl_field(loc, name, type, fkl_bits(loc, regname, width-1, 0));
+	pp_register_ptr reg = fkl_reg(loc, access, width);
+	return fkl_field(loc, name, type, fkl_bits(loc, reg));
 }
-void
+pp_field_ptr
 fkl_regfield(const parse_location &loc,
         const string &name, const pp_rwprocs_ptr &access,
         const string &type, pp_bitwidth width)
 {
-	fkl_regfield(loc, name, access,
-	             current_context.resolve_datatype(type), width);
+	return fkl_regfield(loc, name, access,
+	                    current_context.resolve_datatype(type), width);
 }
 
 //
 // Define a field as a set of register-bits.
 //
-void
+pp_field_ptr
 fkl_field(const parse_location &loc,
           const string &name, const pp_datatype_const_ptr &type,
           const pp_regbits &bits)
@@ -443,20 +492,22 @@ fkl_field(const parse_location &loc,
 		// create a field and add it to the current scope
 		pp_direct_field_ptr field_ptr = new_pp_direct_field(type, bits);
 		current_context.add_dirent(elem, field_ptr);
+		return field_ptr;
 	} catch (pp_path::invalid_error &e) {
 		throw pp_parse_error(e.what(), loc);
 	}
 }
-void
+pp_field_ptr
 fkl_field(const parse_location &loc,
           const string &name, const string &type, const pp_regbits &bits)
 {
-	fkl_field(loc, name, current_context.resolve_datatype(type), bits);
+	return fkl_field(loc, name, current_context.resolve_datatype(type),
+	                 bits);
 }
 //
 // Define a field as a constant value.
 //
-void
+pp_field_ptr
 fkl_field(const parse_location &loc,
           const string &name, const pp_datatype_const_ptr &type,
           const pp_value &value)
@@ -480,20 +531,22 @@ fkl_field(const parse_location &loc,
 		pp_constant_field_ptr field_ptr =
 				new_pp_constant_field(type, value);
 		current_context.add_dirent(elem, field_ptr);
+		return field_ptr;
 	} catch (pp_path::invalid_error &e) {
 		throw pp_parse_error(e.what(), loc);
 	}
 }
-void
+pp_field_ptr
 fkl_field(const parse_location &loc,
           const string &name, const string &type, const pp_value &value)
 {
-	fkl_field(loc, name, current_context.resolve_datatype(type), value);
+	return fkl_field(loc, name, current_context.resolve_datatype(type),
+	                 value);
 }
 //
 // Define a field as a set of procedures.
 //
-void
+pp_field_ptr
 fkl_field(const parse_location &loc,
           const string &name, const pp_datatype_const_ptr &type,
           const pp_rwprocs_ptr &access)
@@ -517,16 +570,18 @@ fkl_field(const parse_location &loc,
 		// create a field and add it to the current scope
 		pp_proc_field_ptr field_ptr = new_pp_proc_field(type, access);
 		current_context.add_dirent(elem, field_ptr);
+		return field_ptr;
 	} catch (pp_path::invalid_error &e) {
 		throw pp_parse_error(e.what(), loc);
 	}
 }
-void
+pp_field_ptr
 fkl_field(const parse_location &loc,
           const string &name, const string &type,
           const pp_rwprocs_ptr &access)
 {
-	fkl_field(loc, name, current_context.resolve_datatype(type), access);
+	return fkl_field(loc, name, current_context.resolve_datatype(type),
+	                 access);
 }
 
 void
