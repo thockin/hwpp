@@ -261,6 +261,16 @@ void
 fkl_reg(const parse_location &loc,
         const string &name, const pp_value &address, pp_bitwidth width)
 {
+	// check that we have a current binding
+	const pp_binding_const_ptr &cur_binding = current_context.binding();
+	DASSERT_MSG(cur_binding, "no binding for register " + name);
+	fkl_reg(loc, name, cur_binding, address, width);
+}
+void
+fkl_reg(const parse_location &loc,
+        const string &name, const pp_binding_const_ptr &binding,
+        const pp_value &address, pp_bitwidth width)
+{
 	DTRACE(TRACE_REGS, "reg: " + name);
 
 	DASSERT_MSG(!current_context.is_readonly(),
@@ -268,10 +278,6 @@ fkl_reg(const parse_location &loc,
 
 	// enforce that registers start with '%'
 	DASSERT_MSG(name[0] == '%', "register must start with %: " + name);
-
-	// check that we have a current binding
-	const pp_binding_const_ptr &cur_binding = current_context.binding();
-	DASSERT_MSG(cur_binding, "no binding for register " + name);
 
 	try {
 		pp_path::element elem(name);
@@ -282,12 +288,13 @@ fkl_reg(const parse_location &loc,
 		}
 
 		pp_register_ptr reg_ptr = new_pp_bound_register(
-				cur_binding, address, width);
+				binding, address, width);
 		current_context.add_dirent(elem, reg_ptr);
 	} catch (pp_path::invalid_error &e) {
 		throw pp_parse_error(e.what(), loc);
 	}
 }
+
 
 //
 // Define a proc-register
@@ -350,21 +357,41 @@ fkl_regfield(const parse_location &loc,
              const string &name, const pp_value &address,
              const pp_datatype_const_ptr &type, pp_bitwidth width)
 {
-	DTRACE(TRACE_FIELDS | TRACE_REGS, "regfield: " + name);
-
-	// create a register and a field, sanity checking is done within
-	string regname = "%" + name;
-	fkl_reg(loc, regname, address, width);
-	fkl_field(loc, name, type, fkl_bits(loc, regname, width-1, 0));
+	fkl_regfield(loc, name, pp_binding_const_ptr(), address, type, width);
 }
 void
 fkl_regfield(const parse_location &loc,
              const string &name, const pp_value &address,
              const string &type, pp_bitwidth width)
 {
-	fkl_regfield(loc, name, address,
+	fkl_regfield(loc, name, pp_binding_const_ptr(), address, type, width);
+}
+extern void
+fkl_regfield(const parse_location &loc,
+             const string &name, const pp_binding_const_ptr &binding,
+             const pp_value &address, const pp_datatype_const_ptr &type,
+             pp_bitwidth width)
+{
+	DTRACE(TRACE_FIELDS | TRACE_REGS, "regfield: " + name);
+
+	// create a register and a field, sanity checking is done within
+	string regname = "%" + name;
+	if (binding) {
+		fkl_reg(loc, regname, binding, address, width);
+	} else {
+		fkl_reg(loc, regname, address, width);
+	}
+	fkl_field(loc, name, type, fkl_bits(loc, regname, width-1, 0));
+}
+extern void
+fkl_regfield(const parse_location &loc,
+             const string &name, const pp_binding_const_ptr &binding,
+             const pp_value &address, const string &type, pp_bitwidth width)
+{
+	fkl_regfield(loc, name, binding, address,
 	             current_context.resolve_datatype(type), width);
 }
+
 
 //
 // Define a regfield from a proc-reg

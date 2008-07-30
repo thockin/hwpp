@@ -188,6 +188,10 @@ BIND(const string &driver, const fkl_valarg &arg)
 extern void
 fkl_reg(const parse_location &loc,
         const string &name, const pp_value &address, pp_bitwidth width);
+extern void
+fkl_reg(const parse_location &loc,
+        const string &name, const pp_binding_const_ptr &binding,
+        const pp_value &address, pp_bitwidth width);
 #define REG8(...)   fkl_reg(THIS_LOCATION, ##__VA_ARGS__, BITS8)
 #define REG16(...)  fkl_reg(THIS_LOCATION, ##__VA_ARGS__, BITS16)
 #define REG32(...)  fkl_reg(THIS_LOCATION, ##__VA_ARGS__, BITS32)
@@ -228,6 +232,15 @@ extern void
 fkl_regfield(const parse_location &loc,
              const string &name, const pp_value &address,
              const string &type, pp_bitwidth width);
+extern void
+fkl_regfield(const parse_location &loc,
+             const string &name, const pp_binding_const_ptr &binding,
+             const pp_value &address, const pp_datatype_const_ptr &type,
+             pp_bitwidth width);
+extern void
+fkl_regfield(const parse_location &loc,
+             const string &name, const pp_binding_const_ptr &binding,
+             const pp_value &address, const string &type, pp_bitwidth width);
 #define REGFIELD8(...) \
 		fkl_regfield(THIS_LOCATION, ##__VA_ARGS__, BITS8)
 #define REGFIELD16(...) \
