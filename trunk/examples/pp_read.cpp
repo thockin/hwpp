@@ -10,16 +10,16 @@
 using namespace std;
 
 void
-dump_field(const string &name, const pp_field *field);
+dump_field(const string &name, const pp_field_const_ptr &field);
 void
-dump_register(const string &name, const pp_scope *scope);
+dump_register(const string &name, const pp_register_const_ptr &reg);
 void
-dump_scope(const string &name, const pp_scope *scope);
+dump_scope(const string &name, const pp_scope_const_ptr &scope);
 void
-dump_array(const string &name, const pp_array *array);
+dump_array(const string &name, const pp_array_const_ptr &array);
 
 void
-dump_field(const string &name, const pp_field *field)
+dump_field(const string &name, const pp_field_const_ptr &field)
 {
 	cout << name << ": "
 	     << field->evaluate()
@@ -29,7 +29,7 @@ dump_field(const string &name, const pp_field *field)
 }
 
 void
-dump_register(const string &name, const pp_register *reg)
+dump_register(const string &name, const pp_register_const_ptr &reg)
 {
 	cout << name << ": "
 	     << std::hex
@@ -38,7 +38,7 @@ dump_register(const string &name, const pp_register *reg)
 }
 
 void
-dump_scope(const string &name, const pp_scope *scope)
+dump_scope(const string &name, const pp_scope_const_ptr &scope)
 {
 	cout << name << "/";
 	if (scope->is_bound()) {
@@ -68,7 +68,7 @@ dump_scope(const string &name, const pp_scope *scope)
 }
 
 void
-dump_array(const string &name, const pp_array *array)
+dump_array(const string &name, const pp_array_const_ptr &array)
 {
 	for (size_t i = 0; i < array->size(); i++) {
 		string subname = name + "[" + to_string(i) + "]";
@@ -93,11 +93,10 @@ dump_array(const string &name, const pp_array *array)
 }
 
 void
-dump_dirent(pp_scope *root, const string &path)
+dump_dirent(pp_scope_ptr &root, const string &path)
 {
-	const pp_dirent *de = NULL;
 	try {
-		de = root->lookup_dirent(path);
+		const pp_dirent_const_ptr &de = root->lookup_dirent(path);
 		if (de == NULL) {
 			cerr << path << ": path not found" << endl;
 		} else if (de->is_field()) {
@@ -131,7 +130,7 @@ main(int argc, const char *argv[])
 		return EXIT_SUCCESS;
 	}
 
-	pp_scope *root = pp_init();
+	pp_scope_ptr root = pp_init();
 	pp_do_discovery();
 
 	if (argc == 1) {

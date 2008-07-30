@@ -66,19 +66,19 @@ test_pp_dirent()
 
 	/* test up-casting */
 	try {
-		pp_field_from_dirent(dirent.get());
+		pp_field_from_dirent(dirent);
 	} catch (pp_dirent::conversion_error &e) {
 		TEST_ERROR("pp_field_from_dirent()");
 		ret++;
 	}
 	try {
-		pp_register_from_dirent(dirent.get());
+		pp_register_from_dirent(dirent);
 		TEST_ERROR("pp_register_from_dirent()");
 		ret++;
 	} catch (pp_dirent::conversion_error &e) {
 	}
 	try {
-		pp_scope_from_dirent(dirent.get());
+		pp_scope_from_dirent(dirent);
 		TEST_ERROR("pp_scope_from_dirent()");
 		ret++;
 	} catch (pp_dirent::conversion_error &e) {

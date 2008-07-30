@@ -21,12 +21,13 @@
 //
 // Resolve a path to a dirent, relative to the current scope.
 //
-const pp_dirent *
+pp_dirent_const_ptr
 fkl_get_dirent(const parse_location &loc, const string &path_str)
 {
 	try {
 		pp_path path(path_str);
-		const pp_dirent *de = current_context.lookup_dirent(path);
+		const pp_dirent_const_ptr &de =
+		    current_context.lookup_dirent(path);
 		if (de == NULL) {
 			throw pp_path::not_found_error(path_str);
 		}
@@ -39,12 +40,13 @@ fkl_get_dirent(const parse_location &loc, const string &path_str)
 //
 // Resolve a path to a field, relative to the current scope.
 //
-const pp_field *
+pp_field_const_ptr
 fkl_get_field(const parse_location &loc, const string &path_str)
 {
 	try {
 		pp_path path(path_str);
-		const pp_field *field = current_context.lookup_field(path);
+		const pp_field_const_ptr &field =
+		    current_context.lookup_field(path);
 		if (field == NULL) {
 			throw pp_path::not_found_error(path_str);
 		}
@@ -57,12 +59,12 @@ fkl_get_field(const parse_location &loc, const string &path_str)
 //
 // Resolve a path to a register, relative to the current scope.
 //
-const pp_register *
+pp_register_const_ptr
 fkl_get_register(const parse_location &loc, const string &path_str)
 {
 	// magic registers
-	extern pp_register *magic_zeros;
-	extern pp_register *magic_ones;
+	extern pp_register_const_ptr magic_zeros;
+	extern pp_register_const_ptr magic_ones;
 
 	if (path_str == "%0")
 		return magic_zeros;
@@ -71,8 +73,9 @@ fkl_get_register(const parse_location &loc, const string &path_str)
 
 	try {
 		pp_path path(path_str);
-		const pp_register *reg = current_context.lookup_register(path);
-		if (reg == NULL) {
+		const pp_register_const_ptr &reg =
+		    current_context.lookup_register(path);
+		if (!reg) {
 			throw pp_path::not_found_error(path_str);
 		}
 		return reg;
@@ -108,7 +111,7 @@ pp_value
 fkl_read(const parse_location &loc, const string &path_str)
 {
 	try {
-		const pp_dirent *de = fkl_get_dirent(loc, path_str);
+		const pp_dirent_const_ptr &de = fkl_get_dirent(loc, path_str);
 		if (de->is_register()) {
 			return pp_register_from_dirent(de)->read();
 		} else if (de->is_field()) {
@@ -126,7 +129,7 @@ fkl_write(const parse_location &loc,
           const string &path_str, const pp_value &value)
 {
 	try {
-		const pp_dirent *de = GET_DIRENT(path_str);
+		const pp_dirent_const_ptr &de = GET_DIRENT(path_str);
 		if (de->is_register()) {
 			pp_register_from_dirent(de)->write(value);
 		} else if (de->is_field()) {
@@ -324,20 +327,20 @@ fkl_reg(const parse_location &loc,
 pp_regbits
 fkl_bits(const parse_location &loc, const string &regname)
 {
-	const pp_register *reg = fkl_get_register(loc, regname);
+	const pp_register_const_ptr &reg = fkl_get_register(loc, regname);
 	return pp_regbits(reg, reg->width()-1, 0);
 }
 pp_regbits
 fkl_bits(const parse_location &loc, const string &regname, pp_bitwidth bit)
 {
-	const pp_register *reg = fkl_get_register(loc, regname);
+	const pp_register_const_ptr &reg = fkl_get_register(loc, regname);
 	return pp_regbits(reg, bit, bit);
 }
 pp_regbits
 fkl_bits(const parse_location &loc,
          const string &regname, pp_bitwidth hi_bit, pp_bitwidth lo_bit)
 {
-	const pp_register *reg = fkl_get_register(loc, regname);
+	const pp_register_const_ptr &reg = fkl_get_register(loc, regname);
 	return pp_regbits(reg, hi_bit, lo_bit);
 }
 

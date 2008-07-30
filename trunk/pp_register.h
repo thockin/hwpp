@@ -63,24 +63,25 @@ class pp_register: public pp_dirent
 	write(const pp_value &value) const = 0;
 };
 typedef boost::shared_ptr<pp_register> pp_register_ptr;
-typedef boost::shared_ptr<const pp_register> pp_const_register_ptr;
+typedef boost::shared_ptr<const pp_register> pp_register_const_ptr;
 
 // const
-inline const pp_register *
-pp_register_from_dirent(const pp_dirent *dirent)
+inline pp_register_const_ptr
+pp_register_from_dirent(const pp_dirent_const_ptr &dirent)
 {
 	if (dirent->is_register()) {
-		return static_cast<const pp_register *>(dirent);
+		return static_pointer_cast<const pp_register>(dirent);
 	}
 	throw pp_dirent::conversion_error(
 	    "non-register dirent used as register");
 }
 // non-const
-inline pp_register *
-pp_register_from_dirent(pp_dirent *dirent)
+inline pp_register_ptr
+pp_register_from_dirent(const pp_dirent_ptr &dirent)
 {
-	const pp_dirent *const_dirent = dirent;
-	return const_cast<pp_register *>(pp_register_from_dirent(const_dirent));
+	const pp_dirent_const_ptr &const_dirent = dirent;
+	return const_pointer_cast<pp_register>(
+	       pp_register_from_dirent(const_dirent));
 }
 
 #endif // PP_PP_REGISTER_H__

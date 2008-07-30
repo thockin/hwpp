@@ -8,14 +8,14 @@
 using namespace std;
 
 void
-dump_field(const string &name, const pp_field *field);
+dump_field(const string &name, const pp_field_const_ptr &field);
 void
-dump_scope(const string &name, const pp_scope *scope);
+dump_scope(const string &name, const pp_scope_const_ptr &scope);
 void
-dump_array(const string &name, const pp_array *array);
+dump_array(const string &name, const pp_array_const_ptr &array);
 
 void
-dump_field(const string &name, const pp_field *field)
+dump_field(const string &name, const pp_field_const_ptr &field)
 {
 	cout << name << ": "
 	     << field->evaluate()
@@ -25,7 +25,7 @@ dump_field(const string &name, const pp_field *field)
 }
 
 void
-dump_array(const string &name, const pp_array *array)
+dump_array(const string &name, const pp_array_const_ptr &array)
 {
 	for (size_t i = 0; i < array->size(); i++) {
 		string subname = name + "[" + to_string(i) + "]";
@@ -43,7 +43,7 @@ dump_array(const string &name, const pp_array *array)
 }
 
 void
-dump_scope(const string &name, const pp_scope *scope)
+dump_scope(const string &name, const pp_scope_const_ptr &scope)
 {
 	cout << name << "/";
 	if (scope->is_bound()) {
@@ -69,7 +69,7 @@ dump_scope(const string &name, const pp_scope *scope)
 int
 main()
 {
-	pp_scope *root = pp_init();
+	pp_scope_ptr root = pp_init();
 	pp_do_discovery();
 	dump_scope("", root);
 	return 0;

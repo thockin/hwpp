@@ -61,13 +61,13 @@ MSLEEP(int msecs)
 //
 // Lookup dirents by name.  These are rarely needed.
 //
-extern const pp_dirent *
+extern pp_dirent_const_ptr
 fkl_get_dirent(const parse_location &loc, const string &path);
 #define GET_DIRENT(...)		fkl_get_dirent(THIS_LOCATION, ##__VA_ARGS__)
-extern const pp_field *
+extern pp_field_const_ptr
 fkl_get_field(const parse_location &loc, const string &path);
 #define GET_FIELD(...)		fkl_get_field(THIS_LOCATION, ##__VA_ARGS__)
-extern const pp_register *
+extern pp_register_const_ptr
 fkl_get_register(const parse_location &loc, const string &path);
 #define GET_REGISTER(...)	fkl_get_register(THIS_LOCATION, ##__VA_ARGS__)
 

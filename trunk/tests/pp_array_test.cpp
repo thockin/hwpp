@@ -61,7 +61,7 @@ test_indexing()
 		ret++;
 	}
 
-	if (array->at(0) != scope.get()) {
+	if (array->at(0) != scope) {
 		TEST_ERROR("pp_array::at()");
 		ret++;
 	}

@@ -21,7 +21,7 @@ test_ctors()
 		TEST_ERROR("pp_scope::is_root()");
 		ret++;
 	}
-	if (scope->parent() != scope.get()) {
+	if (scope->parent() != scope) {
 		TEST_ERROR("pp_scope::parent()");
 		ret++;
 	}
@@ -42,7 +42,7 @@ test_ctors()
 		TEST_ERROR("pp_scope::is_root()");
 		ret++;
 	}
-	if (scope2->parent() != scope2.get()) {
+	if (scope2->parent() != scope2) {
 		TEST_ERROR("pp_scope::parent()");
 		ret++;
 	}
@@ -76,8 +76,8 @@ test_parentage()
 	}
 
 	// test the set_parent() method
-	scope2->set_parent(scope.get());
-	if (scope2->parent() != scope.get()) {
+	scope2->set_parent(scope);
+	if (scope2->parent() != scope) {
 		TEST_ERROR("pp_scope::set_parent()");
 		ret++;
 	}
@@ -135,7 +135,7 @@ test_datatypes()
 
 	// test recursive resolve_datatype()
 	pp_scope_ptr psub = new_pp_scope();
-	psub->set_parent(scope.get());
+	psub->set_parent(scope);
 	type2 = psub->resolve_datatype("type");
 	if (type2 != type.get()) {
 		TEST_ERROR("pp_scope::resolve_datatype()");
@@ -310,14 +310,15 @@ test_dirents()
 
 	// test dirent()
 	{
-		const pp_field *f = pp_field_from_dirent(scope0->dirent(0));
-		ret += TEST_ASSERT(f == field1.get(),
+		const pp_field_const_ptr &f =
+		    pp_field_from_dirent(scope0->dirent(0));
+		ret += TEST_ASSERT(f == field1,
 		    "pp_scope::dirent(int)");
 	}
 	{
-		const pp_field *f = pp_field_from_dirent(
-		    scope0->dirent("field1"));
-		ret += TEST_ASSERT(f == field1.get(),
+		const pp_field_const_ptr &f =
+		    pp_field_from_dirent(scope0->dirent("field1"));
+		ret += TEST_ASSERT(f == field1,
 		    "pp_scope::dirent(string)");
 	}
 	// test dirent_name()
@@ -327,11 +328,11 @@ test_dirents()
 	}
 	// test lookup_field()
 	{
-		const pp_field *f;
+		pp_field_const_ptr f;
 
 		// search for a field, exists
 		f = root->lookup_field("scope0/field1");
-		ret += TEST_ASSERT(f == field1.get(),
+		ret += TEST_ASSERT(f == field1,
 		    "pp_scope::lookup_field()");
 
 		// search for a field, non-existing
@@ -364,31 +365,31 @@ test_dirents()
 
 		// search for an item through a path with ".."
 		f = root->lookup_field("scope0/scope1/../field1");
-		ret += TEST_ASSERT(f == field1.get(),
+		ret += TEST_ASSERT(f == field1,
 		    "pp_scope::lookup_field()");
 
 		// search for an item through an absolute path
 		f = root->lookup_field("/scope0/field1");
-		ret += TEST_ASSERT(f == field1.get(),
+		ret += TEST_ASSERT(f == field1,
 		    "pp_scope::lookup_field()");
 
 		// search for an array-held item
 		f = root->lookup_field("scope0/array1[0]");
-		ret += TEST_ASSERT(f == field2.get(),
+		ret += TEST_ASSERT(f == field2,
 		    "pp_scope::lookup_field()");
 
 		// search for an item through a bookmark
 		f = scope1->lookup_field("$bookmark/field1");
-		ret += TEST_ASSERT(f == field1.get(),
+		ret += TEST_ASSERT(f == field1,
 		    "pp_scope::lookup_field()");
 	}
 	// test lookup_register()
 	{
-		const pp_register *r;
+		pp_register_const_ptr r;
 
 		// search for a register, exists
 		r = root->lookup_register("scope0/reg1");
-		ret += TEST_ASSERT(r == reg1.get(),
+		ret += TEST_ASSERT(r == reg1,
 		    "pp_scope::lookup_register()");
 
 		// search for a register, non-existing
@@ -421,16 +422,16 @@ test_dirents()
 
 		// search for an item through a path with ".."
 		r = root->lookup_register("scope0/scope1/../reg1");
-		ret += TEST_ASSERT(r == reg1.get(),
+		ret += TEST_ASSERT(r == reg1,
 		    "pp_scope::lookup_register()");
 	}
 	// test lookup_scope()
 	{
-		const pp_scope *s;
+		pp_scope_const_ptr s;
 
 		// search for a scope, exists
 		s = root->lookup_scope("scope0/scope1");
-		ret += TEST_ASSERT(s == scope1.get(),
+		ret += TEST_ASSERT(s == scope1,
 		    "pp_scope::lookup_scope()");
 
 		// search for a scope, non-existing
@@ -449,26 +450,26 @@ test_dirents()
 
 		// search for an item through a path with ".."
 		s = root->lookup_scope("scope0/scope1/../scope1");
-		ret += TEST_ASSERT(s == scope1.get(),
+		ret += TEST_ASSERT(s == scope1,
 		    "pp_scope::lookup_scope()");
 
 		// search for the root
 		s = root->lookup_scope("/");
-		ret += TEST_ASSERT(s == root.get(),
+		ret += TEST_ASSERT(s == root,
 		    "pp_scope::lookup_scope()");
 
 		// search for an item through an absolute path
 		s = root->lookup_scope("/scope0");
-		ret += TEST_ASSERT(s == scope0.get(),
+		ret += TEST_ASSERT(s == scope0,
 		    "pp_scope::lookup_scope()");
 	}
 	// test lookup_array()
 	{
-		const pp_array *a;
+		pp_array_const_ptr a;
 
 		// search for an array, exists
 		a = root->lookup_array("scope0/array1");
-		ret += TEST_ASSERT(a == array1.get(),
+		ret += TEST_ASSERT(a == array1,
 		    "pp_scope::lookup_array()");
 
 		// search for a array, non-existing
@@ -487,26 +488,26 @@ test_dirents()
 
 		// search for an item through a path with ".."
 		a = root->lookup_array("scope0/scope1/../array1");
-		ret += TEST_ASSERT(a == array1.get(),
+		ret += TEST_ASSERT(a == array1,
 		    "pp_scope::lookup_array()");
 	}
 	// test lookup_dirent()
 	{
-		const pp_dirent *de;
+		pp_dirent_const_ptr de;
 
 		// search for a field, exists
 		de = root->lookup_dirent("scope0/field1");
-		ret += TEST_ASSERT(pp_field_from_dirent(de) == field1.get(),
+		ret += TEST_ASSERT(pp_field_from_dirent(de) == field1,
 		    "pp_scope::lookup_dirent()");
 
 		// search for a register, exists
 		de = root->lookup_dirent("scope0/reg1");
-		ret += TEST_ASSERT(pp_register_from_dirent(de) == reg1.get(),
+		ret += TEST_ASSERT(pp_register_from_dirent(de) == reg1,
 		    "pp_scope::lookup_dirent()");
 
 		// search for a scope, exists
 		de = root->lookup_dirent("scope0/scope1");
-		ret += TEST_ASSERT(pp_scope_from_dirent(de) == scope1.get(),
+		ret += TEST_ASSERT(pp_scope_from_dirent(de) == scope1,
 		    "pp_scope::lookup_dirent()");
 
 		// search for a dirent, non-existing
@@ -525,15 +526,15 @@ test_dirents()
 
 		// search for an item through a path with ".."
 		de = root->lookup_dirent("scope0/scope1/../scope1");
-		ret += TEST_ASSERT(pp_scope_from_dirent(de) == scope1.get(),
+		ret += TEST_ASSERT(pp_scope_from_dirent(de) == scope1,
 		    "pp_scope::lookup_dirent()");
 
 		// search for an array-held item
 		de = root->lookup_dirent("scope0/array1");
-		ret += TEST_ASSERT(pp_array_from_dirent(de) == array1.get(),
+		ret += TEST_ASSERT(pp_array_from_dirent(de) == array1,
 		    "pp_scope::lookup_dirent()");
 		de = root->lookup_dirent("scope0/array1[0]");
-		ret += TEST_ASSERT(pp_field_from_dirent(de) == field2.get(),
+		ret += TEST_ASSERT(pp_field_from_dirent(de) == field2,
 		    "pp_scope::lookup_dirent()");
 	}
 	// test dirent_defined()

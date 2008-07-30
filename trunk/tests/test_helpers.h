@@ -16,6 +16,6 @@
  * Given an input tree, display it neatly on the screen using tabs as
  * a means of indicating ownership/tree structure.
  */
-void display_tree(const pp_scope *container);
+void display_tree(pp_scope_const_ptr &container);
 
 #endif /* PP_TESTS_TEST_HELPERS_H__ */

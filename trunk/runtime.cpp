@@ -15,7 +15,7 @@ pp_context current_context("pp", new_pp_scope());
 std::vector<pp_context> context_stack;
 
 // Initialize the PP runtime.
-pp_scope *
+pp_scope_ptr
 pp_init()
 {
 	// platform is the top level, cur_scope must not exist

@@ -14,6 +14,8 @@ using std::string;
 using std::size_t;
 #include <boost/format.hpp>
 #include <boost/smart_ptr.hpp>
+using boost::static_pointer_cast;
+using boost::const_pointer_cast;
 #include "bignum.h"
 #include "debug.h"
 

@@ -34,7 +34,7 @@
 
 using namespace std;
 
-static pp_scope *platform;
+static pp_scope_ptr platform;
 static time_t startup_time;
 
 static void
@@ -63,7 +63,7 @@ fill_dir_stat(struct stat *st)
 	st->st_nlink = 1;
 }
 static int
-fill_stat(const pp_dirent *de, struct stat *st)
+fill_stat(const pp_dirent_const_ptr &de, struct stat *st)
 {
 	if (de->is_register() || de->is_field()) {
 		fill_file_stat(st);
@@ -84,7 +84,7 @@ ppfs_getattr(const char *path, struct stat *st)
 
 printf("%d getattr: path = %s\n", getpid(), path);
 	try {
-		const pp_dirent *de = platform->lookup_dirent(path);
+		const pp_dirent_const_ptr &de = platform->lookup_dirent(path);
 		res = fill_stat(de, st);
 	} catch (std::out_of_range &e) {
 		res = -ENOENT;
@@ -96,7 +96,7 @@ printf("%d getattr: path = %s\n", getpid(), path);
 }
 
 static int
-fill_dirent(void *buf, fuse_fill_dir_t filler, const pp_dirent *de,
+fill_dirent(void *buf, fuse_fill_dir_t filler, const pp_dirent_const_ptr &de,
             const std::string &name)
 {
 	struct stat st;
@@ -104,7 +104,7 @@ fill_dirent(void *buf, fuse_fill_dir_t filler, const pp_dirent *de,
 
 	if (de->is_array()) {
 		// array dirents get flattened
-		const pp_array *array = pp_array_from_dirent(de);
+		const pp_array_const_ptr &array = pp_array_from_dirent(de);
 		for (size_t i = 0; i < array->size(); i++) {
 			string s = to_string(boost::format("%s[%d]") %name %i);
 			ret = fill_dirent(buf, filler, array->at(i), s);
@@ -132,7 +132,7 @@ ppfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 	(void)fi;
 
 printf("%d readdir: path = %s\n", getpid(), path);
-	const pp_dirent *de = platform->lookup_dirent(path);
+	const pp_dirent_const_ptr &de = platform->lookup_dirent(path);
 	if (de->is_scope()) {
 		struct stat st;
 		int ret;
@@ -141,7 +141,7 @@ printf("%d readdir: path = %s\n", getpid(), path);
 		filler(buf, ".", &st, 0);
 		filler(buf, "..", &st, 0);
 
-		const pp_scope *scope = pp_scope_from_dirent(de);
+		const pp_scope_const_ptr &scope = pp_scope_from_dirent(de);
 		for (size_t i = 0; i < scope->n_dirents(); i++) {
 			ret = fill_dirent(buf, filler, scope->dirent(i),
 			                  scope->dirent_name(i));
@@ -183,7 +183,7 @@ ppfs_read(const char *path, char *data, size_t size, off_t offset,
 
 printf("%d read: path = %s\n", getpid(), path);
 	try {
-		const pp_dirent *de = platform->lookup_dirent(path);
+		const pp_dirent_const_ptr &de = platform->lookup_dirent(path);
 		pp_value val;
 		string str;
 		if (de->is_register()) {
@@ -252,9 +252,10 @@ printf("%d write: path = %s\n", getpid(), path);
 
 		char *clean_data = chomp(&my_data[0], size);
 
-		const pp_dirent *de = platform->lookup_dirent(path);
+		const pp_dirent_const_ptr &de = platform->lookup_dirent(path);
 		if (de->is_register()) {
-			const pp_register *reg = pp_register_from_dirent(de);
+			const pp_register_const_ptr &reg =
+			   pp_register_from_dirent(de);
 			pp_value val;
 			if (isdigit(clean_data[0])) {
 				val = pp_value(clean_data);
@@ -263,7 +264,8 @@ printf("%d write: path = %s\n", getpid(), path);
 			}
 			reg->write(val);
 		} else if (de->is_field()) {
-			const pp_field *field = pp_field_from_dirent(de);
+			const pp_field_const_ptr &field =
+			   pp_field_from_dirent(de);
 			pp_value val;
 			if (isdigit(clean_data[0])) {
 				val = pp_value(clean_data);

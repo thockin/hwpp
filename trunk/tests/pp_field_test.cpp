@@ -25,7 +25,7 @@ test_int_field()
 
 	pp_datatype_ptr integer = new_pp_int_datatype();
 	pp_direct_field f1(integer.get(),
-		pp_regbits(r2.get(), 7, 0) + pp_regbits(r1.get(), 7, 0));
+		pp_regbits(r2, 7, 0) + pp_regbits(r1, 7, 0));
 
 	/* test read() */
 	if (f1.read() != 8721) {
@@ -71,7 +71,7 @@ test_hex_field()
 	/* test a hex16 field */
 	pp_datatype_ptr hex16 = new_pp_hex_datatype(BITS16);
 	pp_direct_field f1(hex16.get(),
-		pp_regbits(r2.get(), 7, 0) + pp_regbits(r1.get(), 7, 0));
+		pp_regbits(r2, 7, 0) + pp_regbits(r1, 7, 0));
 
 	/* test read() */
 	if (f1.read() != 0x2211) {
@@ -121,7 +121,7 @@ test_enum_field()
 	e1->add_value("three", 3);
 	e1->add_value("correct", 0x2211);
 	pp_direct_field_ptr f1 = new_pp_direct_field(e1.get(),
-		pp_regbits(r2.get(), 7, 0) + pp_regbits(r1.get(), 7, 0));
+		pp_regbits(r2, 7, 0) + pp_regbits(r1, 7, 0));
 
 	/* test read() */
 	if (f1->read() != 0x2211) {
@@ -175,7 +175,7 @@ test_bitmask_field()
 	b1->add_bit("nine", 9);
 	b1->add_bit("thirteen", 13);
 	pp_direct_field_ptr f1 = new_pp_direct_field(b1.get(),
-		pp_regbits(r2.get(), 7, 0) + pp_regbits(r1.get(), 7, 0));
+		pp_regbits(r2, 7, 0) + pp_regbits(r1, 7, 0));
 
 	/* test read() */
 	if (f1->read() != 0x2211) {

@@ -13,6 +13,7 @@
 #include "pp_register.h"
 #include "pp_field.h"
 #include "pp_array.h"
+#include <boost/enable_shared_from_this.hpp>
 
 //
 // pp_scope - a lexical scope.
@@ -22,19 +23,24 @@
 //
 // Notes:
 //
-class pp_scope: public pp_dirent
+class pp_scope;
+typedef boost::shared_ptr<pp_scope> pp_scope_ptr;
+typedef boost::shared_ptr<const pp_scope> pp_scope_const_ptr;
+
+class pp_scope: public pp_dirent,
+                public boost::enable_shared_from_this<pp_scope>
 {
     private:
-	const pp_scope *m_parent;
-	pp_const_binding_ptr m_binding;
+	pp_scope_const_ptr m_parent;
+	pp_binding_const_ptr m_binding;
 	keyed_vector<string, pp_dirent_ptr> m_dirents;
-	keyed_vector<string, pp_const_datatype_ptr> m_datatypes;
-	std::vector<pp_const_datatype_ptr> m_anon_datatypes;
+	keyed_vector<string, pp_datatype_const_ptr> m_datatypes;
+	std::vector<pp_datatype_const_ptr> m_anon_datatypes;
 	std::map<string, int> m_bookmarks;
 
     public:
 	explicit pp_scope(const pp_binding_ptr &binding = pp_binding_ptr())
-	    : pp_dirent(PP_DIRENT_SCOPE), m_parent(NULL), m_binding(binding)
+	    : pp_dirent(PP_DIRENT_SCOPE), m_parent(), m_binding(binding)
 	{
 	}
 	virtual ~pp_scope()
@@ -46,14 +52,14 @@ class pp_scope: public pp_dirent
 	// scope is the top of the hierarchy, this method returns a
 	// pointer to this object.
 	//
-	const pp_scope *
+	pp_scope_const_ptr
 	parent() const;
 
 	//
 	// Set the parent scope of this object.
 	//
 	void
-	set_parent(const pp_scope *parent);
+	set_parent(const pp_scope_const_ptr &parent);
 
 	//
 	// Return a boolean indicating whether this object is the top of the
@@ -135,13 +141,13 @@ class pp_scope: public pp_dirent
 	// Returns:
 	// 	 NULL if element not found, otherwise the desired pp_dirent.
 	//
-	pp_dirent *
+	pp_dirent_ptr
 	dirent(int index);
-	pp_dirent *
+	pp_dirent_ptr
 	dirent(string index);
-	const pp_dirent *
+	pp_dirent_const_ptr
 	dirent(int index) const;
-	const pp_dirent *
+	pp_dirent_const_ptr
 	dirent(string index) const;
 
 	//
@@ -150,7 +156,7 @@ class pp_scope: public pp_dirent
 	// Throws:
 	// 	std::out_of_range
 	//
-	string
+	const string &
 	dirent_name(int index) const;
 
 	//
@@ -164,7 +170,7 @@ class pp_scope: public pp_dirent
 	// 	pp_dirent::conversion_error	- path element is not a scope
 	//
 	//
-	const pp_dirent *
+	pp_dirent_const_ptr
 	lookup_dirent(pp_path path) const;
 
 	//
@@ -182,7 +188,7 @@ class pp_scope: public pp_dirent
 	// 	pp_path::invalid_error		- invalid path element
 	// 	pp_dirent::conversion_error	- path element is not a scope
 	//
-	const pp_register *
+	pp_register_const_ptr
 	lookup_register(const pp_path &path) const;
 
 	//
@@ -194,7 +200,7 @@ class pp_scope: public pp_dirent
 	// 	pp_path::invalid_error		- invalid path element
 	// 	pp_dirent::conversion_error	- path element is not a scope
 	//
-	const pp_field *
+	pp_field_const_ptr
 	lookup_field(const pp_path &path) const;
 
 	//
@@ -206,7 +212,7 @@ class pp_scope: public pp_dirent
 	// 	pp_path::invalid_error		- invalid path element
 	// 	pp_dirent::conversion_error	- path element is not a scope
 	//
-	const pp_scope *
+	pp_scope_const_ptr
 	lookup_scope(const pp_path &path) const;
 
 	//
@@ -218,7 +224,7 @@ class pp_scope: public pp_dirent
 	// 	pp_path::invalid_error		- invalid path element
 	// 	pp_dirent::conversion_error	- path element is not a scope
 	//
-	const pp_array *
+	pp_array_const_ptr
 	lookup_array(const pp_path &path) const;
 
 	//
@@ -235,29 +241,28 @@ class pp_scope: public pp_dirent
 
     private:
 	// Returned desired dirent specified by path, NULL if not found.
-	const pp_dirent *
+	pp_dirent_const_ptr
 	lookup_dirent_internal(pp_path &path) const;
 };
-typedef boost::shared_ptr<pp_scope> pp_scope_ptr;
-typedef boost::shared_ptr<const pp_scope> pp_const_scope_ptr;
 
 #define new_pp_scope(...) pp_scope_ptr(new pp_scope(__VA_ARGS__))
 
 // const
-inline const pp_scope *
-pp_scope_from_dirent(const pp_dirent *dirent)
+inline pp_scope_const_ptr
+pp_scope_from_dirent(const pp_dirent_const_ptr &dirent)
 {
 	if (dirent->is_scope()) {
-		return static_cast<const pp_scope *>(dirent);
+		return static_pointer_cast<const pp_scope>(dirent);
 	}
 	throw pp_dirent::conversion_error("non-scope dirent used as scope");
 }
 // non-const
-inline pp_scope *
-pp_scope_from_dirent(pp_dirent *dirent)
+inline pp_scope_ptr
+pp_scope_from_dirent(const pp_dirent_ptr &dirent)
 {
-	const pp_dirent *const_dirent = dirent;
-	return const_cast<pp_scope *>(pp_scope_from_dirent(const_dirent));
+	const pp_dirent_const_ptr &const_dirent = dirent;
+	return const_pointer_cast<pp_scope>(
+	       pp_scope_from_dirent(const_dirent));
 }
 
 #endif // PP_PP_SCOPE_H__
