@@ -275,6 +275,18 @@ msr_generic_device()
 
 	CLOSE_SCOPE(); // mtrr
 
+	OPEN_SCOPE("sysenter");
+
+	REG64("%SYSENTER_CS", 0x174);
+	REG64("%SYSENTER_ESP", 0x175);
+	REG64("%SYSENTER_EIP", 0x176);
+
+	FIELD("SYSENTER_CS", "hex16_t", BITS("%SYSENTER_CS", 15, 0));
+	FIELD("SYSENTER_ESP", "addr32_t", BITS("%SYSENTER_ESP", 31, 0));
+	FIELD("SYSENTER_EIP", "addr32_t", BITS("%SYSENTER_EIP", 31, 0));
+
+	CLOSE_SCOPE(); // sysenter
+
 	REG64("%PAT", 0x277);
 	FIELD("PA0", "pat_type_t", BITS("%PAT", 2, 0));
 	FIELD("PA1", "pat_type_t", BITS("%PAT", 10, 8));
