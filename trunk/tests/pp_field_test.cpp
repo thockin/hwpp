@@ -18,10 +18,10 @@ test_int_field()
 	/* two bindings with one reg each */
 	pp_binding_ptr bind1 = new_test_binding();
 	bind1->write(0, BITS16, 0x1111);
-	pp_register_ptr r1 = new_pp_bound_register(bind1.get(), 1, BITS16);
+	pp_register_ptr r1 = new_pp_bound_register(bind1, 1, BITS16);
 	pp_binding_ptr bind2 = new_test_binding();
 	bind2->write(0, BITS16, 0x2222);
-	pp_register_ptr r2 = new_pp_bound_register(bind2.get(), 1, BITS16);
+	pp_register_ptr r2 = new_pp_bound_register(bind2, 1, BITS16);
 
 	pp_datatype_ptr integer = new_pp_int_datatype();
 	pp_direct_field f1(integer.get(),
@@ -63,10 +63,10 @@ test_hex_field()
 	/* two bindings with one reg each */
 	pp_binding_ptr bind1 = new_test_binding();
 	bind1->write(0, BITS16, 0x1111);
-	pp_register_ptr r1 = new_pp_bound_register(bind1.get(), 1, BITS16);
+	pp_register_ptr r1 = new_pp_bound_register(bind1, 1, BITS16);
 	pp_binding_ptr bind2 = new_test_binding();
 	bind2->write(0, BITS16, 0x2222);
-	pp_register_ptr r2 = new_pp_bound_register(bind2.get(), 1, BITS16);
+	pp_register_ptr r2 = new_pp_bound_register(bind2, 1, BITS16);
 
 	/* test a hex16 field */
 	pp_datatype_ptr hex16 = new_pp_hex_datatype(BITS16);
@@ -109,10 +109,10 @@ test_enum_field()
 	/* two bindings with one reg each */
 	pp_binding_ptr bind1 = new_test_binding();
 	bind1->write(0, BITS16, 0x1111);
-	pp_register_ptr r1 = new_pp_bound_register(bind1.get(), 1, BITS16);
+	pp_register_ptr r1 = new_pp_bound_register(bind1, 1, BITS16);
 	pp_binding_ptr bind2 = new_test_binding();
 	bind2->write(0, BITS16, 0x2222);
-	pp_register_ptr r2 = new_pp_bound_register(bind2.get(), 1, BITS16);
+	pp_register_ptr r2 = new_pp_bound_register(bind2, 1, BITS16);
 
 	/* test an enum field */
 	pp_enum_datatype_ptr e1 = new_pp_enum_datatype();
@@ -160,10 +160,10 @@ test_bitmask_field()
 	/* two bindings with one reg each */
 	pp_binding_ptr bind1 = new_test_binding();
 	bind1->write(0, BITS16, 0x1111);
-	pp_register_ptr r1 = new_pp_bound_register(bind1.get(), 1, BITS16);
+	pp_register_ptr r1 = new_pp_bound_register(bind1, 1, BITS16);
 	pp_binding_ptr bind2 = new_test_binding();
 	bind2->write(0, BITS16, 0x2222);
-	pp_register_ptr r2 = new_pp_bound_register(bind2.get(), 1, BITS16);
+	pp_register_ptr r2 = new_pp_bound_register(bind2, 1, BITS16);
 
 	/* test a bitmask field */
 	pp_bitmask_datatype_ptr b1 = new_pp_bitmask_datatype();

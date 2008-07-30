@@ -14,11 +14,11 @@ test_pp_bound_register()
 	pp_binding_ptr bind = new_test_binding();
 
 	/* set up test registers */
-	pp_bound_register r1(bind.get(), 1, BITS8);
-	pp_bound_register r2(bind.get(), 2, BITS16);
-	pp_bound_register r3(bind.get(), 3, BITS32);
-	pp_bound_register r4(bind.get(), 4, BITS64);
-	pp_bound_register r5(bind.get(), 5, BITS128);
+	pp_bound_register r1(bind, 1, BITS8);
+	pp_bound_register r2(bind, 2, BITS16);
+	pp_bound_register r3(bind, 3, BITS32);
+	pp_bound_register r4(bind, 4, BITS64);
+	pp_bound_register r5(bind, 5, BITS128);
 
 	/* test the read() method */
 	if (r1.read() != PP_MASK(BITS8)) {

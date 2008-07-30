@@ -18,11 +18,11 @@
 class pp_bound_register: public pp_register
 {
     private:
-	const pp_binding *m_binding;
+	pp_binding_const_ptr m_binding;
 	pp_value m_address;
 
     public:
-	pp_bound_register(const pp_binding *binding,
+	pp_bound_register(const pp_binding_const_ptr &binding,
 	    const pp_value &address, const pp_bitwidth width)
 	    : pp_register(width), m_binding(binding), m_address(address)
 	{

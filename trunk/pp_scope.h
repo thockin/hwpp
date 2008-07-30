@@ -75,7 +75,7 @@ class pp_scope: public pp_dirent,
 	// climb the scope hierarchy until you find a binding.  If no
 	// scope in the hierarchy is bound, return NULL.
 	//
-	const pp_binding *
+	const pp_binding_const_ptr &
 	binding() const;
 	bool
 	is_bound() const;
