@@ -17,11 +17,11 @@
 // scope is the top of the hierarchy, this method returns a
 // pointer to this object.
 //
-const pp_scope *
+pp_scope_const_ptr
 pp_scope::parent() const
 {
 	if (is_root()) {
-		return this;
+		return shared_from_this();
 	}
 	return m_parent;
 }
@@ -30,7 +30,7 @@ pp_scope::parent() const
 // Set the parent scope of this object.
 //
 void
-pp_scope::set_parent(const pp_scope *parent)
+pp_scope::set_parent(const pp_scope_const_ptr &parent)
 {
 	m_parent = parent;
 }
@@ -57,7 +57,7 @@ pp_scope::binding() const
 {
 	const pp_scope *s = this;
 	while (!s->is_bound() && !s->is_root()) {
-		s = s->parent();
+		s = s->parent().get();
 	}
 	return s->m_binding.get();
 }
@@ -123,7 +123,7 @@ pp_scope::resolve_datatype(const string &name) const
 	DTRACE(TRACE_TYPES && TRACE_SCOPES,
 		"trying to resolve type \"" + name + "\"");
 
-	keyed_vector<string, pp_const_datatype_ptr>::const_iterator it;
+	keyed_vector<string, pp_datatype_const_ptr>::const_iterator it;
 	it = m_datatypes.find(name);
 	if (it != m_datatypes.end()) {
 		return (*it).get();
@@ -163,10 +163,10 @@ pp_scope::add_dirent(const pp_path::element &elem,
 			    + elem.to_string());
 		}
 		// does the array already exist?
-		pp_dirent *de = dirent(elem.name());
+		const pp_dirent_ptr &de = dirent(elem.name());
 		if (de != NULL) {
 			// if so, append the new dirent
-			pp_array *ar = pp_array_from_dirent(de);
+			const pp_array_ptr &ar = pp_array_from_dirent(de);
 			ar->append(new_dirent);
 		} else {
 			// if not, add the array and append the new dirent
@@ -182,8 +182,8 @@ pp_scope::add_dirent(const pp_path::element &elem,
 
 	// if we're adding a scope, we need to link it into the tree
 	if (new_dirent->is_scope()) {
-		pp_scope *scope = pp_scope_from_dirent(new_dirent.get());
-		scope->set_parent(this);
+		const pp_scope_ptr &scope = pp_scope_from_dirent(new_dirent);
+		scope->set_parent(shared_from_this());
 	}
 }
 
@@ -199,43 +199,51 @@ pp_scope::n_dirents() const
 //
 // Provide access to the dirents vector.
 //
-pp_dirent *
+pp_dirent_ptr
 pp_scope::dirent(int index)
 {
 	keyed_vector<string, pp_dirent_ptr>::iterator it;
 	it = m_dirents.find(index);
 	if (it == m_dirents.end()) {
-		return NULL;
+		return pp_dirent_ptr();
 	}
-	return (*it).get();
+	return *it;
 }
-pp_dirent *
+pp_dirent_ptr
 pp_scope::dirent(string index)
 {
 	keyed_vector<string, pp_dirent_ptr>::iterator it;
 	it = m_dirents.find(index);
 	if (it == m_dirents.end()) {
-		return NULL;
+		return pp_dirent_ptr();
 	}
-	return (*it).get();
+	return *it;
 }
-const pp_dirent *
+pp_dirent_const_ptr
 pp_scope::dirent(int index) const
 {
-	pp_scope *scope = const_cast<pp_scope *>(this);
-	return scope->dirent(index);
+	keyed_vector<string, pp_dirent_ptr>::const_iterator it =
+	    m_dirents.find(index);
+	if (it == m_dirents.end()) {
+		return pp_dirent_const_ptr();
+	}
+	return *it;
 }
-const pp_dirent *
+pp_dirent_const_ptr
 pp_scope::dirent(string index) const
 {
-	pp_scope *scope = const_cast<pp_scope *>(this);
-	return scope->dirent(index);
+	keyed_vector<string, pp_dirent_ptr>::const_iterator it =
+	    m_dirents.find(index);
+	if (it == m_dirents.end()) {
+		return pp_dirent_const_ptr();
+	}
+	return *it;
 }
 
 //
 // Return the name of the indexed dirent.
 //
-string
+const string &
 pp_scope::dirent_name(int index) const
 {
 	return m_dirents.key_at(index);
@@ -251,49 +259,49 @@ pp_scope::dirent_name(int index) const
 // 	pp_path::invalid_error		- invalid path element
 // 	pp_dirent::conversion_error	- path element is not a scope
 //
-const pp_dirent *
+pp_dirent_const_ptr
 pp_scope::lookup_dirent(pp_path path) const
 {
 	const pp_scope *scope = this;
 
 	if (path.is_absolute()) {
 		while (!scope->is_root()) {
-			scope = scope->parent();
+			scope = scope->parent().get();
 		}
 	}
 
 	if (path.size() == 0) {
-		return scope;
+		return scope->shared_from_this();
 	}
 
 	return scope->lookup_dirent_internal(path);
 }
 // Returned desired dirent specified by path, NULL if not found.
 // NOTE: this takes path as a non-const reference
-const pp_dirent *
+pp_dirent_const_ptr
 pp_scope::lookup_dirent_internal(pp_path &path) const
 {
 	// get the next element of the path
 	pp_path::element path_front = path.pop_front();
 
 	// look up the dirent of the next element
-	const pp_dirent *de;
+	pp_dirent_const_ptr de;
 	if (path_front == "..") {
 		// go up one level in the tree
 		de = parent();
 	} else if (path_front.is_bookmark()) {
 		const pp_scope *s = this;
 		while (!s->has_bookmark(path_front.name()) && !s->is_root()) {
-			s = s->parent();
+			s = s->parent().get();
 		}
 		if (!s->has_bookmark(path_front.name())) {
-			return NULL;
+			return pp_dirent_ptr();
 		}
-		de = s;
+		de = s->shared_from_this();
 	} else {
 		de = dirent(path_front.name());
-		if (de == NULL) {
-			return NULL;
+		if (!de) {
+			return pp_dirent_ptr();
 		}
 	}
 
@@ -307,10 +315,10 @@ pp_scope::lookup_dirent_internal(pp_path &path) const
 		}
 		// if path is array_append, return not_found
 		if (path_front.array_mode() == path_front.ARRAY_APPEND) {
-			return NULL;
+			return pp_dirent_ptr();
 		}
 
-		const pp_array *ar = pp_array_from_dirent(de);
+		pp_array_const_ptr ar = pp_array_from_dirent(de);
 		size_t index;
 
 		// if path is an array_tail, but dirent is empty: error
@@ -321,19 +329,18 @@ pp_scope::lookup_dirent_internal(pp_path &path) const
 			//FIXME: What if you rename a scope that was
 			//temporarily in an array?
 			//FIXME: how do I know how big an array is?
-			return NULL;
+			return pp_dirent_ptr();
 		}
 		// if path is an array_tail, access the last index
 		if (path_front.array_mode() == path_front.ARRAY_TAIL) {
 			index = ar->size() - 1;
-std::cout << "SHIT" << std::endl;
 		} else {
 			// must be a direct access
 			index = path_front.array_index();
 		}
 		// index into the array
 		if (index >= ar->size()) {
-			return NULL;
+			return pp_dirent_ptr();
 		}
 		de = ar->at(index);
 	}
@@ -345,7 +352,7 @@ std::cout << "SHIT" << std::endl;
 
 	// keep looking
 	if (de->is_scope()) {
-		const pp_scope *s = pp_scope_from_dirent(de);
+		pp_scope_const_ptr s = pp_scope_from_dirent(de);
 		return s->lookup_dirent_internal(path);
 	}
 
@@ -360,7 +367,7 @@ std::cout << "SHIT" << std::endl;
 bool
 pp_scope::dirent_defined(const pp_path &path) const
 {
-	return lookup_dirent(path) != NULL;
+	return lookup_dirent(path) ? true : false; 
 }
 
 //
@@ -372,13 +379,13 @@ pp_scope::dirent_defined(const pp_path &path) const
 // 	pp_path::invalid_error		- invalid path element
 // 	pp_dirent::conversion_error	- path element is not a scope
 //
-const pp_register *
+pp_register_const_ptr
 pp_scope::lookup_register(const pp_path &path) const
 {
-	const pp_dirent *de = lookup_dirent(path);
+	pp_dirent_const_ptr de = lookup_dirent(path);
 
-	if (de == NULL) {
-		return NULL;
+	if (!de) {
+		return pp_register_const_ptr();
 	}
 
 	if (!de->is_register()) {
@@ -398,13 +405,13 @@ pp_scope::lookup_register(const pp_path &path) const
 // 	pp_path::invalid_error		- invalid path element
 // 	pp_dirent::conversion_error	- path element is not a scope
 //
-const pp_field *
+pp_field_const_ptr
 pp_scope::lookup_field(const pp_path &path) const
 {
-	const pp_dirent *de = lookup_dirent(path);
+	pp_dirent_const_ptr de = lookup_dirent(path);
 
-	if (de == NULL) {
-		return NULL;
+	if (!de) {
+		return pp_field_const_ptr();
 	}
 
 	if (!de->is_field()) {
@@ -424,13 +431,13 @@ pp_scope::lookup_field(const pp_path &path) const
 // 	pp_path::invalid_error		- invalid path element
 // 	pp_dirent::conversion_error	- path element is not a scope
 //
-const pp_scope *
+pp_scope_const_ptr
 pp_scope::lookup_scope(const pp_path &path) const
 {
-	const pp_dirent *de = lookup_dirent(path);
+	pp_dirent_const_ptr de = lookup_dirent(path);
 
-	if (de == NULL) {
-		return NULL;
+	if (!de) {
+		return pp_scope_const_ptr();
 	}
 
 	if (!de->is_scope()) {
@@ -450,13 +457,13 @@ pp_scope::lookup_scope(const pp_path &path) const
 // 	pp_path::invalid_error		- invalid path element
 // 	pp_dirent::conversion_error	- path element is not a scope
 //
-const pp_array *
+pp_array_const_ptr
 pp_scope::lookup_array(const pp_path &path) const
 {
-	const pp_dirent *de = lookup_dirent(path);
+	pp_dirent_const_ptr de = lookup_dirent(path);
 
-	if (de == NULL) {
-		return NULL;
+	if (!de) {
+		return pp_array_const_ptr();
 	}
 
 	if (!de->is_array()) {

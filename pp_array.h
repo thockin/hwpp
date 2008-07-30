@@ -57,12 +57,12 @@ class pp_array: public pp_dirent
 	// Throws:
 	// 	std::out_of_range	- index is out of range
 	//
-	const pp_dirent *
+	const pp_dirent_const_ptr &
 	at(size_t index) const
 	{
-		return m_vector.at(index).get();
+		return m_vector.at(index);
 	}
-	const pp_dirent *
+	const pp_dirent_const_ptr &
 	operator[](size_t index) const
 	{
 		return at(index);
@@ -75,29 +75,30 @@ class pp_array: public pp_dirent
 	}
 
     private:
-	std::vector<pp_const_dirent_ptr> m_vector;
+	std::vector<pp_dirent_const_ptr> m_vector;
 	pp_dirent_type m_type;
 };
 typedef boost::shared_ptr<pp_array> pp_array_ptr;
-typedef boost::shared_ptr<const pp_array> pp_const_array_ptr;
+typedef boost::shared_ptr<const pp_array> pp_array_const_ptr;
 
 #define new_pp_array(...) pp_array_ptr(new pp_array(__VA_ARGS__))
 
 // const
-inline const pp_array *
-pp_array_from_dirent(const pp_dirent *dirent)
+inline pp_array_const_ptr
+pp_array_from_dirent(const pp_dirent_const_ptr &dirent)
 {
 	if (dirent->is_array()) {
-		return static_cast<const pp_array *>(dirent);
+		return static_pointer_cast<const pp_array>(dirent);
 	}
 	throw pp_dirent::conversion_error("non-array dirent used as array");
 }
 // non-const
-inline pp_array *
-pp_array_from_dirent(pp_dirent *dirent)
+inline pp_array_ptr
+pp_array_from_dirent(const pp_dirent_ptr &dirent)
 {
-	const pp_dirent *const_dirent = dirent;
-	return const_cast<pp_array *>(pp_array_from_dirent(const_dirent));
+	const pp_dirent_const_ptr &const_dirent = dirent;
+	return const_pointer_cast<pp_array>(
+	       pp_array_from_dirent(const_dirent));
 }
 
 #endif // PP_PP_ARRAY_H__

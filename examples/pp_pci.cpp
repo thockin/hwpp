@@ -8,16 +8,21 @@
 using namespace std;
 
 void
-dump_field(const string &name, const pp_field *field, const string &indent="");
+dump_field(const string &name, const pp_field_const_ptr &field,
+           const string &indent="");
 void
-dump_reg(const string &name, const pp_register *reg, const string &indent="");
+dump_reg(const string &name, const pp_register_const_ptr &reg,
+         const string &indent="");
 void
-dump_scope(const string &name, const pp_scope *scope, const string &indent="");
+dump_scope(const string &name, const pp_scope_const_ptr &scope,
+           const string &indent="");
 void
-dump_array(const string &name, const pp_array *array, const string &indent="");
+dump_array(const string &name, const pp_array_const_ptr &array,
+           const string &indent="");
 
 void
-dump_field(const string &name, const pp_field *field, const string &indent)
+dump_field(const string &name, const pp_field_const_ptr &field,
+           const string &indent)
 {
 	cout << indent;
 	cout << name << ": "
@@ -28,7 +33,8 @@ dump_field(const string &name, const pp_field *field, const string &indent)
 }
 
 void
-dump_reg(const string &name, const pp_register *reg, const string &indent)
+dump_reg(const string &name, const pp_register_const_ptr &reg,
+         const string &indent)
 {
 	cout << indent;
 	cout << name << ": "
@@ -38,28 +44,30 @@ dump_reg(const string &name, const pp_register *reg, const string &indent)
 }
 
 void
-dump_array(const string &name, const pp_array *array, const string &indent)
+dump_array(const string &name, const pp_array_const_ptr &array,
+           const string &indent)
 {
 	for (size_t i = 0; i < array->size(); i++) {
 		string subname = name + "[" + to_string(i) + "]";
 		if (array->array_type() == PP_DIRENT_FIELD) {
-			const pp_field *field;
-			field = pp_field_from_dirent(array->at(i));
+			const pp_field_const_ptr &field =
+			    pp_field_from_dirent(array->at(i));
 			dump_field(subname, field, indent);
 		} else if (array->array_type() == PP_DIRENT_SCOPE) {
-			const pp_scope *scope;
-			scope = pp_scope_from_dirent(array->at(i));
+			const pp_scope_const_ptr &scope =
+			    pp_scope_from_dirent(array->at(i));
 			dump_scope(subname, scope, indent);
 		} else if (array->array_type() == PP_DIRENT_ARRAY) {
-			const pp_array *subarray;
-			subarray = pp_array_from_dirent(array->at(i));
+			const pp_array_const_ptr &subarray =
+			    pp_array_from_dirent(array->at(i));
 			dump_array(subname, subarray, indent);
 		}
 	}
 }
 
 void
-dump_scope(const string &name, const pp_scope *scope, const string &indent)
+dump_scope(const string &name, const pp_scope_const_ptr &scope,
+           const string &indent)
 {
 	cout << indent << name;
 	if (scope->is_bound()) {
@@ -93,7 +101,7 @@ dump_scope(const string &name, const pp_scope *scope, const string &indent)
 int
 main()
 {
-	pp_scope *root = pp_init();
+	pp_scope_ptr root = pp_init();
 	pp_do_discovery("pci");
 	dump_scope("", root);
 	return 0;

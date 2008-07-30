@@ -100,6 +100,6 @@ class pp_datatype
 	}
 };
 typedef boost::shared_ptr<pp_datatype> pp_datatype_ptr;
-typedef boost::shared_ptr<const pp_datatype> pp_const_datatype_ptr;
+typedef boost::shared_ptr<const pp_datatype> pp_datatype_const_ptr;
 
 #endif // PP_PP_DATATYPE_H__

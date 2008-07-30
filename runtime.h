@@ -8,7 +8,7 @@
 #include "pp_context.h"
 #include <vector>
 
-extern pp_scope *
+extern pp_scope_ptr
 pp_init();
 
 extern pp_context current_context;

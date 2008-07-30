@@ -28,21 +28,21 @@ indent(int tab_count)
 }
 
 static void
-display_field(const pp_field *field, int depth)
+display_field(const pp_field_const_ptr &field, int depth)
 {
 	(void)field;
 	(void)depth;
 }
 
 static void
-display_reg(const pp_register *reg, int depth)
+display_reg(const pp_register_const_ptr &reg, int depth)
 {
 	(void)reg;
 	(void)depth;
 }
 
 static void
-display_tree(const pp_scope *scope, int depth)
+display_tree(const pp_scope_const_ptr &scope, int depth)
 {
 	depth++;
 
@@ -54,7 +54,7 @@ display_tree(const pp_scope *scope, int depth)
 	}
 
 	for (size_t i = 0; i < scope->n_dirents(); i++) {
-		const pp_dirent *dirent = scope->dirent(i);
+		const pp_dirent_const_ptr &dirent = scope->dirent(i);
 
 		indent(depth);
 
@@ -79,7 +79,7 @@ display_tree(const pp_scope *scope, int depth)
 
 /* this is the externally visible interface */
 void
-display_tree(const pp_scope *scope)
+display_tree(pp_scope_const_ptr &scope)
 {
 	cout << "root" << endl;
 	display_tree(scope, 0);

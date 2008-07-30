@@ -124,23 +124,24 @@ class pp_field: public pp_dirent
 	const pp_datatype *m_datatype;
 };
 typedef boost::shared_ptr<pp_field> pp_field_ptr;
-typedef boost::shared_ptr<const pp_field> pp_const_field_ptr;
+typedef boost::shared_ptr<const pp_field> pp_field_const_ptr;
 
 // const
-inline const pp_field *
-pp_field_from_dirent(const pp_dirent *dirent)
+inline pp_field_const_ptr
+pp_field_from_dirent(const pp_dirent_const_ptr &dirent)
 {
 	if (dirent->is_field()) {
-		return static_cast<const pp_field *>(dirent);
+		return static_pointer_cast<const pp_field>(dirent);
 	}
 	throw pp_dirent::conversion_error("non-field dirent used as field");
 }
 // non-const
-inline pp_field *
-pp_field_from_dirent(pp_dirent *dirent)
+inline pp_field_ptr
+pp_field_from_dirent(const pp_dirent_ptr &dirent)
 {
-	const pp_dirent *const_dirent = dirent;
-	return const_cast<pp_field *>(pp_field_from_dirent(const_dirent));
+	const pp_dirent_const_ptr &const_dirent = dirent;
+	return const_pointer_cast<pp_field>(
+	       pp_field_from_dirent(const_dirent));
 }
 
 #endif // PP_PP_FIELD_H__

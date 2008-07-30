@@ -369,6 +369,12 @@ class keyed_vector
 		}
 		return iter_at(index);
 	}
+	const_iterator
+	find(size_type index) const
+	{
+		keyed_vector *p = const_cast<keyed_vector *>(this);
+		return p->find(index);
+	}
 	iterator
 	find(const Tkey &key)
 	{

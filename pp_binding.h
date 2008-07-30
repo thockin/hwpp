@@ -50,7 +50,7 @@ class pp_binding
 	to_string() const = 0;
 };
 typedef boost::shared_ptr<pp_binding> pp_binding_ptr;
-typedef boost::shared_ptr<const pp_binding> pp_const_binding_ptr;
+typedef boost::shared_ptr<const pp_binding> pp_binding_const_ptr;
 
 inline std::ostream &
 operator<<(std::ostream& o, const pp_binding &binding)

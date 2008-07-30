@@ -56,15 +56,10 @@ class pp_context
 	{
 		return m_name.to_string();
 	}
-	pp_scope *
+	const pp_scope_ptr &
 	scope()
 	{
-		return m_scope.get();
-	}
-	const pp_scope *
-	scope() const
-	{
-		return m_scope.get();
+		return m_scope;
 	}
 	bool
 	is_readonly() const
@@ -116,25 +111,25 @@ class pp_context
 		return m_scope->dirent_defined(path);
 	}
 
-	const pp_dirent *
+	pp_dirent_const_ptr
 	lookup_dirent(pp_path path) const
 	{
 		return m_scope->lookup_dirent(path);
 	}
 
-	const pp_register *
+	pp_register_const_ptr
 	lookup_register(const pp_path &path) const
 	{
 		return m_scope->lookup_register(path);
 	}
 
-	const pp_field *
+	pp_field_const_ptr
 	lookup_field(const pp_path &path) const
 	{
 		return m_scope->lookup_field(path);
 	}
 
-	const pp_scope *
+	pp_scope_const_ptr
 	lookup_scope(const pp_path &path) const
 	{
 		return m_scope->lookup_scope(path);

@@ -101,7 +101,7 @@ class pp_dirent {
 	pp_dirent_type m_type;
 };
 typedef boost::shared_ptr<pp_dirent> pp_dirent_ptr;
-typedef boost::shared_ptr<const pp_dirent> pp_const_dirent_ptr;
+typedef boost::shared_ptr<const pp_dirent> pp_dirent_const_ptr;
 
 #define new_pp_dirent(...) pp_dirent_ptr(new pp_dirent(__VA_ARGS__))
 

@@ -10,9 +10,9 @@
  *
  * Constructors:
  *	()
- *	(const pp_register *reg)
- *	(const pp_register *reg, unsigned bit)
- *	(const pp_register *reg, unsigned hi_bit, unsigned lo_bit)
+ *	(pp_register_const_ptr &reg)
+ *	(pp_register_const_ptr &reg, unsigned bit)
+ *	(pp_register_const_ptr &reg, unsigned hi_bit, unsigned lo_bit)
  *
  * Examples:
  *	pp_regbits A(reg1, 15, 0);
@@ -37,20 +37,21 @@ class pp_regbits
 	};
 
 	// create an empty regbits
-	pp_regbits(): m_register(NULL), m_mask(0)
+	pp_regbits(): m_register(), m_mask(0)
 	{}
 	// create a simple regbits
-	pp_regbits(const pp_register *reg)
+	pp_regbits(const pp_register_const_ptr &reg)
 	{
 		// use the full register
 		init(reg, reg ? reg->width()-1 : 0, 0);
 	}
-	pp_regbits(const pp_register *reg, unsigned bit)
+	pp_regbits(const pp_register_const_ptr &reg, unsigned bit)
 	{
 		// use a single bit
 		init(reg, bit, bit);
 	}
-	pp_regbits(const pp_register *reg, unsigned hi_bit, unsigned lo_bit)
+	pp_regbits(const pp_register_const_ptr &reg,
+	           unsigned hi_bit, unsigned lo_bit)
 	{
 		// use the specified bits
 		init(reg, hi_bit, lo_bit);
@@ -84,7 +85,7 @@ class pp_regbits
 		if (m_register) {
 			// simple this becomes complex
 			m_sub_bits.push_back(*this);
-			m_register = NULL;
+			m_register.reset();
 			m_mask = 0;
 		}
 		m_sub_bits.push_back(that);
@@ -188,7 +189,7 @@ class pp_regbits
 
     private:
 	// a simple regbits populates these
-	const pp_register *m_register;
+	pp_register_const_ptr m_register;
 	unsigned m_lo_bit;
 	unsigned m_hi_bit;
 	pp_value m_mask;
@@ -196,10 +197,11 @@ class pp_regbits
 	std::vector<pp_regbits> m_sub_bits;
 
 	void
-	init(const pp_register *reg, unsigned hi_bit, unsigned lo_bit)
+	init(const pp_register_const_ptr &reg,
+	     unsigned hi_bit, unsigned lo_bit)
 	{
 		// sanity checks first
-		if (reg == NULL) {
+		if (!reg) {
 			throw range_error("NULL register");
 		}
 		if (hi_bit < lo_bit) {
