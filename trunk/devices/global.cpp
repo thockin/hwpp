@@ -33,6 +33,7 @@ platform_global_init()
 	BOOL("truefalse_t", "true", "false");
 	BOOL("onoff_t", "on", "off");
 	BOOL("enabledisable_t", "enabled", "disabled");
+	BOOL("disableenable_t", "disabled", "enabled");
 
 	/* generic bitmask */
 	BITMASK("bitmask_t",
