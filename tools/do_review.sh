@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Arguments to this script are passed through to upload.py.
+#
+# For example, use tools/do_review.sh -i [issuenum] to add a new patch set to
+# an existing issue.
+
 OFILE=.tmp.do_review.$$
 
 function cleanup
@@ -60,7 +65,7 @@ fi
 echo -ne "Subject for this review:  "
 read SUBJECT
 
-./tools/upload.py -e "$GOOGLE_USER" -m "$SUBJECT" -- $FILES
+./tools/upload.py "$@" -e "$GOOGLE_USER" -m "$SUBJECT" -- $FILES
 
 cleanup
 exit 0
