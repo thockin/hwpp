@@ -585,6 +585,25 @@ fkl_bitmask(const parse_location &loc,
 }
 
 //
+// Define a pp_string_datatype.
+//
+pp_datatype_ptr
+fkl_string(const parse_location &loc, const string &name)
+{
+	DTRACE(TRACE_TYPES, "string: " + name);
+
+	DASSERT_MSG(!current_context.is_readonly(),
+		"current_context is read-only");
+
+	pp_string_datatype_ptr string_ptr = new_pp_string_datatype();
+	if (name != "") {
+		fkl_validate_type_name(name, loc);
+		current_context.add_datatype(name, string_ptr);
+	}
+	return string_ptr;
+}
+
+//
 // Define a pp_enum_datatype.
 //
 pp_datatype_ptr

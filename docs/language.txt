@@ -236,7 +236,23 @@ Datatypes
     Define a new hexadecimal datatype with a minimum width notation and the
     specified units appended.
 
-  Not all fields can be directly interpretted.  Two common ways of evaluating
+  A C++-style string type is also provided. This datatype interprets a given
+  value as a string in little-endian order, meaning that the least significant
+  byte in the input is the first character in the string. Non-printing
+  characters in the middle of the string are ignored for display purposes.
+
+  Syntax: STRING(datatype_name)
+    Define a new string datatype.
+  
+  Syntax: ANON_STRING()
+    Define an anonymous string datatype.
+
+    Example: ANON_STRING() evaluates 0x434241 as "ABC"
+    Example: ANON_STRING() evaluates 0x430042004100 as "ABC"
+    Example: ANON_STRING() evaluates 0x580859 as "X" (where 0x08 is the
+             backspace character)
+
+  Not all fields can be directly interpreted.  Two common ways of evaluating
   fields are as bitmasks and enumerated lists.  For these we define BITMASK
   and ENUM types.
 

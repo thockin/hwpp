@@ -90,7 +90,7 @@ static const pp_bitwidth BITS32  = 32;
 static const pp_bitwidth BITS64  = 64;
 static const pp_bitwidth BITS128 = 128;
 #define PP_BITWIDTH_MAX BITS128
-#define BYTES TO_BITS(bytes) pp_bitwidth((bytes) * CHAR_BIT)
+#define BYTES_TO_BITS(bytes) pp_bitwidth((bytes) * CHAR_BIT)
 #define BITS_TO_BYTES(bits)  size_t(((bits)+(CHAR_BIT-1)) / CHAR_BIT)
 
 /* generate a bitmask of n bits */

@@ -404,5 +404,15 @@ cpuid_generic_device()
 	REG128("%function_80000000", 0x80000000);
 	FIELD("largest_ext_fn", "hex32_t", EAX("%function_80000000", 31, 0));
 
+	// "Processor Name / Brand String"
+	// CPUID Extended Function 0x2-0x4
+	REG128("%function_80000002", 0x80000002);
+	REG128("%function_80000003", 0x80000003);
+	REG128("%function_80000004", 0x80000004);
+	FIELD("processor_name_str", ANON_STRING(),
+			BITS("%function_80000004", 127, 0) +
+			BITS("%function_80000003", 127, 0) +
+			BITS("%function_80000002", 127, 0));
+
 	// FIXME: add extended functions
 }

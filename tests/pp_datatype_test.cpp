@@ -26,8 +26,10 @@ test_pp_enum_datatype()
 	}
 
 	// test lookup()
-	ret += TEST_ASSERT(e.lookup("one") == 1, "pp_enum_datatype::lookup(string)");
-	ret += TEST_ASSERT(e.lookup("two") == 2, "pp_enum_datatype::lookup(string)");
+	ret += TEST_ASSERT(e.lookup("one") == 1,
+			"pp_enum_datatype::lookup(string)");
+	ret += TEST_ASSERT(e.lookup("two") == 2,
+			"pp_enum_datatype::lookup(string)");
 	ret += TEST_ASSERT(e.lookup(1) == 1, "pp_enum_datatype::lookup(int)");
 	ret += TEST_ASSERT(e.lookup(2) == 2, "pp_enum_datatype::lookup(int)");
 	try {
@@ -42,6 +44,76 @@ test_pp_enum_datatype()
 		ret++;
 	} catch (pp_datatype::invalid_error &e) {
 	}
+
+	return ret;
+}
+
+int
+test_pp_string_datatype()
+{
+	int ret = 0;
+
+	// test the basic constructor
+	pp_string_datatype s;
+
+	// test the evaluate() method
+	if (s.evaluate(0x41) != "A") {
+		TEST_ERROR("pp_string_datatype::evaluate() returns " + 
+			   s.evaluate(pp_value(0x41)));
+		ret++;
+	}
+	// ...test null character
+	if (s.evaluate(pp_value(0x00)) != "") {
+		TEST_ERROR("pp_string_datatype::evaluate() returns " +
+			   s.evaluate(pp_value(0x00)));
+		ret++;
+	}
+	// ...test multicharacter strings
+	if (s.evaluate(pp_value("0x6f6c6c6548")) != "Hello") {
+		TEST_ERROR("pp_string_datatype::evaluate() returns " +
+			   s.evaluate(pp_value("0x6f6c6c6548")));
+		ret++;
+	}
+	// ...test multicharacter strings with nulls
+	if (s.evaluate(pp_value("0x00006f6c6c6548")) != "Hello") {
+		TEST_ERROR("pp_string_datatype::evaluate() returns " +
+			   s.evaluate(pp_value("0x00006f6c6c6548")));
+		ret++;
+	}
+	if (s.evaluate(pp_value("0x6f006c006c0065004800"))
+	    == "Hello") {
+		// These should not be equal because the string returned
+		// by evaluate() contains embedded null characters.
+		TEST_ERROR("pp_string_datatype::evaluate() returns " +
+			   s.evaluate(pp_value("0x6f006c006c0065004800")));
+		ret++;
+	}
+
+	// test lookup()
+	ret += TEST_ASSERT(s.lookup(pp_value(0x00)) == pp_value(0x00),
+			"pp_string_datatype::lookup(pp_value)");
+	ret += TEST_ASSERT(s.lookup(pp_value("0x1234567890"))
+			   == pp_value("0x1234567890"),
+			"pp_string_datatype::lookup(pp_value)");
+	ret += TEST_ASSERT(s.lookup("A") == pp_value(0x41),
+			"pp_string_datatype::lookup(string)");
+	ret += TEST_ASSERT(s.lookup("") == pp_value(0x00),
+			"pp_string_datatype::lookup(string)");
+	ret += TEST_ASSERT(s.lookup("Hello")
+		           == pp_value("0x6f6c6c6548"),
+			"pp_string_datatype::lookup(pp_value)");
+
+	// test that evaluate() and lookup() are inverse
+	ret += TEST_ASSERT(s.lookup(s.evaluate(0x333231)) == 0x333231,
+			"pp_string_datatype::lookup(string) and "
+			"pp_string_datatype::evaluate(pp_value)");
+	ret += TEST_ASSERT(s.lookup(s.evaluate(pp_value(
+			   "0x6d086c0065004800"))) == 0x6d086c0065004800,
+			"pp_string_datatype::lookup(string) and "
+			"pp_string_datatype::evaluate(pp_value)");
+	ret += TEST_ASSERT(s.evaluate(s.lookup("xyz")) == "xyz",
+			"pp_string_datatype::lookup(string) and "
+			"pp_string_datatype::evaluate(pp_value)");
 
 	return ret;
 }
@@ -355,6 +427,7 @@ test_pp_transform_datatype()
 
 TEST_LIST(
 	TEST(test_pp_enum_datatype),
+	TEST(test_pp_string_datatype),
 	TEST(test_pp_bool_datatype),
 	TEST(test_pp_bitmask_datatype),
 	TEST(test_pp_int_datatype),
