@@ -257,6 +257,67 @@ typedef boost::shared_ptr<pp_bitmask_datatype> pp_bitmask_datatype_ptr;
 		pp_bitmask_datatype_ptr(new pp_bitmask_datatype(__VA_ARGS__))
 
 /*
+ * pp_string_datatype - datatype for string values
+ *
+ * This datatype interprets a given value as a string in little-endian order,
+ * meaning that the least significant byte in the input is the first
+ * character in the string. For example, 0x6f6c6c6548 produces "Hello" (where
+ * 0x48 == 'H').
+ *
+ * Internal non-printing characters are ignored for display purposes. For
+ * example, 0x6f6c6c00006548 also produces "Hello". However, they are
+ * preserved in the string so that the same pp_value is returned when
+ * using lookup() as that which was given to evaluate() in order to produce
+ * the string in the first place. That is, lookup() and evaluate() are inverse.
+ */
+class pp_string_datatype: public pp_datatype
+{
+    public:
+	pp_string_datatype()
+	{}
+	virtual ~pp_string_datatype()
+	{}
+
+	/*
+	 * pp_string_datatype::evaluate(value)
+	 *
+	 * Evaluate a value against this datatype. This method returns a
+	 * string containing the evaluated representation of the 'value'
+	 * argument.
+	 */
+	virtual string
+	evaluate(const pp_value &value) const
+	{
+		bitbuffer bits = value.get_bitbuffer();
+		return string((char *)bits.get(), bits.size_bytes());
+	}
+
+	/*
+	 * pp_string_datatype::lookup(value)
+	 *
+	 * Lookup the value of a (potentially valid) evaluation for this
+	 * datatype. For a string type, this is a no-op.
+	 */
+	virtual pp_value
+	lookup(const pp_value &value) const
+	{
+		return value;
+	}
+	virtual pp_value
+	lookup(const string &str) const
+	{
+		bitbuffer bits(BYTES_TO_BITS(str.size()),
+			       (uint8_t *)str.data());
+		return pp_value(bits);
+	}
+
+};
+typedef boost::shared_ptr<pp_string_datatype> pp_string_datatype_ptr;
+
+#define new_pp_string_datatype(...) \
+		pp_string_datatype_ptr(new pp_string_datatype(__VA_ARGS__))
+
+/*
  * pp_int_datatype - datatype for signed integer values.
  *
  * Notes:

@@ -29,6 +29,10 @@ class bitbuffer
 	{
 		reset(bits, pattern);
 	}
+	bitbuffer(unsigned long bits, uint8_t *data)
+	{
+		reset(bits, data);
+	}
 
 	void
 	reset(std::size_t bits = 0, uint8_t pattern = 0)
@@ -40,6 +44,20 @@ class bitbuffer
 		if (bits) {
 			tmp = uint8_array(new uint8_t[m_bytes]);
 			memset(tmp.get(), pattern, m_bytes);
+		}
+		m_array = tmp;
+	}
+
+	void
+	reset(std::size_t bits, uint8_t *data)
+	{
+		m_bits = bits;
+		m_bytes = (m_bits+(CHAR_BIT-1))/CHAR_BIT;
+
+		uint8_array tmp(NULL);
+		if (bits) {
+			tmp = uint8_array(new uint8_t[m_bytes]);
+			memcpy(tmp.get(), data, m_bytes);
 		}
 		m_array = tmp;
 	}

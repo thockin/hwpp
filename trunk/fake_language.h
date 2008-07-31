@@ -376,6 +376,19 @@ fkl_anon_hex(const parse_location &loc)
 #define HEX(...)		fkl_hex(THIS_LOCATION, ##__VA_ARGS__)
 #define ANON_HEX(...)		fkl_anon_hex(THIS_LOCATION, ##__VA_ARGS__)
 
+//
+// Declare a string datatype.
+//
+extern pp_datatype_ptr
+fkl_string(const parse_location &loc, const string &name);
+inline pp_datatype_ptr
+fkl_anon_string(const parse_location &loc)
+{
+	return fkl_string(loc, "");
+}
+#define STRING(...)		fkl_string(THIS_LOCATION, ##__VA_ARGS__)
+#define ANON_STRING(...)	fkl_anon_string(THIS_LOCATION, ##__VA_ARGS__)
+
 // These are helpers for type safety in pp_enum and pp_bitmask.
 struct fkl_kvpair
 {
