@@ -217,7 +217,7 @@ class bignum: public mpz_class
 	}
 
 	bitbuffer
-	get_bitbuffer(unsigned long bits=0) const
+	get_bitbuffer(std::size_t bits=0) const
 	{
 		// mpz_export() seems to not work.
 		std::size_t bytes = 0;
