@@ -21,17 +21,17 @@ class bitbuffer
     private:
 	typedef boost::shared_array<uint8_t> uint8_array;
 	uint8_array m_array;
-	unsigned long m_bits;
+	std::size_t m_bits;
 	std::size_t m_bytes;
 
     public:
-	bitbuffer(unsigned long bits = 0, uint8_t pattern = 0)
+	bitbuffer(std::size_t bits = 0, uint8_t pattern = 0)
 	{
 		reset(bits, pattern);
 	}
 
 	void
-	reset(unsigned long bits = 0, uint8_t pattern = 0)
+	reset(std::size_t bits = 0, uint8_t pattern = 0)
 	{
 		m_bits = bits;
 		m_bytes = (m_bits+(CHAR_BIT-1))/CHAR_BIT;
@@ -61,7 +61,7 @@ class bitbuffer
 		return m_array.get();
 	}
 
-	unsigned long
+	std::size_t
 	size_bits() const
 	{
 		return m_bits;
