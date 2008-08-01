@@ -1331,7 +1331,6 @@ k8_misc_control(const pp_value &seg, const pp_value &bus,
 	REG32("%dram_scrub_address_high", 0x60);
 
 	FIELD("ScrubReDirEn", "yesno_t", BITS("%dram_scrub_address_low", 0));
-	// TODO: is this right?
 	FIELD("ScrubAddr", "addr64_t",
 			BITS("%dram_scrub_address_high", 7, 0) +
 			BITS("%dram_scrub_address_low", 31, 6) +
