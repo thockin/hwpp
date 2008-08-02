@@ -107,8 +107,8 @@ test_pp_string_datatype()
 	ret += TEST_ASSERT(s.lookup(s.evaluate(0x333231)) == 0x333231,
 			"pp_string_datatype::lookup(string) and "
 			"pp_string_datatype::evaluate(pp_value)");
-	ret += TEST_ASSERT(s.lookup(s.evaluate(pp_value(
-			   "0x6d086c0065004800"))) == 0x6d086c0065004800,
+	ret += TEST_ASSERT(s.lookup(s.evaluate(pp_value("0x6d086c0065004800")))
+		== pp_value("0x6d086c0065004800"),
 			"pp_string_datatype::lookup(string) and "
 			"pp_string_datatype::evaluate(pp_value)");
 	ret += TEST_ASSERT(s.evaluate(s.lookup("xyz")) == "xyz",
