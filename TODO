@@ -2,6 +2,7 @@ Testing stuff:
  - link against a good memory debugger
  - test field lookup() methods
  - tests do not need to be built static
+ - make TEST_ASSERT(x == y) << "foo" << bar
 
 Device stuff:
  - fix and finish PCI subclass and progintf stuff
@@ -18,6 +19,11 @@ Device stuff:
  - allow sub-regs (regbits-regs), for %eax %ebx, %ecx, %edx in cpuid?
  - convert address into a list?
    - add "regaddr_t" type to print them
+ - k8 function 2 - conver cs_base[] and cs_mask[] to cs[]
+   - probably needs ALIAS
+ - int TABLE datatype ?  See k8 Trfc or GPE
+ - Look at k8 for examples of things needing fields not yet defined
+   BurstLen32
 
 Driver stuff:
  - remove the length arg of io/mem bindings? else report PCI BAR sizes
