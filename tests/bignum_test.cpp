@@ -396,177 +396,946 @@ test_comparisons()
 {
 	int ret = 0;
 
-	// to char
+	// Because bignum is a template, int's important to excercise all
+	// permutations of comparisons, to force instantiation.
+
+	//
+	// compare to char
+	//
+	// ==
 	{
 		bignum val((signed char)0x12);
-		ret += TEST_ASSERT(val == (signed char)0x12,
+		ret += TEST_ASSERT_EQ(val, (signed char)0x12,
 			"bignum::operator==(signed char)");
-		ret += TEST_ASSERT(val == 0x12,
+		ret += TEST_ASSERT_EQ(val, 0x12,
 			"bignum::operator==(int)");
 	}
 	{
 		bignum val((signed char)-1);
-		ret += TEST_ASSERT(val == (signed char)-1,
+		ret += TEST_ASSERT_EQ(val, (signed char)-1,
 			"bignum::operator==(signed char)");
-		ret += TEST_ASSERT(val == -1,
+		ret += TEST_ASSERT_EQ(val, -1,
 			"bignum::operator==(int)");
 	}
 	{
 		bignum val((unsigned char)0x12);
-		ret += TEST_ASSERT(val == (unsigned char)0x12,
+		ret += TEST_ASSERT_EQ(val, (unsigned char)0x12,
 			"bignum::operator==(unsigned char)");
-		ret += TEST_ASSERT(val == 0x12,
+		ret += TEST_ASSERT_EQ(val, 0x12,
 			"bignum::operator==(int)");
 	}
 	{
 		bignum val((unsigned char)-1);
-		ret += TEST_ASSERT(val == (unsigned char)0xff,
+		ret += TEST_ASSERT_EQ(val, (unsigned char)0xff,
 			"bignum::operator==(unsigned char)");
-		ret += TEST_ASSERT(val == 0xff,
+		ret += TEST_ASSERT_EQ(val, 0xff,
 			"bignum::operator==(int)");
 	}
+	// !=
+	{
+		bignum val((signed char)0x13);
+		ret += TEST_ASSERT_NE(val, (signed char)0x12,
+			"bignum::operator!=(signed char)");
+		ret += TEST_ASSERT_NE(val, 0x12,
+			"bignum::operator!=(int)");
+	}
+	{
+		bignum val((signed char)-2);
+		ret += TEST_ASSERT_NE(val, (signed char)-1,
+			"bignum::operator!=(signed char)");
+		ret += TEST_ASSERT_NE(val, -1,
+			"bignum::operator!=(int)");
+	}
+	{
+		bignum val((unsigned char)0x13);
+		ret += TEST_ASSERT_NE(val, (unsigned char)0x12,
+			"bignum::operator!=(unsigned char)");
+		ret += TEST_ASSERT_NE(val, 0x12,
+			"bignum::operator!=(int)");
+	}
+	{
+		bignum val((unsigned char)-2);
+		ret += TEST_ASSERT_NE(val, (unsigned char)0xff,
+			"bignum::operator!=(unsigned char)");
+		ret += TEST_ASSERT_NE(val, 0xff,
+			"bignum::operator!=(int)");
+	}
+	// <
+	{
+		bignum val((signed char)0x12);
+		ret += TEST_ASSERT_LT(val, (signed char)0x13,
+			"bignum::operator<(signed char)");
+		ret += TEST_ASSERT_LT(val, 0x13,
+			"bignum::operator<(int)");
+	}
+	{
+		bignum val((signed char)-2);
+		ret += TEST_ASSERT_LT(val, (signed char)-1,
+			"bignum::operator<(signed char)");
+		ret += TEST_ASSERT_LT(val, -1,
+			"bignum::operator<(int)");
+	}
+	{
+		bignum val((unsigned char)0x12);
+		ret += TEST_ASSERT_LT(val, (unsigned char)0x13,
+			"bignum::operator<(unsigned char)");
+		ret += TEST_ASSERT_LT(val, 0x13,
+			"bignum::operator<(int)");
+	}
+	{
+		bignum val((unsigned char)-2);
+		ret += TEST_ASSERT_LT(val, (unsigned char)0xff,
+			"bignum::operator<(unsigned char)");
+		ret += TEST_ASSERT_LT(val, 0xff,
+			"bignum::operator<(int)");
+	}
+	// >
+	{
+		bignum val((signed char)0x12);
+		ret += TEST_ASSERT_GT(val, (signed char)0x11,
+			"bignum::operator>(signed char)");
+		ret += TEST_ASSERT_GT(val, 0x11,
+			"bignum::operator>(int)");
+	}
+	{
+		bignum val((signed char)-1);
+		ret += TEST_ASSERT_GT(val, (signed char)-2,
+			"bignum::operator>(signed char)");
+		ret += TEST_ASSERT_GT(val, -2,
+			"bignum::operator>(int)");
+	}
+	{
+		bignum val((unsigned char)0x12);
+		ret += TEST_ASSERT_GT(val, (unsigned char)0x11,
+			"bignum::operator>(unsigned char)");
+		ret += TEST_ASSERT_GT(val, 0x11,
+			"bignum::operator>(int)");
+	}
+	{
+		bignum val((unsigned char)-1);
+		ret += TEST_ASSERT_GT(val, (unsigned char)0xfe,
+			"bignum::operator>(unsigned char)");
+		ret += TEST_ASSERT_GT(val, 0xfe,
+			"bignum::operator>(int)");
+	}
+	// <=
+	{
+		bignum val((signed char)0x12);
+		ret += TEST_ASSERT_LE(val, (signed char)0x13,
+			"bignum::operator<=(signed char)");
+		ret += TEST_ASSERT_LE(val, 0x13,
+			"bignum::operator<=(int)");
+	}
+	{
+		bignum val((signed char)-2);
+		ret += TEST_ASSERT_LE(val, (signed char)-1,
+			"bignum::operator<=(signed char)");
+		ret += TEST_ASSERT_LE(val, -1,
+			"bignum::operator<=(int)");
+	}
+	{
+		bignum val((unsigned char)0x12);
+		ret += TEST_ASSERT_LE(val, (unsigned char)0x13,
+			"bignum::operator<=(unsigned char)");
+		ret += TEST_ASSERT_LE(val, 0x13,
+			"bignum::operator<=(int)");
+	}
+	{
+		bignum val((unsigned char)-2);
+		ret += TEST_ASSERT_LE(val, (unsigned char)0xff,
+			"bignum::operator<=(unsigned char)");
+		ret += TEST_ASSERT_LE(val, 0xff,
+			"bignum::operator<=(int)");
+	}
+	// >=
+	{
+		bignum val((signed char)0x12);
+		ret += TEST_ASSERT_GE(val, (signed char)0x11,
+			"bignum::operator>=(signed char)");
+		ret += TEST_ASSERT_GE(val, 0x11,
+			"bignum::operator>=(int)");
+	}
+	{
+		bignum val((signed char)-1);
+		ret += TEST_ASSERT_GE(val, (signed char)-2,
+			"bignum::operator>=(signed char)");
+		ret += TEST_ASSERT_GE(val, -2,
+			"bignum::operator>=(int)");
+	}
+	{
+		bignum val((unsigned char)0x12);
+		ret += TEST_ASSERT_GE(val, (unsigned char)0x11,
+			"bignum::operator>=(unsigned char)");
+		ret += TEST_ASSERT_GE(val, 0x11,
+			"bignum::operator>=(int)");
+	}
+	{
+		bignum val((unsigned char)-1);
+		ret += TEST_ASSERT_GE(val, (unsigned char)0xfe,
+			"bignum::operator>=(unsigned char)");
+		ret += TEST_ASSERT_GE(val, 0xfe,
+			"bignum::operator>=(int)");
+	}
 
-	// to short
+	//
+	// compare to short
+	//
+	// ==
 	{
 		bignum val((signed short)0x1234);
-		ret += TEST_ASSERT(val == (signed short)0x1234,
+		ret += TEST_ASSERT_EQ(val, (signed short)0x1234,
 			"bignum::operator==(signed short)");
-		ret += TEST_ASSERT(val == 0x1234,
+		ret += TEST_ASSERT_EQ(val, 0x1234,
 			"bignum::operator==(int)");
 	}
 	{
 		bignum val((signed short)-1);
-		ret += TEST_ASSERT(val == (signed short)-1,
+		ret += TEST_ASSERT_EQ(val, (signed short)-1,
 			"bignum::operator==(signed short)");
-		ret += TEST_ASSERT(val == -1,
+		ret += TEST_ASSERT_EQ(val, -1,
 			"bignum::operator==(int)");
 	}
 	{
 		bignum val((unsigned short)0x1234);
-		ret += TEST_ASSERT(val == (unsigned short)0x1234,
+		ret += TEST_ASSERT_EQ(val, (unsigned short)0x1234,
 			"bignum::operator==(unsigned short)");
-		ret += TEST_ASSERT(val == 0x1234,
+		ret += TEST_ASSERT_EQ(val, 0x1234,
 			"bignum::operator==(int)");
 	}
 	{
 		bignum val((unsigned short)-1);
-		ret += TEST_ASSERT(val == (unsigned short)0xffff,
+		ret += TEST_ASSERT_EQ(val, (unsigned short)0xffff,
 			"bignum::operator==(unsigned short)");
-		ret += TEST_ASSERT(val == 0xffff,
+		ret += TEST_ASSERT_EQ(val, 0xffff,
 			"bignum::operator==(int)");
 	}
+	// !=
+	{
+		bignum val((signed short)0x1235);
+		ret += TEST_ASSERT_NE(val, (signed short)0x1234,
+			"bignum::operator!=(signed short)");
+		ret += TEST_ASSERT_NE(val, 0x1234,
+			"bignum::operator!=(int)");
+	}
+	{
+		bignum val((signed short)-2);
+		ret += TEST_ASSERT_NE(val, (signed short)-1,
+			"bignum::operator!=(signed short)");
+		ret += TEST_ASSERT_NE(val, -1,
+			"bignum::operator!=(int)");
+	}
+	{
+		bignum val((unsigned short)0x1235);
+		ret += TEST_ASSERT_NE(val, (unsigned short)0x1234,
+			"bignum::operator!=(unsigned short)");
+		ret += TEST_ASSERT_NE(val, 0x1234,
+			"bignum::operator!=(int)");
+	}
+	{
+		bignum val((unsigned short)-2);
+		ret += TEST_ASSERT_NE(val, (unsigned short)0xffff,
+			"bignum::operator!=(unsigned short)");
+		ret += TEST_ASSERT_NE(val, 0xffff,
+			"bignum::operator!=(int)");
+	}
+	// <
+	{
+		bignum val((signed short)0x1234);
+		ret += TEST_ASSERT_LT(val, (signed short)0x1235,
+			"bignum::operator<(signed short)");
+		ret += TEST_ASSERT_LT(val, 0x1235,
+			"bignum::operator<(int)");
+	}
+	{
+		bignum val((signed short)-2);
+		ret += TEST_ASSERT_LT(val, (signed short)-1,
+			"bignum::operator<(signed short)");
+		ret += TEST_ASSERT_LT(val, -1,
+			"bignum::operator<(int)");
+	}
+	{
+		bignum val((unsigned short)0x1234);
+		ret += TEST_ASSERT_LT(val, (unsigned short)0x1235,
+			"bignum::operator<(unsigned short)");
+		ret += TEST_ASSERT_LT(val, 0x1235,
+			"bignum::operator<(int)");
+	}
+	{
+		bignum val((unsigned short)-2);
+		ret += TEST_ASSERT_LT(val, (unsigned short)0xffff,
+			"bignum::operator<(unsigned short)");
+		ret += TEST_ASSERT_LT(val, 0xffff,
+			"bignum::operator<(int)");
+	}
+	// >
+	{
+		bignum val((signed short)0x1235);
+		ret += TEST_ASSERT_GT(val, (signed short)0x1234,
+			"bignum::operator>(signed short)");
+		ret += TEST_ASSERT_GT(val, 0x1234,
+			"bignum::operator>(int)");
+	}
+	{
+		bignum val((signed short)-1);
+		ret += TEST_ASSERT_GT(val, (signed short)-2,
+			"bignum::operator>(signed short)");
+		ret += TEST_ASSERT_GT(val, -2,
+			"bignum::operator>(int)");
+	}
+	{
+		bignum val((unsigned short)0x1235);
+		ret += TEST_ASSERT_GT(val, (unsigned short)0x1234,
+			"bignum::operator>(unsigned short)");
+		ret += TEST_ASSERT_GT(val, 0x1234,
+			"bignum::operator>(int)");
+	}
+	{
+		bignum val((unsigned short)-1);
+		ret += TEST_ASSERT_GT(val, (unsigned short)0xfffe,
+			"bignum::operator>(unsigned short)");
+		ret += TEST_ASSERT_GT(val, 0xfffe,
+			"bignum::operator>(int)");
+	}
+	// <=
+	{
+		bignum val((signed short)0x1234);
+		ret += TEST_ASSERT_LE(val, (signed short)0x1235,
+			"bignum::operator<=(signed short)");
+		ret += TEST_ASSERT_LE(val, 0x1235,
+			"bignum::operator<=(int)");
+	}
+	{
+		bignum val((signed short)-2);
+		ret += TEST_ASSERT_LE(val, (signed short)-1,
+			"bignum::operator<=(signed short)");
+		ret += TEST_ASSERT_LE(val, -1,
+			"bignum::operator<=(int)");
+	}
+	{
+		bignum val((unsigned short)0x1234);
+		ret += TEST_ASSERT_LE(val, (unsigned short)0x1235,
+			"bignum::operator<=(unsigned short)");
+		ret += TEST_ASSERT_LE(val, 0x1235,
+			"bignum::operator<=(int)");
+	}
+	{
+		bignum val((unsigned short)-2);
+		ret += TEST_ASSERT_LE(val, (unsigned short)0xffff,
+			"bignum::operator<=(unsigned short)");
+		ret += TEST_ASSERT_LE(val, 0xffff,
+			"bignum::operator<=(int)");
+	}
+	// >=
+	{
+		bignum val((signed short)0x1235);
+		ret += TEST_ASSERT_GE(val, (signed short)0x1234,
+			"bignum::operator>=(signed short)");
+		ret += TEST_ASSERT_GE(val, 0x1234,
+			"bignum::operator>=(int)");
+	}
+	{
+		bignum val((signed short)-1);
+		ret += TEST_ASSERT_GE(val, (signed short)-2,
+			"bignum::operator>=(signed short)");
+		ret += TEST_ASSERT_GE(val, -2,
+			"bignum::operator>=(int)");
+	}
+	{
+		bignum val((unsigned short)0x1235);
+		ret += TEST_ASSERT_GE(val, (unsigned short)0x1234,
+			"bignum::operator>=(unsigned short)");
+		ret += TEST_ASSERT_GE(val, 0x1234,
+			"bignum::operator>=(int)");
+	}
+	{
+		bignum val((unsigned short)-1);
+		ret += TEST_ASSERT_GE(val, (unsigned short)0xfffe,
+			"bignum::operator>=(unsigned short)");
+		ret += TEST_ASSERT_GE(val, 0xfffe,
+			"bignum::operator>=(int)");
+	}
 
-	// to int
+	//
+	// compare to int
+	//
+	// ==
 	{
 		bignum val((signed int)0x12345678);
-		ret += TEST_ASSERT(val == (signed int)0x12345678,
+		ret += TEST_ASSERT_EQ(val, (signed int)0x12345678,
 			"bignum::operator==(signed int)");
-		ret += TEST_ASSERT(val == 0x12345678,
+		ret += TEST_ASSERT_EQ(val, 0x12345678,
 			"bignum::operator==(int)");
 	}
 	{
 		bignum val((signed int)-1);
-		ret += TEST_ASSERT(val == (signed int)-1,
+		ret += TEST_ASSERT_EQ(val, (signed int)-1,
 			"bignum::operator==(signed int)");
-		ret += TEST_ASSERT(val == -1,
+		ret += TEST_ASSERT_EQ(val, -1,
 			"bignum::operator==(int)");
 	}
 	{
 		bignum val((unsigned int)0x12345678);
-		ret += TEST_ASSERT(val == (unsigned int)0x12345678,
+		ret += TEST_ASSERT_EQ(val, (unsigned int)0x12345678,
 			"bignum::operator==(unsigned int)");
-		ret += TEST_ASSERT(val == 0x12345678,
+		ret += TEST_ASSERT_EQ(val, 0x12345678,
 			"bignum::operator==(int)");
 	}
 	{
 		bignum val((unsigned int)-1);
-		ret += TEST_ASSERT(val == (unsigned int)0xffffffff,
+		ret += TEST_ASSERT_EQ(val, (unsigned int)0xffffffff,
 			"bignum::operator==(unsigned int)");
-		ret += TEST_ASSERT(val == 0xffffffff,
+		ret += TEST_ASSERT_EQ(val, 0xffffffff,
 			"bignum::operator==(int)");
 	}
+	// !=
+	{
+		bignum val((signed int)0x12345679);
+		ret += TEST_ASSERT_NE(val, (signed int)0x12345678,
+			"bignum::operator!=(signed int)");
+		ret += TEST_ASSERT_NE(val, 0x12345678,
+			"bignum::operator!=(int)");
+	}
+	{
+		bignum val((signed int)-2);
+		ret += TEST_ASSERT_NE(val, (signed int)-1,
+			"bignum::operator!=(signed int)");
+		ret += TEST_ASSERT_NE(val, -1,
+			"bignum::operator!=(int)");
+	}
+	{
+		bignum val((unsigned int)0x12345679);
+		ret += TEST_ASSERT_NE(val, (unsigned int)0x12345678,
+			"bignum::operator!=(unsigned int)");
+		ret += TEST_ASSERT_NE(val, 0x12345678,
+			"bignum::operator!=(int)");
+	}
+	{
+		bignum val((unsigned int)-2);
+		ret += TEST_ASSERT_NE(val, (unsigned int)0xffffffff,
+			"bignum::operator!=(unsigned int)");
+		ret += TEST_ASSERT_NE(val, 0xffffffff,
+			"bignum::operator!=(int)");
+	}
+	// <
+	{
+		bignum val((signed int)0x12345678);
+		ret += TEST_ASSERT_LT(val, (signed int)0x12345679,
+			"bignum::operator<(signed int)");
+		ret += TEST_ASSERT_LT(val, 0x12345679,
+			"bignum::operator<(int)");
+	}
+	{
+		bignum val((signed int)-2);
+		ret += TEST_ASSERT_LT(val, (signed int)-1,
+			"bignum::operator<(signed int)");
+		ret += TEST_ASSERT_LT(val, -1,
+			"bignum::operator<(int)");
+	}
+	{
+		bignum val((unsigned int)0x12345678);
+		ret += TEST_ASSERT_LT(val, (unsigned int)0x12345679,
+			"bignum::operator<(unsigned int)");
+		ret += TEST_ASSERT_LT(val, 0x12345679,
+			"bignum::operator<(int)");
+	}
+	{
+		bignum val((unsigned int)-2);
+		ret += TEST_ASSERT_LT(val, (unsigned int)0xffffffff,
+			"bignum::operator<(unsigned int)");
+		ret += TEST_ASSERT_LT(val, 0xffffffff,
+			"bignum::operator<(int)");
+	}
+	// >
+	{
+		bignum val((signed int)0x12345679);
+		ret += TEST_ASSERT_GT(val, (signed int)0x12345678,
+			"bignum::operator>(signed int)");
+		ret += TEST_ASSERT_GT(val, 0x12345678,
+			"bignum::operator>(int)");
+	}
+	{
+		bignum val((signed int)-1);
+		ret += TEST_ASSERT_GT(val, (signed int)-2,
+			"bignum::operator>(signed int)");
+		ret += TEST_ASSERT_GT(val, -2,
+			"bignum::operator>(int)");
+	}
+	{
+		bignum val((unsigned int)0x12345679);
+		ret += TEST_ASSERT_GT(val, (unsigned int)0x12345678,
+			"bignum::operator>(unsigned int)");
+		ret += TEST_ASSERT_GT(val, 0x12345678,
+			"bignum::operator>(int)");
+	}
+	{
+		bignum val((unsigned int)-1);
+		ret += TEST_ASSERT_GT(val, (unsigned int)0xfffffffe,
+			"bignum::operator>(unsigned int)");
+		ret += TEST_ASSERT_GT(val, 0xfffffffe,
+			"bignum::operator>(int)");
+	}
+	// <=
+	{
+		bignum val((signed int)0x12345678);
+		ret += TEST_ASSERT_LE(val, (signed int)0x12345679,
+			"bignum::operator<=(signed int)");
+		ret += TEST_ASSERT_LE(val, 0x12345679,
+			"bignum::operator<=(int)");
+	}
+	{
+		bignum val((signed int)-2);
+		ret += TEST_ASSERT_LE(val, (signed int)-1,
+			"bignum::operator<=(signed int)");
+		ret += TEST_ASSERT_LE(val, -1,
+			"bignum::operator<=(int)");
+	}
+	{
+		bignum val((unsigned int)0x12345678);
+		ret += TEST_ASSERT_LE(val, (unsigned int)0x12345679,
+			"bignum::operator<=(unsigned int)");
+		ret += TEST_ASSERT_LE(val, 0x12345679,
+			"bignum::operator<=(int)");
+	}
+	{
+		bignum val((unsigned int)-2);
+		ret += TEST_ASSERT_LE(val, (unsigned int)0xffffffff,
+			"bignum::operator<=(unsigned int)");
+		ret += TEST_ASSERT_LE(val, 0xffffffff,
+			"bignum::operator<=(int)");
+	}
+	// >=
+	{
+		bignum val((signed int)0x12345679);
+		ret += TEST_ASSERT_GE(val, (signed int)0x12345678,
+			"bignum::operator>=(signed int)");
+		ret += TEST_ASSERT_GE(val, 0x12345678,
+			"bignum::operator>=(int)");
+	}
+	{
+		bignum val((signed int)-1);
+		ret += TEST_ASSERT_GE(val, (signed int)-2,
+			"bignum::operator>=(signed int)");
+		ret += TEST_ASSERT_GE(val, -2,
+			"bignum::operator>=(int)");
+	}
+	{
+		bignum val((unsigned int)0x12345679);
+		ret += TEST_ASSERT_GE(val, (unsigned int)0x12345678,
+			"bignum::operator>=(unsigned int)");
+		ret += TEST_ASSERT_GE(val, 0x12345678,
+			"bignum::operator>=(int)");
+	}
+	{
+		bignum val((unsigned int)-1);
+		ret += TEST_ASSERT_GE(val, (unsigned int)0xfffffffe,
+			"bignum::operator>=(unsigned int)");
+		ret += TEST_ASSERT_GE(val, 0xfffffffe,
+			"bignum::operator>=(int)");
+	}
 
-	// to bignum
+	//
+	// compare to long
+	//
+	// ==
+	{
+		bignum val((signed long)0x12345678);
+		ret += TEST_ASSERT_EQ(val, (signed long)0x12345678,
+			"bignum::operator==(signed long)");
+		ret += TEST_ASSERT_EQ(val, 0x12345678,
+			"bignum::operator==(long)");
+	}
+	{
+		bignum val((signed long)-1);
+		ret += TEST_ASSERT_EQ(val, (signed long)-1,
+			"bignum::operator==(signed long)");
+		ret += TEST_ASSERT_EQ(val, -1,
+			"bignum::operator==(long)");
+	}
+	{
+		bignum val((unsigned long)0x12345678);
+		ret += TEST_ASSERT_EQ(val, (unsigned long)0x12345678,
+			"bignum::operator==(unsigned long)");
+		ret += TEST_ASSERT_EQ(val, 0x12345678,
+			"bignum::operator==(long)");
+	}
+	{
+		bignum val((unsigned long)-1);
+		ret += TEST_ASSERT_EQ(val, (unsigned long)0xffffffff,
+			"bignum::operator==(unsigned long)");
+		ret += TEST_ASSERT_EQ(val, 0xffffffff,
+			"bignum::operator==(long)");
+	}
+	// !=
+	{
+		bignum val((signed long)0x12345679);
+		ret += TEST_ASSERT_NE(val, (signed long)0x12345678,
+			"bignum::operator!=(signed long)");
+		ret += TEST_ASSERT_NE(val, 0x12345678,
+			"bignum::operator!=(long)");
+	}
+	{
+		bignum val((signed long)-2);
+		ret += TEST_ASSERT_NE(val, (signed long)-1,
+			"bignum::operator!=(signed long)");
+		ret += TEST_ASSERT_NE(val, -1,
+			"bignum::operator!=(long)");
+	}
+	{
+		bignum val((unsigned long)0x12345679);
+		ret += TEST_ASSERT_NE(val, (unsigned long)0x12345678,
+			"bignum::operator!=(unsigned long)");
+		ret += TEST_ASSERT_NE(val, 0x12345678,
+			"bignum::operator!=(long)");
+	}
+	{
+		bignum val((unsigned long)-2);
+		ret += TEST_ASSERT_NE(val, (unsigned long)0xffffffff,
+			"bignum::operator!=(unsigned long)");
+		ret += TEST_ASSERT_NE(val, 0xffffffff,
+			"bignum::operator!=(long)");
+	}
+	// <
+	{
+		bignum val((signed long)0x12345678);
+		ret += TEST_ASSERT_LT(val, (signed long)0x12345679,
+			"bignum::operator<(signed long)");
+		ret += TEST_ASSERT_LT(val, 0x12345679,
+			"bignum::operator<(long)");
+	}
+	{
+		bignum val((signed long)-2);
+		ret += TEST_ASSERT_LT(val, (signed long)-1,
+			"bignum::operator<(signed long)");
+		ret += TEST_ASSERT_LT(val, -1,
+			"bignum::operator<(long)");
+	}
+	{
+		bignum val((unsigned long)0x12345678);
+		ret += TEST_ASSERT_LT(val, (unsigned long)0x12345679,
+			"bignum::operator<(unsigned long)");
+		ret += TEST_ASSERT_LT(val, 0x12345679,
+			"bignum::operator<(long)");
+	}
+	{
+		bignum val((unsigned long)-2);
+		ret += TEST_ASSERT_LT(val, (unsigned long)0xffffffff,
+			"bignum::operator<(unsigned long)");
+		ret += TEST_ASSERT_LT(val, 0xffffffff,
+			"bignum::operator<(long)");
+	}
+	// >
+	{
+		bignum val((signed long)0x12345679);
+		ret += TEST_ASSERT_GT(val, (signed long)0x12345678,
+			"bignum::operator>(signed long)");
+		ret += TEST_ASSERT_GT(val, 0x12345678,
+			"bignum::operator>(long)");
+	}
+	{
+		bignum val((signed long)-1);
+		ret += TEST_ASSERT_GT(val, (signed long)-2,
+			"bignum::operator>(signed long)");
+		ret += TEST_ASSERT_GT(val, -2,
+			"bignum::operator>(long)");
+	}
+	{
+		bignum val((unsigned long)0x12345679);
+		ret += TEST_ASSERT_GT(val, (unsigned long)0x12345678,
+			"bignum::operator>(unsigned long)");
+		ret += TEST_ASSERT_GT(val, 0x12345678,
+			"bignum::operator>(long)");
+	}
+	{
+		bignum val((unsigned long)-1);
+		ret += TEST_ASSERT_GT(val, (unsigned long)0xfffffffe,
+			"bignum::operator>(unsigned long)");
+		ret += TEST_ASSERT_GT(val, 0xfffffffe,
+			"bignum::operator>(long)");
+	}
+	// <=
+	{
+		bignum val((signed long)0x12345678);
+		ret += TEST_ASSERT_LE(val, (signed long)0x12345679,
+			"bignum::operator<=(signed long)");
+		ret += TEST_ASSERT_LE(val, 0x12345679,
+			"bignum::operator<=(long)");
+	}
+	{
+		bignum val((signed long)-2);
+		ret += TEST_ASSERT_LE(val, (signed long)-1,
+			"bignum::operator<=(signed long)");
+		ret += TEST_ASSERT_LE(val, -1,
+			"bignum::operator<=(long)");
+	}
+	{
+		bignum val((unsigned long)0x12345678);
+		ret += TEST_ASSERT_LE(val, (unsigned long)0x12345679,
+			"bignum::operator<=(unsigned long)");
+		ret += TEST_ASSERT_LE(val, 0x12345679,
+			"bignum::operator<=(long)");
+	}
+	{
+		bignum val((unsigned long)-2);
+		ret += TEST_ASSERT_LE(val, (unsigned long)0xffffffff,
+			"bignum::operator<=(unsigned long)");
+		ret += TEST_ASSERT_LE(val, 0xffffffff,
+			"bignum::operator<=(long)");
+	}
+	// >=
+	{
+		bignum val((signed long)0x12345679);
+		ret += TEST_ASSERT_GE(val, (signed long)0x12345678,
+			"bignum::operator>=(signed long)");
+		ret += TEST_ASSERT_GE(val, 0x12345678,
+			"bignum::operator>=(long)");
+	}
+	{
+		bignum val((signed long)-1);
+		ret += TEST_ASSERT_GE(val, (signed long)-2,
+			"bignum::operator>=(signed long)");
+		ret += TEST_ASSERT_GE(val, -2,
+			"bignum::operator>=(long)");
+	}
+	{
+		bignum val((unsigned long)0x12345679);
+		ret += TEST_ASSERT_GE(val, (unsigned long)0x12345678,
+			"bignum::operator>=(unsigned long)");
+		ret += TEST_ASSERT_GE(val, 0x12345678,
+			"bignum::operator>=(long)");
+	}
+	{
+		bignum val((unsigned long)-1);
+		ret += TEST_ASSERT_GE(val, (unsigned long)0xfffffffe,
+			"bignum::operator>=(unsigned long)");
+		ret += TEST_ASSERT_GE(val, 0xfffffffe,
+			"bignum::operator>=(long)");
+	}
+
+	//
+	// compare to long long
+	//
+	// ==
+	{
+		bignum val((signed long long)0x1234567890ULL);
+		ret += TEST_ASSERT_EQ(val, (signed long long)0x1234567890ULL,
+			"bignum::operator==(signed long long)");
+		ret += TEST_ASSERT_EQ(val, 0x1234567890ULL,
+			"bignum::operator==(long long)");
+	}
+	{
+		bignum val((signed long long)-1);
+		ret += TEST_ASSERT_EQ(val, (signed long long)-1,
+			"bignum::operator==(signed long long)");
+		ret += TEST_ASSERT_EQ(val, -1,
+			"bignum::operator==(long long)");
+	}
+	{
+		bignum val((unsigned long long)0x1234567890ULL);
+		ret += TEST_ASSERT_EQ(val, (unsigned long long)0x1234567890ULL,
+			"bignum::operator==(unsigned long long)");
+		ret += TEST_ASSERT_EQ(val, 0x1234567890ULL,
+			"bignum::operator==(long long)");
+	}
+	{
+		bignum val((unsigned long long)-1);
+		ret += TEST_ASSERT_EQ(
+			val, (unsigned long long)0xffffffffffffffffULL,
+			"bignum::operator==(unsigned long long)");
+		ret += TEST_ASSERT_EQ(val, 0xffffffffffffffffULL,
+			"bignum::operator==(long long)");
+	}
+	// !=
+	{
+		bignum val((signed long long)0x1234567891ULL);
+		ret += TEST_ASSERT_NE(val, (signed long long)0x1234567890ULL,
+			"bignum::operator!=(signed long long)");
+		ret += TEST_ASSERT_NE(val, 0x1234567890ULL,
+			"bignum::operator!=(long long)");
+	}
+	{
+		bignum val((signed long long)-2);
+		ret += TEST_ASSERT_NE(val, (signed long long)-1,
+			"bignum::operator!=(signed long long)");
+		ret += TEST_ASSERT_NE(val, -1,
+			"bignum::operator!=(long long)");
+	}
+	{
+		bignum val((unsigned long long)0x1234567891ULL);
+		ret += TEST_ASSERT_NE(val, (unsigned long long)0x1234567890ULL,
+			"bignum::operator!=(unsigned long long)");
+		ret += TEST_ASSERT_NE(val, 0x1234567890ULL,
+			"bignum::operator!=(long long)");
+	}
+	{
+		bignum val((unsigned long long)-2);
+		ret += TEST_ASSERT_NE(
+			val, (unsigned long long)0xffffffffffffffffULL,
+			"bignum::operator!=(unsigned long long)");
+		ret += TEST_ASSERT_NE(val, 0xffffffffffffffffULL,
+			"bignum::operator!=(long long)");
+	}
+	// <
+	{
+		bignum val((signed long long)0x1234567890ULL);
+		ret += TEST_ASSERT_LT(val, (signed long long)0x1234567891ULL,
+			"bignum::operator<(signed long long)");
+		ret += TEST_ASSERT_LT(val, 0x1234567891ULL,
+			"bignum::operator<(long long)");
+	}
+	{
+		bignum val((signed long long)-2);
+		ret += TEST_ASSERT_LT(val, (signed long long)-1,
+			"bignum::operator<(signed long long)");
+		ret += TEST_ASSERT_LT(val, -1,
+			"bignum::operator<(long long)");
+	}
+	{
+		bignum val((unsigned long long)0x1234567890ULL);
+		ret += TEST_ASSERT_LT(val, (unsigned long long)0x1234567891ULL,
+			"bignum::operator<(unsigned long long)");
+		ret += TEST_ASSERT_LT(val, 0x1234567891ULL,
+			"bignum::operator<(long long)");
+	}
+	{
+		bignum val((unsigned long long)-2);
+		ret += TEST_ASSERT_LT(
+			val, (unsigned long long)0xffffffffffffffffULL,
+			"bignum::operator<(unsigned long long)");
+		ret += TEST_ASSERT_LT(val, 0xffffffffffffffffULL,
+			"bignum::operator<(long long)");
+	}
+	// >
+	{
+		bignum val((signed long long)0x1234567891ULL);
+		ret += TEST_ASSERT_GT(val, (signed long long)0x1234567890ULL,
+			"bignum::operator>(signed long long)");
+		ret += TEST_ASSERT_GT(val, 0x1234567890ULL,
+			"bignum::operator>(long long)");
+	}
+	{
+		bignum val((signed long long)-1);
+		ret += TEST_ASSERT_GT(val, (signed long long)-2,
+			"bignum::operator>(signed long long)");
+		ret += TEST_ASSERT_GT(val, -2,
+			"bignum::operator>(long long)");
+	}
+	{
+		bignum val((unsigned long long)0x1234567891ULL);
+		ret += TEST_ASSERT_GT(val, (unsigned long long)0x1234567890ULL,
+			"bignum::operator>(unsigned long long)");
+		ret += TEST_ASSERT_GT(val, 0x1234567890ULL,
+			"bignum::operator>(long long)");
+	}
+	{
+		bignum val((unsigned long long)-1);
+		ret += TEST_ASSERT_GE(
+			val, (unsigned long long)0xfffffffffffffffeULL,
+			"bignum::operator>(unsigned long long)");
+		ret += TEST_ASSERT_GT(val, 0xfffffffffffffffeULL,
+			"bignum::operator>(long long)");
+	}
+	// <=
+	{
+		bignum val((signed long long)0x1234567890ULL);
+		ret += TEST_ASSERT_LE(val, (signed long long)0x1234567891ULL,
+			"bignum::operator<=(signed long long)");
+		ret += TEST_ASSERT_LE(val, 0x1234567891ULL,
+			"bignum::operator<=(long long)");
+	}
+	{
+		bignum val((signed long long)-2);
+		ret += TEST_ASSERT_LE(val, (signed long long)-1,
+			"bignum::operator<=(signed long long)");
+		ret += TEST_ASSERT_LE(val, -1,
+			"bignum::operator<=(long long)");
+	}
+	{
+		bignum val((unsigned long long)0x1234567890ULL);
+		ret += TEST_ASSERT_LE(val, (unsigned long long)0x1234567891ULL,
+			"bignum::operator<=(unsigned long long)");
+		ret += TEST_ASSERT_LE(val, 0x1234567891ULL,
+			"bignum::operator<=(long long)");
+	}
+	{
+		bignum val((unsigned long long)-2);
+		ret += TEST_ASSERT_LE(
+			val, (unsigned long long)0xffffffffffffffffULL,
+			"bignum::operator<=(unsigned long long)");
+		ret += TEST_ASSERT_LE(val, 0xffffffffffffffffULL,
+			"bignum::operator<=(long long)");
+	}
+	// >=
+	{
+		bignum val((signed long long)0x1234567891ULL);
+		ret += TEST_ASSERT_GE(val, (signed long long)0x1234567890ULL,
+			"bignum::operator>=(signed long long)");
+		ret += TEST_ASSERT_GE(val, 0x1234567890ULL,
+			"bignum::operator>=(long long)");
+	}
+	{
+		bignum val((signed long long)-1);
+		ret += TEST_ASSERT_GE(val, (signed long long)-2,
+			"bignum::operator>=(signed long long)");
+		ret += TEST_ASSERT_GE(val, -2,
+			"bignum::operator>=(long long)");
+	}
+	{
+		bignum val((unsigned long long)0x1234567891ULL);
+		ret += TEST_ASSERT_GE(val, (unsigned long long)0x1234567890ULL,
+			"bignum::operator>=(unsigned long long)");
+		ret += TEST_ASSERT_GE(val, 0x1234567890ULL,
+			"bignum::operator>=(long long)");
+	}
+	{
+		bignum val((unsigned long long)-1);
+		ret += TEST_ASSERT_GE(
+			val, (unsigned long long)0xfffffffffffffffeULL,
+			"bignum::operator>=(unsigned long long)");
+		ret += TEST_ASSERT_GE(val, 0xfffffffffffffffeULL,
+			"bignum::operator>=(long long)");
+	}
+
+	//
+	// compare to bignum
+	//
+	// ==
 	{
 		bignum val1(12345678);
 		bignum val2(12345678);
-		ret += TEST_ASSERT(val2 == val1 && val2 == 12345678,
-			"bignum::operator==(bignum)");
+		ret += TEST_ASSERT_EQ(val1, val2, "bignum::operator==(bignum)");
+	}
+	// !=
+	{
+		bignum val1(12345678);
+		bignum val2(12345679);
+		ret += TEST_ASSERT_NE(val1, val2, "bignum::operator!=(bignum)");
+	}
+	// <
+	{
+		bignum val1(12345678);
+		bignum val2(12345679);
+		ret += TEST_ASSERT_LT(val1, val2, "bignum::operator<(bignum)");
+	}
+	// >
+	{
+		bignum val1(12345679);
+		bignum val2(12345678);
+		ret += TEST_ASSERT_GT(val1, val2, "bignum::operator>(bignum)");
+	}
+	// <=
+	{
+		bignum val1(12345678);
+		bignum val2(12345679);
+		ret += TEST_ASSERT_LE(val1, val2, "bignum::operator<=(bignum)");
+	}
+	// >=
+	{
+		bignum val1(12345679);
+		bignum val2(12345678);
+		ret += TEST_ASSERT_GE(val1, val2, "bignum::operator>=(bignum)");
 	}
 
 	// can't cmpare directly to strings
-
-	// Test other comparison operators.  This assumes that if all the ==
-	// tests pass for all the integral types, so will the other
-	// comparisons.
-	{
-		bignum val(10);
-		ret += TEST_ASSERT(val == 10,
-			"bignum::operator==()");
-		ret += TEST_ASSERT(!(val == 11),
-			"bignum::operator==()");
-		ret += TEST_ASSERT(val != 11,
-			"bignum::operator!=()");
-		ret += TEST_ASSERT(!(val != 10),
-			"bignum::operator!=()");
-		ret += TEST_ASSERT(val < 20,
-			"bignum::operator<()");
-		ret += TEST_ASSERT(!(val < 2),
-			"bignum::operator<()");
-		ret += TEST_ASSERT(val <= 20,
-			"bignum::operator<=()");
-		ret += TEST_ASSERT(!(val <= 2),
-			"bignum::operator<=()");
-		ret += TEST_ASSERT(val <= 10,
-			"bignum::operator<=()");
-		ret += TEST_ASSERT(val > 2,
-			"bignum::operator>()");
-		ret += TEST_ASSERT(!(val > 20),
-			"bignum::operator>()");
-		ret += TEST_ASSERT(val >= 2,
-			"bignum::operator>=()");
-		ret += TEST_ASSERT(!(val >= 20),
-			"bignum::operator>=()");
-		ret += TEST_ASSERT(val >= 10,
-			"bignum::operator>=()");
-	}
-	{
-		bignum val("0x112233445566778899aa");
-		ret += TEST_ASSERT(val == bignum("0x112233445566778899aa"),
-			"bignum::operator==()");
-		ret += TEST_ASSERT(
-			!(val == bignum("0x112233445566778899ab")),
-			"bignum::operator==()");
-		ret += TEST_ASSERT(val != bignum("0x112233445566778899ab"),
-			"bignum::operator!=()");
-		ret += TEST_ASSERT(
-			!(val != bignum("0x112233445566778899aa")),
-			"bignum::operator!=()");
-		ret += TEST_ASSERT(val < bignum("0x112233445566778899ab"),
-			"bignum::operator<()");
-		ret += TEST_ASSERT(
-			!(val < bignum("0x112233445566778899a9")),
-			"bignum::operator<()");
-		ret += TEST_ASSERT(val <= bignum("0x112233445566778899ab"),
-			"bignum::operator<=()");
-		ret += TEST_ASSERT(
-			!(val <= bignum("0x112233445566778899a9")),
-			"bignum::operator<=()");
-		ret += TEST_ASSERT(val <= bignum("0x112233445566778899aa"),
-			"bignum::operator<=()");
-		ret += TEST_ASSERT(val > bignum("0x112233445566778899a9"),
-			"bignum::operator>()");
-		ret += TEST_ASSERT(
-			!(val > bignum("0x112233445566778899ab")),
-			"bignum::operator>()");
-		ret += TEST_ASSERT(val >= bignum("0x112233445566778899a9"),
-			"bignum::operator>=()");
-		ret += TEST_ASSERT(
-			!(val >= bignum("0x112233445566778899ab")),
-			"bignum::operator>=()");
-		ret += TEST_ASSERT(val >= bignum("0x112233445566778899aa"),
-			"bignum::operator>=()");
-	}
 
 	return ret;
 }

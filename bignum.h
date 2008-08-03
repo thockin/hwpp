@@ -294,4 +294,137 @@ operator^=(mpz_class &lhs, const mpz_class &rhs)
 	return lhs;
 }
 
+//
+// Because bignum supports 'long long' types, but GMP doesn't, we need
+// explicit operators for comparisons.
+// Note: These are defined on mpz_class, not on bignum.
+//
+
+// ==
+inline bool
+operator==(const mpz_class &lhs, signed long long rhs)
+{
+	return (lhs == bignum(rhs));
+}
+inline bool
+operator==(const mpz_class &lhs, unsigned long long rhs)
+{
+	return (lhs == bignum(rhs));
+}
+inline bool
+operator==(signed long long lhs, const mpz_class &rhs)
+{
+	return (bignum(lhs) == rhs);
+}
+inline bool
+operator==(unsigned long long lhs, const mpz_class &rhs)
+{
+	return (bignum(lhs) == rhs);
+}
+// !=
+inline bool
+operator!=(const mpz_class &lhs, signed long long rhs)
+{
+	return (lhs != bignum(rhs));
+}
+inline bool
+operator!=(const mpz_class &lhs, unsigned long long rhs)
+{
+	return (lhs != bignum(rhs));
+}
+inline bool
+operator!=(signed long long lhs, const mpz_class &rhs)
+{
+	return (bignum(lhs) != rhs);
+}
+inline bool
+operator!=(unsigned long long lhs, const mpz_class &rhs)
+{
+	return (bignum(lhs) != rhs);
+}
+// <
+inline bool
+operator<(const mpz_class &lhs, signed long long rhs)
+{
+	return (lhs < bignum(rhs));
+}
+inline bool
+operator<(const mpz_class &lhs, unsigned long long rhs)
+{
+	return (lhs < bignum(rhs));
+}
+inline bool
+operator<(signed long long lhs, const mpz_class &rhs)
+{
+	return (bignum(lhs) < rhs);
+}
+inline bool
+operator<(unsigned long long lhs, const mpz_class &rhs)
+{
+	return (bignum(lhs) < rhs);
+}
+// >
+inline bool
+operator>(const mpz_class &lhs, signed long long rhs)
+{
+	return (lhs > bignum(rhs));
+}
+inline bool
+operator>(const mpz_class &lhs, unsigned long long rhs)
+{
+	return (lhs > bignum(rhs));
+}
+inline bool
+operator>(signed long long lhs, const mpz_class &rhs)
+{
+	return (bignum(lhs) > rhs);
+}
+inline bool
+operator>(unsigned long long lhs, const mpz_class &rhs)
+{
+	return (bignum(lhs) > rhs);
+}
+// <=
+inline bool
+operator<=(const mpz_class &lhs, signed long long rhs)
+{
+	return (lhs <= bignum(rhs));
+}
+inline bool
+operator<=(const mpz_class &lhs, unsigned long long rhs)
+{
+	return (lhs <= bignum(rhs));
+}
+inline bool
+operator<=(signed long long lhs, const mpz_class &rhs)
+{
+	return (bignum(lhs) <= rhs);
+}
+inline bool
+operator<=(unsigned long long lhs, const mpz_class &rhs)
+{
+	return (bignum(lhs) <= rhs);
+}
+// >=
+inline bool
+operator>=(const mpz_class &lhs, signed long long rhs)
+{
+	return (lhs >= bignum(rhs));
+}
+inline bool
+operator>=(const mpz_class &lhs, unsigned long long rhs)
+{
+	return (lhs >= bignum(rhs));
+}
+inline bool
+operator>=(signed long long lhs, const mpz_class &rhs)
+{
+	return (bignum(lhs) >= rhs);
+}
+inline bool
+operator>=(unsigned long long lhs, const mpz_class &rhs)
+{
+	return (bignum(lhs) >= rhs);
+}
+
 #endif // PP_BIGNUM_H__
