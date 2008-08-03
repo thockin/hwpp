@@ -1,3 +1,14 @@
+# load optional user-provided saved flags first
+BUILD_CONFIG=$(TOPDIR)/BUILD_CONFIG
+ifeq ($(BUILD_CONFIG), $(wildcard $(BUILD_CONFIG)))
+  ifeq ($(DID_LOAD_BUILD_CONFIG),)
+    $(info loading $(BUILD_CONFIG))
+  endif
+  include $(BUILD_CONFIG)
+endif
+export DID_LOAD_BUILD_CONFIG := 1
+
+
 # project version
 PP_VERSION = 0.2.0
 
@@ -6,9 +17,9 @@ PP_VERSION = 0.2.0
 # use '?=' variable assignment so ENV variables can be used.
 # Otherwise 'DEBUG= make all' would still build with debugging enabled.
 
-DEBUG ?= 1	# boolean: 0=no, 1=yes
-STATIC ?= 0	# option: 0=no, 1=yes, 2=partial
-PROFILE ?= 0	# boolean: 0=no, 1=yes
+export DEBUG ?= 1	# boolean: 0=no, 1=yes
+export STATIC ?= 0	# option: 0=no, 1=yes, 2=partial
+export PROFILE ?= 0	# boolean: 0=no, 1=yes
 
 
 # user-overrideable variables
