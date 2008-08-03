@@ -1341,6 +1341,40 @@ test_comparisons()
 }
 
 int
+test_bool()
+{
+	int ret = 0;
+
+	// convert to bool
+	{
+		bignum val(1);
+		ret += TEST_ASSERT(val, "bignum::operator bool()");
+	}
+	{
+		bignum val(12345);
+		ret += TEST_ASSERT(val, "bignum::operator bool()");
+	}
+	{
+		bignum val(-1);
+		ret += TEST_ASSERT(val, "bignum::operator bool()");
+	}
+	{
+		bignum val(0);
+		ret += TEST_ASSERT(!val, "bignum::operator bool()");
+	}
+	{
+		bignum val(2);
+		ret += TEST_ASSERT(!!val, "bignum::operator bool()");
+	}
+	{
+		bignum val(0);
+		ret += TEST_ASSERT(!!!val, "bignum::operator bool()");
+	}
+
+	return ret;
+}
+
+int
 test_small_arithmetic()
 {
 	int ret = 0;
@@ -2746,6 +2780,7 @@ TEST_LIST(
 	TEST(test_ctors),
 	TEST(test_assignments),
 	TEST(test_comparisons),
+	TEST(test_bool),
 	TEST(test_small_arithmetic),
 	TEST(test_large_arithmetic),
 	TEST(test_small_logical),
