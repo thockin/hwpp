@@ -258,6 +258,20 @@ class bignum: public mpz_class
 	{
 		return mpz_popcount(get_mpz_t());
 	}
+
+    // This strangeness allows bignums to safely be treated as bools.
+    // It's commonly known as the "safe bool idiom".
+    private:
+	typedef void (bignum::*bool_type)() const;
+	void convert_to_bool() const {}
+    public:
+	operator bool_type() const
+	{
+		if  (*this == 0) {
+			return NULL;
+		}
+		return &bignum::convert_to_bool;
+	}
 };
 
 //
