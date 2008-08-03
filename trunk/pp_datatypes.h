@@ -9,6 +9,8 @@
 
 /*
  * pp_enum_datatype - datatype for enumerated values.
+ *
+ * NOTE: Enum keys must be unique.
  */
 class pp_enum_datatype: public pp_datatype
 {
@@ -145,6 +147,8 @@ typedef boost::shared_ptr<pp_bool_datatype> pp_bool_datatype_ptr;
 
 /*
  * pp_bitmask_datatype - datatype for bitmasks.
+ *
+ * NOTE: Bit names must be unique.
  * //FIXME: this is operating on bit numbers, not masks - should it?
  */
 class pp_bitmask_datatype: public pp_datatype
