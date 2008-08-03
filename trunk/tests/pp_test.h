@@ -25,6 +25,20 @@ TEST_ASSERT_(bool predicate, const string &msg, const string &file, int line)
 	return 0;
 }
 
+// helpers for testing comparisons reciprically
+#define TEST_ASSERT_EQ(lhs, rhs, msg) \
+	TEST_ASSERT(lhs == rhs, msg) + TEST_ASSERT(rhs == lhs, msg)
+#define TEST_ASSERT_NE(lhs, rhs, msg) \
+	TEST_ASSERT(lhs != rhs, msg) + TEST_ASSERT(rhs != lhs, msg)
+#define TEST_ASSERT_LT(lhs, rhs, msg) \
+	TEST_ASSERT(lhs < rhs, msg) + TEST_ASSERT(rhs >= lhs, msg)
+#define TEST_ASSERT_GT(lhs, rhs, msg) \
+	TEST_ASSERT(lhs > rhs, msg) + TEST_ASSERT(rhs <= lhs, msg)
+#define TEST_ASSERT_LE(lhs, rhs, msg) \
+	TEST_ASSERT(lhs <= rhs, msg) + TEST_ASSERT(rhs > lhs, msg)
+#define TEST_ASSERT_GE(lhs, rhs, msg) \
+	TEST_ASSERT(lhs >= rhs, msg) + TEST_ASSERT(rhs < lhs, msg)
+
 #define TEST_WARNING(msg) \
 	std::cerr << "WARNING: [" __FILE__ << ":" << __LINE__ << "] " \
 		<< msg << std::endl
