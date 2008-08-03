@@ -403,12 +403,18 @@ operator,(const fkl_kvpair &lhs, const fkl_kvpair &rhs)
 {
 	fkl_kvpair_list tmp;
 	tmp.insert(lhs.key, lhs.value);
+	if (lhs.key == rhs.key) {
+		PP_WARN("duplicate KV key: '" + rhs.key);
+	}
 	tmp.insert(rhs.key, rhs.value);
 	return tmp;
 }
 inline fkl_kvpair_list
 operator,(const fkl_kvpair_list &lhs, const fkl_kvpair &rhs)
 {
+	if (lhs.has_key(rhs.key)) {
+		PP_WARN("duplicate KV key: '" + rhs.key);
+	}
 	fkl_kvpair_list tmp(lhs);
 	tmp.insert(rhs.key, rhs.value);
 	return tmp;
