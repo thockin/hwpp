@@ -53,7 +53,7 @@ Bugs and features:
    and what the right heuristic is.
  - allow enum default values if value is out-of-bounds
  	- PCI vendor
- - enums with duplicate names
+ - enums with duplicate names, for read-only fields
  	- pcie_capability_t vchannel vs vc2
 	- pcie_link_speed_t 0 vs 1
  - import the public PCI repository into a vendor enum (and device?)
