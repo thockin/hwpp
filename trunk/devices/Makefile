@@ -23,6 +23,6 @@ test:
 
 .PHONY: clean
 clean:
-	@$(RM) $(OBJS) *.o *.a .depend
+	@$(RM) $(OBJS) *.o *.a
 
 .depend: $(SRCS)

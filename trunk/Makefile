@@ -62,7 +62,7 @@ test: all
 
 .PHONY: clean
 clean:
-	@$(RM) $(OBJS) *.o *.a .depend
+	@$(RM) $(OBJS) *.o *.a
 	@$(MAKE) -C tests clean
 	@$(MAKE) -C drivers clean
 	@$(MAKE) -C devices clean
@@ -70,5 +70,9 @@ clean:
 	@if [ -f $(SAVED_FLAGS_FILE) ]; then \
 		echo "not cleaning $(SAVED_FLAGS_FILE)"; \
 	fi
+
+.PHONY: distclean
+distclean: clean
+	@find . -type f -name .depend | xargs $(RM)
 
 .depend: $(SRCS)
