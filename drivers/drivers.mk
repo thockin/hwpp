@@ -18,7 +18,7 @@ test: all
 
 .PHONY: clean
 clean:
-	@$(RM) $(OBJS) $(DRIVER_TARGET) *.o .depend
+	@$(RM) $(OBJS) $(DRIVER_TARGET) *.o
 	@$(MAKE) -C tests clean
 
 .depend: $(SRCS)

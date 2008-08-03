@@ -37,6 +37,6 @@ test: all
 
 .PHONY: clean
 clean:
-	@$(RM) $(OBJS) *.o *.a .depend $(TESTS)
+	@$(RM) $(OBJS) *.o *.a $(TESTS)
 
 .depend: $(SRCS) $(TESTS_SRCS)
