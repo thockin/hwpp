@@ -1335,7 +1335,7 @@ test_comparisons()
 		ret += TEST_ASSERT_GE(val1, val2, "bignum::operator>=(bignum)");
 	}
 
-	// can't cmpare directly to strings
+	// can't compare directly to strings
 
 	return ret;
 }
