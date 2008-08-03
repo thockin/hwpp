@@ -352,7 +352,7 @@ k8_dram_controller(const pp_value &seg, const pp_value &bus,
 	//
 	// DRAM CS Base registers
 	//
-	
+
 	for (int addr = 0x40; addr < 0x60; addr += 0x04) {
 		OPEN_SCOPE("cs_base[]");
 
@@ -376,7 +376,7 @@ k8_dram_controller(const pp_value &seg, const pp_value &bus,
 			FIELD("BaseAddr", "addr64_t",
 					BITS("%cs_base", 28, 19) +
 					BITS("%0", 26, 22) +
-					BITS("DRAMCSBase", 13, 5) +
+					BITS("%cs_base", 13, 5) +
 					BITS("%0", 12, 0));
 		}
 
@@ -415,7 +415,7 @@ k8_dram_controller(const pp_value &seg, const pp_value &bus,
 		//
 		// DRAM Control register
 		//
-		
+
 		REG32("%dram_control", 0x78);
 		OPEN_SCOPE("dram_control");
 
@@ -438,13 +438,13 @@ k8_dram_controller(const pp_value &seg, const pp_value &bus,
 		FIELD("DqsRcvEnTrain", ANON_ENUM(KV("normal_mode", 0),
 						 KV("training_mode", 1)),
 				BITS("../%dram_control", 18));
-		
+
 		CLOSE_SCOPE();
 
 		//
 		// DRAM Initialization register
 		//
-		
+
 		REG32("%dram_init", 0x7C);
 		OPEN_SCOPE("dram_init");
 
@@ -469,7 +469,7 @@ k8_dram_controller(const pp_value &seg, const pp_value &bus,
 
 		CLOSE_SCOPE();
 	}
-	
+
 	//
 	// DRAM Timing Low/High registers
 	//
@@ -542,7 +542,7 @@ k8_dram_controller(const pp_value &seg, const pp_value &bus,
 			KV("am2_ma0_clk2_s1g1_ma0_clk2", 7)),
 				BITS("../%dram_timing_low", 31, 24));
 	}
-	
+
 	// dram_timing_high
 	if (FIELD_EQ("$k8/k8_rev", "rev_e")) {
 		FIELD("Twtr", ANON_XFORM("busclocks_t",
@@ -608,11 +608,11 @@ k8_dram_controller(const pp_value &seg, const pp_value &bus,
 	}
 
 	CLOSE_SCOPE();
-	
+
 	//
 	// DRAM Configuration Low/High registers
 	//
-	
+
 	REG32("%dram_config_low", 0x90);
 	REG32("%dram_config_high", 0x94);
 	OPEN_SCOPE("dram_config");
@@ -827,7 +827,7 @@ k8_dram_controller(const pp_value &seg, const pp_value &bus,
 					KV("MEMCLK_cycles_20", 13)),
 				BITS("../%dram_config_high", 31, 28));
 	}
-	
+
 	CLOSE_SCOPE(); // dram_config
 
 	//
@@ -838,47 +838,51 @@ k8_dram_controller(const pp_value &seg, const pp_value &bus,
 	OPEN_SCOPE("bank_address_mapping");
 
 	if (FIELD_EQ("$k8/k8_rev", "rev_e")) {
-		ENUM("cs_size_t", KV("MB_32", 0),
-			     KV("MB_64", 1),
-			     KV("MB_128", 2),
-			     KV("MB_128", 3),
-			     KV("MB_256", 4),
-			     KV("MB_512", 5),
-			     KV("MB_256", 6),
-			     KV("MB_512", 7),
-			     KV("MB_1024", 8),
-			     KV("MB_1024", 9),
-			     KV("MB_2048", 10));
-	} else if (FIELD_EQ("$k8/k8_rev", "rev_f")) { 
+		ENUM("cs_size_t",
+			KV("MB_32_12x8", 0),
+			KV("MB_64_12x9", 1),
+			KV("MB_128_13x9", 2),
+			KV("MB_128_12x10", 3),
+			KV("MB_256_13x10", 4),
+			KV("MB_512_14x10", 5),
+			KV("MB_256_12x11", 6),
+			KV("MB_512_13x11", 7),
+			KV("MB_1024_14x11", 8),
+			KV("MB_1024_13x12", 9),
+			KV("MB_2048_14x12", 10));
+	} else if (FIELD_EQ("$k8/k8_rev", "rev_f")) {
 		if (FIELD_EQ("../dram_config/Width128", "bits_64")) {
-			ENUM("cs_size_t", KV("MB_128", 0),
-					  KV("MB_256", 1),
-					  KV("MB_512", 2),
-					  KV("MB_512", 3),
-					  KV("MB_512", 4),
-					  KV("MB_1024", 5),
-					  KV("MB_1024", 6),
-					  KV("MB_2048", 7),
-					  KV("MB_2048", 8),
-					  KV("MB_4096", 9),
-					  KV("MB_4096", 10),
-					  KV("MB_8192", 11));
-		} else { // bits_128
-			ENUM("cs_size_t", KV("MB_256", 0),
-					  KV("MB_512", 1),
-					  KV("MB_1024", 2),
-					  KV("MB_1024", 3),
-					  KV("MB_1024", 4),
-					  KV("MB_2048", 5),
-					  KV("MB_2048", 6),
-					  KV("MB_4096", 7),
-					  KV("MB_4096", 8),
-					  KV("MB_8192", 9),
-					  KV("MB_8192", 10),
-					  KV("MB_16384", 11));
+			ENUM("cs_size_t",
+				KV("MB_128_13x9x2", 0),
+				KV("MB_256_13x10x2", 1),
+				KV("MB_512_14x10x2", 2),
+				KV("MB_512_13x11x2", 3),
+				KV("MB_512_13x10x3", 4),
+				KV("MB_1024_14x10x3", 5),
+				KV("MB_1024_14x11x2", 6),
+				KV("MB_2048_15x10x3", 7),
+				KV("MB_2048_14x11x3", 8),
+				KV("MB_4096_15x11x3", 9),
+				KV("MB_4096_16x10x3", 10),
+				KV("MB_8192_16x11x3", 11));
+		} else { // Width128 == bits_128
+			ENUM("cs_size_t",
+				KV("MB_256_13x9x2", 0),
+				KV("MB_512_13x10x2", 1),
+				KV("MB_1024_14x10x2", 2),
+				KV("MB_1024_13x11x2", 3),
+				KV("MB_1024_13x10x3", 4),
+				KV("MB_2048_14x10x3", 5),
+				KV("MB_2048_14x11x2", 6),
+				KV("MB_4096_15x10x3", 7),
+				KV("MB_4096_14x11x3", 8),
+				KV("MB_8192_15x11x3", 9),
+				KV("MB_8192_16x10x3", 10),
+				KV("MB_16384_16x11x3", 11));
 		}
 	}
 
+	// these could be "disabled" or hidden if cs[x].CSEnable == false
 	FIELD("CS1_0", "cs_size_t", BITS("../%bank_address_mapping", 3, 0));
 	FIELD("CS3_2", "cs_size_t", BITS("../%bank_address_mapping", 7, 4));
 	FIELD("CS5_4", "cs_size_t", BITS("../%bank_address_mapping", 11, 8));
@@ -887,7 +891,7 @@ k8_dram_controller(const pp_value &seg, const pp_value &bus,
 		FIELD("BankSwizzleMode", "enabledisable_t",
 				BITS("../%bank_address_mapping", 30));
 	}
-	
+
 	CLOSE_SCOPE();
 
 
@@ -895,7 +899,7 @@ k8_dram_controller(const pp_value &seg, const pp_value &bus,
 		//
 		// DRAM Delay Line register
 		//
-		
+
 		REG32("%dram_delay_line", 0x98);
 		OPEN_SCOPE("dram_delay_line");
 
@@ -911,13 +915,13 @@ k8_dram_controller(const pp_value &seg, const pp_value &bus,
 				BITS("../%dram_delay_line", 29));
 		FIELD("DllSpeedOverride", "yesno_t",
 				BITS("../%dram_delay_line", 30));
-		
+
 		CLOSE_SCOPE();
 
 		//
 		// Scratch Register
 		//
-		
+
 		FIELD("ScratchData", "hex32_t", REG32(0x9C));
 
 	} else if (FIELD_EQ("$k8/k8_rev", "rev_f")) {
@@ -940,17 +944,17 @@ k8_dram_controller(const pp_value &seg, const pp_value &bus,
 		//
 		// DRAM Controller Additional Data register
 		//
-		
+
 		// FIXME: how do I detect which interpretation of the data
 		// in this register from pp. 116-126 to use?
 		FIELD("DctOffsetData", "hex_t", REG32(0x9C));
-		
+
 		//
 		// DRAM Controller Miscellaneous register
 		//
-		
+
 		REG32("%dram_controller_misc", 0xA0);
-		OPEN_SCOPE("dram_config");
+		OPEN_SCOPE("dram_misc");
 
 		FIELD("DisableJitter", "yesno_t",
 				BITS("../%dram_controller_misc", 1));
@@ -986,8 +990,8 @@ k8_dram_controller(const pp_value &seg, const pp_value &bus,
 			KV("am2_mb0_clk2_s1g1_mb0_clk2", 7)),
 				BITS("../%dram_controller_misc", 31, 24));
 
-		CLOSE_SCOPE();
-	
+		CLOSE_SCOPE(); // dram_misc
+
 	}
 
 	CLOSE_SCOPE(); // dram_ctrl
@@ -1025,7 +1029,7 @@ k8_misc_control(const pp_value &seg, const pp_value &bus,
 	if (FIELD_EQ("$k8/k8_rev", "rev_f"))
 		FIELD("DramParEn", "enabledisable_t",
 				BITS("../%control", 18));
-	
+
 	// config
 	FIELD("CpuEccErrEn", "enabledisable_t", BITS("../%config", 0));
 	FIELD("CpuRdDatErrEn", "enabledisable_t", BITS("../%config", 1));
@@ -1078,7 +1082,7 @@ k8_misc_control(const pp_value &seg, const pp_value &bus,
 		FIELD("SyncOnDramAdrParErrEn", "enabledisable_t",
 				BITS("../%config", 30));
 	}
-	
+
 	CLOSE_SCOPE(); // control_config
 
 	//
@@ -1186,7 +1190,7 @@ k8_misc_control(const pp_value &seg, const pp_value &bus,
 	FIELD("ErrUnCorr", "yesno_t", BITS("../%status_high", 29));
 	FIELD("ErrOver", "yesno_t", BITS("../%status_high", 30));
 	FIELD("ErrValid", "yesno_t", BITS("../%status_high", 31));
-	
+
 	CLOSE_SCOPE();
 
 	//
@@ -1287,7 +1291,7 @@ k8_misc_control(const pp_value &seg, const pp_value &bus,
 				BITS("%address_low", 31, 3) +
 				BITS("%0", 2, 0));
 	}
-	
+
 	CLOSE_SCOPE(); // mca_northbridge
 
 	//
@@ -1323,7 +1327,7 @@ k8_misc_control(const pp_value &seg, const pp_value &bus,
 	FIELD("DramScrub", "scrub_rate_t", BITS("%scrub_control", 4, 0));
 	FIELD("L2Scrub", "scrub_rate_t", BITS("%scrub_control", 12, 8));
 	FIELD("DcacheScrub", "scrub_rate_t", BITS("%scrub_control", 20, 16));
-	
+
 	//
 	// DRAM Scrub Address registers
 	//
@@ -1335,7 +1339,7 @@ k8_misc_control(const pp_value &seg, const pp_value &bus,
 			BITS("%dram_scrub_address_high", 7, 0) +
 			BITS("%dram_scrub_address_low", 31, 6) +
 			BITS("%0", 5, 0));
-	
+
 	CLOSE_SCOPE(); // scrubbers
 
 	if (FIELD_EQ("$k8/k8_rev", "rev_f")) {
@@ -1378,7 +1382,7 @@ k8_misc_control(const pp_value &seg, const pp_value &bus,
 					LAMBDA(2 + (_1 * 2)),
 					LAMBDA((_1 - 2) / 2)),
 				BITS("../%ThermalControl", 27, 24));
-		
+
 		CLOSE_SCOPE();
 	}
 
@@ -1398,7 +1402,7 @@ k8_misc_control(const pp_value &seg, const pp_value &bus,
 	FIELD("URspD", "int_t", BITS("../%sri_to_xbar", 25, 24));
 	FIELD("DReq", "int_t", BITS("../%sri_to_xbar", 29, 28));
 	FIELD("DPReq", "int_t", BITS("../%sri_to_xbar", 31, 30));
-	
+
 	CLOSE_SCOPE();
 
 	//
@@ -1413,7 +1417,7 @@ k8_misc_control(const pp_value &seg, const pp_value &bus,
 	FIELD("DispRefReq", "int_t", BITS("../%xbar_to_sri", 22, 20));
 	FIELD("DReq", "int_t", BITS("../%xbar_to_sri", 29, 28));
 	FIELD("DPReq", "int_t", BITS("../%xbar_to_sri", 31, 30));
-	
+
 	CLOSE_SCOPE();
 
 	//
@@ -1425,7 +1429,7 @@ k8_misc_control(const pp_value &seg, const pp_value &bus,
 	FIELD("Rsp", "int_t", BITS("../%mct_to_xbar", 11, 8));
 	FIELD("Prb", "int_t", BITS("../%mct_to_xbar", 14, 12));
 	FIELD("RspD", "int_t", BITS("../%mct_to_xbar", 27, 24));
-	
+
 	CLOSE_SCOPE();
 
 	//
@@ -1438,11 +1442,11 @@ k8_misc_control(const pp_value &seg, const pp_value &bus,
 	FIELD("FReq", "int_t", BITS("../%free_list", 5, 4));
 	FIELD("FRsp", "int_t", BITS("../%free_list", 10, 8));
 	FIELD("FRspD", "int_t", BITS("../%free_list", 13, 12));
-	
+
 	CLOSE_SCOPE();
 
 	CLOSE_SCOPE(); // buffer_counts
-	
+
 	//
 	// Power Management Control registers
 	//
@@ -1494,7 +1498,7 @@ k8_misc_control(const pp_value &seg, const pp_value &bus,
 
 		CLOSE_SCOPE();
 	}
-	
+
 	OPEN_SCOPE("gart");
 
 	//
@@ -1515,7 +1519,7 @@ k8_misc_control(const pp_value &seg, const pp_value &bus,
 	FIELD("DisGartCpu", "yesno_t", BITS("../%aperture_control", 4));
 	FIELD("DisGartIo", "yesno_t", BITS("../%aperture_control", 5));
 	FIELD("DisGartTblWlkPrb", "yesno_t", BITS("../%aperture_control", 6));
-	
+
 	CLOSE_SCOPE();
 
 	//
@@ -1543,11 +1547,11 @@ k8_misc_control(const pp_value &seg, const pp_value &bus,
 	FIELD("InvGart", ANON_BOOL("invalidating", "not_invalidating"),
 			BITS("../%cache_control", 0));
 	FIELD("GartPteErr", "yesno_t", BITS("../%cache_control", 1));
-	
+
 	CLOSE_SCOPE();
 
 	CLOSE_SCOPE(); // gart
-	
+
 	if (FIELD_EQ("$k8/k8_rev", "rev_f")) {
 		//
 		// Power Control Miscellaneous register
@@ -1647,7 +1651,7 @@ k8_misc_control(const pp_value &seg, const pp_value &bus,
 				      KV("mV_150", 6),
 				      KV("mV_175", 7)),
 			BITS("../%clock_power_timing_high", 30, 28));
-	
+
 	CLOSE_SCOPE();
 
 	//
@@ -1655,23 +1659,23 @@ k8_misc_control(const pp_value &seg, const pp_value &bus,
 	//
 	REG32("%ht_read_ptr_optimization", 0xDC);
 	OPEN_SCOPE("ht_read_pointer_optimiation");
-	INT("ht_clock_periods_t", "HyperTransport clock period(s)");
+	INT("ht_clocks", "HT clock(s)");
 
-	FIELD("RcvRdPtrLdt[]", "ht_clock_periods_t",
+	FIELD("RcvRdPtrLdt[]", "ht_clocks",
 			BITS("../%ht_read_ptr_optimization", 2, 0));
-	FIELD("XmtRdPtrLdt[]", "ht_clock_periods_t",
+	FIELD("XmtRdPtrLdt[]", "ht_clocks",
 			BITS("../%ht_read_ptr_optimization", 5, 4));
-	FIELD("RcvRdPtrLdt[]", "ht_clock_periods_t",
+	FIELD("RcvRdPtrLdt[]", "ht_clocks",
 			BITS("../%ht_read_ptr_optimization", 10, 8));
-	FIELD("XmtRdPtrLdt[]", "ht_clock_periods_t",
+	FIELD("XmtRdPtrLdt[]", "ht_clocks",
 			BITS("../%ht_read_ptr_optimization", 13, 12));
-	FIELD("RcvRdPtrLdt[]", "ht_clock_periods_t",
+	FIELD("RcvRdPtrLdt[]", "ht_clocks",
 			BITS("../%ht_read_ptr_optimization", 18, 16));
-	FIELD("XmtRdPtrLdt[]", "ht_clock_periods_t",
+	FIELD("XmtRdPtrLdt[]", "ht_clocks",
 			BITS("../%ht_read_ptr_optimization", 21, 20));
-	
+
 	CLOSE_SCOPE();
-	
+
 	//
 	// Thermtrip Status register
 	//
@@ -1716,7 +1720,7 @@ k8_misc_control(const pp_value &seg, const pp_value &bus,
 				BITS("../%thermtrip_status", 28, 24));
 	}
 	FIELD("SwThermtp", "onoff_t", BITS("../%thermtrip_status", 31));
-	
+
 	CLOSE_SCOPE();
 
 	//
@@ -1744,7 +1748,7 @@ k8_misc_control(const pp_value &seg, const pp_value &bus,
 	FIELD("CmpCap", ANON_ENUM(KV("single_core", 0),
 				  KV("dual_Core", 1)),
 			BITS("../%northbridge_capabilities", 13, 12));
-	
+
 	CLOSE_SCOPE();
 
 	if (FIELD_EQ("$k8/k8_rev", "rev_f")) {
