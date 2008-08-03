@@ -1,4 +1,15 @@
 TOPDIR = $(shell pwd)
+
+# load optional user-provided saved flags first
+SAVED_FLAGS_FILE=.saved_make_flags
+ifeq ($(DID_LOAD_SAVED_FLAGS),)
+  ifeq ($(SAVED_FLAGS_FILE), $(wildcard $(SAVED_FLAGS_FILE)))
+    $(info loading $(SAVED_FLAGS_FILE))
+    include $(SAVED_FLAGS_FILE)
+  endif
+endif
+export DID_LOAD_SAVED_FLAGS := 1
+
 include rules.mk
 
 DRIVER_LIB = drivers/libdrivers.a
@@ -56,5 +67,8 @@ clean:
 	@$(MAKE) -C drivers clean
 	@$(MAKE) -C devices clean
 	@$(MAKE) -C examples clean
+	@if [ -f $(SAVED_FLAGS_FILE) ]; then \
+		echo "not cleaning $(SAVED_FLAGS_FILE)"; \
+	fi
 
 .depend: $(SRCS)

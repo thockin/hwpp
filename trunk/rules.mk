@@ -94,14 +94,16 @@ MAKEFLAGS += --no-print-directory
 .PHONY: all
 all: make_flags
 
+.PHONY: make_flags
 make_flags:
 	@\
-	NEW=$$(echo "CXX='$(shell which $(CXX))'\n" \
-	            "CROSS_COMPILE='$(CROSS_COMPILE)'\n" \
-	            "CXXFLAGS='$(CXXFLAGS)'\n" \
-	            "CPPFLAGS='$(CPPFLAGS)'\n" \
-	            "LDFLAGS='$(LDFLAGS)'\n" \
-	            "LDLIBS='$(LDLIBS)'\n"); \
+	NEW=$$($$(which echo) -e \
+	       "CXX='$$(which $(CXX))'\n" \
+	       "CROSS_COMPILE='$(CROSS_COMPILE)'\n" \
+	       "CXXFLAGS='$(CXXFLAGS)'\n" \
+	       "CPPFLAGS='$(CPPFLAGS)'\n" \
+	       "LDFLAGS='$(LDFLAGS)'\n" \
+	       "LDLIBS='$(LDLIBS)'\n"); \
 	OLD=$$(cat .make_flags 2>/dev/null); \
 	if [ "$$NEW" != "$$OLD" ]; then \
 		$(MAKE) clean; \
@@ -115,7 +117,7 @@ clean_make_flags:
 .PHONY: clean
 clean: clean_make_flags
 
-.PHONY: dep
+.PHONY: dep depend
 dep depend:
 	@$(RM) .depend
 	@$(MAKE) .depend
@@ -163,4 +165,3 @@ run_tests:
 # Makefile depend on .depend, even if .depend doesn't exist yet.  But we
 # don't want that pesky warning.
 sinclude .depend
-
