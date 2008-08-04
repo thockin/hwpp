@@ -958,13 +958,8 @@ test_comparisons()
 		ret += TEST_ASSERT_EQ(val, 0x12345678,
 			"bignum::operator==(long)");
 	}
-	{
-		bignum val((unsigned long)-1);
-		ret += TEST_ASSERT_EQ(val, (unsigned long)0xffffffff,
-			"bignum::operator==(unsigned long)");
-		ret += TEST_ASSERT_EQ(val, 0xffffffff,
-			"bignum::operator==(long)");
-	}
+	// NOTE: don't compare to (unsigned long)-1 - it gets sign
+	// extended on 64 bit architectures, but not on 32 bit.
 	// !=
 	{
 		bignum val((signed long)0x12345679);
@@ -987,13 +982,8 @@ test_comparisons()
 		ret += TEST_ASSERT_NE(val, 0x12345678,
 			"bignum::operator!=(long)");
 	}
-	{
-		bignum val((unsigned long)-2);
-		ret += TEST_ASSERT_NE(val, (unsigned long)0xffffffff,
-			"bignum::operator!=(unsigned long)");
-		ret += TEST_ASSERT_NE(val, 0xffffffff,
-			"bignum::operator!=(long)");
-	}
+	// NOTE: don't compare to (unsigned long)-1 - it gets sign
+	// extended on 64 bit architectures, but not on 32 bit.
 	// <
 	{
 		bignum val((signed long)0x12345678);
@@ -1016,13 +1006,8 @@ test_comparisons()
 		ret += TEST_ASSERT_LT(val, 0x12345679,
 			"bignum::operator<(long)");
 	}
-	{
-		bignum val((unsigned long)-2);
-		ret += TEST_ASSERT_LT(val, (unsigned long)0xffffffff,
-			"bignum::operator<(unsigned long)");
-		ret += TEST_ASSERT_LT(val, 0xffffffff,
-			"bignum::operator<(long)");
-	}
+	// NOTE: don't compare to (unsigned long)-1 - it gets sign
+	// extended on 64 bit architectures, but not on 32 bit.
 	// >
 	{
 		bignum val((signed long)0x12345679);
@@ -1045,13 +1030,8 @@ test_comparisons()
 		ret += TEST_ASSERT_GT(val, 0x12345678,
 			"bignum::operator>(long)");
 	}
-	{
-		bignum val((unsigned long)-1);
-		ret += TEST_ASSERT_GT(val, (unsigned long)0xfffffffe,
-			"bignum::operator>(unsigned long)");
-		ret += TEST_ASSERT_GT(val, 0xfffffffe,
-			"bignum::operator>(long)");
-	}
+	// NOTE: don't compare to (unsigned long)-1 - it gets sign
+	// extended on 64 bit architectures, but not on 32 bit.
 	// <=
 	{
 		bignum val((signed long)0x12345678);
@@ -1074,13 +1054,8 @@ test_comparisons()
 		ret += TEST_ASSERT_LE(val, 0x12345679,
 			"bignum::operator<=(long)");
 	}
-	{
-		bignum val((unsigned long)-2);
-		ret += TEST_ASSERT_LE(val, (unsigned long)0xffffffff,
-			"bignum::operator<=(unsigned long)");
-		ret += TEST_ASSERT_LE(val, 0xffffffff,
-			"bignum::operator<=(long)");
-	}
+	// NOTE: don't compare to (unsigned long)-1 - it gets sign
+	// extended on 64 bit architectures, but not on 32 bit.
 	// >=
 	{
 		bignum val((signed long)0x12345679);
@@ -1103,13 +1078,8 @@ test_comparisons()
 		ret += TEST_ASSERT_GE(val, 0x12345678,
 			"bignum::operator>=(long)");
 	}
-	{
-		bignum val((unsigned long)-1);
-		ret += TEST_ASSERT_GE(val, (unsigned long)0xfffffffe,
-			"bignum::operator>=(unsigned long)");
-		ret += TEST_ASSERT_GE(val, 0xfffffffe,
-			"bignum::operator>=(long)");
-	}
+	// NOTE: don't compare to (unsigned long)-1 - it gets sign
+	// extended on 64 bit architectures, but not on 32 bit.
 
 	//
 	// compare to long long
