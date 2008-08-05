@@ -162,48 +162,41 @@ cpuid_generic_device()
 		FIELD("model", "int_t", PROCS(cpuid_model_procs));
 		FIELD("stepping", "int_t", EAX("%function_1", 3, 0));
 
-		if (FIELD_EQ("vendor", "intel")) {
-			FIELD("type", ANON_ENUM(
-					KV("oem", 0),
-					KV("overdrive", 1),
-					KV("dual", 2)),
-				EAX("%function_1", 13, 12));
-		}
+		FIELD("type", ANON_ENUM(
+				KV("oem", 0),
+				KV("overdrive", 1),
+				KV("dual", 2)),
+			EAX("%function_1", 13, 12));
 
-		if (FIELD_EQ("vendor", "amd")) {
-			FIELD("std_features", "cpuid_features_t",
-					ECX("%function_1", 31, 0)
-					+ EDX("%function_1", 31, 0));
+		FIELD("std_features", "cpuid_features_t",
+				ECX("%function_1", 31, 0)
+				+ EDX("%function_1", 31, 0));
 
-			FIELD("brand_id_8bit", "int_t",
-					EBX("%function_1", 7, 0));
-			FIELD("clflush_size", ANON_INT("QWORDs"),
-					EBX("%function_1", 15, 8));
-			if (FIELD_TEST("std_features", "htt")) {
-				FIELD("logical_proc_count", "int_t",
-						EBX("%function_1", 23, 16));
-			} else {
-				FIELD("logical_proc_count", "int_t", 1);
-			}
-			FIELD("init_lapic_id", "int_t",
-					EBX("%function_1", 31, 24));
+		FIELD("brand_id", "int_t",
+				EBX("%function_1", 7, 0));
+		FIELD("clflush_size", ANON_INT("QWORDs"),
+				EBX("%function_1", 15, 8));
+		if (FIELD_TEST("std_features", "htt")) {
+			FIELD("logical_proc_count", "int_t",
+					EBX("%function_1", 23, 16));
+		} else {
+			FIELD("logical_proc_count", "int_t", 1);
 		}
+		FIELD("init_lapic_id", "int_t",
+				EBX("%function_1", 31, 24));
 	} // CPUID Function 0x1
 
 	// Cache Descriptors
 	// CPUID Function 0x2
-	// I was only able to find documentation of this function from
-	// Intel, so adding a vendor check until docs from another vendor
-	// can be found.
-	if (FIELD_GE("largest_std_fn", 0x2) &&
-	    FIELD_EQ("vendor", "intel")) {
+	if (FIELD_GE("largest_std_fn", 0x2)) {
 		uint8_t queries_needed = 1; // updated on first call
 		OPEN_SCOPE("cache_descriptors");
 
 		// check for special Xeon case
 		string cache_descriptor_t;
-		if (FIELD_EQ("../family", 0x0F) &&
-		    FIELD_EQ("../model", 0x06)) {
+		if (FIELD_EQ("../vendor", "intel")
+		 && FIELD_EQ("../family", 0x0F)
+		 && FIELD_EQ("../model", 0x06)) {
 			cache_descriptor_t = "cache_descriptor_xeon_t";
 		} else {
 			cache_descriptor_t = "cache_descriptor_t";
@@ -263,21 +256,17 @@ cpuid_generic_device()
 					}
 				}
 			}
-			CLOSE_SCOPE();
 		}
+		CLOSE_SCOPE();
 	} // CPUID Function 0x2
-	
+
 	// Processor Serial Number
 	// CPUID Function 0x3 deprecated
 	// Probably not worth implementing, only works on Pentium III
-	
+
 	// Deterministic Cache Parameters
 	// CPUID Function 0x4
-	// I was only able to find documentation of this function from
-	// Intel, so adding a vendor check until docs from another vendor
-	// can be found.
-	if (FIELD_GE("largest_std_fn", 0x4) &&
-	    FIELD_EQ("vendor", "intel")) {
+	if (FIELD_GE("largest_std_fn", 0x4)) {
 		for (int i = 0; true; i++) {
 			pp_value addr = (pp_value(i) << 32) | pp_value(0x4);
 			// read the next 'type' field to see if it is valid
@@ -285,47 +274,43 @@ cpuid_generic_device()
 				break;
 			}
 			OPEN_SCOPE("cache_info[]");
-			REG128("%function_4[]", addr);
+			REG128("%function_4", addr);
 			FIELD("type", ANON_ENUM(KV("null", 0),
 						KV("data_cache", 1),
 						KV("instr_cache", 2),
 						KV("unified_cache", 3)),
-					EAX("%function_4[$]", 4, 0));
+					EAX("%function_4", 4, 0));
 			FIELD("max_cores_per_pkg", ANON_XFORM("int_t",
-					LAMBDA(_1 + 1), LAMBDA(_1 - 1)),
-				EAX("%function_4[$]", 31, 26));
+					LAMBDA(_1 + 1), LAMBDA(_1)),
+				EAX("%function_4", 31, 26));
 			FIELD("max_threads_sharing_cache", ANON_XFORM("int_t",
-					LAMBDA(_1 + 1), LAMBDA(_1 - 1)),
-				EAX("%function_4[$]", 25, 14));
+					LAMBDA(_1 + 1), LAMBDA(_1)),
+				EAX("%function_4", 25, 14));
 			FIELD("fully_assoc", "yesno_t",
-			      EAX("%function_4[$]", 9));
+			      EAX("%function_4", 9));
 			FIELD("self_init", "yesno_t",
-			      EAX("%function_4[$]", 8));
+			      EAX("%function_4", 8));
 			FIELD("level", "int_t",
-			      EAX("%function_4[$]", 7, 5));
+			      EAX("%function_4", 7, 5));
 			FIELD("ways_of_assoc", ANON_XFORM("int_t",
-					LAMBDA(_1 + 1), LAMBDA(_1 - 1)),
-				EBX("%function_4[$]", 31, 22));
+					LAMBDA(_1 + 1), LAMBDA(_1)),
+				EBX("%function_4", 31, 22));
 			FIELD("phys_line_partitions", ANON_XFORM("int_t",
-					LAMBDA(_1 + 1), LAMBDA(_1 - 1)),
-				EBX("%function_4[$]", 21, 12));
-			FIELD("sys_coherency_line_size", "int_t",
-			      EBX("%function_4[$]", 11, 0));
+					LAMBDA(_1 + 1), LAMBDA(_1)),
+				EBX("%function_4", 21, 12));
+			FIELD("sys_coherency_line_size", ANON_XFORM(
+				ANON_INT("bytes"), LAMBDA(_1 + 1), LAMBDA(_1)),
+				EBX("%function_4", 11, 0));
 			FIELD("num_sets", ANON_XFORM("int_t",
-					LAMBDA(_1 + 1), LAMBDA(_1 - 1)),
-				ECX("%function_4[$]", 31, 0));
-			FIELD("prefetch_stride", /*ANON_XFORM( */
-					ANON_INT("bytes"),
-				// FIXME: why doesn't this work?
-				// this causes huge amounts of nonsense
-				// numbers to be printed as output
-				/*LAMBDA(if_then_else_return(_1 == 0, 64, _1)),
-				LAMBDA(if_then_else_return(_1 == 64, 0, _1))),*/
-				EDX("%function_4[$]", 9, 0));
+					LAMBDA(_1 + 1), LAMBDA(_1)),
+				ECX("%function_4", 31, 0));
+			FIELD("prefetch_stride", ANON_XFORM(ANON_INT("bytes"),
+					LAMBDA((!_1)*64 + _1), LAMBDA(_1)),
+				EDX("%function_4", 9, 0));
 			CLOSE_SCOPE(); // cache_info[]
 		}
 	} // CPUID Function 0x4
-	
+
 	// MONITOR / MWAIT Parameters
 	// CPUID Function 0x5
 	if (FIELD_GE("largest_std_fn", 0x5)) {
@@ -339,13 +324,16 @@ cpuid_generic_device()
 				ECX("%function_5", 1));
 		FIELD("emx", "yesno_t",
 				EDX("%function_5", 0));
-		if (FIELD_NE("../vendor", "amd")) {
-			// reserved on AMD
-			for (int i = 0; i < 20; i += 4) {
-				FIELD("sub_states_supported[]", "int_t",
-						EDX("%function_5", i + 3, i));
-			}
-		}
+		FIELD("c0_sub_states", "int_t",
+				EDX("%function_5", 3, 0));
+		FIELD("c1_sub_states", "int_t",
+				EDX("%function_5", 7, 4));
+		FIELD("c2_sub_states", "int_t",
+				EDX("%function_5", 11, 8));
+		FIELD("c3_sub_states", "int_t",
+				EDX("%function_5", 15, 12));
+		FIELD("c4_sub_states", "int_t",
+				EDX("%function_5", 19, 16));
 		CLOSE_SCOPE();
 	} // CPUID Function 0x5
 
@@ -363,8 +351,15 @@ cpuid_generic_device()
 	} // CPUID Function 0x6
 
 	// CPUID Functions 0x7 & 0x8 Reserved on both Intel and AMD
-	
-	// FIXME: add function 0x9 for Intel
+
+	// Direct Cache Access Parameters
+	// CPUID Function 0x9
+	if (FIELD_GE("largest_std_fn", 0xA)) {
+		OPEN_SCOPE("direct_cache_access");
+		REG128("%function_9", 0x9);
+		FIELD("platform_dca_cap", "hex32_t", EAX("%function_9"));
+		CLOSE_SCOPE();
+	}
 
 	// Architectural Performance Monitor Features
 	// CPUID Function 0xA
@@ -777,11 +772,11 @@ cpuid_generic_device()
 					ECX("%function_80000006", 11, 8));
 			FIELD("l3_size_min", ANON_XFORM(ANON_INT("KB"),
 						LAMBDA(_1 * 512),
-						LAMBDA(_1 / 512)),
+						LAMBDA(_1)),
 					EDX("%function_80000006", 31, 18));
 			FIELD("l3_size_max", ANON_XFORM(ANON_INT("KB"),
 						LAMBDA((_1 + 1) * 512),
-						LAMBDA((_1 / 512) - 1)),
+						LAMBDA(_1)),
 					EDX("%function_80000006", 31, 18));
 			FIELD("l3_assoc", "assoc_t",
 					EDX("%function_80000006", 15, 12));
@@ -913,6 +908,4 @@ cpuid_generic_device()
 		FIELD("fp128", "yesno_t", EAX("%function_8000001A", 0));
 		CLOSE_SCOPE(); // perf_opt_identifiers
 	} // CPUID Function 0x8000001A
-
-	// FIXME: add extended functions
 }
