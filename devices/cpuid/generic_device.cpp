@@ -354,7 +354,7 @@ cpuid_generic_device()
 
 	// Direct Cache Access Parameters
 	// CPUID Function 0x9
-	if (FIELD_GE("largest_std_fn", 0xA)) {
+	if (FIELD_GE("largest_std_fn", 0x9)) {
 		OPEN_SCOPE("direct_cache_access");
 		REG128("%function_9", 0x9);
 		FIELD("platform_dca_cap", "hex32_t", EAX("%function_9"));
