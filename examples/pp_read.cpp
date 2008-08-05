@@ -95,24 +95,20 @@ dump_array(const string &name, const pp_array_const_ptr &array)
 void
 dump_dirent(pp_scope_ptr &root, const string &path)
 {
-	try {
-		const pp_dirent_const_ptr &de = root->lookup_dirent(path);
-		if (de == NULL) {
-			cerr << path << ": path not found" << endl;
-		} else if (de->is_field()) {
-			dump_field(path, pp_field_from_dirent(de));
-		} else if (de->is_register()) {
-			dump_register(path, pp_register_from_dirent(de));
-		} else if (de->is_scope()) {
-			dump_scope(path, pp_scope_from_dirent(de));
-		} else if (de->is_array()) {
-			dump_array(path, pp_array_from_dirent(de));
-		} else {
-			cerr << path << ": unknown dirent type: "
-			     << de->dirent_type() << endl;
-		}
-	} catch (exception &e) {
-		cerr << path << ": " << e.what() << endl;
+	const pp_dirent_const_ptr &de = root->lookup_dirent(path);
+	if (de == NULL) {
+		cerr << path << ": path not found" << endl;
+	} else if (de->is_field()) {
+		dump_field(path, pp_field_from_dirent(de));
+	} else if (de->is_register()) {
+		dump_register(path, pp_register_from_dirent(de));
+	} else if (de->is_scope()) {
+		dump_scope(path, pp_scope_from_dirent(de));
+	} else if (de->is_array()) {
+		dump_array(path, pp_array_from_dirent(de));
+	} else {
+		cerr << path << ": unknown dirent type: "
+		     << de->dirent_type() << endl;
 	}
 }
 
