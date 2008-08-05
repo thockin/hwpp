@@ -132,10 +132,12 @@ fkl_write(const parse_location &loc,
 			pp_register_from_dirent(de)->write(value);
 		} else if (de->is_field()) {
 			pp_field_from_dirent(de)->write(value);
+		} else {
+			throw pp_dirent::conversion_error(
+			    "path is not a register or field: "
+			    + path_str + " ("
+			    + to_string(de->dirent_type()) + ")");
 		}
-		throw pp_dirent::conversion_error(
-		    "path is not a register or field: "
-		    + path_str + " (" + to_string(de->dirent_type()) + ")");
 	} catch (pp_path::invalid_error &e) {
 		throw pp_parse_error(e.what(), loc);
 	}
