@@ -343,6 +343,202 @@ k8_address_map(const pp_value &seg, const pp_value &bus,
 	CLOSE_SCOPE(); // address_map
 }
 
+class dram_addtional_data_procs: public pp_rwprocs
+{
+    private:
+	pp_value m_index;
+	static const uint32_t DctAccessWrite = (1<<30);
+
+    public:
+	explicit dram_addtional_data_procs(pp_value index)
+	    : m_index(index & pp_value(0x3fffffff))
+	{
+	}
+
+	pp_value
+	read(void) const
+	{
+		WRITE("../%dram_additional_data_offset", m_index);
+		while (READ(BITS("../%dram_additional_data_offset", 31)) == 0)
+			; // do nothing
+		return READ("../%dram_additional_data_port");
+	}
+
+	void
+	write(const pp_value &value) const
+	{
+		WRITE("../%dram_additional_data_port", value);
+		WRITE("../%dram_additional_data_offset",
+		      m_index | pp_value(DctAccessWrite));
+		while (READ(BITS("../%dram_additional_data_offset", 31)) == 0)
+			; // do nothing
+	}
+};
+
+static void
+dram_additional_data(const string &name, const pp_value &address)
+{
+	OPEN_SCOPE(name);
+
+	//
+	// Output driver compensation control
+	//
+
+	REG32("%output_driver_compensation_ctrl",
+	      PROCS(dram_addtional_data_procs(address + 0x00)));
+	FIELD("CkeDreStren", ANON_ENUM(
+				KV("1.0x", 0),
+				KV("1.25x", 1),
+				KV("1.5x", 2),
+				KV("2.0x", 3)),
+			BITS("%output_driver_compensation_ctrl", 1, 0));
+	FIELD("CsOdtDrvStren", ANON_ENUM(
+				KV("1.0x", 0),
+				KV("1.25x", 1),
+				KV("1.5x", 2),
+				KV("2.0x", 3)),
+			BITS("%output_driver_compensation_ctrl", 5, 4));
+	FIELD("AddrCmdDrvStren", ANON_ENUM(
+				KV("1.0x", 0),
+				KV("1.25x", 1),
+				KV("1.5x", 2),
+				KV("2.0x", 3)),
+			BITS("%output_driver_compensation_ctrl", 9, 8));
+	FIELD("ClkDrvStren", ANON_ENUM(
+				KV("0.75x", 0),
+				KV("1.0x", 1),
+				KV("1.25x", 2),
+				KV("1.5x", 3)),
+			BITS("%output_driver_compensation_ctrl", 13, 12));
+	FIELD("DataDrvStren", ANON_ENUM(
+				KV("0.75x", 0),
+				KV("1.0x", 1),
+				KV("1.25x", 2),
+				KV("1.5x", 3)),
+			BITS("%output_driver_compensation_ctrl", 17, 16));
+	FIELD("DqsDrvStren", ANON_ENUM(
+				KV("0.75x", 0),
+				KV("1.0x", 1),
+				KV("1.25x", 2),
+				KV("1.5x", 3)),
+			BITS("%output_driver_compensation_ctrl", 21, 20));
+	FIELD("ProcOdt", ANON_ENUM(
+				KV("300 ohms", 0),
+				KV("150 ohms", 1),
+				KV("75 ohms", 2)),
+			BITS("%output_driver_compensation_ctrl", 29, 28));
+
+	//
+	// Write data timing control
+	//
+
+	REG32("%write_data_timing_lo_ctrl",
+	      PROCS(dram_addtional_data_procs(address + 0x01)));
+	REG32("%write_data_timing_hi_ctrl",
+	      PROCS(dram_addtional_data_procs(address + 0x02)));
+
+	FIELD("WrDatTimeByte0", ANON_INT("/96 MEMCLK"),
+	      BITS("%write_data_timing_lo_ctrl", 5, 0));
+	FIELD("WrDatTimeByte1", ANON_INT("/96 MEMCLK"),
+	      BITS("%write_data_timing_lo_ctrl", 13, 8));
+	FIELD("WrDatTimeByte2", ANON_INT("/96 MEMCLK"),
+	      BITS("%write_data_timing_lo_ctrl", 21, 16));
+	FIELD("WrDatTimeByte3", ANON_INT("/96 MEMCLK"),
+	      BITS("%write_data_timing_lo_ctrl", 29, 24));
+	FIELD("WrDatTimeByte4", ANON_INT("/96 MEMCLK"),
+	      BITS("%write_data_timing_hi_ctrl", 5, 0));
+	FIELD("WrDatTimeByte5", ANON_INT("/96 MEMCLK"),
+	      BITS("%write_data_timing_hi_ctrl", 13, 8));
+	FIELD("WrDatTimeByte6", ANON_INT("/96 MEMCLK"),
+	      BITS("%write_data_timing_hi_ctrl", 21, 16));
+	FIELD("WrDatTimeByte7", ANON_INT("/96 MEMCLK"),
+	      BITS("%write_data_timing_hi_ctrl", 29, 24));
+
+	REG32("%write_data_ecc_timing_ctrl",
+	      PROCS(dram_addtional_data_procs(address + 0x03)));
+	FIELD("WrChkTime", ANON_INT("/96 MEMCLK"),
+	      BITS("%write_data_ecc_timing_ctrl", 5, 0));
+
+	//
+	// Address timing control
+	//
+
+	REG32("%address_timing_ctrl",
+	      PROCS(dram_addtional_data_procs(address + 0x04)));
+	FIELD("CkeFineDelay", ANON_INT("/64 MEMCLK"),
+	      BITS("%address_timing_ctrl", 4, 0));
+	FIELD("CkeSetup", ANON_BOOL("1 MEMCLK", "1/2 MEMCLK"),
+	      BITS("%address_timing_ctrl", 5));
+	FIELD("CsOdtFineDelay", ANON_INT("/64 MEMCLK"),
+	      BITS("%address_timing_ctrl", 12, 8));
+	FIELD("CsOdtSetup", ANON_BOOL("1 MEMCLK", "1/2 MEMCLK"),
+	      BITS("%address_timing_ctrl", 13));
+	FIELD("AddrCmdFineDelay", ANON_INT("/64 MEMCLK"),
+	      BITS("%address_timing_ctrl", 20, 16));
+	FIELD("AddrCmdSetup", ANON_BOOL("1 MEMCLK", "1/2 MEMCLK"),
+	      BITS("%address_timing_ctrl", 21));
+	FIELD("AtcDllMaxPhases", ANON_BOOL("64 phases", "32 phases"),
+	      BITS("%address_timing_ctrl", 28));
+
+	//
+	// Read DQS timing control
+	//
+
+	REG32("%read_dqs_timing_lo_ctrl",
+	      PROCS(dram_addtional_data_procs(address + 0x05)));
+	REG32("%read_dqs_timing_hi_ctrl",
+	      PROCS(dram_addtional_data_procs(address + 0x06)));
+
+	FIELD("RdDqsTimeByte0", ANON_INT("/96 MEMCLK"),
+	      BITS("%read_dqs_timing_lo_ctrl", 5, 0));
+	FIELD("RdDqsTimeByte1", ANON_INT("/96 MEMCLK"),
+	      BITS("%read_dqs_timing_lo_ctrl", 13, 8));
+	FIELD("RdDqsTimeByte2", ANON_INT("/96 MEMCLK"),
+	      BITS("%read_dqs_timing_lo_ctrl", 21, 16));
+	FIELD("RdDqsTimeByte3", ANON_INT("/96 MEMCLK"),
+	      BITS("%read_dqs_timing_lo_ctrl", 29, 24));
+	FIELD("RdDqsTimeByte4", ANON_INT("/96 MEMCLK"),
+	      BITS("%read_dqs_timing_hi_ctrl", 5, 0));
+	FIELD("RdDqsTimeByte5", ANON_INT("/96 MEMCLK"),
+	      BITS("%read_dqs_timing_hi_ctrl", 13, 8));
+	FIELD("RdDqsTimeByte6", ANON_INT("/96 MEMCLK"),
+	      BITS("%read_dqs_timing_hi_ctrl", 21, 16));
+	FIELD("RdDqsTimeByte7", ANON_INT("/96 MEMCLK"),
+	      BITS("%read_dqs_timing_hi_ctrl", 29, 24));
+
+	REG32("%read_dqs_ecc_timing_ctrl",
+	      PROCS(dram_addtional_data_procs(address + 0x07)));
+	FIELD("RdDqsTimeCheck", ANON_INT("/96 MEMCLK"),
+	      BITS("%write_data_ecc_timing_ctrl", 5, 0));
+
+	//
+	// DQS receiver enable timing control
+	//
+
+	REG32("%dqs_receiver_enable_timing_ctrl[]",
+	      PROCS(dram_addtional_data_procs(address + 0x10)));
+	FIELD("DqsRcvEnDelay[]", ANON_XFORM(ANON_INT("ps"),
+				LAMBDA(_1 * 50), LAMBDA(_1)),
+			BITS("%dqs_receiver_enable_timing_ctrl[$]", 7, 0));
+	REG32("%dqs_receiver_enable_timing_ctrl[]",
+	      PROCS(dram_addtional_data_procs(address + 0x13)));
+	FIELD("DqsRcvEnDelay[]", ANON_XFORM(ANON_INT("ps"),
+				LAMBDA(_1 * 50), LAMBDA(_1)),
+			BITS("%dqs_receiver_enable_timing_ctrl[$]", 7, 0));
+	REG32("%dqs_receiver_enable_timing_ctrl[]",
+	      PROCS(dram_addtional_data_procs(address + 0x16)));
+	FIELD("DqsRcvEnDelay[]", ANON_XFORM(ANON_INT("ps"),
+				LAMBDA(_1 * 50), LAMBDA(_1)),
+			BITS("%dqs_receiver_enable_timing_ctrl[$]", 7, 0));
+	REG32("%dqs_receiver_enable_timing_ctrl[]",
+	      PROCS(dram_addtional_data_procs(address + 0x19)));
+	FIELD("DqsRcvEnDelay[]", ANON_XFORM(ANON_INT("ps"),
+				LAMBDA(_1 * 50), LAMBDA(_1)),
+			BITS("%dqs_receiver_enable_timing_ctrl[$]", 7, 0));
+
+	CLOSE_SCOPE();
+}
+
 static void
 k8_dram_controller(const pp_value &seg, const pp_value &bus,
                    const pp_value &dev, const pp_value &func)
@@ -926,28 +1122,17 @@ k8_dram_controller(const pp_value &seg, const pp_value &bus,
 
 	} else if (FIELD_EQ("$k8/k8_rev", "rev_f")) {
 		//
-		// DRAM Controller Additional Data Offset register
+		// DRAM Controller Additional Data registers
+		//
+		// There are a bunch of registers behind the index/data
+		// pair at 0x98/0x9c
 		//
 
-		REG32("%dram_controller_ad_offset", 0x98);
-		OPEN_SCOPE("dram_controller_additional_data_offset");
+		REG32("%dram_additional_data_offset", 0x98);
+		REG32("%dram_additional_data_port", 0x9c);
 
-		FIELD("DctOffset", "hex_t",
-				BITS("../%dram_controller_ad_offset", 29, 0));
-		FIELD("DctAccessWrite", ANON_BOOL("write", "read"),
-				BITS("../%dram_controller_ad_offset", 30));
-		FIELD("DctAccessDone", "yesno_t",
-				BITS("../%dram_controller_ad_offset", 31));
-
-		CLOSE_SCOPE();
-
-		//
-		// DRAM Controller Additional Data register
-		//
-
-		// FIXME: how do I detect which interpretation of the data
-		// in this register from pp. 116-126 to use?
-		FIELD("DctOffsetData", "hex_t", REG32(0x9C));
+		dram_additional_data("channel_a", 0x0);
+		dram_additional_data("channel_b", 0x20);
 
 		//
 		// DRAM Controller Miscellaneous register
