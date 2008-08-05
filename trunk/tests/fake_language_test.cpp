@@ -128,6 +128,15 @@ test_parse_errors()
 	//
 	// READ
 	//
+	// should not throw
+	try {
+		READ(REG32(0));
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("READ()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("READ()");
+	}
 	// should throw, but not a parse_error
 	try {
 		READ("valid");
@@ -158,6 +167,15 @@ test_parse_errors()
 	//
 	// WRITE
 	//
+	// should not throw
+	try {
+		WRITE(REG32(0), 0);
+		// expected
+	} catch (pp_parse_error &e) {
+		ret += TEST_ERROR("WRITE()");
+	} catch (exception &e) {
+		ret += TEST_ERROR("WRITE()");
+	}
 	// should throw, but not a parse_error
 	try {
 		WRITE("valid", 123);
