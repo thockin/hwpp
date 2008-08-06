@@ -428,8 +428,7 @@ cpuid_generic_device()
 			FIELD("x2apic_id", "hex32_t", EDX("%function_B"));
 			CLOSE_SCOPE(); // topo_info[]
 		}
-	}
-	// CPUID Function 0xB
+	} // CPUID Function 0xB
 
 	// Largest Extended Function #
 	// CPUID Function 0x80000000
@@ -465,7 +464,7 @@ cpuid_generic_device()
 				BITS("%function_80000003", 127, 0) +
 				BITS("%function_80000002", 127, 0));
 	} // CPUID Functions 0x80000002-0x80000004
-	
+
 	// L1 Cache and TLB Identifiers
 	// CPUID Function 0x80000005
 	if (FIELD_EQ("vendor", "amd") &&
@@ -893,7 +892,7 @@ cpuid_generic_device()
 	} // CPUID Function 0x8000000A
 
 	// Functions 0x8000000B through 0x80000018 reserved on Intel and AMD
-	
+
 	// TLB 1GB Page Identifiers
 	// CPUID Function 0x80000019
 	if (FIELD_GE("largest_ext_fn", 0x80000019)) {
