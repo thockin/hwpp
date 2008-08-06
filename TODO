@@ -7,8 +7,7 @@ Testing stuff:
 Device stuff:
  - fix and finish PCI subclass and progintf stuff
  - make PCI capabilities be self-contained to closer emulate the final language
- - allow anonymous registers, such as READ(BITS(REG32(0x100)))
-   maybe change everything to
+ - maybe change everything to
    	EXPORT("%foo", REG32(0x100))
    or
    	NAME("%foo", REG32(0x100))
@@ -21,7 +20,6 @@ Device stuff:
    - add "regaddr_t" type to print them
  - k8 function 2 - conver cs_base[] and cs_mask[] to cs[]
    - probably needs ALIAS
- - int TABLE datatype ?  See k8 Trfc or GPE
  - Look at k8 for examples of things needing fields not yet defined
    BurstLen32
 
@@ -73,12 +71,12 @@ Bugs and features:
  - proc_dirents (run a proc to see if the dirent exists?)
  - accessing an array as "foo" should be the same as "foo[0]" ??
  - fixed-point datatype
+ - int TABLE datatype ?  See k8 Trfc or GPE
+ - type range type (for 0-1 use type X, for 2-100 use type Y, etc)
  - add ALIAS to symlink to dirents
  - add altnames for registers and fields (to unify naming?)
  - drop "ANON" prefixes for types
  - unify array[] and [$] syntax
- - bindings on registers
- - anonymous registers
 
 filesystem.h:
 	mmap: closing the FD does no unmap an mmap!!  Use this.
