@@ -1,3 +1,11 @@
+//
+// This file has been developed purely from publicly-available documentation
+// acquired from the following sources:
+// http://download.intel.com/design/processor/applnots/24161832.pdf
+// http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/25481.pdf
+// http://www.sandpile.org/ia32/cpuid.htm
+//
+
 #include "pp.h"
 #include "generic_device.h"
 #include "fake_language.h"
@@ -397,6 +405,31 @@ cpuid_generic_device()
 		}
 		CLOSE_SCOPE();
 	} // CPUID Function 0xA
+
+	// Topology Enumeration Information
+	// CPUID Function 0xB
+	if (FIELD_GE("largest_std_fn", 0xB)) {
+		for (int i = 0; true; i++) {
+			pp_value addr = (pp_value(i) << 32) | pp_value(0xB);
+			// check if we have run out of levels
+			if (READ(BITS(REG128(addr), 63, 0)) == 0) {
+				break;
+			}
+			OPEN_SCOPE("topo_info[]");
+			REG128("%function_B", addr);
+			FIELD("bits_to_shift_for_next_level_id", "int_t",
+					EAX("%function_B", 4, 0));
+			FIELD("enabled_logical_procs", "int_t",
+					EBX("%function_B", 15, 0));
+			FIELD("level_type", ANON_ENUM(KV("smt", 1),
+						      KV("core", 2)),
+					ECX("%function_B", 15, 8));
+			FIELD("level_num", "int_t", ECX("%function_B", 7, 0));
+			FIELD("x2apic_id", "hex32_t", EDX("%function_B"));
+			CLOSE_SCOPE(); // topo_info[]
+		}
+	}
+	// CPUID Function 0xB
 
 	// Largest Extended Function #
 	// CPUID Function 0x80000000
