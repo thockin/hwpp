@@ -121,7 +121,7 @@ usage(ostream &out, const char *progname)
 int
 main(int argc, const char *argv[])
 {
-	if (argc > 1 && string(argv[0]) == "-h") {
+	if (argc > 1 && string(argv[1]) == "-h") {
 		usage(cout, argv[0]);
 		return EXIT_SUCCESS;
 	}
