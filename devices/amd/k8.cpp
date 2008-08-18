@@ -32,7 +32,659 @@ k8_msr(const pp_value &cpu)
 {
 	MSR_SCOPE("msr", cpu);
 
-	//FIXME: more
+	OPEN_SCOPE("EFER");
+	REG64("%EFER", 0xc0000080);
+	FIELD("SYSCALL", "enabledisable_t", BITS("%EFER", 0));
+	FIELD("LME", "enabledisable_t", BITS("%EFER", 8));
+	FIELD("LMA", "yesno_t", BITS("%EFER", 10));
+	FIELD("NXE", "enabledisable_t", BITS("%EFER", 11));
+	FIELD("LMSLE", "enabledisable_t", BITS("%EFER", 13));
+	FIELD("FFXSR", "enabledisable_t", BITS("%EFER", 14));
+	CLOSE_SCOPE(); // EFER
+
+	OPEN_SCOPE("SYSCFG");
+	REG64("%SYSCFG", 0xc0010010);
+	FIELD("SysAckLimit", "int_t", BITS("%SYSCFG", 4, 0));
+	FIELD("SysVicLimit", "int_t", BITS("%SYSCFG", 7, 5));
+	FIELD("SetDirtyEnE", "enabledisable_t", BITS("%SYSCFG", 8));
+	FIELD("SetDirtyEnS", "enabledisable_t", BITS("%SYSCFG", 9));
+	FIELD("SetDirtyEnO", "enabledisable_t", BITS("%SYSCFG", 10));
+	if (FIELD_EQ("$core/k8_rev", "rev_e")) {
+		FIELD("ClVicBlkEn", "enabledisable_t", BITS("%SYSCFG", 11));
+	}
+	FIELD("ChxToDirtyDis", "disableenable_t", BITS("%SYSCFG", 16));
+	FIELD("SysUcLockEn", "enabledisable_t", BITS("%SYSCFG", 17));
+	FIELD("MtrrFixDramEn", "enabledisable_t", BITS("%SYSCFG", 18));
+	FIELD("MtrrFixDramModEn", "enabledisable_t", BITS("%SYSCFG", 19));
+	FIELD("MtrrVarDramEn", "enabledisable_t", BITS("%SYSCFG", 20));
+	FIELD("MtrrTom2En", "enabledisable_t", BITS("%SYSCFG", 21));
+	if (FIELD_EQ("$core/k8_rev", "rev_f")) {
+		FIELD("Tom2ForceMemTypeWB", "yesno_t", BITS("%SYSCFG", 22));
+	}
+	CLOSE_SCOPE(); // SYSCFG
+
+	OPEN_SCOPE("HWCR");
+	REG64("%HWCR", 0xc0010015);
+	FIELD("SMMLOCK", "yesno_t", BITS("%HWCR", 0));
+	FIELD("SLOWFENCE", "enabledisable_t", BITS("%HWCR", 1));
+	FIELD("TLBCACHEDIS", "disableenable_t", BITS("%HWCR", 3));
+	FIELD("INVD_WBINVD", "yesno_t", BITS("%HWCR", 4));
+	FIELD("FFDIS", "disableenable_t", BITS("%HWCR", 6));
+	FIELD("DISLOCK", "disableenable_t", BITS("%HWCR", 7));
+	FIELD("IGNNE_EM", "enabledisable_t", BITS("%HWCR", 8));
+	FIELD("HLTXSPCYCEN", "enabledisable_t", BITS("%HWCR", 12));
+	FIELD("SMISPCYCDIS", "disableenable_t", BITS("%HWCR", 13));
+	FIELD("RSMSPCYCDIS", "disableenable_t", BITS("%HWCR", 14));
+	FIELD("SSEDIS", "disableenable_t", BITS("%HWCR", 15));
+	FIELD("WRAP32DIS", "disableenable_t", BITS("%HWCR", 17));
+	FIELD("MCi_STATUS_WREN", "enabledisable_t", BITS("%HWCR", 18));
+	FIELD("START_FID", "fid_t", BITS("%HWCR", 29, 24));
+	CLOSE_SCOPE(); // HWCR
+
+	OPEN_SCOPE("NB_CFG");
+	REG64("%NB_CFG", 0xc001001f);
+	if (FIELD_EQ("$core/k8_rev", "rev_e")) {
+		FIELD("EnRefUseFreeBuf", "enabledisable_t",
+				BITS("%NB_CFG", 9));
+	} else if (FIELD_EQ("$core/k8_rev", "rev_f")) {
+		FIELD("DisRefUseFreeBuf", "disableenable_t",
+				BITS("%NB_CFG", 9));
+	}
+	FIELD("DisCohLdtCfg", "disableenable_t", BITS("%NB_CFG", 31));
+	FIELD("DisDatMask", "disableenable_t", BITS("%NB_CFG", 36));
+	FIELD("DisThmlPfMonSmiIntr", "disableenable_t", BITS("%NB_CFG", 43));
+	FIELD("DisUsSysMgtRqToNLdt", "disableenable_t", BITS("%NB_CFG", 45));
+	FIELD("InitApicIdCpuIdLo", "yesno_t", BITS("%NB_CFG", 54));
+	CLOSE_SCOPE(); // NB_CFG
+
+	OPEN_SCOPE("id");
+
+	REG64("%MANID", 0xc001001e);
+	FIELD("MinorRev", "int_t", BITS("%MANID", 3, 0));
+	FIELD("MajorRev", "int_t", BITS("%MANID", 7, 4));
+	FIELD("ReticleSite", "int_t", BITS("%MANID", 9, 8));
+
+	CLOSE_SCOPE(); // id
+
+	OPEN_SCOPE("HTC");
+	REG64("%HTC", 0xc001003e);
+	FIELD("HtcEn", "enabledisable_t", BITS("%HTC", 0));
+	FIELD("HtcSbcEn", "enabledisable_t", BITS("%HTC", 1));
+	FIELD("HtcAct", "yesno_t", BITS("%HTC", 4));
+	FIELD("HtcActSts", "yesno_t", BITS("%HTC", 5));
+	CLOSE_SCOPE(); // htc
+
+	OPEN_SCOPE("thermal_control");
+	REG64("%ThermalControl", 0xc001003f);
+	FIELD("StcSbcTmpHiEn", "enabledisable_t",
+			BITS("%ThermalControl", 0));
+	FIELD("StcSbcTmpLoEn", "enabledisable_t", 
+			BITS("%ThermalControl", 1));
+	FIELD("StcApcTmpHiEn", "enabledisable_t",
+			BITS("%ThermalControl", 2));
+	FIELD("StcApcTmpLoEn", "enabledisable_t",
+			BITS("%ThermalControl", 3));
+	if (FIELD_EQ("$core/k8_rev", "rev_f")) {
+		FIELD("StcHtcEn", "enabledisable_t",
+				BITS("%ThermalControl", 4));
+	}
+	FIELD("StcTmpHiSts", "yesno_t",
+			BITS("%ThermalControl", 6));
+	FIELD("StcTmpLoSts", "yesno_t",
+			BITS("%ThermalControl", 7));
+	FIELD("StcTmpLmt", ANON_XFORM(ANON_INT("C"),
+				LAMBDA(52 + (_1 * 2)),
+				LAMBDA((_1 - 52) / 2)),
+			BITS("%ThermalControl", 20, 16));
+	FIELD("StcHystLmt", ANON_XFORM(ANON_INT("C"),
+				LAMBDA(2 + (_1 * 2)),
+				LAMBDA((_1 - 2) / 2)),
+			BITS("%ThermalControl", 27, 24));
+	CLOSE_SCOPE(); // thermal_control
+
+	REG64("%TOP_MEM", 0xc001001a);
+	REG64("%TOP_MEM2", 0xc001001d);
+	FIELD("TOM", "addr64_t",
+			BITS("%TOP_MEM", 39, 23) + BITS("%0", 22, 0));
+	FIELD("TOM2", "addr64_t",
+			BITS("%TOP_MEM2", 39, 23) + BITS("%0", 22, 0));
+
+	for (int i = 0; i < 2; i++) {
+		OPEN_SCOPE("iorr[]");
+
+		REG64("%IORRBase", 0xc0010016 + (i * 0x02));
+		FIELD("WrDram", "yesno_t", BITS("%IORRBase", 3));
+		FIELD("RdDram", "yesno_t", BITS("%IORRBase", 4));
+		FIELD("Base", "addr64_t",
+				BITS("%IORRBase", 39, 12) + BITS("%0", 11, 0));
+
+		REG64("%IORRMask", 0xc0010017 + (i * 0x02));
+		FIELD("V", "enabledisable_t", BITS("%IORRMask", 11));
+		FIELD("Mask", "addr64_t",
+				BITS("%IORRMask", 39, 12) + BITS("%0", 11, 0));
+
+		CLOSE_SCOPE(); // iorr[]
+	}
+
+	OPEN_SCOPE("STAR");
+	REG64("%STAR", 0xc0000081);
+	FIELD("Target", "addr32_t", BITS("%STAR", 31, 0));
+	FIELD("SysCallSel", "hex16_t", BITS("%STAR", 47, 32));
+	FIELD("SysRetSel", "hex16_t", BITS("%STAR", 63, 48));
+	CLOSE_SCOPE(); // STAR
+
+	FIELD("LSTAR", "addr64_t", REG64(0xc0000082));
+	FIELD("CSTAR", "addr64_t", REG64(0xc0000082));
+
+	REG64("%SF_MASK", 0xc0000084);
+	FIELD("SF_MASK", "hex32_t", BITS("%SF_MASK", 31, 0));
+
+	FIELD("FS_BASE", "addr64_t", REG64(0xc0000100));
+	FIELD("GS_BASE", "addr64_t", REG64(0xc0000101)) ;
+	FIELD("KernelGSBase", "addr64_t", REG64(0xc0000102));
+
+	for (int i = 0; i < 4; i++) {
+		OPEN_SCOPE("perf_ctr[]");
+
+		REG64("%PerfEvtSel", 0xc0010000 + i);
+		FIELD("EVENT_SELECT", ANON_ENUM(
+			KV("dispatched_fpu_ops", 0x00),
+			KV("cycles_with_no_fpu_ops_retired", 0x01),
+			KV("dispatched_fast_flag_fpu_ops", 0x02),
+			KV("segment_reg_loads", 0x20),
+			KV("pipeline_restart_self_modifying_code", 0x21),
+			KV("pipeline_restart_probe_hit", 0x22),
+			KV("ls_buffer_2_full", 0x23),
+			KV("locked_ops", 0x24),
+			KV("mem_requests_by_type", 0x65),
+			KV("data_cache_accesses", 0x40),
+			KV("data_cache_misses", 0x41),
+			KV("data_cache_refills_from_l2_or_system", 0x42),
+			KV("data_cache_refills_from_system", 0x43),
+			KV("data_cache_lines_evicted", 0x44),
+			KV("l1_dtlb_miss_l2_dtlb_hit", 0x45),
+			KV("l1_and_l2_dtlb_miss", 0x46),
+			KV("misaligned_accesses", 0x47),
+			KV("microarch_late_cancel_of_access", 0x48),
+			KV("microarch_early_cancel_of_access", 0x49),
+			KV("single_bit_ecc_err_recorded_by_scrubber", 0x4a),
+			KV("prefetch_instrs_dispatched", 0x4b),
+			KV("dcache_misses_by_locked_instrs", 0x4c),
+			KV("data_prefetcher", 0x67),
+			KV("system_read_responses_by_coherency_state", 0x6c),
+			KV("quadwords_written_to_system", 0x6d),
+			KV("requests_to_l2_cache", 0x7d),
+			KV("l2_cache_misses", 0x7e),
+			KV("l2_fill_or_writeback", 0x7f),
+			KV("instr_cache_fetches", 0x80),
+			KV("instr_cache_misses", 0x81),
+			KV("instr_cache_refills_from_l2", 0x82),
+			KV("instr_cache_refills_from_system", 0x83),
+			KV("l1_itlb_miss_l2_itlb_hit", 0x84),
+			KV("l1_and_l2_itlb_miss", 0x85),
+			KV("pipeline_restart_due_to_instr_stream_probe", 0x86),
+			KV("instr_fetch_stall", 0x87),
+			KV("return_stack_hits", 0x88),
+			KV("return_stack_overflows", 0x89),
+			KV("retired_clflush_instrs", 0x26),
+			KV("retired_cpuid_instrs", 0x27),
+			KV("cpu_clocks_not_halted", 0x76),
+			KV("retired_instrs", 0xc0),
+			KV("retired_uops", 0xc1),
+			KV("retired_branch_instrs", 0xc2),
+			KV("retired_mispredicted_branch_instrs", 0xc3),
+			KV("retired_taken_branch_instrs", 0xc4),
+			KV("retired_taken_branch_instrs_mispredicted", 0xc5),
+			KV("retired_far_control_transfers", 0xc6),
+			KV("retired_branch_resyncs", 0xc7),
+			KV("retired_near_returns", 0xc8),
+			KV("retired_near_returns_mispredicted", 0xc9),
+			KV("retired_indirect_branches_mispredicted", 0xca),
+			KV("retired_mmx_or_fp_instrs", 0xcb),
+			KV("retired_fastpath_double_op_instrs", 0xcc),
+			KV("ints_masked_cycles", 0xcd),
+			KV("ints_masked_cycles_with_int_pending", 0xce),
+			KV("ints_taken", 0xcf),
+			KV("decoder_empty", 0xd0),
+			KV("dispatch_stalls", 0xd1),
+			KV("dispatch_stall_for_branch_abort_to_retire", 0xd2),
+			KV("dispatch_stall_for_serialization", 0xd3),
+			KV("dispatch_stall_for_segment_load", 0xd4),
+			KV("dispatch_stall_for_reorder_buffer_full", 0xd5),
+			KV("dispatch_stall_for_reservation_station_full", 0xd6),
+			KV("dispatch_stall_for_fpu_full", 0xd7),
+			KV("dispatch_stall_for_ls_full", 0xd8),
+			KV("dispatch_stall_waiting_for_all_quiet", 0xd9),
+			KV("dispatch_stall_for_far_transfer", 0xda),
+			KV("fpu_exceptions", 0xdb),
+			KV("dr0_breakpoint_matches", 0xdc),
+			KV("dr1_breakpoint_matches", 0xdd),
+			KV("dr2_breakpoint_matches", 0xde),
+			KV("dr3_breakpoint_matches", 0xdf),
+			KV("dram_accesses", 0xe0),
+			KV("mem_controller_page_table_overflows", 0xe1),
+			KV("mem_controller_turnarounds", 0xe3),
+			KV("mem_controller_bypass_counter_saturation", 0xe4),
+			KV("sized_blocks", 0xe5),
+			KV("ecc_errors", 0xe8),
+			KV("cpu_or_io_requests_to_memory_or_io", 0xe9),
+			KV("cache_block_commands", 0xea),
+			KV("sized_commands", 0xeb),
+			KV("probe_responses_and_upstream_requests", 0xec),
+			KV("gart_events", 0xee),
+			KV("ht_link_0_transmit_bandwidth", 0xf6),
+			KV("ht_link_1_transmit_bandwidth", 0xf7),
+			KV("ht_link_2_transmit_bandwidth", 0xf8)),
+						BITS("%PerfEvtSel", 7, 0));
+		if (FIELD_EQ("EVENT_SELECT", "dispatched_fpu_ops")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("add_pipe_ops", 0),
+				KV("multiply_pipe_ops", 1),
+				KV("store_pipe_ops", 2),
+				KV("add_pipe_load_ops", 3),
+				KV("multiply_pipe_load_ops", 4),
+				KV("store_pipe_load_ops", 5)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT", "segment_reg_loads")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("es", 0),
+				KV("cs", 1),
+				KV("ss", 2),
+				KV("ds", 3),
+				KV("fs", 4),
+				KV("gs", 5),
+				KV("hs", 6)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT", "locked_ops")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("num_locked_instrs_executed", 0),
+				KV("num_cycles_in_speculative_phase", 1),
+				KV("num_cycles_in_nonspeculative_phase", 2)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT", "mem_requests_by_type")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("requests_to_uc_mem", 0),
+				KV("requests_to_wc_mem_or_"
+				   "wc_buffer_flushes_to_wb_mem", 1),
+				KV("ss_requests", 7)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT",
+				    "data_cache_refills_from_l2_or_system")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("refill_from_sys", 0),
+				KV("shared_state_line_from_l2", 1),
+				KV("exclusive_state_line_from_l2", 2),
+				KV("owned_state_line_from_l2", 3),
+				KV("modified_state_line_from_l2", 4)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT",
+				    "data_cache_refills_from_system") ||
+			   FIELD_EQ("EVENT_SELECT",
+				    "data_cache_lines_evicted")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("invalid", 0),
+				KV("shared", 1),
+				KV("exclusive", 2),
+				KV("owned", 3),
+				KV("modified", 4)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT", "single_bit_ecc_err_"
+				    "recorded_by_scrubber")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("scrubber_error", 0),
+				KV("piggyback_scrubber_errors", 1)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT",
+				    "prefetch_instrs_dispatched")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("load", 0),
+				KV("store", 1),
+				KV("nta", 2)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT",
+				    "dcache_misses_by_locked_instrs")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("data_cache_misses_by_locked_instrs", 1)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT", "data_prefetcher")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("cancelled_prefetches", 0),
+				KV("prefetch_attempts", 1)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT", "system_read_"
+				    "responses_by_coherency_state")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("exclusive", 0),
+				KV("modified", 1),
+				KV("shared", 2)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT",
+				    "quadwords_written_to_system")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("quadword_write_transfer", 0)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT", "requests_to_l2_cache")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("ic_fill", 0),
+				KV("dc_fill", 1),
+				KV("tlb_fill", 2),
+				KV("tag_snoop_request", 3),
+				KV("cancelled_request", 4)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT", "l2_cache_misses")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("ic_fill", 0),
+				KV("dc_fill_incl_possible_replays", 1),
+				KV("tlb_page_table_walk", 2)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT", "l2_fill_or_writeback")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("l2_fills", 0)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT",
+				    "retired_mmx_or_fp_instrs")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("x87_instrs", 0),
+				KV("mmx_and_3dnow_instrs", 1),
+				KV("packed_sse_and_sse2_instrs", 2),
+				KV("scalar_sse_and_sse2_instrs", 3)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT",
+				    "retired_fastpath_double_op_instrs")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("low_op_in_pos_0", 0),
+				KV("low_op_in_pos_1", 1),
+				KV("low_op_in_pos_2", 2)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT", "fpu_exceptions")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("x87_reclass_microfaults", 0),
+				KV("sse_retype_microfaults", 1),
+				KV("sse_reclass_microfaults", 2),
+				KV("sse_and_x87_microtraps", 3)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT", "dram_accesses")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("page_hit", 0),
+				KV("page_miss", 1),
+				KV("page_conflict", 2)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT",
+				    "mem_controller_turnarounds")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("dimm_chip_select_turnaround", 0),
+				KV("read_to_write_turnaround", 1),
+				KV("write_to_read_turnaround", 2)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT", "mem_controller_"
+				    "bypass_counter_saturation")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("mem_controller_high_priority_bypass", 0),
+				KV("mem_controller_low_priority_bypass", 1),
+				KV("dram_controller_interface_bypass", 2),
+				KV("dram_controller_queue_bypass", 3)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT", "sized_blocks")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("32_byte_sized_writes", 2),
+				KV("64_byte_sized_writes", 3),
+				KV("32_byte_sized_reads", 4),
+				KV("64_byte_sized_reads", 5)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT", "ecc_errors")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("num_of_dram_ecc_errors", 7)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT",
+				    "cpu_or_io_requests_to_memory_or_io")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("io_to_io", 0),
+				KV("io_to_mem", 1),
+				KV("cpu_to_io", 2),
+				KV("cpu_to_mem", 3),
+				KV("to_remote_node", 4),
+				KV("to_local_node", 5),
+				KV("from_remote_node", 6),
+				KV("from_local_node", 7)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT", "cache_block_commands")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("victim_block", 0),
+				KV("read_block", 2),
+				KV("read_block_shared", 3),
+				KV("read_block_modified", 4),
+				KV("change_to_dirty", 5)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT", "sized_commands")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("nonposted_szwr_byte", 0),
+				KV("nonposted_szwr_dword", 1),
+				KV("posted_szwr_byte", 2),
+				KV("posted_szwr_dword", 3),
+				KV("szrd_byte", 4),
+				KV("szrd_dword", 5),
+				KV("rdmodwr", 6)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT",
+				    "probe_responses_and_upstream_requests")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("probe_miss", 0),
+				KV("probe_hit_clean", 1),
+				KV("probe_hit_dirty_without_mem_cancel", 2),
+				KV("probe_hit_dirty_with_mem_cancel", 3),
+				KV("upstream_display_refresh_reads", 4),
+				KV("upstream_non_display_refresh_reads", 5),
+				KV("upstream_writes", 6)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT", "gart_events")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("gart_aperture_hit_on_cpu_access", 0),
+				KV("gart_aperture_hit_on_io_access", 1),
+				KV("gart_miss", 2)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else if (FIELD_EQ("EVENT_SELECT",
+				    "ht_link_0_transmit_bandwidth") ||
+			   FIELD_EQ("EVENT_SELECT",
+				    "ht_link_1_transmit_bandwidth") ||
+			   FIELD_EQ("EVENT_SELECT",
+				    "ht_link_2_transmit_bandwidth")) {
+			FIELD("UINT_MASK", ANON_BITMASK(
+				KV("command_dword_sent", 0),
+				KV("data_dword_sent", 1),
+				KV("buffer_release_dword_sent", 2),
+				KV("nop_dword_sent", 3)),
+					BITS("%PerfEvtSel", 15, 8));
+		} else {
+			// No special interpretation found, fall back to
+			// generic bitmask
+			FIELD("UNIT_MASK", "bitmask_t",
+					BITS("%PerfEvtSel", 15, 8));
+		}
+		FIELD("USR", "yesno_t", BITS("%PerfEvtSel", 16));
+		FIELD("OS", "yesno_t", BITS("%PerfEvtSel", 17));
+		FIELD("E", ANON_BOOL("edge_detection", "level_detection"),
+				BITS("%PerfEvtSel", 18));
+		FIELD("PC", ANON_BOOL("toggle_on_overflow",
+				      "toggle_on_increment"),
+				BITS("%PerfEvtSel", 19));
+		FIELD("INT", "enabledisable_t", BITS("%PerfEvtSel", 20));
+		FIELD("EN", "enabledisable_t", BITS("%PerfEvtSel", 22));
+		FIELD("INV", "yesno_t", BITS("%PerfEvtSel", 23));
+		if (FIELD_EQ("INV", pp_value(0))) {
+			FIELD("CNT_MASK",
+				ANON_ENUM(KV("incr_always", 0),
+					  KV("incr_if_ge_1", 1),
+					  KV("incr_if_ge_2", 2),
+					  KV("incr_if_ge_3", 3)),
+				BITS("%PerfEvtSel", 31, 24));
+		} else if (FIELD_EQ("INV", 1)) {
+			FIELD("CNT_MASK",
+				ANON_ENUM(KV("incr_always", 0),
+					  KV("incr_if_lt_1", 1),
+					  KV("incr_if_lt_2", 2),
+					  KV("incr_if_lt_3", 3)),
+				BITS("%PerfEvtSel", 31, 24));
+		}
+
+		REG64("%PerfCtr", 0xc0010004 + i);
+		FIELD("CTR", "int_t", BITS("%PerfCtr", 47, 0));
+
+		CLOSE_SCOPE(); // perf_ctr[]
+	}
+
+	OPEN_SCOPE("power_mgmt");
+
+	// FIXME: this could benefit from a fixed-point type
+	HEX("fid_t", 8);
+	HEX("vid_t", 8);
+
+	REG64("%FIDVID_CTL", 0xc0010041);
+	FIELD("NewFID", "fid_t", BITS("%FIDVID_CTL", 5, 0));
+	if (FIELD_EQ("$core/k8_rev", "rev_e")) {
+		FIELD("NewVID", "vid_t", BITS("%FIDVID_CTL", 12, 8));
+	} else if (FIELD_EQ("$core/k8_rev", "rev_f")) {
+		FIELD("NewVID", "vid_t", BITS("%FIDVID_CTL", 13, 8));
+	}
+	FIELD("InitFidVid", "yesno_t", BITS("%FIDVID_CTL", 16));
+	FIELD("StpGntTOCnt", ANON_INT("system clock cycles"),
+			BITS("%FIDVID_CTL", 51, 32));
+
+	REG64("%FIDVID_STATUS", 0xc0010042);
+	FIELD("CurrFID", "fid_t", BITS("%FIDVID_STATUS", 5, 0));
+	FIELD("StartFID", "fid_t", BITS("%FIDVID_STATUS", 13, 8));
+	FIELD("MaxFID", "fid_t", BITS("%FIDVID_STATUS", 21, 16));
+	FIELD("FidVidPending", "yesno_t", BITS("%FIDVID_STATUS", 31));
+	if (FIELD_EQ("$core/k8_rev", "rev_e")) {
+		FIELD("MaxRampVID", "vid_t", BITS("%FIDVID_STATUS", 28, 24));
+		FIELD("CurrVID", "vid_t", BITS("%FIDVID_STATUS", 36, 32));
+		FIELD("StartVID", "vid_t", BITS("%FIDVID_STATUS", 44, 40));
+		FIELD("MaxVID", "vid_t", BITS("%FIDVID_STATUS", 52, 48));
+		FIELD("MinVID", "vid_t", BITS("%FIDVID_STATUS", 60, 56));
+	} else if (FIELD_EQ("$core/k8_rev", "rev_f")) {
+		FIELD("MaxRampVID", "vid_t", BITS("%FIDVID_STATUS", 29, 24));
+		FIELD("CurrVID", "vid_t", BITS("%FIDVID_STATUS", 37, 32));
+		FIELD("StartVID", "vid_t", BITS("%FIDVID_STATUS", 45, 40));
+		FIELD("MaxVID", "vid_t", BITS("%FIDVID_STATUS", 53, 48));
+		FIELD("PstateStep", ANON_ENUM(KV("mV_25_reduction", 0),
+					      KV("mV_50_reduction", 1)),
+				BITS("%FIDVID_STATUS", 56));
+		FIELD("AltVidOffset", ANON_ENUM(KV("not_supported", 0),
+						KV("mV_neg_50", 1),
+						KV("mV_neg_100", 2),
+						KV("mV_neg_125", 3),
+						KV("mV_neg_150", 4),
+						KV("mV_neg_175", 5),
+						KV("mV_neg_200", 6),
+						KV("mV_neg_225", 7)),
+				BITS("%FIDVID_STATUS", 59, 57));
+		FIELD("IntPstateSup", "yesno_t", BITS("%FIDVID_STATUS", 61));
+	}
+
+	CLOSE_SCOPE(); // power_mgmt
+
+	OPEN_SCOPE("mc_ctl_mask");
+
+	for (int i = 0; i < 5; i++) {
+		REG64("%MC_CTL_MASK[]", 0xc0010044 + i);
+		FIELD("MC_CTL_MASK[]", "bitmask_t", BITS("%MC_CTL_MASK[$]"));
+	}
+
+	CLOSE_SCOPE(); // mc_ctl_mask
+
+	OPEN_SCOPE("io_trap");
+
+	for (int i = 0; i < 4; i++) {
+		OPEN_SCOPE("trap[]");
+		REG64("%IOTRAP_ADDR", 0xc0010050 + i);
+		FIELD("SmiAddr", "addr32_t", BITS("%IOTRAP_ADDR", 31, 0));
+		FIELD("SmiMask", "addr32_t", BITS("%IOTRAP_ADDR", 55, 32));
+		FIELD("ConfigSmi", "yesno_t", BITS("%IOTRAP_ADDR", 61));
+		FIELD("SmiOnWrEn", "enabledisable_t",
+				BITS("%IOTRAP_ADDR", 62));
+		FIELD("SmiOnRdEn", "enabledisable_t",
+				BITS("%IOTRAP_ADDR", 63));
+		CLOSE_SCOPE(); // trap[]
+		// FIXME: add an ALIAS to SmiEn_* and SmiSts_*
+	}
+
+	REG64("%IOTRAP_CTL", 0xc0010054);
+	FIELD("SmiSts_0", "yesno_t", BITS("%IOTRAP_CTL", 0));
+	FIELD("SmiEn_0", "enabledisable_t", BITS("%IOTRAP_CTL", 1));
+	FIELD("SmiSts_1", "yesno_t", BITS("%IOTRAP_CTL", 2));
+	FIELD("SmiEn_1", "enabledisable_t", BITS("%IOTRAP_CTL", 3));
+	FIELD("SmiSts_2", "yesno_t", BITS("%IOTRAP_CTL", 4));
+	FIELD("SmiEn_2", "enabledisable_t", BITS("%IOTRAP_CTL", 5));
+	FIELD("SmiSts_3", "yesno_t", BITS("%IOTRAP_CTL", 6));
+	FIELD("SmiEn_3", "enabledisable_t", BITS("%IOTRAP_CTL", 7));
+	FIELD("IoTrapCtlRsmSpcEn", "enabledisable_t", BITS("%IOTRAP_CTL", 13));
+	FIELD("IoTrapCtlSmiSpcEn", "enabledisable_t", BITS("%IOTRAP_CTL", 14));
+	FIELD("IoTrapEn", "enabledisable_t", BITS("%IOTRAP_CTL", 15));
+
+	CLOSE_SCOPE(); // io_trap
+
+	OPEN_SCOPE("interrupt_pending_msg");
+
+	REG64("%InterruptPendingMessage", 0xc0010055);
+	FIELD("IOMsgAddr", "addr16_t", BITS("%InterruptPendingMessage", 15, 0));
+	FIELD("IntrPndMsgDis", "disableenable_t",
+			BITS("%InterruptPendingMessage", 24));
+	FIELD("IntrPndMsg", ANON_BOOL("io_space_msg",
+				      "ht_int_pending_msg"),
+			BITS("%InterruptPendingMessage", 25));
+	FIELD("IORd", ANON_BOOL("io_read", "io_write"),
+			BITS("%InterruptPendingMessage", 26));
+	if (FIELD_EQ("IORd", "io_write")) {
+		FIELD("IOMsgData", "hex8_t",
+				BITS("%InterruptPendingMessage", 23, 16));
+	}
+	if (FIELD_EQ("$core/k8_rev", "rev_f")) {
+		FIELD("SmiOnCmpHalt", "yesno_t",
+				BITS("%InterruptPendingMessage", 27));
+		FIELD("C1eOnCmpHalt", "yesno_t",
+				BITS("%InterruptPendingMessage", 28));
+	}
+
+	CLOSE_SCOPE(); // interrupt_pending_msg
+
+	OPEN_SCOPE("smm");
+
+	REG64("%SMM_BASE", 0xc0010111);
+	FIELD("SMM_BASE", "addr32_t", BITS("%SMM_BASE", 31, 0));
+
+	REG64("%SMM_ADDR", 0xc0010112);
+	FIELD("ADDR", "addr64_t",
+			BITS("%SMM_ADDR", 39, 17) + BITS("%0", 16, 0));
+
+	REG64("%SMM_MASK", 0xc0010113);
+	FIELD("AValid", "enabledisable_t", BITS("%SMM_MASK", 0));
+	FIELD("TValid", "enabledisable_t", BITS("%SMM_MASK", 1));
+	FIELD("AClose", "yesno_t", BITS("%SMM_MASK", 2));
+	FIELD("TClose", "yesno_t", BITS("%SMM_MASK", 3));
+	FIELD("AMTypteIcWc", "yesno_t", BITS("%SMM_MASK", 4));
+	FIELD("TMTypeIoWc", "yesno_t", BITS("%SMM_MASK", 5));
+	FIELD("AMTypeDram", "mtrr_type_t", BITS("%SMM_MASK", 10, 8));
+	FIELD("TMTypeDram", "mtrr_type_t", BITS("%SMM_MASK", 14, 12));
+	FIELD("MASK", "addr64_t",
+			BITS("%SMM_MASK", 39, 17) + BITS("%0", 16, 0));
+
+	CLOSE_SCOPE(); // smm
+
+	if (FIELD_EQ("$core/k8_rev", "rev_f")) {
+		OPEN_SCOPE("vm");
+
+		REG64("%VM_CR", 0xc0010114);
+		FIELD("dpd", "disableenable_t", BITS("%VM_CR", 0));
+		FIELD("r_init", ANON_BOOL("init_translated_to_sx_int",
+					  "normal"),
+				BITS("%VM_CR", 1));
+		FIELD("dis_a20m", "disableenable_t", BITS("%VM_CR", 2));
+		FIELD("LOCK", "yesno_t", BITS("%VM_CR", 3));
+		FIELD("SVME_DISABLE", "disableenable_t", BITS("%VM_CR", 4));
+
+		FIELD("VM_HSAVE_PA", "addr64_t", REG64(0xc0010117));
+
+		CLOSE_SCOPE(); // vm
+	}
 
 	CLOSE_SCOPE(); // msr
 }
@@ -40,8 +692,31 @@ k8_msr(const pp_value &cpu)
 static void
 k8_cpu(const pp_value &node, const pp_value &ncores, const pp_value &cpu)
 {
+	OPEN_SCOPE("core[]");
+	BOOKMARK("core");
+
 	k8_cpuid(node * ncores + cpu);
+
+	// add a field for k8 revision to each core
+	ENUM("k8_rev_t",
+		KV("rev_e", 'e'),
+		KV("rev_f", 'f'),
+		KV("unknown", 0));
+	if (FIELD_EQ("cpuid/family", 0xf)) {
+		if (FIELD_GE("cpuid/model", 0x40)) {
+			FIELD("k8_rev", "k8_rev_t", 'f');
+		} else if (FIELD_GE("cpuid/model", 0x20)) {
+			FIELD("k8_rev", "k8_rev_t", 'e');
+		} else {
+			FIELD("k8_rev", "k8_rev_t", pp_value(0));
+		}
+	} else {
+		FIELD("k8_rev", "k8_rev_t", pp_value(0));
+	}
+
 	k8_msr(node * ncores + cpu);
+
+	CLOSE_SCOPE(); // core[]
 }
 
 static void
@@ -884,7 +1559,8 @@ k8_dram_controller(const pp_value &seg, const pp_value &bus,
 			FIELD("Bytes32En", ANON_ENUM(KV("8beat_64byte", 0),
 						     KV("4beat_64byte", 1),
 						     KV("4beat_32byte", 2),
-						     KV("4beat_64byte", 3)),
+			// FIXME: what to do about duplicate enum keys?
+						     KV("_4beat_64byte", 3)),
 					BITS("../%dram_config_low", 19) +
 					BITS("../%dram_config_low", 16));
 		}
@@ -1963,9 +2639,6 @@ k8_discovered(const std::vector<pp_value> &args)
 	OPEN_SCOPE("k8[]");
 	BOOKMARK("k8");
 
-	OPEN_SCOPE("core[]");
-	BOOKMARK("core");
-
 	// Figure out how many cores on on each node, and explore CPUID
 	// for each core.
 	//
@@ -1974,7 +2647,7 @@ k8_discovered(const std::vector<pp_value> &args)
 	// family/model/stepping for PCI stuff, though.
 	if (node == 0) {
 		k8_cpu(node, 1, 0);
-		ncores = READ("cpuid/logical_proc_count");
+		ncores = READ("core[0]/cpuid/logical_proc_count");
 	} else {
 		//FIXME: this assumes all k8s are the same
 		//FIXME: uggh.  Maybe allow ALIAS in the node0 case?
@@ -1982,12 +2655,8 @@ k8_discovered(const std::vector<pp_value> &args)
 		k8_cpu(node, ncores, 0);
 	}
 
-	CLOSE_SCOPE(); // core[]
 	for (unsigned i = 1; i < ncores; i++) {
-		OPEN_SCOPE("core[]");
-		BOOKMARK("core");
 		k8_cpu(node, ncores, i);
-		CLOSE_SCOPE();
 	}
 
 	// for simplicity
@@ -1995,6 +2664,7 @@ k8_discovered(const std::vector<pp_value> &args)
 		KV("rev_e", 'e'),
 		KV("rev_f", 'f'),
 		KV("unknown", 0));
+	// FIXME: when aliases are added, change to alias to "core[0]/k8_rev"
 	if (FIELD_EQ("core[0]/cpuid/family", 0xf)) {
 		if (FIELD_GE("core[0]/cpuid/model", 0x40)) {
 			FIELD("k8_rev", "k8_rev_t", 'f');
