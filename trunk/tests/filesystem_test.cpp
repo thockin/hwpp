@@ -215,7 +215,7 @@ test_dev()
 			TEST_ERROR("fs::file::tempname()");
 			ret++;
 		}
-	} catch (sys_error::not_permitted &e) {
+	} catch (sys_error::operation_not_permitted &e) {
 		TEST_WARNING("must be root to call fs::device::mkdev()");
 		ret++;
 	}
