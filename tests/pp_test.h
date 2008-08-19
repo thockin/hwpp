@@ -43,12 +43,6 @@ TEST_ASSERT_(bool predicate, const string &msg, const string &file, int line)
 	std::cerr << "WARNING: [" __FILE__ << ":" << __LINE__ << "] " \
 		<< msg << std::endl
 
-#define TEST_EXIT(result_) \
-	do {  \
-		int exit_code_ = (result_) ? EXIT_FAILURE : EXIT_SUCCESS; \
-		exit(exit_code_); \
-	} while(0)
-
 struct test_component
 {
 	int (*entry_point)(void);
@@ -58,6 +52,21 @@ struct test_component
 	{ \
 		name_ \
 	}
+
+#define TEST_TMP_DIR "test_tmp"
+
+inline void
+TEST_SETUP()
+{
+	system("rm -rf " TEST_TMP_DIR);
+	system("mkdir -p " TEST_TMP_DIR);
+}
+
+inline void
+TEST_CLEANUP()
+{
+	system("rm -rf " TEST_TMP_DIR);
+}
 
 #define TEST_LIST(...) \
 	int main(void) \
@@ -69,10 +78,13 @@ struct test_component
 		int num = sizeof(__t)/sizeof(__t[0]); \
 		struct test_component* current = &__t[0]; \
 		while (num--) { \
+			TEST_SETUP(); \
 			ret += current->entry_point(); \
 			current++; \
+			TEST_CLEANUP(); \
 		} \
-		TEST_EXIT(ret); \
+		int exit_code = ret ? EXIT_FAILURE : EXIT_SUCCESS; \
+		exit(exit_code); \
 	}
 
 #endif // PP_TEST_H__

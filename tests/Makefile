@@ -10,6 +10,7 @@ TESTS = keyed_vector_test \
 	bignum_test \
 	regex_test \
 	syserror_test \
+	sockets_test \
 	pp_path_test \
 	pp_dirent_test \
 	pp_binding_test \
@@ -20,8 +21,7 @@ TESTS = keyed_vector_test \
 	pp_scope_test \
 	pp_array_test \
 	fake_language_test \
-	magic_regs_test \
-	sockets_test
+	magic_regs_test
 TESTS_SRCS = $(TESTS:=.cpp)
 
 
