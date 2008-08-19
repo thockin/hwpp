@@ -17,8 +17,9 @@
 	};
 
 // callers can simply "throw sys_error(errno);"
-struct sys_error
+class sys_error
 {
+    public:
 	// define a class for each errno
 	DEFINE_ERROR(permission_denied);
 	DEFINE_ERROR(operation_not_permitted);
