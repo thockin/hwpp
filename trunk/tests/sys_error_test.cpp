@@ -1,166 +1,287 @@
-#include "sys_error.h"
+#include "syserror.h"
 #include "pp_test.h"
 
 int
-test_sys_error()
+test_syserror()
 {
 	int ret = 0;
 
 	try {
-		throw sys_error(EACCES, "EACCES");
-	} catch (sys_error::permission_denied &e) {
+		throw syserr::errno_error(EACCES);
+	} catch (syserr::permission_denied &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(EACCES)");
+		ret += TEST_ERROR("syserr::errno_error(EACCES)");
 	}
 	try {
-		throw sys_error(EPERM, "EPERM");
-	} catch (sys_error::operation_not_permitted &e) {
+		throw syserr::errno_error(EPERM);
+	} catch (syserr::operation_not_permitted &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(EPERM)");
+		ret += TEST_ERROR("syserr::errno_error(EPERM)");
 	}
 	try {
-		throw sys_error(ENOENT, "ENOENT");
-	} catch (sys_error::not_found &e) {
+		throw syserr::errno_error(ENOENT);
+	} catch (syserr::not_found &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(ENOENT)");
+		ret += TEST_ERROR("syserr::errno_error(ENOENT)");
 	}
 	try {
-		throw sys_error(EIO, "EIO");
-	} catch (sys_error::io_error &e) {
+		throw syserr::errno_error(EIO);
+	} catch (syserr::io_error &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(EIO)");
+		ret += TEST_ERROR("syserr::errno_error(EIO)");
 	}
 	try {
-		throw sys_error(EINVAL, "EINVAL");
-	} catch (sys_error::invalid &e) {
+		throw syserr::errno_error(EINVAL);
+	} catch (syserr::invalid &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(EINVAL)");
+		ret += TEST_ERROR("syserr::errno_error(EINVAL)");
 	}
 	try {
-		throw sys_error(ENXIO, "ENXIO");
-	} catch (sys_error::no_device &e) {
+		throw syserr::errno_error(ENXIO);
+	} catch (syserr::no_device &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(ENXIO)");
+		ret += TEST_ERROR("syserr::errno_error(ENXIO)");
 	}
 	try {
-		throw sys_error(ENODEV, "ENODEV");
-	} catch (sys_error::no_device &e) {
+		throw syserr::errno_error(ENODEV);
+	} catch (syserr::no_device &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(ENODEV)");
+		ret += TEST_ERROR("syserr::errno_error(ENODEV)");
 	}
 	try {
-		throw sys_error(EBUSY, "EBUSY");
-	} catch (sys_error::busy &e) {
+		throw syserr::errno_error(EBUSY);
+	} catch (syserr::busy &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(EBUSY)");
+		ret += TEST_ERROR("syserr::errno_error(EBUSY)");
 	}
 	try {
-		throw sys_error(EEXIST, "EEXIST");
-	} catch (sys_error::exists &e) {
+		throw syserr::errno_error(EEXIST);
+	} catch (syserr::exists &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(EEXIST)");
+		ret += TEST_ERROR("syserr::errno_error(EEXIST)");
 	}
 	try {
-		throw sys_error(ENOTDIR, "ENOTDIR");
-	} catch (sys_error::not_a_directory &e) {
+		throw syserr::errno_error(ENOTDIR);
+	} catch (syserr::not_a_directory &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(ENOTDIR)");
+		ret += TEST_ERROR("syserr::errno_error(ENOTDIR)");
 	}
 	try {
-		throw sys_error(EISDIR, "EISDIR");
-	} catch (sys_error::is_a_directory &e) {
+		throw syserr::errno_error(EISDIR);
+	} catch (syserr::is_a_directory &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(EISDIR)");
+		ret += TEST_ERROR("syserr::errno_error(EISDIR)");
 	}
 	try {
-		throw sys_error(ENOSPC, "ENOSPC");
-	} catch (sys_error::no_space &e) {
+		throw syserr::errno_error(ENOSPC);
+	} catch (syserr::no_space &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(ENOSPC)");
+		ret += TEST_ERROR("syserr::errno_error(ENOSPC)");
 	}
 	try {
-		throw sys_error(ESPIPE, "ESPIPE");
-	} catch (sys_error::illegal_seek &e) {
+		throw syserr::errno_error(ESPIPE);
+	} catch (syserr::illegal_seek &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(ESPIPE)");
+		ret += TEST_ERROR("syserr::errno_error(ESPIPE)");
 	}
 	try {
-		throw sys_error(EPIPE, "EPIPE");
-	} catch (sys_error::broken_pipe &e) {
+		throw syserr::errno_error(EPIPE);
+	} catch (syserr::broken_pipe &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(EPIPE)");
+		ret += TEST_ERROR("syserr::errno_error(EPIPE)");
 	}
 	try {
-		throw sys_error(ELOOP, "ELOOP");
-	} catch (sys_error::too_many_symlinks &e) {
+		throw syserr::errno_error(ELOOP);
+	} catch (syserr::too_many_symlinks &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(ELOOP)");
+		ret += TEST_ERROR("syserr::errno_error(ELOOP)");
 	}
 	try {
-		throw sys_error(ENAMETOOLONG, "ENAMETOOLONG");
-	} catch (sys_error::name_too_long &e) {
+		throw syserr::errno_error(ENAMETOOLONG);
+	} catch (syserr::name_too_long &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(ENAMETOOLONG)");
+		ret += TEST_ERROR("syserr::errno_error(ENAMETOOLONG)");
 	}
 	try {
-		throw sys_error(ENOMEM, "ENOMEM");
-	} catch (sys_error::out_of_memory &e) {
+		throw syserr::errno_error(ENOMEM);
+	} catch (syserr::out_of_memory &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(ENOMEM)");
+		ret += TEST_ERROR("syserr::errno_error(ENOMEM)");
 	}
 	try {
-		throw sys_error(ENOSYS, "ENOSYS");
-	} catch (sys_error::not_implemented &e) {
+		throw syserr::errno_error(ENOSYS);
+	} catch (syserr::not_implemented &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(ENOSYS)");
+		ret += TEST_ERROR("syserr::errno_error(ENOSYS)");
 	}
 	try {
-		throw sys_error(EFAULT, "EFAULT");
-	} catch (sys_error::bad_address &e) {
+		throw syserr::errno_error(EFAULT);
+	} catch (syserr::bad_address &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(EFAULT)");
+		ret += TEST_ERROR("syserr::errno_error(EFAULT)");
 	}
 	try {
-		throw sys_error(EBADF, "EBADF");
-	} catch (sys_error::bad_file_descriptor &e) {
+		throw syserr::errno_error(EBADF);
+	} catch (syserr::bad_file_descriptor &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(EBADF)");
+		ret += TEST_ERROR("syserr::errno_error(EBADF)");
 	}
 	try {
-		throw sys_error(ERANGE, "ERANGE");
-	} catch (sys_error::out_of_range &e) {
+		throw syserr::errno_error(ERANGE);
+	} catch (syserr::out_of_range &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(ERANGE)");
+		ret += TEST_ERROR("syserr::errno_error(ERANGE)");
 	}
 	try {
-		throw sys_error(EAGAIN, "EAGAIN");
-	} catch (sys_error::try_again &e) {
+		throw syserr::errno_error(EAGAIN);
+	} catch (syserr::try_again &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(EAGAIN)");
+		ret += TEST_ERROR("syserr::errno_error(EAGAIN)");
 	}
 	try {
-		throw sys_error(ECHILD, "ECHILD");
-	} catch (sys_error::no_child &e) {
+		throw syserr::errno_error(EWOULDBLOCK);
+	} catch (syserr::try_again &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(ECHILD)");
+		ret += TEST_ERROR("syserr::errno_error(EWOULDBLOCK)");
 	}
 	try {
-		throw sys_error(ETXTBSY, "ETXTBSY");
-	} catch (sys_error::text_busy &e) {
+		throw syserr::errno_error(ECHILD);
+	} catch (syserr::no_child &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(ETXTBSY)");
+		ret += TEST_ERROR("syserr::errno_error(ECHILD)");
 	}
 	try {
-		throw sys_error(-1, "negative_one");
-	} catch (sys_error::unknown_error &e) {
+		throw syserr::errno_error(ETXTBSY);
+	} catch (syserr::text_busy &e) {
 	} catch (std::exception &e) {
-		ret += TEST_ERROR("sys_error(-1)");
+		ret += TEST_ERROR("syserr::errno_error(ETXTBSY)");
 	}
+	try {
+		throw syserr::errno_error(EINTR);
+	} catch (syserr::interrupted &e) {
+	} catch (std::exception &e) {
+		ret += TEST_ERROR("syserr::errno_error(EINTR)");
+	}
+	try {
+		throw syserr::errno_error(EINPROGRESS);
+	} catch (syserr::operation_in_progress &e) {
+	} catch (std::exception &e) {
+		ret += TEST_ERROR("syserr::errno_error(EINPROGRESS)");
+	}
+	try {
+		throw syserr::errno_error(ENOTSUP);
+	} catch (syserr::not_supported &e) {
+	} catch (std::exception &e) {
+		ret += TEST_ERROR("syserr::errno_error(ENOTSUP)");
+	}
+	try {
+		throw syserr::errno_error(EOPNOTSUPP);
+	} catch (syserr::not_supported &e) {
+	} catch (std::exception &e) {
+		ret += TEST_ERROR("syserr::errno_error(EOPNOTSUPP)");
+	}
+	try {
+		throw syserr::errno_error(ETIMEDOUT);
+	} catch (syserr::operation_timed_out &e) {
+	} catch (std::exception &e) {
+		ret += TEST_ERROR("syserr::errno_error(ETIMEDOUT)");
+	}
+	try {
+		throw syserr::errno_error(EALREADY);
+	} catch (syserr::connection_in_progress &e) {
+	} catch (std::exception &e) {
+		ret += TEST_ERROR("syserr::errno_error(EALREADY)");
+	}
+	try {
+		throw syserr::errno_error(ENOBUFS);
+	} catch (syserr::no_buffer_space &e) {
+	} catch (std::exception &e) {
+		ret += TEST_ERROR("syserr::errno_error(ENOBUFS)");
+	}
+	try {
+		throw syserr::errno_error(EPROTONOSUPPORT);
+	} catch (syserr::protocol_not_supported &e) {
+	} catch (std::exception &e) {
+		ret += TEST_ERROR("syserr::errno_error(EPROTONOSUPPORT)");
+	}
+	try {
+		throw syserr::errno_error(ENOPROTOOPT);
+	} catch (syserr::protocol_not_available &e) {
+	} catch (std::exception &e) {
+		ret += TEST_ERROR("syserr::errno_error(ENOPROTOOPT)");
+	}
+	try {
+		throw syserr::errno_error(EPROTO);
+	} catch (syserr::protocol_error &e) {
+	} catch (std::exception &e) {
+		ret += TEST_ERROR("syserr::errno_error(EPROTO)");
+	}
+	try {
+		throw syserr::errno_error(EAFNOSUPPORT);
+	} catch (syserr::address_family_not_supported &e) {
+	} catch (std::exception &e) {
+		ret += TEST_ERROR("syserr::errno_error(EAFNOSUPPORT)");
+	}
+	try {
+		throw syserr::errno_error(EADDRINUSE);
+	} catch (syserr::address_in_use &e) {
+	} catch (std::exception &e) {
+		ret += TEST_ERROR("syserr::errno_error(EADDRINUSE)");
+	}
+	try {
+		throw syserr::errno_error(ECONNREFUSED);
+	} catch (syserr::connection_refused &e) {
+	} catch (std::exception &e) {
+		ret += TEST_ERROR("syserr::errno_error(ECONNREFUSED)");
+	}
+	try {
+		throw syserr::errno_error(ECONNABORTED);
+	} catch (syserr::connection_aborted &e) {
+	} catch (std::exception &e) {
+		ret += TEST_ERROR("syserr::errno_error(ECONNABORTED)");
+	}
+	try {
+		throw syserr::errno_error(EISCONN);
+	} catch (syserr::socket_is_connected &e) {
+	} catch (std::exception &e) {
+		ret += TEST_ERROR("syserr::errno_error(EISCONN)");
+	}
+	try {
+		throw syserr::errno_error(ENOTCONN);
+	} catch (syserr::socket_not_connected &e) {
+	} catch (std::exception &e) {
+		ret += TEST_ERROR("syserr::errno_error(ENOTCONN)");
+	}
+	try {
+		throw syserr::errno_error(ENOTSOCK);
+	} catch (syserr::not_a_socket &e) {
+	} catch (std::exception &e) {
+		ret += TEST_ERROR("syserr::errno_error(ENOTSOCK)");
+	}
+	try {
+		throw syserr::errno_error(EHOSTUNREACH);
+	} catch (syserr::host_unreachable &e) {
+	} catch (std::exception &e) {
+		ret += TEST_ERROR("syserr::errno_error(EHOSTUNREACH)");
+	}
+	try {
+		throw syserr::errno_error(ENETUNREACH);
+	} catch (syserr::net_unreachable &e) {
+	} catch (std::exception &e) {
+		ret += TEST_ERROR("syserr::errno_error(ENETUNREACH)");
+	}
+	try {
+		throw syserr::errno_error(-1);
+	} catch (syserr::unknown_error &e) {
+	} catch (std::exception &e) {
+		ret += TEST_ERROR("syserr::errno_error(-1)");
+	}
+
 
 	return ret;
 }
 
 // Perform the tests
 TEST_LIST(
-	TEST(test_sys_error),
+	TEST(test_syserror),
 );
