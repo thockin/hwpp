@@ -2,13 +2,6 @@
 #include "sockets.h"
 
 int
-test_setup()
-{
-	system("mkdir -p test_data");
-	return 0;
-}
-
-int
 test_ctors()
 {
 	int ret = 0;
@@ -359,17 +352,8 @@ test_send_recv()
 	return ret;
 }
 
-int
-test_cleanup()
-{
-	system("rm -rf test_data");
-	return 0;
-}
-
 TEST_LIST(
-	TEST(test_setup), // keep this first
 	TEST(test_ctors),
 	TEST(test_connection),
 	TEST(test_send_recv),
-	TEST(test_cleanup), // keep this last
 );
