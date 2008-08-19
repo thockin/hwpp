@@ -7,6 +7,7 @@
 #include "msr_binding.h"
 #include "pp_driver.h"
 #include "filesystem.h"
+#include "syserror.h"
 
 #define MSR_DEVICE_DIR	"/dev/cpu"
 #define MSR_DEV_MAJOR	202
@@ -95,7 +96,7 @@ msr_io::open_device(string devdir, int major, int minor)
 	try {
 		m_file = fs::file::open(filename, O_RDONLY);
 		return;
-	} catch (sys_error::not_found &e) {
+	} catch (syserr::not_found &e) {
 		/* do nothing yet */
 	}
 

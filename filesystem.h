@@ -14,17 +14,17 @@
 #include <boost/weak_ptr.hpp>
 
 #include <unistd.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <fcntl.h>
-#include <string.h>
-#include <errno.h>
+#include <cstring>
+#include <cerrno>
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 
 #include "pp.h"
-#include "sys_error.h"
+#include "syserror.h"
 
 namespace fs {
 
@@ -86,7 +86,8 @@ class file_mapping
 		// use the destructor whenever possible.
 		int r = munmap(m_real_address, m_real_length);
 		if (r < 0) {
-			throw sys_error(errno, "fs::file_mapping::unmap()");
+			throw syserr::errno_error(errno,
+			    "fs::file_mapping::unmap()");
 		}
 		m_address = m_real_address = NULL;
 		m_length = m_real_length = 0;
@@ -191,7 +192,7 @@ class file
 		f->m_flags = flags;
 		f->m_fd = ::open(path.c_str(), flags);
 		if (f->m_fd < 0) {
-			throw sys_error(errno,
+			throw syserr::errno_error(errno,
 			    "fs::file::open(" + path + ")");
 		}
 
@@ -226,7 +227,7 @@ class file
 		buf[path_template.size()] = '\0';
 		r = ::mkstemp(buf);
 		if (r < 0) {
-			throw sys_error(errno,
+			throw syserr::errno_error(errno,
 			    "fs::file::tempfile(" + path_template + ")");
 		}
 
@@ -251,7 +252,7 @@ class file
 
 		new_fd = ::open(m_path.c_str(), new_flags);
 		if (new_fd < 0) {
-			throw sys_error(errno,
+			throw syserr::errno_error(errno,
 			    "fs::file::open(" + m_path + ")");
 		}
 
@@ -259,7 +260,7 @@ class file
 		m_flags = new_flags;
 		m_fd = new_fd;
 		if (::close(tmp) < 0) {
-			throw sys_error(errno,
+			throw syserr::errno_error(errno,
 			    "fs::file::close(" + m_path + ")");
 		}
 	}
@@ -272,7 +273,7 @@ class file
 		// use the destructor whenever possible.
 		//
 		if (::close(m_fd) < 0) {
-			throw sys_error(errno,
+			throw syserr::errno_error(errno,
 			    "fs::file::close(" + m_path + ")");
 		}
 		m_fd = -1;
@@ -285,7 +286,7 @@ class file
 
 		r = ::unlink(path.c_str());
 		if (r < 0) {
-			throw sys_error(errno,
+			throw syserr::errno_error(errno,
 			    "fs::file::unlink(" + path + ")");
 		}
 	}
@@ -303,7 +304,7 @@ class file
 
 		r = ::read(m_fd, buf, size);
 		if (r < 0) {
-			throw sys_error(errno,
+			throw syserr::errno_error(errno,
 			    "fs::file::read(" + m_path + ")");
 		}
 
@@ -338,7 +339,7 @@ class file
 
 		r = ::write(m_fd, buf, size);
 		if (r < 0) {
-			throw sys_error(errno,
+			throw syserr::errno_error(errno,
 			    "fs::file::write(" + m_path + ")");
 		}
 
@@ -371,7 +372,7 @@ class file
 
 		r = ::lseek(m_fd, offset, whence);
 		if (r == (off_t)-1) {
-			throw sys_error(errno,
+			throw syserr::errno_error(errno,
 			    "fs::file::seek(" + m_path + ")");
 		}
 
@@ -386,7 +387,7 @@ class file
 
 		r = ::stat(path.c_str(), &st);
 		if (r < 0) {
-			throw sys_error(errno,
+			throw syserr::errno_error(errno,
 			    "fs::file::size(" + path + ")");
 		}
 
@@ -401,7 +402,7 @@ class file
 
 		r = ::fstat(m_fd, &st);
 		if (r < 0) {
-			throw sys_error(errno,
+			throw syserr::errno_error(errno,
 			    "fs::file::size(" + m_path + ")");
 		}
 
@@ -498,7 +499,8 @@ file_mapping::file_mapping(const const_file_ptr &file,
 	m_real_address = (uint8_t *)mmap(NULL, m_real_length, prot,
 			flags, m_file->fd(), m_real_offset);
 	if (!m_real_address || m_real_address == MAP_FAILED) {
-		throw sys_error(errno, "fs::file_mapping::file_mapping()");
+		throw syserr::errno_error(errno,
+		    "fs::file_mapping::file_mapping()");
 	}
 
 	m_address = m_real_address + ptr_off;
@@ -524,7 +526,7 @@ class device: public file
 		r = ::mknod(path.c_str(), perms | type,
 				::makedev(major, minor));
 		if (r < 0) {
-			throw sys_error(errno,
+			throw syserr::errno_error(errno,
 			    "fs::device::mkdev(" + path + ")");
 		}
 	}
@@ -722,7 +724,7 @@ class directory
 
 		d->m_dir = ::opendir(path.c_str());
 		if (!d->m_dir) {
-			throw sys_error(errno,
+			throw syserr::errno_error(errno,
 			    "fs::directory::open(" + path + ")");
 		}
 
@@ -778,7 +780,7 @@ chdir(const string &path)
 {
 	int ret = ::chdir(path.c_str());
 	if (ret < 0) {
-		throw sys_error(errno, path);
+		throw syserr::errno_error(errno, path);
 	}
 }
 //FIXME: chdir(directory)
@@ -789,7 +791,7 @@ getcwd()
 	#ifdef _GNU_SOURCE
 	char *p = ::get_current_dir_name();
 	if (p == NULL) {
-		throw sys_error(errno, "fs::getcwd()");
+		throw syserr::errno_error(errno, "fs::getcwd()");
 	}
 	string cwd(p);
 	free(p);
@@ -798,7 +800,7 @@ getcwd()
 	char buf[4096];
 	char *p = ::getcwd(buf, sizeof(buf));
 	if (p == NULL) {
-		throw sys_error(errno, "fs::getcwd()");
+		throw syserr::errno_error(errno, "fs::getcwd()");
 	}
 	return p;
 	#endif
