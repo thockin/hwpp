@@ -11,11 +11,30 @@
 
 namespace syserr {
 
-// we could make all these classes inherit from a base class, if we needed
+// a base class for errno-related errors
+class errno_error: public std::runtime_error
+{
+    private:
+	int m_error;
+
+    protected:
+	errno_error(int error, const std::string &msg)
+	: runtime_error(msg), m_error(error)
+	{
+	}
+
+	int
+	error()
+	{
+		return m_error;
+	}
+};
+
 #define DEFINE_ERROR(name) \
-	struct name: public std::runtime_error \
+	struct name: public errno_error \
 	{ \
-		explicit name(const std::string &str): runtime_error(str) \
+		name(int error, const std::string &str) \
+		: errno_error(error, str) \
 		{} \
 	};
 
@@ -63,115 +82,112 @@ DEFINE_ERROR(host_unreachable);
 DEFINE_ERROR(net_unreachable);
 DEFINE_ERROR(unknown_error);
 
-// callers can simply "throw syserr::errno_error(errno);"
-class errno_error
+inline std::runtime_error
+throw_specific_errno_error(int error, const std::string &msg)
 {
-    public:
-	// throw a specific error
-	errno_error(int error)
-	{
-		std::string msg(::strerror(error));
-		throw_real_error(error, msg);
+	switch (error) {
+	    case EACCES:
+		throw permission_denied(error, msg);
+	    case EPERM:
+		throw operation_not_permitted(error, msg);
+	    case ENOENT:
+		throw not_found(error, msg);
+	    case EIO:
+		throw io_error(error, msg);
+	    case EINVAL:
+		throw invalid(error, msg);
+	    case ENXIO:
+	    case ENODEV:
+		throw no_device(error, msg);
+	    case EBUSY:
+		throw busy(error, msg);
+	    case EEXIST:
+		throw exists(error, msg);
+	    case ENOTDIR:
+		throw not_a_directory(error, msg);
+	    case EISDIR:
+		throw is_a_directory(error, msg);
+	    case ENOSPC:
+		throw no_space(error, msg);
+	    case ESPIPE:
+		throw illegal_seek(error, msg);
+	    case EPIPE:
+		throw broken_pipe(error, msg);
+	    case ELOOP:
+		throw too_many_symlinks(error, msg);
+	    case ENAMETOOLONG:
+		throw name_too_long(error, msg);
+	    case ENOMEM:
+		throw out_of_memory(error, msg);
+	    case ENOSYS:
+		throw not_implemented(error, msg);
+	    case EFAULT:
+		throw bad_address(error, msg);
+	    case EBADF:
+		throw bad_file_descriptor(error, msg);
+	    case ERANGE:
+		throw out_of_range(error, msg);
+	    case EAGAIN: // same as EWOULDBLOCK
+		throw try_again(error, msg);
+	    case ECHILD:
+		throw no_child(error, msg);
+	    case ETXTBSY:
+		throw text_busy(error, msg);
+	    case EINTR:
+		throw interrupted(error, msg);
+	    case EINPROGRESS:
+		throw operation_in_progress(error, msg);
+	    case ENOTSUP: // same as EOPNOTSUPP
+		throw not_supported(error, msg);
+	    case ETIMEDOUT:
+		throw operation_timed_out(error, msg);
+	    case EALREADY:
+		throw connection_in_progress(error, msg);
+	    case ENOBUFS:
+		throw no_buffer_space(error, msg);
+	    case EPROTONOSUPPORT:
+		throw protocol_not_supported(error, msg);
+	    case ENOPROTOOPT:
+		throw protocol_not_available(error, msg);
+	    case EPROTO:
+		throw protocol_error(error, msg);
+	    case EAFNOSUPPORT:
+		throw address_family_not_supported(error, msg);
+	    case EADDRINUSE:
+		throw address_in_use(error, msg);
+	    case ECONNREFUSED:
+		throw connection_refused(error, msg);
+	    case ECONNABORTED:
+		throw connection_aborted(error, msg);
+	    case EISCONN:
+		throw socket_is_connected(error, msg);
+	    case ENOTCONN:
+		throw socket_not_connected(error, msg);
+	    case ENOTSOCK:
+		throw not_a_socket(error, msg);
+	    case EHOSTUNREACH:
+		throw host_unreachable(error, msg);
+	    case ENETUNREACH:
+		throw net_unreachable(error, msg);
 	}
-	errno_error(int error, std::string msg)
-	{
-		msg += std::string(": ") + ::strerror(error);
-		throw_real_error(error, msg);
-	}
+	// default
+	throw unknown_error(error, msg);
+}
 
-    private:
-	void
-	throw_real_error(int error, const std::string &msg)
-	{
-		switch (error) {
-		    case EACCES:
-			throw permission_denied(msg);
-		    case EPERM:
-			throw operation_not_permitted(msg);
-		    case ENOENT:
-			throw not_found(msg);
-		    case EIO:
-			throw io_error(msg);
-		    case EINVAL:
-			throw invalid(msg);
-		    case ENXIO:
-		    case ENODEV:
-			throw no_device(msg);
-		    case EBUSY:
-			throw busy(msg);
-		    case EEXIST:
-			throw exists(msg);
-		    case ENOTDIR:
-			throw not_a_directory(msg);
-		    case EISDIR:
-			throw is_a_directory(msg);
-		    case ENOSPC:
-			throw no_space(msg);
-		    case ESPIPE:
-			throw illegal_seek(msg);
-		    case EPIPE:
-			throw broken_pipe(msg);
-		    case ELOOP:
-			throw too_many_symlinks(msg);
-		    case ENAMETOOLONG:
-			throw name_too_long(msg);
-		    case ENOMEM:
-			throw out_of_memory(msg);
-		    case ENOSYS:
-			throw not_implemented(msg);
-		    case EFAULT:
-			throw bad_address(msg);
-		    case EBADF:
-			throw bad_file_descriptor(msg);
-		    case ERANGE:
-			throw out_of_range(msg);
-		    case EAGAIN: // same as EWOULDBLOCK
-			throw try_again(msg);
-		    case ECHILD:
-			throw no_child(msg);
-		    case ETXTBSY:
-			throw text_busy(msg);
-		    case EINTR:
-			throw interrupted(msg);
-		    case EINPROGRESS:
-			throw operation_in_progress(msg);
-		    case ENOTSUP: // same as EOPNOTSUPP
-			throw not_supported(msg);
-		    case ETIMEDOUT:
-			throw operation_timed_out(msg);
-		    case EALREADY:
-			throw connection_in_progress(msg);
-		    case ENOBUFS:
-			throw no_buffer_space(msg);
-		    case EPROTONOSUPPORT:
-			throw protocol_not_supported(msg);
-		    case ENOPROTOOPT:
-			throw protocol_not_available(msg);
-		    case EPROTO:
-			throw protocol_error(msg);
-		    case EAFNOSUPPORT:
-			throw address_family_not_supported(msg);
-		    case EADDRINUSE:
-			throw address_in_use(msg);
-		    case ECONNREFUSED:
-			throw connection_refused(msg);
-		    case ECONNABORTED:
-			throw connection_aborted(msg);
-		    case EISCONN:
-			throw socket_is_connected(msg);
-		    case ENOTCONN:
-			throw socket_not_connected(msg);
-		    case ENOTSOCK:
-			throw not_a_socket(msg);
-		    case EHOSTUNREACH:
-			throw host_unreachable(msg);
-		    case ENETUNREACH:
-			throw net_unreachable(msg);
-		    default:
-			throw unknown_error(msg);
-		}
-	}
-};
+// callers can simply say "syserr::throw_errno_error(errno);"
+inline std::runtime_error
+throw_errno_error(int error)
+{
+	std::string msg(::strerror(error));
+	return throw_specific_errno_error(error, msg);
+}
+
+inline std::runtime_error
+throw_errno_error(int error, std::string msg)
+{
+	msg += std::string(": ") + ::strerror(error);
+	return throw_specific_errno_error(error, msg);
+}
 
 } // namespace syserr
 

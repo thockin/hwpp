@@ -28,7 +28,7 @@ class socket {
 		// Make socket
 		m_fd = ::socket(AF_UNIX, SOCK_STREAM, 0);
 		if (m_fd < 0) {
-			throw syserr::errno_error(errno,
+			syserr::throw_errno_error(errno,
 				"unix_socket::socket::socket(" + path + ")");
 		}
 
@@ -38,7 +38,7 @@ class socket {
 		ret = connect(m_fd, (struct sockaddr *)&m_remote,
 			path.size() + sizeof(m_remote.sun_family));
 		if (ret < 0) {
-			throw syserr::errno_error(errno,
+			syserr::throw_errno_error(errno,
 				"unix_socket::socket::socket(" + path + ")");
 		}
 	}
@@ -73,7 +73,7 @@ class socket {
 	send(const void *msg, int len) const
 	{
 		if (!is_connected()) {
-			throw syserr::errno_error(ENOTCONN,
+			syserr::throw_errno_error(ENOTCONN,
 				"unix_socket::socket::send");
 		}
 
@@ -85,7 +85,7 @@ class socket {
 			int n = ::send(m_fd, buf + sent, left, 0);
 			if (n == -1) {
 				// FIXME: check for EINTR
-				throw syserr::errno_error(errno,
+				syserr::throw_errno_error(errno,
 					"unix_socket::socket::send");
 			}
 			sent += n;
@@ -99,7 +99,7 @@ class socket {
 	recv_line()
 	{
 		if (!is_connected()) {
-			throw syserr::errno_error(ENOTCONN,
+			syserr::throw_errno_error(ENOTCONN,
 				"unix_socket::socket::recv_line");
 		}
 		
@@ -145,7 +145,7 @@ class socket {
 	ssize_t
 	recv(void *buf, size_t len) {
 		if (!is_connected()) {
-			throw syserr::errno_error(ENOTCONN,
+			syserr::throw_errno_error(ENOTCONN,
 				"unix_socket::socket::recv");
 		}
 
@@ -177,7 +177,7 @@ class server
 		// Make socket
 		m_fd_listen = ::socket(AF_UNIX, SOCK_STREAM, 0);
 		if (m_fd_listen < 0) {
-			throw syserr::errno_error(errno,
+			syserr::throw_errno_error(errno,
 				"unix_socket::server::server(" + path + ")");
 		}
 
@@ -190,14 +190,14 @@ class server
 				+ sizeof(m_local.sun_family);
 		ret = bind(m_fd_listen, (struct sockaddr *)&m_local, len);
 		if (ret < 0) {
-			throw syserr::errno_error(errno,
+			syserr::throw_errno_error(errno,
 				"unix_socket::server::server(" + path + ")");
 		}
 
 		// Listen for connections
 		ret = listen(m_fd_listen, 10); // allow 10 to queue
 		if (ret < 0) {
-			throw syserr::errno_error(errno,
+			syserr::throw_errno_error(errno,
 				"unix_socket::server::server(" + path + ")");
 		}
 	} // server
@@ -220,7 +220,7 @@ class server
 				if (errno == EINTR) {
 					continue; // signal
 				}
-				throw syserr::errno_error(errno,
+				syserr::throw_errno_error(errno,
 					"unix_socket::server::accept()");
 			}
 
