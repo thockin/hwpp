@@ -48,7 +48,7 @@ struct sys_error
 	// throw a specific error
 	sys_error(int error, const std::string &msg)
 	{
-		const string &errstr(msg + ": " + ::strerror(error));
+		const std::string &errstr(msg + ": " + ::strerror(error));
 		switch (error) {
 		    case EACCES:
 			throw permission_denied(errstr);
