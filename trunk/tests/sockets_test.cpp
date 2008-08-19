@@ -8,45 +8,45 @@ test_ctors()
 
 	// test server constructor
 	try {
-		unix_socket::server svr("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
 	} catch (std::exception &e) {
 		TEST_ERROR("unix_socket::server()");
 		ret++;
 	}
 	// test again for proper unlinking
 	try {
-		unix_socket::server svr("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
 	} catch (std::exception &e) {
 		TEST_ERROR("unix_socket::server()");
 		ret++;
 	}
 	// test socket constructor
 	try {
-		unix_socket::socket c("test_data/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		TEST_ERROR("unix_socket::socket()");
 		ret++;
 	} catch (std::exception &e) {
 	}
 	try {
-		unix_socket::socket c("test_data/no_socket_here");
+		unix_socket::socket c(TEST_TMP_DIR "/no_socket_here");
 		TEST_ERROR("unix_socket::socket()");
 		ret++;
 	} catch (std::exception &e) {
 	}
 	try {
-		unix_socket::server svr("test_data/server.socket");
-		unix_socket::socket c("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 	} catch (std::exception &e) {
 		TEST_ERROR("unix_socket::server() and unix_socket::socket()");
 		ret++;
 	}
 	{
 		{
-			unix_socket::server svr("test_data/server.socket");
-			unix_socket::socket c("test_data/server.socket");
+			unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+			unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		}
 		try {
-			unix_socket::socket c2("test_data/server.socket");
+			unix_socket::socket c2(TEST_TMP_DIR "/server.socket");
 			TEST_ERROR("unix_socket::server()");
 		} catch (std::exception &e) {
 		}
@@ -60,8 +60,8 @@ test_connection()
 	int ret = 0;
 	
 	{
-		unix_socket::server svr("test_data/server.socket");
-		unix_socket::socket c("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
 		ret += TEST_ASSERT(s.is_connected(),
 				"unix_socket::is_connected()");
@@ -69,8 +69,8 @@ test_connection()
 				"unix_socket::is_connected()");
 	}
 	{
-		unix_socket::server svr("test_data/server.socket");
-		unix_socket::socket c("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
 		s.close();
 		ret += TEST_ASSERT(!s.is_connected(),
@@ -79,8 +79,8 @@ test_connection()
 				"unix_socket::is_connected()");
 	}
 	{
-		unix_socket::server svr("test_data/server.socket");
-		unix_socket::socket c("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
 		c.close();
 		ret += TEST_ASSERT(s.is_connected(),
@@ -89,8 +89,8 @@ test_connection()
 				"unix_socket::is_connected()");
 	}
 	{
-		unix_socket::server svr("test_data/server.socket");
-		unix_socket::socket c("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
 		c.close();
 		ret += TEST_ASSERT(s.is_connected(),
@@ -99,8 +99,8 @@ test_connection()
 				"unix_socket::is_connected()");
 	}
 	{
-		unix_socket::server svr("test_data/server.socket");
-		unix_socket::socket c("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
 		s.close();
 		c.close();
@@ -110,8 +110,8 @@ test_connection()
 				"unix_socket::is_connected()");
 	}
 	{
-		unix_socket::server svr("test_data/server.socket");
-		unix_socket::socket c("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
 		s.close();
 		c.recv_line();
@@ -121,8 +121,8 @@ test_connection()
 				"unix_socket::is_connected()");
 	}
 	{
-		unix_socket::server svr("test_data/server.socket");
-		unix_socket::socket c("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
 		c.close();
 		s.recv_line();
@@ -146,8 +146,8 @@ test_send_recv()
 	
 	// Test recv_line()
 	{
-		unix_socket::server svr("test_data/server.socket");
-		unix_socket::socket c("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
 		c.send("This is a test message\n");
 		if (s.recv_line() != "This is a test message") {
@@ -157,8 +157,8 @@ test_send_recv()
 		}
 	}
 	{
-		unix_socket::server svr("test_data/server.socket");
-		unix_socket::socket c("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
 		s.send("This is a test message\n");
 		if (c.recv_line() != "This is a test message") {
@@ -168,8 +168,8 @@ test_send_recv()
 		}
 	}
 	{
-		unix_socket::server svr("test_data/server.socket");
-		unix_socket::socket c("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
 		c.send("Testing recv_line return on connection close");
 		c.close();
@@ -181,8 +181,8 @@ test_send_recv()
 		}
 	}
 	{
-		unix_socket::server svr("test_data/server.socket");
-		unix_socket::socket c("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
 		s.send("Testing recv_line return on connection close");
 		s.close();
@@ -196,8 +196,8 @@ test_send_recv()
 
 	// Test recv_all()
 	{
-		unix_socket::server svr("test_data/server.socket");
-		unix_socket::socket c("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
 		c.send("12345678901234567890");
 		char buf[3];
@@ -210,8 +210,8 @@ test_send_recv()
 		}
 	}
 	{
-		unix_socket::server svr("test_data/server.socket");
-		unix_socket::socket c("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
 		s.send("12345678901234567890");
 		char buf[3];
@@ -224,8 +224,8 @@ test_send_recv()
 		}
 	}
 	{
-		unix_socket::server svr("test_data/server.socket");
-		unix_socket::socket c("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
 		c.send("12345678901234567890");
 		c.close();
@@ -239,8 +239,8 @@ test_send_recv()
 		}
 	}
 	{
-		unix_socket::server svr("test_data/server.socket");
-		unix_socket::socket c("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
 		s.send("12345678901234567890");
 		s.close();
@@ -254,8 +254,8 @@ test_send_recv()
 		}
 	}
 	{
-		unix_socket::server svr("test_data/server.socket");
-		unix_socket::socket c("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
 		c.send("1234567890");
 		char buf[3];
@@ -268,8 +268,8 @@ test_send_recv()
 		}
 	}
 	{
-		unix_socket::server svr("test_data/server.socket");
-		unix_socket::socket c("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
 		s.send("1234567890");
 		char buf[3];
@@ -284,8 +284,8 @@ test_send_recv()
 	// Test receives after remote connection is closed
 	// with incoming data still buffered
 	{
-		unix_socket::server svr("test_data/server.socket");
-		unix_socket::socket c("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
 		c.send("1234567890");
 		c.close();
@@ -300,8 +300,8 @@ test_send_recv()
 		}
 	}
 	{
-		unix_socket::server svr("test_data/server.socket");
-		unix_socket::socket c("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
 		s.send("1234567890");
 		s.close();
@@ -317,8 +317,8 @@ test_send_recv()
 	}
 	// Test receiving 0 bytes; connection should still stay open
 	{
-		unix_socket::server svr("test_data/server.socket");
-		unix_socket::socket c("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
 		c.send("1234567890");
 		char buf[1];
@@ -333,8 +333,8 @@ test_send_recv()
 		}
 	}
 	{
-		unix_socket::server svr("test_data/server.socket");
-		unix_socket::socket c("test_data/server.socket");
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
 		s.send("1234567890");
 		char buf[1];
