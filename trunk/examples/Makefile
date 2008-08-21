@@ -4,7 +4,9 @@ include $(TOPDIR)/rules.mk
 BINS = pp_discover \
 	pp_pci \
 	pp_read \
-	pp_fuse
+	pp_fuse \
+	pp_server \
+	pp_client
 BINS_SRCS = $(BINS:=.cpp)
 
 pp_fuse_LDLIBS = -lfuse
