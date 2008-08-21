@@ -7,6 +7,9 @@ using namespace std;
 #define NULL_MAJOR	1
 #define NULL_MINOR	3
 
+#define ZERO_MAJOR	1
+#define ZERO_MINOR	5
+
 int
 test_msr_io()
 {
@@ -53,10 +56,15 @@ test_msr_io()
 		/* test ctors (for a dev file that does not exist) */
 		try {
 			msr_io io2(msr_address(76), "test_data",
-					NULL_MAJOR, NULL_MINOR);
-			TEST_ERROR("msr_io::msr_io()");
-			ret++;
+					ZERO_MAJOR, ZERO_MINOR);
+			ret += TEST_ASSERT(io2.read(0x0, BITS64)
+					   == pp_value(0x0),
+					   "msr_io::msr_io()");
 		} catch (exception &e) {
+			TEST_ERROR("msr_io::msr_io() "
+				   "[note: must be root to call "
+				   "fs::device::mkdev()]");
+			ret++;
 		}
 	} catch (exception &e) {
 		system("rm -rf test_data");
