@@ -8,6 +8,162 @@
 #include "language.h"
 
 /*
+ * pp_multi_datatype - datatype for combining multiple subtypes based
+ *		       on the value being read
+ *
+ * NOTE: range is between min and max inclusive
+ */
+class pp_multi_datatype: public pp_datatype
+{
+    private:
+	struct pp_multi_range
+	{
+		pp_multi_range(const pp_datatype_const_ptr &datatype,
+				   pp_value min, pp_value max)
+		    : type(datatype), low(min), high(max) {}
+		pp_datatype_const_ptr type;
+		pp_value low;
+		pp_value high;
+	};
+	std::vector<pp_multi_range> m_parts;
+
+	static bool
+	val_in_range(const pp_value &value,
+		     const pp_multi_range &range) {
+		return ((value >= range.low) && (value <= range.high));
+	}
+
+    public:
+	pp_multi_datatype()
+	{}
+
+	virtual ~pp_multi_datatype()
+	{
+	}
+
+	/*
+	 * pp_multi_datatype::evaluate(value)
+	 *
+	 * Evaluate a value against this datatype.  This method returns a
+	 * string containing the representation of the 'value' argument,
+	 * evaluated with the datatype (if any) assigned to the given value's
+	 * range.
+	 *
+	 */
+	virtual string
+	evaluate(const pp_value &value) const
+	{
+		for (size_t i = 0; i < m_parts.size(); i++) {
+			if (val_in_range(value, m_parts[i])) {
+				return m_parts[i].type->evaluate(value);
+			}
+		}
+
+		// Value out of range; return unknown indicator
+		return to_string(boost::format("<!%d!>") %value);
+	}
+
+	/*
+	 * pp_multi_datatype::lookup(str)
+	 * pp_multi_datatype::lookup(value) -- simply validate it's in range
+	 *
+	 * Lookup the value of a (potentially valid) evaluation for this
+	 * datatype.  For an multi type, that means converting a string to
+	 * it's corresponding value, or validating that a numeric value is
+	 * a valid option. 
+	 *
+	 * WARNING: in case the given string could map to multiple different
+	 * pp_values, the lowest possible value is returned
+	 *
+	 * This will throw pp_datatype::invalid_error if the lookup is not a
+	 * valid value for this enum.
+	 *
+	 */
+	virtual pp_value
+	lookup(const string &str) const
+	{
+		for (size_t i = 0; i < m_parts.size(); i++) {
+			try {
+				pp_value val = m_parts[i].type->lookup(str);
+				if (val_in_range(val, m_parts[i])) {
+					return val;
+				}
+			} catch (pp_datatype::invalid_error &e) {
+				// Keep trying on exception
+			}
+		}
+		throw pp_datatype::invalid_error("Could not match given string "
+				"to a range: " + str);
+	}
+
+	virtual pp_value
+	lookup(const pp_value &value) const
+	{
+		for (size_t i = 0; i < m_parts.size(); i++) {
+			if (val_in_range(value, m_parts[i])) {
+				return value;
+			}
+		}
+		throw pp_datatype::invalid_error("Given value out of range: " +
+				to_string(value));
+	}
+
+	/*
+	 * pp_multi_datatype::add_range(pp_multi_range)
+	 * pp_multi_datatype::add_range(datatype, min, max)
+	 *
+	 * Add a new range->datatype mapping to this multi datatype.
+	 *
+	 */
+	void
+	add_range(const pp_multi_range &range)
+	{
+		add_range(range.type, range.low, range.high);
+	}
+	void
+	add_range(const pp_datatype_const_ptr &datatype,
+		  pp_value min, pp_value max)
+	{
+		if (min > max) {
+			throw pp_datatype::invalid_error("Minimum value " +
+					to_string(min) + " cannot be higher "
+					"than maximum value " + to_string(max));
+		}
+
+		// If the vector is empty, we can add it right away
+		if (m_parts.size() == 0) {
+			m_parts.push_back(
+				pp_multi_range(datatype, min, max));
+			return;
+		}
+
+		// See if we can add it in the middle
+		std::vector<pp_multi_range>::iterator iter;
+		for (iter = m_parts.begin(); iter != m_parts.end(); iter++) {
+			if (min > iter->high) {
+				continue;
+			} else if (max < iter->low) {
+				m_parts.insert(iter, pp_multi_range(
+							datatype, min, max));
+				return;
+			} else {
+				throw pp_datatype::invalid_error(
+					"Cannot have overlapping ranges");
+			}
+		}
+
+		// Range is higher than everything else; add to end
+		m_parts.push_back(
+			pp_multi_range(datatype, min, max));
+	}
+};
+typedef boost::shared_ptr<pp_multi_datatype> pp_multi_datatype_ptr;
+
+#define new_pp_multi_datatype(...) \
+		pp_multi_datatype_ptr( \
+			new pp_multi_datatype(__VA_ARGS__))
+
+/*
  * pp_enum_datatype - datatype for enumerated values.
  *
  * NOTE: Enum keys must be unique.

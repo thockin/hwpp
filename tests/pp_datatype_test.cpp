@@ -49,6 +49,250 @@ test_pp_enum_datatype()
 }
 
 int
+test_pp_multi_datatype()
+{
+	int ret = 0;
+
+	// test basic constructor
+	{
+		pp_multi_datatype m;
+	}
+
+	// test the add_range() method
+	try {
+		// adding to beginning
+		pp_multi_datatype m;
+		m.add_range(new_pp_hex_datatype(), 20, 30);
+		m.add_range(new_pp_int_datatype(), 15, 16);
+		m.add_range(new_pp_int_datatype(), 0, 10);
+	} catch (exception &e) {
+		TEST_ERROR("pp_multi_datatype::add_range()");
+		ret++;
+	}
+	try {
+		// adding in between
+		pp_multi_datatype m;
+		m.add_range(new_pp_int_datatype(), 0, 10);
+		m.add_range(new_pp_hex_datatype(), 20, 30);
+		m.add_range(new_pp_int_datatype(), 15, 16);
+	} catch (exception &e) {
+		TEST_ERROR("pp_multi_datatype::add_range()");
+		ret++;
+	}
+	try {
+		// adding to end
+		pp_multi_datatype m;
+		m.add_range(new_pp_int_datatype(), 0, 10);
+		m.add_range(new_pp_hex_datatype(), 11, 12);
+		m.add_range(new_pp_string_datatype(), 13, 20);
+	} catch (exception &e) {
+		TEST_ERROR("pp_multi_datatype::add_range()");
+		ret++;
+	}
+	try {
+		// overlap at the beginning
+		pp_multi_datatype m;
+		m.add_range(new_pp_int_datatype(), 0, 10);
+		m.add_range(new_pp_hex_datatype(), 11, 12);
+		m.add_range(new_pp_int_datatype(), 0, 3);
+		TEST_ERROR("pp_multi_datatype::add_range()");
+		ret++;
+	} catch (exception &e) {
+	}
+	try {
+		// overlap in the middle
+		pp_multi_datatype m;
+		m.add_range(new_pp_int_datatype(), 0, 10);
+		m.add_range(new_pp_hex_datatype(), 11, 13);
+		m.add_range(new_pp_int_datatype(), 8, 9);
+		TEST_ERROR("pp_multi_datatype::add_range()");
+		ret++;
+	} catch (exception &e) {
+	}
+	try {
+		// overlap in the middle across two ranges
+		pp_multi_datatype m;
+		m.add_range(new_pp_int_datatype(), 0, 10);
+		m.add_range(new_pp_hex_datatype(), 11, 13);
+		m.add_range(new_pp_int_datatype(), 9, 12);
+		TEST_ERROR("pp_multi_datatype::add_range()");
+		ret++;
+	} catch (exception &e) {
+	}
+	try {
+		// overlap in the middle on a min
+		pp_multi_datatype m;
+		m.add_range(new_pp_int_datatype(), 0, 10);
+		m.add_range(new_pp_hex_datatype(), 11, 13);
+		m.add_range(new_pp_int_datatype(), 11, 11);
+		TEST_ERROR("pp_multi_datatype::add_range()");
+		ret++;
+	} catch (exception &e) {
+	}
+	try {
+		// overlap in the middle on a max
+		pp_multi_datatype m;
+		m.add_range(new_pp_int_datatype(), 0, 10);
+		m.add_range(new_pp_hex_datatype(), 11, 13);
+		m.add_range(new_pp_int_datatype(), 10, 10);
+		TEST_ERROR("pp_multi_datatype::add_range()");
+		ret++;
+	} catch (exception &e) {
+	}
+	try {
+		// overlap at the end
+		pp_multi_datatype m;
+		m.add_range(new_pp_int_datatype(), 0, 10);
+		m.add_range(new_pp_hex_datatype(), 11, 13);
+		m.add_range(new_pp_int_datatype(), 12, 15);
+		TEST_ERROR("pp_multi_datatype::add_range()");
+		ret++;
+	} catch (exception &e) {
+	}
+	try {
+		// overlap touching the end
+		pp_multi_datatype m;
+		m.add_range(new_pp_int_datatype(), 0, 10);
+		m.add_range(new_pp_hex_datatype(), 11, 13);
+		m.add_range(new_pp_int_datatype(), 13, 15);
+		TEST_ERROR("pp_multi_datatype::add_range()");
+		ret++;
+	} catch (exception &e) {
+	}
+	try {
+		// min > max
+		pp_multi_datatype m;
+		m.add_range(new_pp_int_datatype(), 0, 10);
+		m.add_range(new_pp_hex_datatype(), 11, 13);
+		m.add_range(new_pp_int_datatype(), 25, 20);
+		TEST_ERROR("pp_multi_datatype::add_range()");
+		ret++;
+	} catch (exception &e) {
+	}
+
+	{
+		// test the evaluate() method
+		pp_multi_datatype m;
+		m.add_range(new_pp_bool_datatype("true", "false"), 0, 1);
+		m.add_range(new_pp_int_datatype("units"), 5, 10);
+		m.add_range(new_pp_int_datatype(), 11, 12);
+		m.add_range(new_pp_hex_datatype(BITS32), 15, 20);
+		keyed_vector<string, pp_value> enumlist;
+		enumlist.insert("3", 25);
+		enumlist.insert("11", 26);
+		enumlist.insert("test_key", 27);
+		m.add_range(new_pp_enum_datatype(enumlist), 25, 27);
+		// ...bool
+		TEST_ASSERT(m.evaluate(pp_value(0)) == "false",
+				"pp_multi_datatype::evaluate()");
+		TEST_ASSERT(m.evaluate(pp_value(1)) == "true",
+				"pp_multi_datatype::evaluate()");
+		// ...int
+		TEST_ASSERT(m.evaluate(pp_value(5)) == "5 units",
+				"pp_multi_datatype::evaluate()");
+		TEST_ASSERT(m.evaluate(pp_value(6)) == "6 units",
+				"pp_multi_datatype::evaluate()");
+		TEST_ASSERT(m.evaluate(pp_value(10)) == "10 units",
+				"pp_multi_datatype::evaluate()");
+		// ...hex
+		TEST_ASSERT(m.evaluate(pp_value(15)) == "0x0000000f",
+				"pp_multi_datatype::evaluate()");
+		TEST_ASSERT(m.evaluate(pp_value(16)) == "0x00000010",
+				"pp_multi_datatype::evaluate()");
+		TEST_ASSERT(m.evaluate(pp_value(20)) == "0x00000014",
+				"pp_multi_datatype::evaluate()");
+		// ...enum
+		TEST_ASSERT(m.evaluate(pp_value(25)) == "3",
+				"pp_multi_datatype::evaluate()");
+		TEST_ASSERT(m.evaluate(pp_value(26)) == "11",
+				"pp_multi_datatype::evaluate()");
+		TEST_ASSERT(m.evaluate(pp_value(27)) == "test_key",
+				"pp_multi_datatype::evaluate()");
+		// ...out of range
+		TEST_ASSERT(m.evaluate(pp_value(3)) == "<!3!>",
+				"pp_multi_datatype::evaluate()");
+		TEST_ASSERT(m.evaluate(pp_value(30)) == "<!30!>",
+				"pp_multi_datatype::evaluate()");
+
+		// test the lookup() method
+		// ...lookup(pp_value)
+		try {
+			TEST_ASSERT(m.lookup(pp_value(0)) == pp_value(0),
+				"pp_multi_datatype::lookup()");
+		} catch (exception &e) {
+			TEST_ERROR("pp_multi_datatype::lookup()");
+			ret++;
+		}
+		try {
+			TEST_ASSERT(m.lookup(pp_value(7)) == pp_value(7),
+				"pp_multi_datatype::lookup()");
+		} catch (exception &e) {
+			TEST_ERROR("pp_multi_datatype::lookup()");
+			ret++;
+		}
+		try {
+			TEST_ASSERT(m.lookup(pp_value(20)) == pp_value(20),
+				"pp_multi_datatype::lookup()");
+		} catch (exception &e) {
+			TEST_ERROR("pp_multi_datatype::lookup()");
+			ret++;
+		}
+		try {
+			// out of range
+			m.lookup(pp_value(13));
+			TEST_ERROR("pp_multi_datatype::lookup()");
+			ret++;
+		} catch (exception &e) {
+		}
+		// ...lookup(string)
+		try {
+			TEST_ASSERT(m.lookup("true") == pp_value(1),
+				"pp_multi_datatype::lookup()");
+		} catch (exception &e) {
+			TEST_ERROR("pp_multi_datatype::lookup()");
+			ret++;
+		}
+		try {
+			TEST_ASSERT(m.lookup("true") == pp_value(1),
+				"pp_multi_datatype::lookup()");
+		} catch (exception &e) {
+			TEST_ERROR("pp_multi_datatype::lookup()");
+			ret++;
+		}
+		try {
+			TEST_ASSERT(m.lookup("0x0000000f") == pp_value(15),
+				"pp_multi_datatype::lookup()");
+		} catch (exception &e) {
+			TEST_ERROR("pp_multi_datatype::lookup()");
+			ret++;
+		}
+		try {
+			TEST_ASSERT(m.lookup("test_key") == pp_value(27),
+				"pp_multi_datatype::lookup()");
+		} catch (exception &e) {
+			TEST_ERROR("pp_multi_datatype::lookup()");
+			ret++;
+		}
+		// FIXME: This test fails because of the ambiguity in the
+		// multi datatype; both pp_value(11) and pp_value(26)
+		// produce the string "11". For now, lookup(str) is defined to
+		// return the lowest pp_value the given string could have
+		// produced.
+#if 0
+		try {
+			TEST_ASSERT(m.lookup("11") == pp_value(26),
+				"pp_multi_datatype::lookup()");
+		} catch (exception &e) {
+			TEST_ERROR("pp_multi_datatype::lookup()");
+			ret++;
+		}
+#endif
+	}
+
+	return ret;
+}
+
+int
 test_pp_string_datatype()
 {
 	int ret = 0;
@@ -58,7 +302,7 @@ test_pp_string_datatype()
 
 	// test the evaluate() method
 	if (s.evaluate(0x41) != "A") {
-		TEST_ERROR("pp_string_datatype::evaluate() returns " + 
+		TEST_ERROR("pp_string_datatype::evaluate() returns " +
 			   s.evaluate(pp_value(0x41)));
 		ret++;
 	}
@@ -195,8 +439,10 @@ test_pp_bitmask_datatype()
 	    "pp_bitmask_datatype::lookup(string)");
 	ret += TEST_ASSERT(b.lookup("bit_two") == 2,
 	    "pp_bitmask_datatype::lookup(string)");
-	ret += TEST_ASSERT(b.lookup(1) == 1, "pp_bitmask_datatype::lookup(int)");
-	ret += TEST_ASSERT(b.lookup(2) == 2, "pp_bitmask_datatype::lookup(int)");
+	ret += TEST_ASSERT(b.lookup(1) == 1,
+			"pp_bitmask_datatype::lookup(int)");
+	ret += TEST_ASSERT(b.lookup(2) == 2,
+			"pp_bitmask_datatype::lookup(int)");
 	try {
 		b.lookup("foo");
 		TEST_ERROR("pp_bitmask_datatype::lookup(string)");
@@ -232,8 +478,10 @@ test_pp_int_datatype()
 	}
 
 	// test lookup()
-	ret += TEST_ASSERT(i1.lookup("1") == 1, "pp_int_datatype::lookup(string)");
-	ret += TEST_ASSERT(i1.lookup("23") == 23, "pp_int_datatype::lookup(string)");
+	ret += TEST_ASSERT(i1.lookup("1") == 1,
+			"pp_int_datatype::lookup(string)");
+	ret += TEST_ASSERT(i1.lookup("23") == 23,
+			"pp_int_datatype::lookup(string)");
 	ret += TEST_ASSERT(i1.lookup(1) == 1, "pp_int_datatype::lookup(int)");
 	ret += TEST_ASSERT(i1.lookup(23) == 23, "pp_int_datatype::lookup(int)");
 	try {
@@ -355,7 +603,8 @@ test_pp_hex_datatype()
 		ret++;
 	}
 	pp_hex_datatype h6(BITS64);
-	if (h6.evaluate(pp_value("0x0807060504030201")) != "0x0807060504030201") {
+	if (h6.evaluate(pp_value("0x0807060504030201")) !=
+			"0x0807060504030201") {
 		TEST_ERROR("pp_hex_datatype::evaluate()");
 		ret++;
 	}
@@ -379,7 +628,8 @@ test_pp_hex_datatype()
 		ret++;
 	}
 	pp_hex_datatype h10(BITS64, "units");
-	if (h10.evaluate(pp_value("0x0807060504030201")) != "0x0807060504030201 units") {
+	if (h10.evaluate(pp_value("0x0807060504030201")) !=
+			 "0x0807060504030201 units") {
 		TEST_ERROR("h10.evaluate()");
 		ret++;
 	}
@@ -427,6 +677,7 @@ test_pp_transform_datatype()
 
 TEST_LIST(
 	TEST(test_pp_enum_datatype),
+	TEST(test_pp_multi_datatype),
 	TEST(test_pp_string_datatype),
 	TEST(test_pp_bool_datatype),
 	TEST(test_pp_bitmask_datatype),

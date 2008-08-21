@@ -626,6 +626,31 @@ fkl_enum(const parse_location &loc,
 }
 
 //
+// Define a pp_multi_datatype.
+//
+pp_datatype_ptr
+fkl_multi(const parse_location &loc,
+	      const string &name, const fkl_range_list &rangelist)
+{
+	DTRACE(TRACE_TYPES, "multi: " + name);
+
+	DASSERT_MSG(!current_context.is_readonly(),
+		"current_context is read-only");
+
+	pp_multi_datatype_ptr multi_ptr =
+		new_pp_multi_datatype();
+	for (size_t i = 0; i < rangelist.size(); i++) {
+		multi_ptr->add_range(rangelist[i].type,
+				rangelist[i].low, rangelist[i].high);
+	}
+	if (name != "") {
+		fkl_validate_type_name(name, loc);
+		current_context.add_datatype(name, multi_ptr);
+	}
+	return multi_ptr;
+}
+
+//
 // Define a pp_bool_datatype.
 //
 pp_datatype_ptr

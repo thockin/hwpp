@@ -739,6 +739,54 @@ test_parse_errors()
 	}
 
 	//
+	// MULTI
+	//
+	// should not throw
+	try {
+		MULTI("mp1", RANGE(ANON_INT(), 0, 10));
+		// expected
+	} catch (exception &e) {
+		ret += TEST_ERROR("MULTI()");
+	} 
+	// should not throw
+	try {
+		MULTI("mp2", RANGE(ANON_INT(), 0, 10),
+				 RANGE("hex32_t", 11, 15));
+		// expected
+	} catch (exception &e) {
+		ret += TEST_ERROR("MULTI()");
+	}
+	// should not throw
+	try {
+		ANON_MULTI(RANGE(ANON_INT(), 0, 10),
+			       RANGE("hex32_t", 11, 15));
+		// expected
+	} catch (exception &e) {
+		ret += TEST_ERROR("MULTI()");
+	}
+	// should throw a parse_error due to invalid typename
+	try {
+		MULTI("123_invalid", RANGE(ANON_INT(), 0, 10),
+					 RANGE("hex32_t", 11, 15));
+		ret += TEST_ERROR("MULTI()");
+	} catch (pp_parse_error &e) {
+		// expected
+	} catch (exception &e) {
+		ret += TEST_ERROR("MULTI()");
+	} 
+	// should throw an invalid_error due to overlapping ranges
+	try {
+		MULTI("mp2", RANGE(ANON_INT(), 0, 10),
+				 RANGE("hex32_t", 11, 15),
+				 RANGE(ANON_INT("units"), 10, 11));
+		ret += TEST_ERROR("MULTI()");
+	} catch (pp_datatype::invalid_error &e) {
+		// expected
+	} catch (exception &e) {
+		ret += TEST_ERROR("MULTI()");
+	}
+
+	//
 	// ENUM
 	//
 	// should not throw
