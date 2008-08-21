@@ -346,6 +346,7 @@ Builtin Datatypes
   * addr16_t		- a 16 bit address
   * addr32_t		- a 32 bit address
   * addr64_t		- a 64 bit address
+  * string_t            - a simple string
   * yesno_t		- a yes/no boolean
   * truefalse_t		- a true/false boolean
   * onoff_t		- an on/off boolean
