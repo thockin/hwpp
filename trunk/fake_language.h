@@ -469,6 +469,64 @@ fkl_enum(const parse_location &loc,
 #define ENUM(name, ...)		fkl_enum(THIS_LOCATION, name, (__VA_ARGS__))
 #define ANON_ENUM(...)		fkl_enum(THIS_LOCATION, "", (__VA_ARGS__))
 
+// These are helpers for type safety in pp_multi
+struct fkl_range
+{
+	fkl_range(const pp_datatype_const_ptr &datatype,
+		  pp_value min, pp_value max)
+	    : type(datatype), low(min), high(max) {}
+	fkl_range(const string &datatype, pp_value min, pp_value max)
+	    : low(min), high(max)
+	{
+		type = current_context.resolve_datatype(datatype);
+	}
+	pp_datatype_const_ptr type;
+	pp_value low;
+	pp_value high;
+};
+#define RANGE(d, l, h) fkl_range(d, l, h)
+typedef std::vector<fkl_range> fkl_range_list;
+inline fkl_range_list
+operator,(const fkl_range &lhs, const fkl_range &rhs)
+{
+	fkl_range_list tmp;
+	tmp.push_back(lhs);
+	tmp.push_back(rhs);
+	return tmp;
+}
+inline fkl_range_list
+operator,(const fkl_range_list &lhs, const fkl_range &rhs)
+{
+	fkl_range_list tmp(lhs);
+	tmp.push_back(rhs);
+	return tmp;
+}
+
+//
+// Declare a multi datatype.
+//
+//  It can take an "unlimited" number of arguments, in the form:
+//        MULTI("name", RANGE("datatype_name1", 0, 1),
+//	                RANGE("datatype_name2", 2, 3),
+//	                    ...);
+extern pp_datatype_ptr
+fkl_multi(const parse_location &loc,
+	      const string &name, const fkl_range_list &rangelist);
+
+inline pp_datatype_ptr
+fkl_multi(const parse_location &loc,
+	      const string &name, const fkl_range &range)
+{
+	fkl_range_list tmp;
+	tmp.push_back(range);
+	return fkl_multi(loc, name, tmp);
+}
+// Note: copied Tim's "macro magic" from the BITMASK macro definition above
+#define MULTI(name, ...)		fkl_multi(THIS_LOCATION, name, \
+						      (__VA_ARGS__))
+#define ANON_MULTI(...)		fkl_multi(THIS_LOCATION, "", \
+							   (__VA_ARGS__))
+
 //
 // Declare a boolean datatype.
 //
