@@ -27,6 +27,7 @@ platform_global_init()
 	HEX("addr16_t", BITS16);
 	HEX("addr32_t", BITS32);
 	HEX("addr64_t", BITS64);
+	STRING("string_t");
 
 	/* various booleans */
 	BOOL("yesno_t", "yes", "no");
