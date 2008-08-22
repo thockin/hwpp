@@ -6,72 +6,59 @@
 using namespace fs;
 using namespace std;
 
-int
+void
 test_file()
 {
-	int ret = 0;
-
 	system("rm -f file.exists");
 
 	if (direntry::exists("file.exists")) {
 		TEST_ERROR("fs::direntry::exists()");
-		ret++;
 	}
 
 	system("echo -n exists > file.exists");
 
 	if (!direntry::exists("file.exists")) {
 		TEST_ERROR("fs::direntry::exists()");
-		ret++;
 	}
 
 	if (file::size("file.exists") != 6) {
 		TEST_ERROR("fs::file::size(string)");
-		ret++;
 	}
 
 	file_ptr f = file::open("file.exists", O_RDONLY);
 	if (!f->is_open()) {
 		TEST_ERROR("fs::direntry::is_open()");
-		ret++;
 	}
 
 	if (f->size() != 6) {
 		TEST_ERROR("fs::file::size()");
-		ret++;
 	}
 
 	if (f->tell() != 0) {
 		TEST_ERROR("fs::file::tell()");
-		ret++;
 	}
 
 	f->seek(2, SEEK_SET);
 	if (f->tell() != 2) {
 		TEST_ERROR("fs::file::seek()");
-		ret++;
 	}
 	f->seek(2, SEEK_CUR);
 	if (f->tell() != 4) {
 		TEST_ERROR("fs::file::seek()");
-		ret++;
 	}
 	f->seek(-3, SEEK_END);
 	if (f->tell() != 3) {
 		TEST_ERROR("fs::file::seek()");
-		ret++;
 	}
 
 	f->seek(7, SEEK_SET);
 	if (!f->is_eof()) {
 		TEST_ERROR("fs::file::is_eof()");
-		ret++;
 	}
 
 	f->seek(0, SEEK_SET);
 	if (f->tell() != 0) {
 		TEST_ERROR("fs::file::seek()");
-		ret++;
 	}
 
 	char buf[16];
@@ -80,42 +67,34 @@ test_file()
 	buf[r] = '\0';
 	if (string(buf) != "exists") {
 		TEST_ERROR("fs::file::read()");
-		ret++;
 	}
 
 	f->unlink();
 	if (direntry::exists("file.exists")) {
 		TEST_ERROR("fs::direntry::unlink()");
-		ret++;
 	}
 
 	f->close();
 	if (f->is_open()) {
 		TEST_ERROR("fs::direntry::is_open()");
-		ret++;
 	}
 
 	f = file::tempfile();
 	if (!f->is_open()) {
 		TEST_ERROR("fs::direntry::tempfile()");
-		ret++;
 	}
 
 	string tempname = file::tempname();
 	if (direntry::exists(tempname)) {
 		TEST_ERROR("fs::file::tempname()");
-		ret++;
 	}
 
 	system("rm -f file.exists");
-	return ret;
 }
 
-int
+void
 test_file_mapping()
 {
-	int ret = 0;
-
 	system("rm -f file.exists");
 	system("echo -n exists > file.exists");
 
@@ -127,24 +106,20 @@ test_file_mapping()
 	p = (char *)map->address();
 	if (strncmp(p, "xist", 4)) {
 		TEST_ERROR("fs::file::mmap()");
-		ret++;
 	}
 
 	map = f->mmap(2, 4);
 	p = (char *)map->address();
 	if (strncmp(p, "ists", 4)) {
 		TEST_ERROR("fs::file::mmap()");
-		ret++;
 	}
 
 	system("rm -f file.exists");
-	return ret;
 }
 
-int
+void
 test_dir()
 {
-	int ret = 0;
 	set<string> expected;
 	set<string>::iterator it;
 
@@ -160,7 +135,6 @@ test_dir()
 	it = expected.find(de->name());
 	if (it == expected.end()) {
 		TEST_ERROR("fs::directory::read()");
-		ret++;
 	}
 	/* don't erase this, save it for rewind() */
 
@@ -168,7 +142,6 @@ test_dir()
 	it = expected.find(de->name());
 	if (it == expected.end()) {
 		TEST_ERROR("fs::directory::read()");
-		ret++;
 	}
 	expected.erase(it);
 
@@ -176,7 +149,6 @@ test_dir()
 	it = expected.find(de->name());
 	if (it == expected.end()) {
 		TEST_ERROR("fs::directory::read()");
-		ret++;
 	}
 	expected.erase(it);
 
@@ -185,42 +157,32 @@ test_dir()
 	it = expected.find(de->name());
 	if (it == expected.end()) {
 		TEST_ERROR("fs::directory::read()");
-		ret++;
 	}
 	expected.erase(it);
 
 	if (!expected.empty()) {
 		TEST_ERROR("fs::directory::read()");
-		ret++;
 	}
 
 	system("rm -rf dir");
-	return ret;
 }
 
-int
+void
 test_dev()
 {
-	int ret = 0;
-
 	string tempname = file::tempname();
 	if (direntry::exists(tempname)) {
 		TEST_ERROR("fs::file::tempname()");
-		ret++;
 	}
 	try {
 		// major 1, minor 3 = /dev/null
 		device::mkdev(tempname, 0600, S_IFCHR, 1, 3);
 		if (!direntry::exists(tempname)) {
 			TEST_ERROR("fs::file::tempname()");
-			ret++;
 		}
 	} catch (syserr::operation_not_permitted &e) {
 		TEST_WARNING("must be root to call fs::device::mkdev()");
-		ret++;
 	}
-
-	return ret;
 }
 
 TEST_LIST(

@@ -15,33 +15,25 @@ using namespace std;
 extern pp_register_ptr magic_zeros;
 extern pp_register_ptr magic_ones;
 
-int
+void
 magic_regs_test()
 {
-	int ret = 0;
-
 	if (magic_zeros->read() != 0) {
 		TEST_ERROR("magic_zeros->read()");
-		ret++;
 	}
 	magic_zeros->write(1);
 	if (magic_zeros->read() != 0) {
 		TEST_ERROR("magic_zeros->write()");
-		ret++;
 	}
 
 	pp_value ones = pp_value("0xffffffffffffffffffffffffffffffff");
 	if (magic_ones->read() != ones) {
 		TEST_ERROR("magic_ones->read()");
-		ret++;
 	}
 	magic_ones->write(0);
 	if (magic_ones->read() != ones) {
 		TEST_ERROR("magic_ones->write()");
-		ret++;
 	}
-
-	return ret;
 }
 
 TEST_LIST(
