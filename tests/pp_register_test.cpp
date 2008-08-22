@@ -5,11 +5,9 @@
 #include "test_binding.h"
 using namespace std;
 
-int
+void
 test_pp_bound_register()
 {
-	int ret = 0;
-
 	/* test the binding constructor */
 	pp_binding_ptr bind = new_test_binding();
 
@@ -23,79 +21,63 @@ test_pp_bound_register()
 	/* test the read() method */
 	if (r1.read() != PP_MASK(BITS8)) {
 		TEST_ERROR("pp_bound_register::read()");
-		ret++;
 	}
 	if (r2.read() != PP_MASK(BITS16)) {
 		TEST_ERROR("pp_bound_register::read()");
-		ret++;
 	}
 	if (r3.read() != PP_MASK(BITS32)) {
 		TEST_ERROR("pp_bound_register::read()");
-		ret++;
 	}
 	if (r4.read() != PP_MASK(BITS64)) {
 		TEST_ERROR("pp_bound_register::read()");
-		ret++;
 	}
 	if (r5.read() != PP_MASK(BITS128)) {
 		TEST_ERROR("pp_bound_register::read()");
-		ret++;
 	}
 
 	/* test the write() method */
 	r1.write(0x11);
 	if (r1.read() != 0x11) {
 		TEST_ERROR("pp_bound_register::write()");
-		ret++;
 	}
 	r2.write(0x2222);
 	if (r2.read() != 0x2222) {
 		TEST_ERROR("pp_bound_register::write()");
-		ret++;
 	}
 	r3.write(0x33333333);
 	if (r3.read() != 0x33333333) {
 		TEST_ERROR("pp_bound_register::write()");
-		ret++;
 	}
 	r4.write(pp_value("0x4444444444444444"));
 	if (r4.read() != pp_value("0x4444444444444444")) {
 		TEST_ERROR("pp_bound_register::write()");
-		ret++;
 	}
 	r5.write(pp_value("0x55555555555555555555555555555555"));
 	if (r5.read() != pp_value("0x55555555555555555555555555555555")) {
 		TEST_ERROR("pp_bound_register::write()");
-		ret++;
 	}
 
 	/* test write() by writing too many bits */
 	r1.write(0xff11);
 	if (r1.read() != 0x11) {
 		TEST_ERROR("pp_bound_register::write()");
-		ret++;
 	}
 	r2.write(0xff2222);
 	if (r2.read() != 0x2222) {
 		TEST_ERROR("pp_bound_register::write()");
-		ret++;
 	}
 	r3.write(0xff33333333ULL);
 	if (r3.read() != 0x33333333) {
 		TEST_ERROR("pp_bound_register::write()");
-		ret++;
 	}
 	r4.write(pp_value("0xff4444444444444444"));
 	if (r4.read() != pp_value("0x4444444444444444")) {
 		TEST_ERROR("pp_bound_register::write()");
-		ret++;
 	}
 	r5.write(pp_value("0xff55555555555555555555555555555555"));
 	if (r5.read() != pp_value("0x55555555555555555555555555555555")) {
 		TEST_ERROR("pp_bound_register::write()");
-		ret++;
 	}
-	return ret;
 }
 
 class test_procs: public pp_rwprocs
@@ -118,11 +100,9 @@ class test_procs: public pp_rwprocs
 	}
 };
 
-int
+void
 test_pp_proc_register()
 {
-	int ret = 0;
-
 	pp_rwprocs_ptr procs(new test_procs);
 
 	/* set up test registers */
@@ -135,80 +115,59 @@ test_pp_proc_register()
 	/* test the read() method */
 	if (r1.read() != PP_MASK(BITS8)) {
 		TEST_ERROR("pp_proc_register::read()");
-		ret++;
 	}
 	if (r2.read() != PP_MASK(BITS16)) {
 		TEST_ERROR("pp_proc_register::read()");
-		ret++;
 	}
 	if (r3.read() != PP_MASK(BITS32)) {
 		TEST_ERROR("pp_proc_register::read()");
-		ret++;
 	}
 	if (r4.read() != PP_MASK(BITS64)) {
 		TEST_ERROR("pp_proc_register::read()");
-		ret++;
 	}
 	if (r5.read() != PP_MASK(BITS128)) {
 		TEST_ERROR("pp_proc_register::read()");
-		ret++;
 	}
 
 	/* test the write() method */
 	r1.write(0x11);
 	if (r1.read() != 0x11) {
 		TEST_ERROR("pp_proc_register::write()");
-		ret++;
 	}
 	r2.write(0x2222);
 	if (r2.read() != 0x2222) {
 		TEST_ERROR("pp_proc_register::write()");
-		ret++;
 	}
 	r3.write(0x33333333);
 	if (r3.read() != 0x33333333) {
 		TEST_ERROR("pp_proc_register::write()");
-		ret++;
 	}
 	r4.write(pp_value("0x4444444444444444"));
 	if (r4.read() != pp_value("0x4444444444444444")) {
 		TEST_ERROR("pp_proc_register::write()");
-		ret++;
 	}
 	r5.write(pp_value("0x555555555555555555555555"));
 	if (r5.read() != pp_value("0x555555555555555555555555")) {
 		TEST_ERROR("pp_proc_register::write()");
-		ret++;
 	}
 
 	/* test write() by writing too many bits */
 	r1.write(0xff11);
 	if (r1.read() != 0x11) {
 		TEST_ERROR("pp_proc_register::write()");
-		ret++;
 	}
 	r2.write(0xff2222);
 	if (r2.read() != 0x2222) {
 		TEST_ERROR("pp_proc_register::write()");
-		ret++;
 	}
 	r3.write(0xff33333333ULL);
 	if (r3.read() != 0x33333333) {
 		TEST_ERROR("pp_proc_register::write()");
-		ret++;
-	}
-	r4.write(pp_value("0xff4444444444444444"));
-	if (r4.read() != pp_value("0x4444444444444444")) {
-		TEST_ERROR("pp_proc_register::write()");
-		ret++;
 	}
 	r5.write(pp_value("0xff55555555555555555555555555555555"));
 	if (r5.read() != pp_value("0x55555555555555555555555555555555")) {
 		TEST_ERROR("pp_proc_register::write()");
-		ret++;
 	}
-
-	return ret;
 }
 
 TEST_LIST(

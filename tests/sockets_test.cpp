@@ -1,36 +1,30 @@
 #include "pp_test.h"
 #include "sockets.h"
 
-int
+void
 test_ctors()
 {
-	int ret = 0;
-
 	// test server constructor
 	try {
 		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
 	} catch (std::exception &e) {
 		TEST_ERROR("unix_socket::server()");
-		ret++;
 	}
 	// test again for proper unlinking
 	try {
 		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
 	} catch (std::exception &e) {
 		TEST_ERROR("unix_socket::server()");
-		ret++;
 	}
 	// test socket constructor
 	try {
 		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		TEST_ERROR("unix_socket::socket()");
-		ret++;
 	} catch (std::exception &e) {
 	}
 	try {
 		unix_socket::socket c(TEST_TMP_DIR "/no_socket_here");
 		TEST_ERROR("unix_socket::socket()");
-		ret++;
 	} catch (std::exception &e) {
 	}
 	try {
@@ -38,7 +32,6 @@ test_ctors()
 		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 	} catch (std::exception &e) {
 		TEST_ERROR("unix_socket::server() and unix_socket::socket()");
-		ret++;
 	}
 	{
 		{
@@ -51,21 +44,18 @@ test_ctors()
 		} catch (std::exception &e) {
 		}
 	}
-	return ret;
 }
 
-int
+void
 test_connection()
 {
-	int ret = 0;
-	
 	{
 		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
-		ret += TEST_ASSERT(s.is_connected(),
+		TEST_ASSERT(s.is_connected(),
 				"unix_socket::is_connected()");
-		ret += TEST_ASSERT(c.is_connected(),
+		TEST_ASSERT(c.is_connected(),
 				"unix_socket::is_connected()");
 	}
 	{
@@ -73,19 +63,9 @@ test_connection()
 		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
 		s.close();
-		ret += TEST_ASSERT(!s.is_connected(),
+		TEST_ASSERT(!s.is_connected(),
 				"unix_socket::is_connected()");
-		ret += TEST_ASSERT(c.is_connected(),
-				"unix_socket::is_connected()");
-	}
-	{
-		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
-		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
-		unix_socket::socket s = svr.accept();
-		c.close();
-		ret += TEST_ASSERT(s.is_connected(),
-				"unix_socket::is_connected()");
-		ret += TEST_ASSERT(!c.is_connected(),
+		TEST_ASSERT(c.is_connected(),
 				"unix_socket::is_connected()");
 	}
 	{
@@ -93,9 +73,19 @@ test_connection()
 		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
 		unix_socket::socket s = svr.accept();
 		c.close();
-		ret += TEST_ASSERT(s.is_connected(),
+		TEST_ASSERT(s.is_connected(),
 				"unix_socket::is_connected()");
-		ret += TEST_ASSERT(!c.is_connected(),
+		TEST_ASSERT(!c.is_connected(),
+				"unix_socket::is_connected()");
+	}
+	{
+		unix_socket::server svr(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket c(TEST_TMP_DIR "/server.socket");
+		unix_socket::socket s = svr.accept();
+		c.close();
+		TEST_ASSERT(s.is_connected(),
+				"unix_socket::is_connected()");
+		TEST_ASSERT(!c.is_connected(),
 				"unix_socket::is_connected()");
 	}
 	{
@@ -104,9 +94,9 @@ test_connection()
 		unix_socket::socket s = svr.accept();
 		s.close();
 		c.close();
-		ret += TEST_ASSERT(!s.is_connected(),
+		TEST_ASSERT(!s.is_connected(),
 				"unix_socket::is_connected()");
-		ret += TEST_ASSERT(!c.is_connected(),
+		TEST_ASSERT(!c.is_connected(),
 				"unix_socket::is_connected()");
 	}
 	{
@@ -115,9 +105,9 @@ test_connection()
 		unix_socket::socket s = svr.accept();
 		s.close();
 		c.recv_line();
-		ret += TEST_ASSERT(!s.is_connected(),
+		TEST_ASSERT(!s.is_connected(),
 				"unix_socket::is_connected()");
-		ret += TEST_ASSERT(!c.is_connected(),
+		TEST_ASSERT(!c.is_connected(),
 				"unix_socket::is_connected()");
 	}
 	{
@@ -126,20 +116,16 @@ test_connection()
 		unix_socket::socket s = svr.accept();
 		c.close();
 		s.recv_line();
-		ret += TEST_ASSERT(!s.is_connected(),
+		TEST_ASSERT(!s.is_connected(),
 				"unix_socket::is_connected()");
-		ret += TEST_ASSERT(!c.is_connected(),
+		TEST_ASSERT(!c.is_connected(),
 				"unix_socket::is_connected()");
 	}
-
-	return ret;
 }
 
-int
+void
 test_send_recv()
 {
-	int ret = 0;
-
 	// Tests in this section are all done twice, once with server
 	// sending and client receiving, and once with client sending
 	// and server receiving
@@ -153,7 +139,6 @@ test_send_recv()
 		if (s.recv_line() != "This is a test message") {
 			TEST_ERROR("unix_socket::send() and "
 				   "unix_socket::recv_line()");
-			ret++;
 		}
 	}
 	{
@@ -164,7 +149,6 @@ test_send_recv()
 		if (c.recv_line() != "This is a test message") {
 			TEST_ERROR("unix_socket::send() and "
 				   "unix_socket::recv_line()");
-			ret++;
 		}
 	}
 	{
@@ -177,7 +161,6 @@ test_send_recv()
 				     "close") {
 			TEST_ERROR("unix_socket::send() and "
 				   "unix_socket::recv_line()");
-			ret++;
 		}
 	}
 	{
@@ -190,7 +173,6 @@ test_send_recv()
 				     "close") {
 			TEST_ERROR("unix_socket::send() and "
 				   "unix_socket::recv_line()");
-			ret++;
 		}
 	}
 
@@ -206,7 +188,6 @@ test_send_recv()
 		if (str != "123") {
 			TEST_ERROR("unix_socket::send() and "
 				   "unix_socket::recv_all()");
-			ret++;
 		}
 	}
 	{
@@ -220,7 +201,6 @@ test_send_recv()
 		if (str != "123") {
 			TEST_ERROR("unix_socket::send() and "
 				   "unix_socket::recv_all()");
-			ret++;
 		}
 	}
 	{
@@ -235,7 +215,6 @@ test_send_recv()
 			// This should stop trying to receive on remote close
 			TEST_ERROR("unix_socket::send() and "
 				   "unix_socket::recv_all()");
-			ret++;
 		}
 	}
 	{
@@ -250,7 +229,6 @@ test_send_recv()
 			// This should stop trying to receive on remote close
 			TEST_ERROR("unix_socket::send() and "
 				   "unix_socket::recv_all()");
-			ret++;
 		}
 	}
 	{
@@ -264,7 +242,6 @@ test_send_recv()
 			// Should fill the buffer to capacity
 			TEST_ERROR("unix_socket::send() and "
 				   "unix_socket::recv_all()");
-			ret++;
 		}
 	}
 	{
@@ -278,7 +255,6 @@ test_send_recv()
 			// Should fill the buffer to capacity
 			TEST_ERROR("unix_socket::send() and "
 				   "unix_socket::recv_all()");
-			ret++;
 		}
 	}
 	// Test receives after remote connection is closed
@@ -296,7 +272,6 @@ test_send_recv()
 		if (str != "456") {
 			TEST_ERROR("unix_socket::send() and "
 				   "unix_socket::recv_all()");
-			ret++;
 		}
 	}
 	{
@@ -312,7 +287,6 @@ test_send_recv()
 		if (str != "456") {
 			TEST_ERROR("unix_socket::send() and "
 				   "unix_socket::recv_all()");
-			ret++;
 		}
 	}
 	// Test receiving 0 bytes; connection should still stay open
@@ -325,11 +299,9 @@ test_send_recv()
 		s.recv_all(buf, 0);
 		if (!s.is_connected()) {
 			TEST_ERROR("unix_socket::recv_all()");
-			ret++;
 		}
 		if (!c.is_connected()) {
 			TEST_ERROR("unix_socket::recv_all()");
-			ret++;
 		}
 	}
 	{
@@ -341,15 +313,11 @@ test_send_recv()
 		c.recv_all(buf, 0);
 		if (!s.is_connected()) {
 			TEST_ERROR("unix_socket::recv_all()");
-			ret++;
 		}
 		if (!c.is_connected()) {
 			TEST_ERROR("unix_socket::recv_all()");
-			ret++;
 		}
 	}
-
-	return ret;
 }
 
 TEST_LIST(
