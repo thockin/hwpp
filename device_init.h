@@ -5,10 +5,8 @@
 #ifndef PP_DEVICE_INIT_H__
 #define PP_DEVICE_INIT_H__
 
-class pp_scope;
-
 extern void
-platform_global_init();
+global_datatypes_init();
 extern void
 pci_datatypes_init();
 extern void

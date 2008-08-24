@@ -23,7 +23,7 @@ pp_init()
 			"context_stack must be empty");
 
 	// FIXME: take these out when we have a real language
-	platform_global_init();
+	global_datatypes_init();
 	pci_datatypes_init();
 	cpuid_datatypes_init();
 	msr_datatypes_init();
