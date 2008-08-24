@@ -157,7 +157,7 @@ cpuid_generic_device()
 			ECX("%function_0") +
 			EDX("%function_0") +
 			EBX("%function_0"));
-	FIELD("vendor_str", ANON_STRING(),
+	FIELD("vendor_str", "string_t",
 			ECX("%function_0") +
 			EDX("%function_0") +
 			EBX("%function_0"));
