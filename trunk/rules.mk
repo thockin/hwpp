@@ -2,7 +2,7 @@
 BUILD_CONFIG=$(TOPDIR)/BUILD_CONFIG
 ifeq ($(BUILD_CONFIG), $(wildcard $(BUILD_CONFIG)))
   ifeq ($(DID_LOAD_BUILD_CONFIG),)
-    $(info loading $(BUILD_CONFIG))
+    $(info loading BUILD_CONFIG)
   endif
   include $(BUILD_CONFIG)
 endif
@@ -137,7 +137,13 @@ dep depend:
 	@for f in $^; do \
 		OBJ=$$(echo $$f | sed 's/\.cp*$$/.o/'); \
 		$(CPP) $(CPPFLAGS) -MM $$f -MT $$OBJ; \
-	done > $@
+	done > $@.tmp; \
+	diff -w -B -q $@ $@.tmp >/dev/null 2>&1; \
+	if [ $$? != 0 ]; then \
+		mv -f $@.tmp $@; \
+	else \
+		$(RM) $@.tmp; \
+	fi
 
 # a generic empty target to force some rules
 .PHONY: FORCE
