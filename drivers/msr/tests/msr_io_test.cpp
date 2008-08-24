@@ -1,8 +1,7 @@
+#include "pp.h"
 #include "msr_driver.h"
 #include "msr_binding.h"
-#include "pp.h"
 #include "pp_test.h"
-using namespace std;
 
 #define NULL_MAJOR	1
 #define NULL_MINOR	3
@@ -10,8 +9,7 @@ using namespace std;
 #define ZERO_MAJOR	1
 #define ZERO_MINOR	5
 
-void
-test_msr_io()
+TEST(test_msr_io)
 {
 	system("mkdir -p test_data/93");
 	system("echo -n \"01234567\" > test_data/93/msr");
@@ -32,12 +30,12 @@ test_msr_io()
 		try {
 			io1.read(0xffffffff, BITS64);
 			TEST_ERROR("msr_io::read(BITS64)");
-		} catch (exception &e) {
+		} catch (std::exception &e) {
 		}
 		try {
 			io1.read(0x100000000ULL, BITS64);
 			TEST_ERROR("msr_io::read(BITS64)");
-		} catch (exception &e) {
+		} catch (std::exception &e) {
 		}
 
 		/* test the write() method */
@@ -50,22 +48,16 @@ test_msr_io()
 		try {
 			msr_io io2(msr_address(76), "test_data",
 					ZERO_MAJOR, ZERO_MINOR);
-			TEST_ASSERT(io2.read(0x0, BITS64)
-					   == pp_value(0x0),
-					   "msr_io::msr_io()");
-		} catch (exception &e) {
-			TEST_ERROR("msr_io::msr_io() "
-				   "[note: must be root to call "
-				   "fs::device::mkdev()]");
+			TEST_ASSERT(io2.read(0x0, BITS64) == pp_value(0x0),
+			    "msr_io::msr_io()");
+		} catch (syserr::operation_not_permitted &e) {
+			TEST_WARNING(
+			    "must be root to call fs::device::mkdev()");
 		}
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		system("rm -rf test_data");
 		throw;
 	}
 
 	system("rm -rf test_data");
 }
-
-TEST_LIST(
-	TEST(test_msr_io),
-);

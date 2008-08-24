@@ -1,12 +1,10 @@
+#include "pp.h"
 #include "pp_registers.h"
 #include "pp_rwprocs.h"
-#include "pp.h"
-#include "pp_test.h"
 #include "test_binding.h"
-using namespace std;
+#include "pp_test.h"
 
-void
-test_pp_bound_register()
+TEST(test_pp_bound_register)
 {
 	/* test the binding constructor */
 	pp_binding_ptr bind = new_test_binding();
@@ -100,8 +98,7 @@ class test_procs: public pp_rwprocs
 	}
 };
 
-void
-test_pp_proc_register()
+TEST(test_pp_proc_register)
 {
 	pp_rwprocs_ptr procs(new test_procs);
 
@@ -169,8 +166,3 @@ test_pp_proc_register()
 		TEST_ERROR("pp_proc_register::write()");
 	}
 }
-
-TEST_LIST(
-	TEST(test_pp_bound_register),
-	TEST(test_pp_proc_register),
-);

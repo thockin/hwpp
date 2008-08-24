@@ -1,17 +1,15 @@
 #include "keyed_vector.h"
-#include "pp_test.h"
 #include <iostream>
-using namespace std;
+#include "pp_test.h"
 
 template<class Tkey, class Tval>
-void dump_keyed_vector(const keyed_vector<Tkey, Tval> &kv, ostream &out) {
+void dump_keyed_vector(const keyed_vector<Tkey, Tval> &kv, std::ostream &out) {
 	for (size_t i = 0; i < kv.size(); i++) {
-		out << kv.key_at(i) << " = " << kv.at(i) << endl;
+		out << kv.key_at(i) << " = " << kv.at(i) << std::endl;
 	}
 }
 
-void
-test_ctors()
+TEST(test_ctors)
 {
 	typedef keyed_vector<string, int> si_keyvec;
 
@@ -61,8 +59,7 @@ test_ctors()
 	}
 }
 
-void
-test_exceptions()
+TEST(test_exceptions)
 {
 	typedef keyed_vector<string, int> si_keyvec;
 
@@ -118,8 +115,7 @@ test_exceptions()
 	}
 }
 
-void
-test_int()
+TEST(test_int)
 {
 	typedef keyed_vector<string, int> si_keyvec;
 	si_keyvec keyvec;
@@ -308,14 +304,13 @@ class xypair {
 		return (this->m_x != that.m_x || this->m_y != that.m_y);
 	}
 };
-ostream &operator<<(ostream &lhs, const xypair &rhs)
+std::ostream &operator<<(std::ostream &lhs, const xypair &rhs)
 {
 	lhs << "(" << rhs.m_x << "," << rhs.m_y << ")";
 	return lhs;
 }
 
-void
-test_xypair()
+TEST(test_xypair)
 {
 	typedef keyed_vector<string, xypair> xy_keyvec;
 	xy_keyvec keyvec;
@@ -476,10 +471,3 @@ test_xypair()
 		TEST_ERROR("keyed_vector::erase()");
 	}
 }
-
-TEST_LIST(
-	TEST(test_ctors),
-	TEST(test_exceptions),
-	TEST(test_int),
-	TEST(test_xypair),
-);

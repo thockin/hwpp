@@ -1,22 +1,15 @@
 /*
  * Copyright 2007 Google Inc. All Rights Reserved.
- *
- * A File that contains functions for searching through a tree and 
- * performing one of three actions, Display the value, Set the value or
- * tell me if this path exists in our tree.
  */
 
 #include "pp.h"
+#include "pp_register.h"
 #include "pp_test.h"
-#include "pp_fields.h"
-#include <iostream>
-using namespace std;
 
 extern pp_register_ptr magic_zeros;
 extern pp_register_ptr magic_ones;
 
-void
-magic_regs_test()
+TEST(magic_regs_test)
 {
 	if (magic_zeros->read() != 0) {
 		TEST_ERROR("magic_zeros->read()");
@@ -35,7 +28,3 @@ magic_regs_test()
 		TEST_ERROR("magic_ones->write()");
 	}
 }
-
-TEST_LIST(
-	TEST(magic_regs_test),
-);

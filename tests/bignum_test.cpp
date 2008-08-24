@@ -1,11 +1,8 @@
-#include "pp.h"
-#include "pp_test.h"
-#include "bitbuffer.h"
 #include "bignum.h"
-using namespace std;
+#include "bitbuffer.h"
+#include "pp_test.h"
 
-void
-test_ctors()
+TEST(test_ctors)
 {
 	// default
 	{
@@ -240,8 +237,7 @@ test_ctors()
 	}
 }
 
-void
-test_assignments()
+TEST(test_assignments)
 {
 	// from char
 	{
@@ -380,8 +376,7 @@ test_assignments()
 	}
 }
 
-void
-test_comparisons()
+TEST(test_comparisons)
 {
 	// Because bignum is a template, int's important to excercise all
 	// permutations of comparisons, to force instantiation.
@@ -1295,8 +1290,7 @@ test_comparisons()
 	// can't compare directly to strings
 }
 
-void
-test_bool()
+TEST(test_bool)
 {
 	// convert to bool
 	{
@@ -1325,8 +1319,7 @@ test_bool()
 	}
 }
 
-void
-test_small_arithmetic()
+TEST(test_small_arithmetic)
 {
 	{
 		bignum val(10);
@@ -1402,8 +1395,7 @@ test_small_arithmetic()
 	}
 }
 
-void
-test_large_arithmetic()
+TEST(test_large_arithmetic)
 {
 	{
 		bignum val("0x1000000000000000a");
@@ -1466,8 +1458,7 @@ test_large_arithmetic()
 //NOTE:
 //  Bitwise NOT is supported, but what does it really mean for an
 //  arbitrary-width number?
-void
-test_small_logical()
+TEST(test_small_logical)
 {
 	{
 		bignum val(0xff);
@@ -1517,8 +1508,7 @@ test_small_logical()
 	}
 }
 
-void
-test_large_logical()
+TEST(test_large_logical)
 {
 	{
 		bignum val("0xf00000000000000ff");
@@ -1577,8 +1567,7 @@ test_large_logical()
 	}
 }
 
-void
-test_small_io()
+TEST(test_small_io)
 {
 	{
 		bignum val(15);
@@ -2066,8 +2055,7 @@ test_small_io()
 	}
 }
 
-void
-test_large_io()
+TEST(test_large_io)
 {
 	{
 		string num = "12345678123456781234567812345678";
@@ -2101,8 +2089,7 @@ test_large_io()
 	}
 }
 
-void
-test_operators()
+TEST(test_operators)
 {
 	// test operators with signed char
 	{
@@ -2699,18 +2686,3 @@ test_operators()
 	}
 	#endif // 0
 }
-
-// Perform the tests
-TEST_LIST(
-	TEST(test_ctors),
-	TEST(test_assignments),
-	TEST(test_comparisons),
-	TEST(test_bool),
-	TEST(test_small_arithmetic),
-	TEST(test_large_arithmetic),
-	TEST(test_small_logical),
-	TEST(test_large_logical),
-	TEST(test_small_io),
-	TEST(test_large_io),
-	TEST(test_operators),
-);

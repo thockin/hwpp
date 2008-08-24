@@ -1,10 +1,7 @@
-#include "pp.h"
-#include "pp_test.h"
 #include "shared_object.h"
-using namespace std;
+#include "pp_test.h"
 
-void
-test_ctors()
+TEST(test_ctors)
 {
 	// test ctors
 	{
@@ -62,8 +59,7 @@ test_ctors()
 	}
 }
 
-void
-test_open_close()
+TEST(test_open_close)
 {
 	{
 		shared_object so;
@@ -82,8 +78,7 @@ test_open_close()
 	}
 }
 
-void
-test_lookup_symbol()
+TEST(test_lookup_symbol)
 {
 	// test lookup_symbol()
 	{
@@ -105,8 +100,7 @@ test_lookup_symbol()
 	}
 }
 
-void
-test_refcount()
+TEST(test_refcount)
 {
 	// test reference-counting
 	{
@@ -156,10 +150,3 @@ test_refcount()
 		}
 	}
 }
-
-TEST_LIST(
-	TEST(test_ctors),
-	TEST(test_open_close),
-	TEST(test_lookup_symbol),
-	TEST(test_refcount),
-);

@@ -1,12 +1,10 @@
 #include "pp.h"
-#include "pp_test.h"
 #include "pp_registers.h"
 #include "pp_regbits.h"
 #include "test_binding.h"
-using namespace std;
+#include "pp_test.h"
 
-void
-test_simple_regbits()
+TEST(test_simple_regbits)
 {
 	// test ctors
 	{
@@ -52,7 +50,7 @@ test_simple_regbits()
 		    new_pp_bound_register(bind, 0, BITS16);
 		pp_regbits rb(reg, 32);
 		TEST_ERROR("pp_regbits::pp_regbits()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 	}
 
 	// test write
@@ -91,8 +89,7 @@ test_simple_regbits()
 	}
 }
 
-void
-test_complex_regbits()
+TEST(test_complex_regbits)
 {
 	// test operator+
 	{
@@ -137,8 +134,7 @@ test_complex_regbits()
 	}
 }
 
-void
-test_exceptions()
+TEST(test_exceptions)
 {
 	try {
 		pp_binding_ptr bind = new_test_binding();
@@ -157,9 +153,3 @@ test_exceptions()
 	} catch (pp_regbits::range_error &e) {
 	}
 }
-
-TEST_LIST(
-	TEST(test_simple_regbits),
-	TEST(test_complex_regbits),
-	TEST(test_exceptions),
-);
