@@ -3,6 +3,7 @@
 #define PP_SHARED_OBJECT_H__
 
 #include <stdexcept>
+#include <string>
 #include <dlfcn.h>
 #include <boost/shared_ptr.hpp>
 
@@ -17,7 +18,7 @@ class shared_object
 	// something went wrong loading the object
 	struct load_error: public std::runtime_error
 	{
-		explicit load_error(const string &str)
+		explicit load_error(const std::string &str)
 		    : runtime_error(str)
 		{
 		}
@@ -25,7 +26,7 @@ class shared_object
 	// the handle was NULL
 	struct invalid_handle_error: public std::runtime_error
 	{
-		explicit invalid_handle_error(const string &str)
+		explicit invalid_handle_error(const std::string &str)
 		    : runtime_error(str)
 		{
 		}
@@ -33,7 +34,7 @@ class shared_object
 	// a requested symbol lookup failed
 	struct symbol_not_found_error: public std::runtime_error
 	{
-		explicit symbol_not_found_error(const string &str)
+		explicit symbol_not_found_error(const std::string &str)
 		    : runtime_error(str)
 		{
 		}
@@ -42,7 +43,7 @@ class shared_object
     private:
 	// member variables
 	boost::shared_ptr<void> m_handle;
-	string m_path;
+	std::string m_path;
 
     public:
 	// these are the default flags with which to open a shared_object
@@ -54,7 +55,8 @@ class shared_object
 	{
 	}
 	// ctor - open a shared object file
-	explicit shared_object(const string &path, unsigned flags=default_flags)
+	explicit
+	shared_object(const std::string &path, unsigned flags=default_flags)
 	    : m_handle(), m_path(path)
 	{
 		open(path, flags);
@@ -66,7 +68,7 @@ class shared_object
 	// Open a new shared object file.  See the man-page for dlopen() for
 	// details about flags and path handling.
 	void
-	open(const string &path, unsigned flags = default_flags)
+	open(const std::string &path, unsigned flags = default_flags)
 	{
 		void *handle = dlopen(path.c_str(), flags);
 		if (handle == NULL) {
@@ -85,7 +87,7 @@ class shared_object
 
 	// get a pointer to a public symbol in the current shared object
 	void *
-	lookup_symbol(const string &symbol) const
+	lookup_symbol(const std::string &symbol) const
 	{
 		if (handle() == NULL) {
 			throw invalid_handle_error(symbol);
@@ -110,7 +112,7 @@ class shared_object
 	}
 
 	// get the path that was used to open the shared object file
-	const string &
+	const std::string &
 	path() const
 	{
 		return m_path;
