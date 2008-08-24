@@ -102,14 +102,9 @@ msr_io::open_device(string devdir, int major, int minor)
 
 	/* fall back on a self-made device node */
 	filename = fs::file::tempname();
-	try {
-		fs::device::mkdev(filename, 0600, S_IFCHR, major, minor);
-		m_file = fs::device::open(filename, O_RDONLY);
-		return;
-	} catch (std::exception &e) {
-		/* the device seems to not exist */
-		do_io_error(string("can't open an msr device: ") + e.what());
-	}
+	fs::device::mkdev(filename, 0600, S_IFCHR, major, minor);
+	m_file = fs::device::open(filename, O_RDONLY);
+	return;
 }
 
 void

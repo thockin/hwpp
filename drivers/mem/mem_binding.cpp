@@ -94,13 +94,8 @@ mem_io::open_device(string device)
 	if (device == "")
 		device = MEM_DEVICE;
 
-	try {
-		m_file = fs::file::open(device, O_RDONLY | O_SYNC);
-		return;
-	} catch (std::exception &e) {
-		/* the device seems to not exist */
-		do_io_error("can't open device " + device);
-	}
+	m_file = fs::file::open(device, O_RDONLY | O_SYNC);
+	return;
 }
 
 fs::file_mapping_ptr

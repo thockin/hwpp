@@ -81,13 +81,8 @@ io_io::open_device(string device)
 	if (device == "")
 		device = IO_DEVICE;
 
-	try {
-		m_file = fs::file::open(device, O_RDONLY);
-		return;
-	} catch (std::exception &e) {
-		/* the device seems to not exist */
-		do_io_error("can't open device " + device);
-	}
+	m_file = fs::file::open(device, O_RDONLY);
+	return;
 }
 
 void

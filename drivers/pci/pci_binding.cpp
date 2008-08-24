@@ -139,13 +139,8 @@ pci_io::open_device(string devdir)
 	    boost::format("%s/%02x/%02x.%x")
 	    %devdir %m_address.bus %m_address.device
 	    %m_address.function);
-	try {
-		m_file = fs::file::open(filename, O_RDONLY);
-		return;
-	} catch (std::exception &e) {
-		/* nothing seems to have worked */
-		do_io_error("can't open PCI");
-	}
+	m_file = fs::file::open(filename, O_RDONLY);
+	return;
 }
 
 void
