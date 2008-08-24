@@ -534,10 +534,6 @@ k8_msr(const pp_value &cpu)
 
 	OPEN_SCOPE("power_mgmt");
 
-	// FIXME: this could benefit from a fixed-point type
-	HEX("fid_t", 8);
-	HEX("vid_t", 8);
-
 	REG64("%FIDVID_CTL", 0xc0010041);
 	FIELD("NewFID", "fid_t", BITS("%FIDVID_CTL", 5, 0));
 	if (FIELD_EQ("$core/k8_rev", "rev_e")) {
@@ -2639,6 +2635,11 @@ k8_discovered(const std::vector<pp_value> &args)
 	OPEN_SCOPE("k8[]");
 	BOOKMARK("k8");
 
+	// some k8-global types
+	// FIXME: this could benefit from a fixed-point type
+	HEX("fid_t", 8);
+	HEX("vid_t", 8);
+
 	// Figure out how many cores on on each node, and explore CPUID
 	// for each core.
 	//
@@ -2677,16 +2678,16 @@ k8_discovered(const std::vector<pp_value> &args)
 		FIELD("k8_rev", "k8_rev_t", pp_value(0));
 	}
 
-	/* function 0 */
+	// function 0
 	k8_ht_config(seg, bus, dev, func);
 
-	/* function 1 */
+	// function 1
 	k8_address_map(seg, bus, dev, func);
 
-	/* function 2 */
+	// function 2
 	k8_dram_controller(seg, bus, dev, func);
 
-	/* function 3 */
+	// function 3
 	k8_misc_control(seg, bus, dev, func);
 
 	CLOSE_SCOPE(); // k8[]
