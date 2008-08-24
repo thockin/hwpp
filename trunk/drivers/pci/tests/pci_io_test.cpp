@@ -1,11 +1,9 @@
+#include "pp.h"
 #include "pci_driver.h"
 #include "pci_binding.h"
-#include "pp.h"
 #include "pp_test.h"
-using namespace std;
 
-void
-test_pci_io()
+TEST(test_pci_io)
 {
 	system("mkdir -p test_data/0000:01:02.3");
 	system("echo -n \"01234567\" > test_data/0000:01:02.3/config");
@@ -61,12 +59,12 @@ test_pci_io()
 		try {
 			io1.read(4095, BITS16);
 			TEST_ERROR("pci_io::read(BITS16)");
-		} catch (exception &e) {
+		} catch (std::exception &e) {
 		}
 		try {
 			io1.read(4096, BITS8);
 			TEST_ERROR("pci_io::read(BITS8)");
-		} catch (exception &e) {
+		} catch (std::exception &e) {
 		}
 
 		/* test the write() method */
@@ -79,16 +77,12 @@ test_pci_io()
 		try {
 			pci_io io4(pci_address(1, 0, 0, 0), "test_data");
 			TEST_ERROR("pci_io::pci_io()");
-		} catch (exception &e) {
+		} catch (std::exception &e) {
 		}
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		system("rm -rf test_data");
 		throw;
 	}
 
 	system("rm -rf test_data");
 }
-
-TEST_LIST(
-	TEST(test_pci_io),
-);

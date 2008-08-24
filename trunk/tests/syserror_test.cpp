@@ -1,8 +1,7 @@
 #include "syserror.h"
 #include "pp_test.h"
 
-void
-test_syserror()
+TEST(test_syserror)
 {
 	try {
 		syserr::throw_errno_error(EACCES);
@@ -275,8 +274,3 @@ test_syserror()
 		TEST_ERROR("syserr::errno_error(-1)");
 	}
 }
-
-// Perform the tests
-TEST_LIST(
-	TEST(test_syserror),
-);

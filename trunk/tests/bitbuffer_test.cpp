@@ -1,11 +1,7 @@
-#include "pp.h"
-#include "pp_test.h"
 #include "bitbuffer.h"
-using namespace std;
+#include "pp_test.h"
 
-
-void
-test_ctors()
+TEST(test_ctors)
 {
 	{
 		bitbuffer bb;
@@ -44,8 +40,7 @@ test_ctors()
 	}
 }
 
-void
-test_reset()
+TEST(test_reset)
 {
 	{
 		bitbuffer bb(1);
@@ -73,8 +68,7 @@ test_reset()
 	}
 }
 
-void
-test_get()
+TEST(test_get)
 {
 	// test get()
 	{
@@ -87,8 +81,7 @@ test_get()
 	}
 }
 
-void
-test_fills()
+TEST(test_fills)
 {
 	{
 		bitbuffer bb(8, 0x5a);
@@ -109,8 +102,7 @@ test_fills()
 	}
 }
 
-void
-test_byte_at()
+TEST(test_byte_at)
 {
 	{
 		bitbuffer bb(2);
@@ -126,8 +118,7 @@ test_byte_at()
 	}
 }
 
-void
-test_io()
+TEST(test_io)
 {
 	{
 		bitbuffer bb(0);
@@ -153,12 +144,3 @@ test_io()
 			"bitbuffer::operator<<(ostream, bitbuffer)");
 	}
 }
-
-TEST_LIST(
-	TEST(test_ctors),
-	TEST(test_fills),
-	TEST(test_reset),
-	TEST(test_byte_at),
-	TEST(test_io),
-	TEST(test_get),
-);

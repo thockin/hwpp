@@ -1,17 +1,15 @@
-#include "pp_fields.h"
 #include "pp.h"
-#include "pp_test.h"
+#include "pp_fields.h"
 #include "pp_datatypes.h"
 #include "pp_registers.h"
 #include "pp_regbits.h"
 #include "test_binding.h"
-using namespace std;
+#include "pp_test.h"
 
 //FIXME: test lookup()
 //FIXME: test compare()
 
-void
-test_int_field()
+TEST(test_int_field)
 {
 	/* two bindings with one reg each */
 	pp_binding_ptr bind1 = new_test_binding();
@@ -46,8 +44,7 @@ test_int_field()
 	}
 }
 
-void
-test_hex_field()
+TEST(test_hex_field)
 {
 	/* two bindings with one reg each */
 	pp_binding_ptr bind1 = new_test_binding();
@@ -83,8 +80,7 @@ test_hex_field()
 	}
 }
 
-void
-test_enum_field()
+TEST(test_enum_field)
 {
 	/* two bindings with one reg each */
 	pp_binding_ptr bind1 = new_test_binding();
@@ -125,8 +121,7 @@ test_enum_field()
 	}
 }
 
-void
-test_bitmask_field()
+TEST(test_bitmask_field)
 {
 	/* two bindings with one reg each */
 	pp_binding_ptr bind1 = new_test_binding();
@@ -187,8 +182,7 @@ class test_procs: public pp_rwprocs
 	}
 };
 
-void
-test_proc_field()
+TEST(test_proc_field)
 {
 	pp_datatype_ptr hex = new_pp_hex_datatype();
 	pp_rwprocs_ptr procs(new test_procs);
@@ -202,8 +196,7 @@ test_proc_field()
 	}
 }
 
-void
-test_constant_field()
+TEST(test_constant_field)
 {
 	pp_datatype_ptr hex = new_pp_hex_datatype();
 	pp_constant_field f(hex, 0x12345678);
@@ -218,12 +211,3 @@ test_constant_field()
 		TEST_ERROR("pp_constant_field::write()");
 	}
 }
-
-TEST_LIST(
-	TEST(test_int_field),
-	TEST(test_hex_field),
-	TEST(test_enum_field),
-	TEST(test_bitmask_field),
-	TEST(test_proc_field),
-	TEST(test_constant_field),
-);

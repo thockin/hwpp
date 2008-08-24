@@ -1,16 +1,9 @@
-/*
- * Author: lesleyn@google.com (Lesley Northam)
- */
-
 #include "pp.h"
-#include "pp_test.h"
 #include "pp_path.h"
 #include <iostream>
+#include "pp_test.h"
 
-using namespace std;
-
-void
-test_element()
+TEST(test_element)
 {
 	{
 		pp_path::element e("foo");
@@ -212,8 +205,7 @@ test_element()
 	}
 }
 
-void
-test_ctors()
+TEST(test_ctors)
 {
 	// test the default ctor
 	{
@@ -518,8 +510,7 @@ test_ctors()
 	}
 }
 
-void
-test_comparisons()
+TEST(test_comparisons)
 {
 	{
 		pp_path left("a/b/c");
@@ -555,8 +546,7 @@ test_comparisons()
 	}
 }
 
-void
-test_iters()
+TEST(test_iters)
 {
 	pp_path path("a/b/c");
 
@@ -605,8 +595,7 @@ test_iters()
 	TEST_ASSERT(*rit == "c", "pp_path::iterator::operator--()");
 }
 
-void
-test_contents()
+TEST(test_contents)
 {
 	pp_path path;
 
@@ -703,8 +692,7 @@ test_contents()
 	    "pp_path::operator+(pp_path, string)");
 }
 
-void
-test_const()
+TEST(test_const)
 {
 	pp_path path("a/b/c");
 	const pp_path &const_path = path;
@@ -720,12 +708,3 @@ test_const()
 	cit++;
 	TEST_ASSERT(*it == *cit, "pp_path::iterator::operator++()");
 }
-
-TEST_LIST(
-	TEST(test_element),
-	TEST(test_ctors),
-	TEST(test_comparisons),
-	TEST(test_iters),
-	TEST(test_contents),
-	TEST(test_const),
-);

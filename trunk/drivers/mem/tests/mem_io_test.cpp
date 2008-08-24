@@ -1,11 +1,9 @@
+#include "pp.h"
 #include "mem_driver.h"
 #include "mem_binding.h"
-#include "pp.h"
 #include "pp_test.h"
-using namespace std;
 
-void
-test_mem_io()
+TEST(test_mem_io)
 {
 	system("mkdir -p test_data");
 	system("echo -n \"01234567890123456789\" > test_data/dev_mem");
@@ -33,18 +31,18 @@ test_mem_io()
 		/* test read() around the bounds */
 		try {
 			io1.read(19, BITS8);
-		} catch (exception &e) {
+		} catch (std::exception &e) {
 			TEST_ERROR("io_io::read(BITS8)");
 		}
 		try {
 			io1.read(19, BITS16);
 			TEST_ERROR("io_io::read(BITS16)");
-		} catch (exception &e) {
+		} catch (std::exception &e) {
 		}
 		try {
 			io1.read(20, BITS8);
 			TEST_ERROR("io_io::read(BITS8)");
-		} catch (exception &e) {
+		} catch (std::exception &e) {
 		}
 
 		/* test the write() method */
@@ -57,16 +55,12 @@ test_mem_io()
 		try {
 			mem_io io2(mem_address(0, 20), "test_data/bad_mem");
 			TEST_ERROR("mem_io::mem_io()");
-		} catch (exception &e) {
+		} catch (std::exception &e) {
 		}
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		system("rm -rf test_data");
 		throw;
 	}
 
 	system("rm -rf test_data");
 }
-
-TEST_LIST(
-	TEST(test_mem_io),
-);

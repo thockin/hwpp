@@ -1,11 +1,9 @@
+#include "pp.h"
 #include "cpuid_driver.h"
 #include "cpuid_binding.h"
-#include "pp.h"
 #include "pp_test.h"
-using namespace std;
 
-void
-test_cpuid_io()
+TEST(test_cpuid_io)
 {
 	/* test ctor and address() */
 	cpuid_io io1(cpuid_address(0));
@@ -29,37 +27,37 @@ test_cpuid_io()
 	try {
 		io1.read(0, BITS8);
 		TEST_ERROR("cpuid_io::read()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 	}
 	try {
 		io1.read(0, BITS16);
 		TEST_ERROR("cpuid_io::read()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 	}
 	try {
 		io1.read(0, BITS32);
 		TEST_ERROR("cpuid_io::read()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 	}
 	try {
 		io1.read(0, BITS64);
 		TEST_ERROR("cpuid_io::read()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 	}
 	/* test read() around the bounds */
 	try {
 		io1.read(0, BITS128);
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("cpuid_io::read()");
 	}
 	try {
 		io1.read(1, BITS128);
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("cpuid_io::read()");
 	}
 	try {
 		io1.read(PP_MASK(64), BITS128);
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("cpuid_io::read()");
 	}
 
@@ -67,7 +65,7 @@ test_cpuid_io()
 	try {
 		io1.read(PP_MASK(64) + 1, BITS128);
 		TEST_ERROR("cpuid_io::read()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 	}
 
 	/* test the write() method, which should be a no-op */
@@ -78,6 +76,4 @@ test_cpuid_io()
 	}
 }
 
-TEST_LIST(
-	TEST(test_cpuid_io),
-);
+//FIXME: test enumerate()

@@ -1,12 +1,10 @@
-#include "pp_array.h"
 #include "pp.h"
-#include "pp_test.h"
-#include "test_helpers.h"
+#include "pp_array.h"
 #include "pp_dirent.h"
-using namespace std;
+#include "test_helpers.h"
+#include "pp_test.h"
 
-void
-test_ctors()
+TEST(test_ctors)
 {
 	// test the basic constructor
 	{
@@ -35,8 +33,7 @@ test_ctors()
 	}
 }
 
-void
-test_indexing()
+TEST(test_indexing)
 {
 	pp_array_ptr array = new_pp_array(PP_DIRENT_SCOPE);
 	if (array->size() != 0) {
@@ -57,11 +54,6 @@ test_indexing()
 		pp_array_ptr array2 = new_pp_array(PP_DIRENT_FIELD);
 		array2->append(new_pp_scope());
 		TEST_ERROR("pp_array::append()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 	}
 }
-
-TEST_LIST(
-	TEST(test_ctors),
-	TEST(test_indexing),
-);

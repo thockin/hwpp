@@ -1,12 +1,8 @@
 #include "pp.h"
-#include "pp_test.h"
-#include "bitbuffer.h"
 #include "simple_regex.h"
-using namespace std;
+#include "pp_test.h"
 
-
-void
-test_regex()
+TEST(test_regex)
 {
 	// simple
 	{
@@ -112,8 +108,3 @@ test_regex()
 		TEST_ASSERT(!re.matches("FOO"), "regex::regex()");
 	}
 }
-
-// Perform the tests
-TEST_LIST(
-	TEST(test_regex),
-);

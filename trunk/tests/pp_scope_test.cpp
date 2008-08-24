@@ -1,16 +1,14 @@
-#include "pp_scope.h"
 #include "pp.h"
-#include "pp_test.h"
+#include "pp_scope.h"
 #include "test_binding.h"
 #include "test_helpers.h"
 #include "pp_datatypes.h"
 #include "pp_registers.h"
 #include "pp_fields.h"
 #include "keyed_vector.h"
-using namespace std;
+#include "pp_test.h"
 
-void
-test_ctors()
+TEST(test_ctors)
 {
 	// test the basic constructor
 	pp_scope_ptr scope = new_pp_scope();
@@ -46,8 +44,7 @@ test_ctors()
 	}
 }
 
-void
-test_parentage()
+TEST(test_parentage)
 {
 	pp_scope_ptr scope = new_pp_scope();
 	if (!scope->is_root()) {
@@ -69,8 +66,7 @@ test_parentage()
 	}
 }
 
-void
-test_datatypes()
+TEST(test_datatypes)
 {
 	pp_scope_ptr scope = new_pp_scope();
 
@@ -120,8 +116,7 @@ test_datatypes()
 	}
 }
 
-void
-test_exceptions()
+TEST(test_exceptions)
 {
 	pp_scope_ptr scope = new_pp_scope();
 
@@ -196,8 +191,7 @@ test_exceptions()
 	}
 }
 
-void
-test_dirents()
+TEST(test_dirents)
 {
 	// create a root scope
 	pp_scope_ptr root = new_pp_scope();
@@ -517,11 +511,3 @@ test_dirents()
 		TEST_ASSERT(!found, "pp_scope::dirent_defined()");
 	}
 }
-
-TEST_LIST(
-	TEST(test_ctors),
-	TEST(test_parentage),
-	TEST(test_datatypes),
-	TEST(test_exceptions),
-	TEST(test_dirents),
-);

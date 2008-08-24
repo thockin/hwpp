@@ -3,11 +3,10 @@
  */
 
 #include "pp.h"
-#include "pp_test.h"
-#include "test_binding.h"
 #include "fake_language.h"
 #include "device_init.h"
-using namespace std;
+#include "test_binding.h"
+#include "pp_test.h"
 
 // used later, must be out-of-line
 class test_procs: public pp_rwprocs
@@ -24,12 +23,14 @@ class test_procs: public pp_rwprocs
 	}
 };
 
-void
-test_parse_errors()
+TEST_SETUP()
 {
 	// basic setup
 	global_datatypes_init();
+}
 
+TEST(test_parse_errors)
+{
 	//
 	// set up a bound scope for testing
 	//
@@ -44,7 +45,7 @@ test_parse_errors()
 		TEST_ERROR("GET_DIRENT()");
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("GET_DIRENT()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		// expected
 	}
 	// should throw a parse_error
@@ -53,7 +54,7 @@ test_parse_errors()
 		TEST_ERROR("GET_DIRENT()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("GET_DIRENT()");
 	}
 
@@ -66,7 +67,7 @@ test_parse_errors()
 		TEST_ERROR("GET_FIELD()");
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("GET_FIELD()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		// expected
 	}
 	// should throw a parse_error
@@ -75,7 +76,7 @@ test_parse_errors()
 		TEST_ERROR("GET_FIELD()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("GET_FIELD()");
 	}
 
@@ -88,7 +89,7 @@ test_parse_errors()
 		TEST_ERROR("GET_REGISTER()");
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("GET_REGISTER()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		// expected
 	}
 	// should throw a parse_error
@@ -97,7 +98,7 @@ test_parse_errors()
 		TEST_ERROR("GET_REGISTER()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("GET_REGISTER()");
 	}
 
@@ -110,7 +111,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("DEFINED()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("DEFINED()");
 	}
 	// should throw a parse_error
@@ -119,7 +120,7 @@ test_parse_errors()
 		TEST_ERROR("DEFINED()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("DEFINED()");
 	}
 
@@ -132,7 +133,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("READ()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("READ()");
 	}
 	// should throw, but not a parse_error
@@ -141,7 +142,7 @@ test_parse_errors()
 		TEST_ERROR("READ()");
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("READ()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		// expected
 	}
 	try {
@@ -149,7 +150,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("READ()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("READ()");
 	}
 	// should throw a parse_error
@@ -158,7 +159,7 @@ test_parse_errors()
 		TEST_ERROR("READ()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("READ()");
 	}
 
@@ -171,7 +172,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("WRITE()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("WRITE()");
 	}
 	// should throw, but not a parse_error
@@ -180,7 +181,7 @@ test_parse_errors()
 		TEST_ERROR("WRITE()");
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("WRITE()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		// expected
 	}
 	try {
@@ -188,7 +189,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("READ()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("READ()");
 	}
 	// should throw a parse_error
@@ -197,7 +198,7 @@ test_parse_errors()
 		TEST_ERROR("WRITE()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("WRITE()");
 	}
 
@@ -211,7 +212,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("OPEN_SCOPE()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("OPEN_SCOPE()");
 	}
 	// should throw a parse_error
@@ -220,7 +221,7 @@ test_parse_errors()
 		TEST_ERROR("OPEN_SCOPE()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("OPEN_SCOPE()");
 	}
 	// should not throw
@@ -230,7 +231,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("OPEN_SCOPE()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("OPEN_SCOPE()");
 	}
 	// should throw a parse_error
@@ -240,7 +241,7 @@ test_parse_errors()
 		TEST_ERROR("OPEN_SCOPE()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("OPEN_SCOPE()");
 	}
 
@@ -253,7 +254,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("REG8()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG8()");
 	}
 	// should not throw
@@ -262,7 +263,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("REG8()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG8()");
 	}
 	// should not throw
@@ -271,7 +272,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("REG8()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG8()");
 	}
 	// should not throw
@@ -280,7 +281,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("REG8()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG8()");
 	}
 	// should throw a parse_error
@@ -289,7 +290,7 @@ test_parse_errors()
 		TEST_ERROR("REG8()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG8()");
 	}
 	// should not throw
@@ -298,7 +299,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("REG16()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG16()");
 	}
 	// should throw a parse_error
@@ -307,7 +308,7 @@ test_parse_errors()
 		TEST_ERROR("REG16()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG16()");
 	}
 	// should not throw
@@ -316,7 +317,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("REG32()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG32()");
 	}
 	// should throw a parse_error
@@ -325,7 +326,7 @@ test_parse_errors()
 		TEST_ERROR("REG32()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG32()");
 	}
 	// should not throw
@@ -334,7 +335,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("REG64()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG64()");
 	}
 	// should throw a parse_error
@@ -343,7 +344,7 @@ test_parse_errors()
 		TEST_ERROR("REG64()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG64()");
 	}
 	// should not throw
@@ -352,7 +353,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("REG128()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG128()");
 	}
 	// should throw a parse_error
@@ -361,7 +362,7 @@ test_parse_errors()
 		TEST_ERROR("REG128()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG128()");
 	}
 	// should not throw
@@ -370,7 +371,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("REG8()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG8()");
 	}
 	// should not throw
@@ -379,7 +380,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("REG8()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG8()");
 	}
 	// should throw a parse_error
@@ -388,7 +389,7 @@ test_parse_errors()
 		TEST_ERROR("REG8()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG8()");
 	}
 	// should not throw
@@ -397,7 +398,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("REG16()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG16()");
 	}
 	// should throw a parse_error
@@ -406,7 +407,7 @@ test_parse_errors()
 		TEST_ERROR("REG16()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG16()");
 	}
 	// should not throw
@@ -415,7 +416,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("REG32()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG32()");
 	}
 	// should throw a parse_error
@@ -424,7 +425,7 @@ test_parse_errors()
 		TEST_ERROR("REG32()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG32()");
 	}
 	// should not throw
@@ -433,7 +434,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("REG64()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG64()");
 	}
 	// should throw a parse_error
@@ -442,7 +443,7 @@ test_parse_errors()
 		TEST_ERROR("REG64()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG64()");
 	}
 	// should not throw
@@ -451,7 +452,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("REG128()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG128()");
 	}
 	// should throw a parse_error
@@ -460,7 +461,7 @@ test_parse_errors()
 		TEST_ERROR("REG128()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("REG128()");
 	}
 
@@ -473,7 +474,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("BITS()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("BITS()");
 	}
 	// should not throw
@@ -482,7 +483,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("BITS()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("BITS()");
 	}
 	// should not throw
@@ -491,7 +492,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("BITS()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("BITS()");
 	}
 	// should not throw
@@ -500,7 +501,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("BITS()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("BITS()");
 	}
 	// should not throw
@@ -509,7 +510,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("BITS()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("BITS()");
 	}
 	// should not throw
@@ -518,7 +519,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("BITS()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("BITS()");
 	}
 	// should throw a parse_error
@@ -527,7 +528,7 @@ test_parse_errors()
 		TEST_ERROR("BITS()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("BITS()");
 	}
 	// should throw, but not a parse error
@@ -536,7 +537,7 @@ test_parse_errors()
 		TEST_ERROR("BITS()");
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("BITS()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		// expected
 	}
 	// should throw, but not a parse error
@@ -545,7 +546,7 @@ test_parse_errors()
 		TEST_ERROR("BITS()");
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("BITS()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		// expected
 	}
 	// should throw, but not a parse error
@@ -554,7 +555,7 @@ test_parse_errors()
 		TEST_ERROR("BITS()");
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("BITS()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		// expected
 	}
 	// should throw, but not a parse error
@@ -563,7 +564,7 @@ test_parse_errors()
 		TEST_ERROR("BITS()");
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("BITS()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		// expected
 	}
 
@@ -576,7 +577,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("FIELD()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("FIELD()");
 	}
 	// should throw a parse_error
@@ -585,7 +586,7 @@ test_parse_errors()
 		TEST_ERROR("FIELD()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("FIELD()");
 	}
 	// should not throw
@@ -594,7 +595,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("FIELD()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("FIELD()");
 	}
 	// should throw a parse_error
@@ -603,7 +604,7 @@ test_parse_errors()
 		TEST_ERROR("FIELD()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("FIELD()");
 	}
 	// should not throw
@@ -612,7 +613,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("FIELD()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("FIELD()");
 	}
 	// should throw a parse_error
@@ -621,7 +622,7 @@ test_parse_errors()
 		TEST_ERROR("FIELD()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("FIELD()");
 	}
 
@@ -634,7 +635,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("INT()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("INT()");
 	}
 	// should throw a parse_error
@@ -643,7 +644,7 @@ test_parse_errors()
 		TEST_ERROR("INT()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("INT()");
 	}
 	// should not throw
@@ -652,7 +653,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("ANON_INT()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("ANON_INT()");
 	}
 
@@ -665,7 +666,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("HEX()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("HEX()");
 	}
 	// should throw a parse_error
@@ -674,7 +675,7 @@ test_parse_errors()
 		TEST_ERROR("HEX()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("HEX()");
 	}
 	// should not throw
@@ -683,7 +684,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("ANON_HEX()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("ANON_HEX()");
 	}
 
@@ -696,7 +697,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("BITMASK()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("BITMASK()");
 	}
 	// should not throw
@@ -705,7 +706,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("BITMASK()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("BITMASK()");
 	}
 	// should throw a parse_error
@@ -714,7 +715,7 @@ test_parse_errors()
 		TEST_ERROR("BITMASK()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("BITMASK()");
 	}
 	// should not throw
@@ -723,7 +724,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("BITMASK()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("BITMASK()");
 	}
 	// should not throw
@@ -732,7 +733,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("ANON_BITMASK()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("ANON_BITMASK()");
 	}
 
@@ -743,7 +744,7 @@ test_parse_errors()
 	try {
 		MULTI("mp1", RANGE(ANON_INT(), 0, 10));
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("MULTI()");
 	} 
 	// should not throw
@@ -751,7 +752,7 @@ test_parse_errors()
 		MULTI("mp2", RANGE(ANON_INT(), 0, 10),
 				 RANGE("hex32_t", 11, 15));
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("MULTI()");
 	}
 	// should not throw
@@ -759,7 +760,7 @@ test_parse_errors()
 		ANON_MULTI(RANGE(ANON_INT(), 0, 10),
 			       RANGE("hex32_t", 11, 15));
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("MULTI()");
 	}
 	// should throw a parse_error due to invalid typename
@@ -769,7 +770,7 @@ test_parse_errors()
 		TEST_ERROR("MULTI()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("MULTI()");
 	} 
 	// should throw an invalid_error due to overlapping ranges
@@ -780,7 +781,7 @@ test_parse_errors()
 		TEST_ERROR("MULTI()");
 	} catch (pp_datatype::invalid_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("MULTI()");
 	}
 
@@ -793,7 +794,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("ENUM()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("ENUM()");
 	}
 	// should not throw
@@ -802,7 +803,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("ENUM()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("ENUM()");
 	}
 	// should throw a parse_error
@@ -811,7 +812,7 @@ test_parse_errors()
 		TEST_ERROR("ENUM()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("ENUM()");
 	}
 	// should not throw
@@ -820,7 +821,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("ENUM()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("ENUM()");
 	}
 	// should not throw
@@ -829,7 +830,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("ANON_ENUM()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("ANON_ENUM()");
 	}
 
@@ -842,7 +843,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("BOOL()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("BOOL()");
 	}
 	// should throw a parse_error
@@ -851,7 +852,7 @@ test_parse_errors()
 		TEST_ERROR("BOOL()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("BOOL()");
 	}
 	// should not throw
@@ -860,7 +861,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("BOOL()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("BOOL()");
 	}
 	// should not throw
@@ -869,7 +870,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("ANON_BOOL()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("ANON_BOOL()");
 	}
 
@@ -882,7 +883,7 @@ test_parse_errors()
 		// expected
 	} catch (pp_parse_error &e) {
 		TEST_ERROR("BOOKMARK()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("BOOKMARK()");
 	}
 	// should throw a parse_error
@@ -891,11 +892,7 @@ test_parse_errors()
 		TEST_ERROR("BOOKMARK()");
 	} catch (pp_parse_error &e) {
 		// expected
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("BOOKMARK()");
 	}
 }
-
-TEST_LIST(
-	TEST(test_parse_errors),
-);

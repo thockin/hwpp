@@ -1,11 +1,9 @@
-#include "pp_datatypes.h"
 #include "pp.h"
-#include "pp_test.h"
+#include "pp_datatypes.h"
 #include "pp_lambda.h"
-using namespace std;
+#include "pp_test.h"
 
-void
-test_pp_enum_datatype()
+TEST(test_pp_enum_datatype)
 {
 	// test the basic constructor
 	pp_enum_datatype e;
@@ -40,8 +38,7 @@ test_pp_enum_datatype()
 	}
 }
 
-void
-test_pp_multi_datatype()
+TEST(test_pp_multi_datatype)
 {
 	// test basic constructor
 	{
@@ -55,7 +52,7 @@ test_pp_multi_datatype()
 		m.add_range(new_pp_hex_datatype(), 20, 30);
 		m.add_range(new_pp_int_datatype(), 15, 16);
 		m.add_range(new_pp_int_datatype(), 0, 10);
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("pp_multi_datatype::add_range()");
 	}
 	try {
@@ -64,7 +61,7 @@ test_pp_multi_datatype()
 		m.add_range(new_pp_int_datatype(), 0, 10);
 		m.add_range(new_pp_hex_datatype(), 20, 30);
 		m.add_range(new_pp_int_datatype(), 15, 16);
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("pp_multi_datatype::add_range()");
 	}
 	try {
@@ -73,7 +70,7 @@ test_pp_multi_datatype()
 		m.add_range(new_pp_int_datatype(), 0, 10);
 		m.add_range(new_pp_hex_datatype(), 11, 12);
 		m.add_range(new_pp_string_datatype(), 13, 20);
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		TEST_ERROR("pp_multi_datatype::add_range()");
 	}
 	try {
@@ -83,7 +80,7 @@ test_pp_multi_datatype()
 		m.add_range(new_pp_hex_datatype(), 11, 12);
 		m.add_range(new_pp_int_datatype(), 0, 3);
 		TEST_ERROR("pp_multi_datatype::add_range()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 	}
 	try {
 		// overlap in the middle
@@ -92,7 +89,7 @@ test_pp_multi_datatype()
 		m.add_range(new_pp_hex_datatype(), 11, 13);
 		m.add_range(new_pp_int_datatype(), 8, 9);
 		TEST_ERROR("pp_multi_datatype::add_range()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 	}
 	try {
 		// overlap in the middle across two ranges
@@ -101,7 +98,7 @@ test_pp_multi_datatype()
 		m.add_range(new_pp_hex_datatype(), 11, 13);
 		m.add_range(new_pp_int_datatype(), 9, 12);
 		TEST_ERROR("pp_multi_datatype::add_range()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 	}
 	try {
 		// overlap in the middle on a min
@@ -110,7 +107,7 @@ test_pp_multi_datatype()
 		m.add_range(new_pp_hex_datatype(), 11, 13);
 		m.add_range(new_pp_int_datatype(), 11, 11);
 		TEST_ERROR("pp_multi_datatype::add_range()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 	}
 	try {
 		// overlap in the middle on a max
@@ -119,7 +116,7 @@ test_pp_multi_datatype()
 		m.add_range(new_pp_hex_datatype(), 11, 13);
 		m.add_range(new_pp_int_datatype(), 10, 10);
 		TEST_ERROR("pp_multi_datatype::add_range()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 	}
 	try {
 		// overlap at the end
@@ -128,7 +125,7 @@ test_pp_multi_datatype()
 		m.add_range(new_pp_hex_datatype(), 11, 13);
 		m.add_range(new_pp_int_datatype(), 12, 15);
 		TEST_ERROR("pp_multi_datatype::add_range()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 	}
 	try {
 		// overlap touching the end
@@ -137,7 +134,7 @@ test_pp_multi_datatype()
 		m.add_range(new_pp_hex_datatype(), 11, 13);
 		m.add_range(new_pp_int_datatype(), 13, 15);
 		TEST_ERROR("pp_multi_datatype::add_range()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 	}
 	try {
 		// min > max
@@ -146,7 +143,7 @@ test_pp_multi_datatype()
 		m.add_range(new_pp_hex_datatype(), 11, 13);
 		m.add_range(new_pp_int_datatype(), 25, 20);
 		TEST_ERROR("pp_multi_datatype::add_range()");
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 	}
 
 	{
@@ -198,50 +195,50 @@ test_pp_multi_datatype()
 		try {
 			TEST_ASSERT(m.lookup(pp_value(0)) == pp_value(0),
 				"pp_multi_datatype::lookup()");
-		} catch (exception &e) {
+		} catch (std::exception &e) {
 			TEST_ERROR("pp_multi_datatype::lookup()");
 		}
 		try {
 			TEST_ASSERT(m.lookup(pp_value(7)) == pp_value(7),
 				"pp_multi_datatype::lookup()");
-		} catch (exception &e) {
+		} catch (std::exception &e) {
 			TEST_ERROR("pp_multi_datatype::lookup()");
 		}
 		try {
 			TEST_ASSERT(m.lookup(pp_value(20)) == pp_value(20),
 				"pp_multi_datatype::lookup()");
-		} catch (exception &e) {
+		} catch (std::exception &e) {
 			TEST_ERROR("pp_multi_datatype::lookup()");
 		}
 		try {
 			// out of range
 			m.lookup(pp_value(13));
 			TEST_ERROR("pp_multi_datatype::lookup()");
-		} catch (exception &e) {
+		} catch (std::exception &e) {
 		}
 		// ...lookup(string)
 		try {
 			TEST_ASSERT(m.lookup("true") == pp_value(1),
 				"pp_multi_datatype::lookup()");
-		} catch (exception &e) {
+		} catch (std::exception &e) {
 			TEST_ERROR("pp_multi_datatype::lookup()");
 		}
 		try {
 			TEST_ASSERT(m.lookup("true") == pp_value(1),
 				"pp_multi_datatype::lookup()");
-		} catch (exception &e) {
+		} catch (std::exception &e) {
 			TEST_ERROR("pp_multi_datatype::lookup()");
 		}
 		try {
 			TEST_ASSERT(m.lookup("0x0000000f") == pp_value(15),
 				"pp_multi_datatype::lookup()");
-		} catch (exception &e) {
+		} catch (std::exception &e) {
 			TEST_ERROR("pp_multi_datatype::lookup()");
 		}
 		try {
 			TEST_ASSERT(m.lookup("test_key") == pp_value(27),
 				"pp_multi_datatype::lookup()");
-		} catch (exception &e) {
+		} catch (std::exception &e) {
 			TEST_ERROR("pp_multi_datatype::lookup()");
 		}
 		// FIXME: This test fails because of the ambiguity in the
@@ -253,15 +250,14 @@ test_pp_multi_datatype()
 		try {
 			TEST_ASSERT(m.lookup("11") == pp_value(26),
 				"pp_multi_datatype::lookup()");
-		} catch (exception &e) {
+		} catch (std::exception &e) {
 			TEST_ERROR("pp_multi_datatype::lookup()");
 		}
 #endif
 	}
 }
 
-void
-test_pp_string_datatype()
+TEST(test_pp_string_datatype)
 {
 	// test the basic constructor
 	pp_string_datatype s;
@@ -321,8 +317,7 @@ test_pp_string_datatype()
 			"pp_string_datatype::evaluate(pp_value)");
 }
 
-void
-test_pp_bool_datatype()
+TEST(test_pp_bool_datatype)
 {
 	// test the basic constructor
 	pp_bool_datatype b("TRUE", "FALSE");
@@ -356,8 +351,7 @@ test_pp_bool_datatype()
 	}
 }
 
-void
-test_pp_bitmask_datatype()
+TEST(test_pp_bitmask_datatype)
 {
 	// test the basic constructor
 	pp_bitmask_datatype b;
@@ -400,8 +394,7 @@ test_pp_bitmask_datatype()
 	}
 }
 
-void
-test_pp_int_datatype()
+TEST(test_pp_int_datatype)
 {
 	// test the basic constructor
 	pp_int_datatype i1;
@@ -458,8 +451,7 @@ test_pp_int_datatype()
 	}
 }
 
-void
-test_pp_hex_datatype()
+TEST(test_pp_hex_datatype)
 {
 	// test the basic constructor
 	pp_hex_datatype h1;
@@ -552,8 +544,7 @@ test_pp_hex_datatype()
 	}
 }
 
-void
-test_pp_transform_datatype()
+TEST(test_pp_transform_datatype)
 {
 	// test the basic constructor
 	pp_transform_datatype_ptr t1 = new_pp_transform_datatype(
@@ -582,14 +573,3 @@ test_pp_transform_datatype()
 	} catch (pp_datatype::invalid_error &e) {
 	}
 }
-
-TEST_LIST(
-	TEST(test_pp_enum_datatype),
-	TEST(test_pp_multi_datatype),
-	TEST(test_pp_string_datatype),
-	TEST(test_pp_bool_datatype),
-	TEST(test_pp_bitmask_datatype),
-	TEST(test_pp_int_datatype),
-	TEST(test_pp_hex_datatype),
-	TEST(test_pp_transform_datatype),
-);

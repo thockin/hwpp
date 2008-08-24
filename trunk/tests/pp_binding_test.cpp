@@ -1,11 +1,9 @@
+#include "pp.h"
 #include "pp_binding.h"
 #include "test_binding.h"
-#include "pp.h"
 #include "pp_test.h"
-using namespace std;
 
-void
-test_pp_binding()
+TEST(test_pp_binding)
 {
 	/* test the read() method */
 	pp_binding_ptr sp = new_test_binding();
@@ -19,7 +17,3 @@ test_pp_binding()
 		TEST_ERROR("pp_binding::write()");
 	}
 }
-
-TEST_LIST(
-	TEST(test_pp_binding),
-);
