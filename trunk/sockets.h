@@ -43,7 +43,7 @@ class socket {
 		}
 	}
 
-	~socket()
+	virtual ~socket()
 	{
 		close();
 	}
