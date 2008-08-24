@@ -28,7 +28,7 @@ void
 test_parse_errors()
 {
 	// basic setup
-	platform_global_init();
+	global_datatypes_init();
 
 	//
 	// set up a bound scope for testing

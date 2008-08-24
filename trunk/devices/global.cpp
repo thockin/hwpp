@@ -11,7 +11,7 @@ int force_devices_linkage;
 
 /* call this when you init a new platform */
 void
-platform_global_init()
+global_datatypes_init()
 {
 	/* primitives */
 	INT("int_t");
