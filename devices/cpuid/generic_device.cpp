@@ -459,7 +459,7 @@ cpuid_generic_device()
 		REG128("%function_80000002", 0x80000002);
 		REG128("%function_80000003", 0x80000003);
 		REG128("%function_80000004", 0x80000004);
-		FIELD("processor_name_str", ANON_STRING(),
+		FIELD("processor_name_str", "string_t",
 				BITS("%function_80000004", 127, 0) +
 				BITS("%function_80000003", 127, 0) +
 				BITS("%function_80000002", 127, 0));
