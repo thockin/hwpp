@@ -136,9 +136,11 @@ TEST(test_send_recv)
 		unix_socket::socket c(UNIX_SOCKET_PATH);
 		unix_socket::socket s = svr.accept();
 		c.send("This is a test message\n");
-		if (s.recv_line() != "This is a test message") {
-			TEST_ERROR("unix_socket::send() and "
-				   "unix_socket::recv_line()");
+		string str = s.recv_line();
+		if (str != "This is a test message") {
+			TEST_ERROR() << "unix_socket::send() and "
+				<< "unix_socket::recv_line(): received \""
+				<< str << "\"";
 		}
 	}
 	{
@@ -146,9 +148,11 @@ TEST(test_send_recv)
 		unix_socket::socket c(UNIX_SOCKET_PATH);
 		unix_socket::socket s = svr.accept();
 		s.send("This is a test message\n");
-		if (c.recv_line() != "This is a test message") {
-			TEST_ERROR("unix_socket::send() and "
-				   "unix_socket::recv_line()");
+		string str = c.recv_line();
+		if (str != "This is a test message") {
+			TEST_ERROR() << "unix_socket::send() and "
+				<< "unix_socket::recv_line(): received \""
+				<< str << "\"";
 		}
 	}
 	{
@@ -157,10 +161,11 @@ TEST(test_send_recv)
 		unix_socket::socket s = svr.accept();
 		c.send("Testing recv_line return on connection close");
 		c.close();
-		if (s.recv_line() != "Testing recv_line return on connection "
-				     "close") {
-			TEST_ERROR("unix_socket::send() and "
-				   "unix_socket::recv_line()");
+		string str = s.recv_line();
+		if (str != "Testing recv_line return on connection close") {
+			TEST_ERROR() << "unix_socket::send() and "
+				<< "unix_socket::recv_line(): received \""
+				<< str << "\"";
 		}
 	}
 	{
@@ -169,10 +174,12 @@ TEST(test_send_recv)
 		unix_socket::socket s = svr.accept();
 		s.send("Testing recv_line return on connection close");
 		s.close();
-		if (c.recv_line() != "Testing recv_line return on connection "
+		string str = c.recv_line();
+		if (str != "Testing recv_line return on connection "
 				     "close") {
-			TEST_ERROR("unix_socket::send() and "
-				   "unix_socket::recv_line()");
+			TEST_ERROR() << "unix_socket::send() and "
+				<< "unix_socket::recv_line(): received \""
+				<< str << "\"";
 		}
 	}
 
@@ -186,8 +193,9 @@ TEST(test_send_recv)
 		s.recv_all(buf, 3);
 		string str(buf, 3);
 		if (str != "123") {
-			TEST_ERROR("unix_socket::send() and "
-				   "unix_socket::recv_all()");
+			TEST_ERROR() << "unix_socket::send() and "
+				<< "unix_socket::recv_all(): received \""
+				<< str << "\"";
 		}
 	}
 	{
@@ -199,8 +207,9 @@ TEST(test_send_recv)
 		c.recv_all(buf, 3);
 		string str(buf, 3);
 		if (str != "123") {
-			TEST_ERROR("unix_socket::send() and "
-				   "unix_socket::recv_all()");
+			TEST_ERROR() << "unix_socket::send() and "
+				<< "unix_socket::recv_all(): received \""
+				<< str << "\"";
 		}
 	}
 	{
@@ -213,8 +222,9 @@ TEST(test_send_recv)
 		int i = s.recv_all(buf, 25);
 		if (i != 20) {
 			// This should stop trying to receive on remote close
-			TEST_ERROR("unix_socket::send() and "
-				   "unix_socket::recv_all()");
+			TEST_ERROR() << "unix_socket::send() and "
+				<< "unix_socket::recv_all(): received "
+				<< i << " bytes";
 		}
 	}
 	{
@@ -227,8 +237,9 @@ TEST(test_send_recv)
 		int i = c.recv_all(buf, 25);
 		if (i != 20) {
 			// This should stop trying to receive on remote close
-			TEST_ERROR("unix_socket::send() and "
-				   "unix_socket::recv_all()");
+			TEST_ERROR() << "unix_socket::send() and "
+				<< "unix_socket::recv_all(): received "
+				<< i << " bytes";
 		}
 	}
 	{
@@ -240,8 +251,9 @@ TEST(test_send_recv)
 		int i = s.recv_all(buf, 3);
 		if (i != 3) {
 			// Should fill the buffer to capacity
-			TEST_ERROR("unix_socket::send() and "
-				   "unix_socket::recv_all()");
+			TEST_ERROR() << "unix_socket::send() and "
+				<< "unix_socket::recv_all(): received "
+				<< i << " bytes";
 		}
 	}
 	{
@@ -253,8 +265,9 @@ TEST(test_send_recv)
 		int i = c.recv_all(buf, 3);
 		if (i != 3) {
 			// Should fill the buffer to capacity
-			TEST_ERROR("unix_socket::send() and "
-				   "unix_socket::recv_all()");
+			TEST_ERROR() << "unix_socket::send() and "
+				<< "unix_socket::recv_all(): received "
+				<< i << " bytes";
 		}
 	}
 	// Test receives after remote connection is closed
@@ -270,8 +283,9 @@ TEST(test_send_recv)
 		s.recv_all(buf, 3);
 		string str(buf, 3);
 		if (str != "456") {
-			TEST_ERROR("unix_socket::send() and "
-				   "unix_socket::recv_all()");
+			TEST_ERROR() << "unix_socket::send() and "
+				<< "unix_socket::recv_all(): received \""
+				<< str << "\"";
 		}
 	}
 	{
@@ -285,8 +299,9 @@ TEST(test_send_recv)
 		c.recv_all(buf, 3);
 		string str(buf, 3);
 		if (str != "456") {
-			TEST_ERROR("unix_socket::send() and "
-				   "unix_socket::recv_all()");
+			TEST_ERROR() << "unix_socket::send() and "
+				<< "unix_socket::recv_all(): received \""
+				<< str << "\"";
 		}
 	}
 	// Test receiving 0 bytes; connection should still stay open

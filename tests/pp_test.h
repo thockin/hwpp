@@ -4,6 +4,7 @@
 
 #include "pp.h"
 #include <iostream>
+#include <fstream>
 #include <stdexcept>
 #include <vector>
 #include <stdlib.h>
@@ -11,47 +12,252 @@
 // how many failures have we had?
 static int TEST_error_count;
 
+// a helper to use ostreams for error message output while
+// handling newline output sanely (on the client side, at least)
+struct TEST_output_helper
+{
+	std::ostream &m_ostream;
+	explicit TEST_output_helper(std::ostream &o): m_ostream(o)
+	{
+	}
+	~TEST_output_helper()
+	{
+		m_ostream << std::endl;
+	}
+};
+template <typename Tdata>
+const TEST_output_helper &
+operator<<(const TEST_output_helper &output, const Tdata &data)
+{
+	output.m_ostream << data;
+	return output;
+}
+
 // generate a test failure
-#define TEST_ERROR(msg) TEST_do_error(msg, __FILE__, __LINE__)
-inline void
-TEST_do_error(const string &msg, const string &file, int line)
+#define TEST_ERROR(...) TEST_do_error(__FILE__, __LINE__, ##__VA_ARGS__)
+inline TEST_output_helper
+TEST_do_error(const string &file, int line)
+{
+	TEST_error_count++;
+	std::cerr << "FAIL: [" << file << ":" << line << "] ";
+	return TEST_output_helper(std::cerr);
+}
+inline TEST_output_helper
+TEST_do_error(const string &file, int line, const string &msg)
 {
 	TEST_error_count++;
 	std::cerr << "FAIL: [" << file << ":" << line << "] "
-		<< msg << std::endl;
+		<< msg;
+	return TEST_output_helper(std::cerr);
 }
 
 // assert a condition and fail if the condition is false
-#define TEST_ASSERT(pred, msg) TEST_do_assert(pred, msg, __FILE__, __LINE__)
-inline void
-TEST_do_assert(bool predicate, const string &msg, const string &file, int line)
+#define TEST_ASSERT(...) TEST_do_assert(__FILE__, __LINE__, ##__VA_ARGS__)
+inline TEST_output_helper
+TEST_do_assert(const string &file, int line, bool predicate)
 {
 	if (!predicate) {
-		TEST_do_error(msg, file, line);
+		return TEST_do_error(file, line);
+	} else {
+		static std::ofstream null_stream("/dev/null");
+		return TEST_output_helper(null_stream);
+	}
+}
+inline TEST_output_helper
+TEST_do_assert(const string &file, int line, bool predicate, const string &msg)
+{
+	if (!predicate) {
+		return TEST_do_error(file, line, msg);
+	} else {
+		static std::ofstream null_stream("/dev/null");
+		return TEST_output_helper(null_stream);
 	}
 }
 
 // helpers for testing comparisons reciprocally
-#define TEST_ASSERT_EQ(lhs, rhs, msg) \
-	TEST_ASSERT(lhs == rhs, msg), TEST_ASSERT(rhs == lhs, msg)
-#define TEST_ASSERT_NE(lhs, rhs, msg) \
-	TEST_ASSERT(lhs != rhs, msg), TEST_ASSERT(rhs != lhs, msg)
-#define TEST_ASSERT_LT(lhs, rhs, msg) \
-	TEST_ASSERT(lhs < rhs, msg), TEST_ASSERT(rhs >= lhs, msg)
-#define TEST_ASSERT_GT(lhs, rhs, msg) \
-	TEST_ASSERT(lhs > rhs, msg), TEST_ASSERT(rhs <= lhs, msg)
-#define TEST_ASSERT_LE(lhs, rhs, msg) \
-	TEST_ASSERT(lhs <= rhs, msg), TEST_ASSERT(rhs > lhs, msg)
-#define TEST_ASSERT_GE(lhs, rhs, msg) \
-	TEST_ASSERT(lhs >= rhs, msg), TEST_ASSERT(rhs < lhs, msg)
+#define TEST_ASSERT_EQ(...) \
+	TEST_do_assert_eq(__FILE__, __LINE__, ##__VA_ARGS__)
+template <typename Tlhs, typename Trhs>
+inline TEST_output_helper
+TEST_do_assert_eq(const string &file, int line,
+		  const Tlhs &lhs, const Trhs &rhs)
+{
+	const TEST_output_helper &ret =
+		TEST_do_assert(file, line, lhs == rhs);
+	if (ret.m_ostream == std::cerr) {
+		return ret;
+	} else {
+		return TEST_do_assert(file, line, rhs == lhs);
+	}
+}
+template <typename Tlhs, typename Trhs>
+inline TEST_output_helper
+TEST_do_assert_eq(const string &file, int line,
+		  const Tlhs &lhs, const Trhs &rhs, const string &msg)
+{
+	const TEST_output_helper &ret =
+		TEST_do_assert(file, line, lhs == rhs, msg);
+	if (ret.m_ostream == std::cerr) {
+		return ret;
+	} else {
+		return TEST_do_assert(file, line, rhs == lhs, msg);
+	}
+}
+#define TEST_ASSERT_NE(...) \
+	TEST_do_assert_ne(__FILE__, __LINE__, ##__VA_ARGS__)
+template <typename Tlhs, typename Trhs>
+inline TEST_output_helper
+TEST_do_assert_ne(const string &file, int line,
+		  const Tlhs &lhs, const Trhs &rhs)
+{
+	const TEST_output_helper &ret =
+		TEST_do_assert(file, line, lhs != rhs);
+	if (ret.m_ostream == std::cerr) {
+		return ret;
+	} else {
+		return TEST_do_assert(file, line, rhs != lhs);
+	}
+}
+template <typename Tlhs, typename Trhs>
+inline TEST_output_helper
+TEST_do_assert_ne(const string &file, int line,
+		  const Tlhs &lhs, const Trhs &rhs, const string &msg)
+{
+	const TEST_output_helper &ret =
+		TEST_do_assert(file, line, lhs != rhs, msg);
+	if (ret.m_ostream == std::cerr) {
+		return ret;
+	} else {
+		return TEST_do_assert(file, line, rhs != lhs, msg);
+	}
+}
+#define TEST_ASSERT_LT(...) \
+	TEST_do_assert_lt(__FILE__, __LINE__, ##__VA_ARGS__)
+template <typename Tlhs, typename Trhs>
+inline TEST_output_helper
+TEST_do_assert_lt(const string &file, int line,
+		  const Tlhs &lhs, const Trhs &rhs)
+{
+	const TEST_output_helper &ret =
+		TEST_do_assert(file, line, lhs < rhs);
+	if (ret.m_ostream == std::cerr) {
+		return ret;
+	} else {
+		return TEST_do_assert(file, line, rhs >= lhs);
+	}
+}
+template <typename Tlhs, typename Trhs>
+inline TEST_output_helper
+TEST_do_assert_lt(const string &file, int line,
+		  const Tlhs &lhs, const Trhs &rhs, const string &msg)
+{
+	const TEST_output_helper &ret =
+		TEST_do_assert(file, line, lhs < rhs, msg);
+	if (ret.m_ostream == std::cerr) {
+		return ret;
+	} else {
+		return TEST_do_assert(file, line, rhs >= lhs, msg);
+	}
+}
+#define TEST_ASSERT_GT(...) \
+	TEST_do_assert_gt(__FILE__, __LINE__, ##__VA_ARGS__)
+template <typename Tlhs, typename Trhs>
+inline TEST_output_helper
+TEST_do_assert_gt(const string &file, int line,
+		  const Tlhs &lhs, const Trhs &rhs)
+{
+	const TEST_output_helper &ret =
+		TEST_do_assert(file, line, lhs > rhs);
+	if (ret.m_ostream == std::cerr) {
+		return ret;
+	} else {
+		return TEST_do_assert(file, line, rhs <= lhs);
+	}
+}
+template <typename Tlhs, typename Trhs>
+inline TEST_output_helper
+TEST_do_assert_gt(const string &file, int line,
+		  const Tlhs &lhs, const Trhs &rhs, const string &msg)
+{
+	const TEST_output_helper &ret =
+		TEST_do_assert(file, line, lhs > rhs, msg);
+	if (ret.m_ostream == std::cerr) {
+		return ret;
+	} else {
+		return TEST_do_assert(file, line, rhs <= lhs, msg);
+	}
+}
+#define TEST_ASSERT_LE(...) \
+	TEST_do_assert_le(__FILE__, __LINE__, ##__VA_ARGS__)
+template <typename Tlhs, typename Trhs>
+inline TEST_output_helper
+TEST_do_assert_le(const string &file, int line,
+		  const Tlhs &lhs, const Trhs &rhs)
+{
+	const TEST_output_helper &ret =
+		TEST_do_assert(file, line, lhs <= rhs);
+	if (ret.m_ostream == std::cerr) {
+		return ret;
+	} else {
+		return TEST_do_assert(file, line, rhs > lhs);
+	}
+}
+template <typename Tlhs, typename Trhs>
+inline TEST_output_helper
+TEST_do_assert_le(const string &file, int line,
+		  const Tlhs &lhs, const Trhs &rhs, const string &msg)
+{
+	const TEST_output_helper &ret =
+		TEST_do_assert(file, line, lhs <= rhs, msg);
+	if (ret.m_ostream == std::cerr) {
+		return ret;
+	} else {
+		return TEST_do_assert(file, line, rhs > lhs, msg);
+	}
+}
+#define TEST_ASSERT_GE(...) \
+	TEST_do_assert_ge(__FILE__, __LINE__, ##__VA_ARGS__)
+template <typename Tlhs, typename Trhs>
+inline TEST_output_helper
+TEST_do_assert_ge(const string &file, int line,
+		  const Tlhs &lhs, const Trhs &rhs)
+{
+	const TEST_output_helper &ret =
+		TEST_do_assert(file, line, lhs >= rhs);
+	if (ret.m_ostream == std::cerr) {
+		return ret;
+	} else {
+		return TEST_do_assert(file, line, rhs < lhs);
+	}
+}
+template <typename Tlhs, typename Trhs>
+inline TEST_output_helper
+TEST_do_assert_ge(const string &file, int line,
+		  const Tlhs &lhs, const Trhs &rhs, const string &msg)
+{
+	const TEST_output_helper &ret =
+		TEST_do_assert(file, line, lhs >= rhs, msg);
+	if (ret.m_ostream == std::cerr) {
+		return ret;
+	} else {
+		return TEST_do_assert(file, line, rhs < lhs, msg);
+	}
+}
 
 // generate a warning message
-#define TEST_WARNING(msg) TEST_do_warning(msg, __FILE__, __LINE__)
-inline void
-TEST_do_warning(const string &msg, const string &file, int line)
+#define TEST_WARNING(...) TEST_do_warning(__FILE__, __LINE__, ##__VA_ARGS__)
+inline TEST_output_helper
+TEST_do_warning(const string &file, int line)
+{
+	std::cerr << "WARN: [" << file << ":" << line << "] ";
+	return TEST_output_helper(std::cerr);
+}
+inline TEST_output_helper
+TEST_do_warning(const string &file, int line, const string &msg)
 {
 	std::cerr << "WARN: [" << file << ":" << line << "] "
-		<< msg << std::endl;
+		<< msg;
+	return TEST_output_helper(std::cerr);
 }
 
 // the global list of tests to run
