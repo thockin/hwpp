@@ -1,8 +1,6 @@
 Testing stuff:
  - link against a good memory debugger
  - test field lookup() methods
- - tests do not need to be built static
- - make TEST_ASSERT(x == y) << "foo" << bar
 
 Device stuff:
  - fix and finish PCI subclass and progintf stuff
