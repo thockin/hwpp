@@ -365,7 +365,7 @@ class file
 				offset, length, prot, flags));
 	}
 
-	off_t
+	size_t
 	seek(off_t offset, int whence) const
 	{
 		off_t r;
@@ -376,10 +376,11 @@ class file
 			    "fs::file::seek(" + m_path + ")");
 		}
 
+		// convert off_t (signed) to size_t (unsigned)
 		return r;
 	}
 
-	static off_t
+	static size_t
 	size(const std::string &path)
 	{
 		int r;
@@ -391,10 +392,11 @@ class file
 			    "fs::file::size(" + path + ")");
 		}
 
+		// convert off_t (signed) to size_t (unsigned)
 		return st.st_size;
 	}
 
-	off_t
+	size_t
 	size() const
 	{
 		int r;
@@ -406,10 +408,11 @@ class file
 			    "fs::file::size(" + m_path + ")");
 		}
 
+		// convert off_t (signed) to size_t (unsigned)
 		return st.st_size;
 	}
 
-	off_t
+	size_t
 	tell() const
 	{
 		return seek(0, SEEK_CUR);
