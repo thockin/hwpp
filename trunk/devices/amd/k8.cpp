@@ -64,6 +64,7 @@ k8_msr(const pp_value &cpu)
 	CLOSE_SCOPE(); // SYSCFG
 
 	OPEN_SCOPE("HWCR");
+	HEX("fid_t", 8);
 	REG64("%HWCR", 0xc0010015);
 	FIELD("SMMLOCK", "yesno_t", BITS("%HWCR", 0));
 	FIELD("SLOWFENCE", "enabledisable_t", BITS("%HWCR", 1));
@@ -681,6 +682,562 @@ k8_msr(const pp_value &cpu)
 
 		CLOSE_SCOPE(); // vm
 	}
+
+	OPEN_SCOPE("mc");
+
+	OPEN_SCOPE("global");
+
+	REG64("%MCG_CAP", 0x179);
+	REG64("%MCG_STATUS", 0x17A);
+	REG64("%MCG_CTL", 0x17B);
+
+	FIELD("Count", ANON_INT("banks"), BITS("%MCG_CAP", 7, 0));
+	FIELD("MCG_CTL_P", "yesno_t", BITS("%MCG_CAP", 8, 0));
+	FIELD("RIPV", "yesno_t", BITS("%MCG_STATUS", 0));
+	FIELD("EIPV", "yesno_t", BITS("%MCG_STATUS", 1));
+	FIELD("MCIP", "yesno_t", BITS("%MCG_STATUS", 2));
+	FIELD("DCE", "enabledisable_t", BITS("%MCG_CTL", 0));
+	FIELD("ICE", "enabledisable_t", BITS("%MCG_CTL", 1));
+	FIELD("BUE", "enabledisable_t", BITS("%MCG_CTL", 2));
+	FIELD("LSE", "enabledisable_t", BITS("%MCG_CTL", 3));
+	FIELD("NBE", "enabledisable_t", BITS("%MCG_CTL", 4));
+
+	CLOSE_SCOPE(); // global
+
+	OPEN_SCOPE("data_cache");
+
+	REG64("%MC0_CTL", 0x400);
+	REG64("%MC0_STATUS", 0x401);
+	REG64("%MC0_ADDR", 0X402);
+	// REG64("%MC0_MISC", 0X403); // unsupported on AMD
+
+	FIELD("ECCI", "yesno_t", BITS("%MC0_CTL", 0));
+	FIELD("ECCM", "yesno_t", BITS("%MC0_CTL", 1));
+	FIELD("DECC", "yesno_t", BITS("%MC0_CTL", 2));
+	FIELD("DMTP", "yesno_t", BITS("%MC0_CTL", 3));
+	FIELD("DSTP", "yesno_t", BITS("%MC0_CTL", 4));
+	FIELD("L1TP", "yesno_t", BITS("%MC0_CTL", 5));
+	FIELD("L2TP", "yesno_t", BITS("%MC0_CTL", 6));
+	FIELD("ERR_CODE", "hex16_t", BITS("%MC0_STATUS", 15, 0));
+	if (FIELD_TEST("ERR_CODE", 0x0800)) {
+		// Bus error
+		FIELD("ERR_CODE_CacheLevel",
+				ANON_ENUM(KV("level_0", 0),
+					  KV("level_1", 1),
+					  KV("level_2", 2),
+					  KV("generic", 3)),
+				BITS("%MC0_STATUS", 1, 0));
+		FIELD("ERR_CODE_MemoryOrIO",
+				ANON_ENUM(KV("memory_access", 0),
+					  KV("io_access", 2),
+					  KV("generic", 3)),
+				BITS("%MC0_STATUS", 3, 2));
+		FIELD("ERR_CODE_MemoryTransactionType",
+				ANON_ENUM(KV("generic_error", 0),
+					  KV("generic_read", 1),
+					  KV("generic_write", 2),
+					  KV("data_read", 3),
+					  KV("data_write", 4),
+					  KV("instruction_fetch", 5),
+					  KV("prefetch", 6),
+					  KV("evict", 7),
+					  KV("snoop", 8)),
+				BITS("%MC0_STATUS", 7, 4));
+		FIELD("ERR_CODE_Timeout", "yesno_t",
+				BITS("%MC0_STATUS", 8));
+		FIELD("ERR_CODE_ParticipationProcessor",
+				ANON_ENUM(KV("local_node_originated", 0),
+					  KV("local_node_responded", 1),
+					  KV("local_node_third_party", 2),
+					  KV("generic", 3)),
+				BITS("%MC0_STATUS", 10, 9));
+	} else if (FIELD_TEST("ERR_CODE", 0x0100)) {
+		// Memory error
+		FIELD("ERR_CODE_CacheLevel",
+				ANON_ENUM(KV("level_0", 0),
+					  KV("level_1", 1),
+					  KV("level_2", 2),
+					  KV("generic", 3)),
+				BITS("%MC0_STATUS", 1, 0));
+		FIELD("ERR_CODE_TransactionType",
+				ANON_ENUM(KV("instruction", 0),
+					  KV("data", 1),
+					  KV("generic", 2)),
+				BITS("%MC0_STATUS", 3, 2));
+		FIELD("ERR_CODE_MemoryTransactionType",
+				ANON_ENUM(KV("generic_error", 0),
+					  KV("generic_read", 1),
+					  KV("generic_write", 2),
+					  KV("data_read", 3),
+					  KV("data_write", 4),
+					  KV("instruction_fetch", 5),
+					  KV("prefetch", 6),
+					  KV("evict", 7),
+					  KV("snoop", 8)),
+				BITS("%MC0_STATUS", 7, 4));
+	} else if (FIELD_TEST("ERR_CODE", 0x0010)) {
+		// TLB error
+		FIELD("ERR_CODE_CacheLevel",
+				ANON_ENUM(KV("level_0", 0),
+					  KV("level_1", 1),
+					  KV("level_2", 2),
+					  KV("generic", 3)),
+				BITS("%MC0_STATUS", 1, 0));
+		FIELD("ERR_CODE_TransactionType",
+				ANON_ENUM(KV("instruction", 0),
+					  KV("data", 1),
+					  KV("generic", 2)),
+				BITS("%MC0_STATUS", 3, 2));
+	}
+	FIELD("EXT_ERR_CODE", ANON_ENUM(KV("phys_array", 0),
+					KV("virt_array", 1)),
+			BITS("%MC0_STATUS", 19, 16));
+	FIELD("SCRUB", "yesno_t", BITS("%MC0_STATUS", 40));
+	FIELD("UECC", "yesno_t", BITS("%MC0_STATUS", 45));
+	FIELD("CECC", "yesno_t", BITS("%MC0_STATUS", 46));
+	FIELD("SYND", "hex8_t", BITS("%MC0_STATUS", 54, 47));
+	FIELD("PCC", "yesno_t", BITS("%MC0_STATUS", 57));
+	FIELD("ADDRV", "yesno_t", BITS("%MC0_STATUS", 58));
+	FIELD("MISCV", "yesno_t", BITS("%MC0_STATUS", 59));
+	FIELD("EN", "yesno_t", BITS("%MC0_STATUS", 60));
+	FIELD("UC", "yesno_t", BITS("%MC0_STATUS", 61));
+	FIELD("OVER", "yesno_t", BITS("%MC0_STATUS", 62));
+	FIELD("VAL", "yesno_t", BITS("%MC0_STATUS", 63));
+	if (FIELD_EQ("ADDRV", 1)) {
+		// MC0_ADDR bits valid if ADDRV set
+		// TODO: what datatype for all of these?
+		if (FIELD_TEST("ERR_CODE", 0x0800)) {
+			// Bus error
+			// System Data / line-fill
+			FIELD("Address", "addr32_t",
+					BITS("%MC0_ADDR", 39, 6));
+		} else if (FIELD_TEST("ERR_CODE", 0x0100)) {
+			// Memory error
+			if (FIELD_EQ("ERR_CODE_CacheLevel", "level_2")) {
+				// L2 Cache Data / line-fill
+				FIELD("Address", "addr32_t",
+						BITS("%MC0_ADDR", 39, 6));
+			} else if (FIELD_EQ("ERR_CODE_MemoryTransactionType",
+					    "generic_error")) {
+				// Data Array / scrub
+				FIELD("Address", "hex_t",
+						BITS("%MC0_ADDR", 11, 3));
+			} else if ((FIELD_EQ("ERR_CODE_MemoryTransactionType",
+					     "data_read") ||
+				    FIELD_EQ("ERR_CODE_MemoryTransactionType",
+					     "data_write"))) {
+				// Data Array / load/store
+				// or, Data Tag Array / load/store
+				FIELD("Address", "hex_t",
+						BITS("%MC0_ADDR", 39, 3));
+			} else if ((FIELD_EQ("ERR_CODE_MemoryTransactionType",
+					     "evict") ||
+				    FIELD_EQ("ERR_CODE_MemoryTransactionType",
+					     "snoop"))) {
+				// Data Array / snoop/victim
+				// or, Snoop Tag Array / snoop/victim
+				FIELD("Address", "hex_t",
+						BITS("%MC0_ADDR", 11, 6));
+				
+			}
+		} else if (FIELD_TEST("ERR_CODE", 0x0010)) {
+			// TLB error
+			// L1 Data TLB / load/store
+			// or, L2 Data TLB / load/store
+			FIELD("Address", "hex_t", BITS("%MC0_ADDR", 47, 12));
+		}
+
+	}
+
+	CLOSE_SCOPE(); // data_cache
+
+	OPEN_SCOPE("instr_cache");
+
+	REG64("%MC1_CTL", 0X404);
+	REG64("%MC1_STATUS", 0X405);
+	REG64("%MC1_ADDR", 0X406);
+	// REG64("%MC1_MISC", 0X407); // unsupported on AMD
+
+	FIELD("ECCI", "yesno_t", BITS("%MC1_CTL", 0));
+	FIELD("ECCM", "yesno_t", BITS("%MC1_CTL", 1));
+	FIELD("IDP", "yesno_t", BITS("%MC1_CTL", 2));
+	FIELD("IMTP", "yesno_t", BITS("%MC1_CTL", 3));
+	FIELD("ISTP", "yesno_t", BITS("%MC1_CTL", 4));
+	FIELD("L1TP", "yesno_t", BITS("%MC1_CTL", 5));
+	FIELD("L2TP", "yesno_t", BITS("%MC1_CTL", 6));
+	FIELD("RDDE", "yesno_t", BITS("%MC1_CTL", 9));
+	FIELD("ERR_CODE", "hex16_t", BITS("%MC1_STATUS", 15, 0));
+	if (FIELD_TEST("ERR_CODE", 0x0800)) {
+		// Bus error
+		FIELD("ERR_CODE_CacheLevel",
+				ANON_ENUM(KV("level_0", 0),
+					  KV("level_1", 1),
+					  KV("level_2", 2),
+					  KV("generic", 3)),
+				BITS("%MC1_STATUS", 1, 0));
+		FIELD("ERR_CODE_MemoryOrIO",
+				ANON_ENUM(KV("memory_access", 0),
+					  KV("io_access", 2),
+					  KV("generic", 3)),
+				BITS("%MC1_STATUS", 3, 2));
+		FIELD("ERR_CODE_MemoryTransactionType",
+				ANON_ENUM(KV("generic_error", 0),
+					  KV("generic_read", 1),
+					  KV("generic_write", 2),
+					  KV("data_read", 3),
+					  KV("data_write", 4),
+					  KV("instruction_fetch", 5),
+					  KV("prefetch", 6),
+					  KV("evict", 7),
+					  KV("snoop", 8)),
+				BITS("%MC1_STATUS", 7, 4));
+		FIELD("ERR_CODE_Timeout", "yesno_t",
+				BITS("%MC1_STATUS", 8));
+		FIELD("ERR_CODE_ParticipationProcessor",
+				ANON_ENUM(KV("local_node_originated", 0),
+					  KV("local_node_responded", 1),
+					  KV("local_node_third_party", 2),
+					  KV("generic", 3)),
+				BITS("%MC1_STATUS", 10, 9));
+	} else if (FIELD_TEST("ERR_CODE", 0x0100)) {
+		// Memory error
+		FIELD("ERR_CODE_CacheLevel",
+				ANON_ENUM(KV("level_0", 0),
+					  KV("level_1", 1),
+					  KV("level_2", 2),
+					  KV("generic", 3)),
+				BITS("%MC1_STATUS", 1, 0));
+		FIELD("ERR_CODE_TransactionType",
+				ANON_ENUM(KV("instruction", 0),
+					  KV("data", 1),
+					  KV("generic", 2)),
+				BITS("%MC1_STATUS", 3, 2));
+		FIELD("ERR_CODE_MemoryTransactionType",
+				ANON_ENUM(KV("generic_error", 0),
+					  KV("generic_read", 1),
+					  KV("generic_write", 2),
+					  KV("data_read", 3),
+					  KV("data_write", 4),
+					  KV("instruction_fetch", 5),
+					  KV("prefetch", 6),
+					  KV("evict", 7),
+					  KV("snoop", 8)),
+				BITS("%MC1_STATUS", 7, 4));
+	} else if (FIELD_TEST("ERR_CODE", 0x0010)) {
+		// TLB error
+		FIELD("ERR_CODE_CacheLevel",
+				ANON_ENUM(KV("level_0", 0),
+					  KV("level_1", 1),
+					  KV("level_2", 2),
+					  KV("generic", 3)),
+				BITS("%MC1_STATUS", 1, 0));
+		FIELD("ERR_CODE_TransactionType",
+				ANON_ENUM(KV("instruction", 0),
+					  KV("data", 1),
+					  KV("generic", 2)),
+				BITS("%MC1_STATUS", 3, 2));
+	}
+	FIELD("EXT_ERR_CODE", ANON_ENUM(KV("phys_array", 0),
+					KV("virt_array", 1)),
+			BITS("%MC1_STATUS", 19, 16));
+	FIELD("SCRUB", "yesno_t", BITS("%MC1_STATUS", 40));
+	FIELD("UECC", "yesno_t", BITS("%MC1_STATUS", 45));
+	FIELD("CECC", "yesno_t", BITS("%MC1_STATUS", 46));
+	FIELD("SYND", "hex8_t", BITS("%MC1_STATUS", 54, 47));
+	FIELD("PCC", "yesno_t", BITS("%MC1_STATUS", 57));
+	FIELD("ADDRV", "yesno_t", BITS("%MC1_STATUS", 58));
+	FIELD("MISCV", "yesno_t", BITS("%MC1_STATUS", 59));
+	FIELD("EN", "yesno_t", BITS("%MC1_STATUS", 60));
+	FIELD("UC", "yesno_t", BITS("%MC1_STATUS", 61));
+	FIELD("OVER", "yesno_t", BITS("%MC1_STATUS", 62));
+	FIELD("VAL", "yesno_t", BITS("%MC1_STATUS", 63));
+	if (FIELD_EQ("ADDRV", 1)) {
+		// MC1_ADDR bits valid if ADDRV set
+		// TODO: what datatype for all of these?
+		if (FIELD_TEST("ERR_CODE", 0x0800)) {
+			// Bus error
+			// System Data / line-fill
+			FIELD("Address", "addr32_t",
+					BITS("%MC1_ADDR", 39, 6));
+		} else if (FIELD_TEST("ERR_CODE", 0x0100)) {
+			// Memory error
+			if (FIELD_EQ("ERR_CODE_CacheLevel", "level_2")) {
+				// L2 Cache Data / line-fill
+				FIELD("Address", "addr32_t",
+						BITS("%MC1_ADDR", 39, 6));
+			} else if (FIELD_EQ("UC", 1)) {
+				// Snoop Tag Array / snoop/victim
+				FIELD("Address", "hex_t",
+						BITS("%MC1_ADDR", 39, 6));
+			} 
+			// TODO: no way to tell "Tag Load" and "IC Data Load"
+			// apart, but they have different valid address
+			// bits...how do I deal with this?
+		} else if (FIELD_TEST("ERR_CODE", 0x0010)) {
+			// TLB error
+			// L1 TLB or L2 TLB / code read, 4 KB page
+			// TODO: how do I determine whether page size is
+			// 4 KB or 2 MB?
+			FIELD("Address", "hex_t", BITS("%MC1_ADDR", 47, 12));
+		}
+	}
+
+	CLOSE_SCOPE(); // instr_cache
+
+	OPEN_SCOPE("bus");
+
+	REG64("%MC2_CTL", 0X408);
+	REG64("%MC2_STATUS", 0X409);
+	REG64("%MC2_ADDR", 0X40a);
+	// REG64("%MC2_MISC", 0X40b); // unsupported
+
+	FIELD("S_RDE_HP", "yesno_t", BITS("%MC2_CTL", 0));
+	FIELD("S_RED_TLB", "yesno_t", BITS("%MC2_CTL", 1));
+	FIELD("S_RDE_ALL", "yesno_t", BITS("%MC2_CTL", 2));
+	FIELD("S_ECC1_TLB", "yesno_t", BITS("%MC2_CTL", 3));
+	FIELD("S_ECC1_HP", "yesno_t", BITS("%MC2_CTL", 4));
+	FIELD("S_ECCM_TLB", "yesno_t", BITS("%MC2_CTL", 5));
+	FIELD("S_ECCM_HP", "yesno_t", BITS("%MC2_CTL", 6));
+	FIELD("L2T_PAR_ICDC", "yesno_t", BITS("%MC2_CTL", 7));
+	FIELD("L2T_PAR_TLB", "yesno_t", BITS("%MC2_CTL", 8));
+	FIELD("L2T_PAR_SNP", "yesno_t", BITS("%MC2_CTL", 9));
+	FIELD("L2T_PAR_CPB", "yesno_t", BITS("%MC2_CTL", 10));
+	FIELD("L2T_PAR_SCR", "yesno_t", BITS("%MC2_CTL", 11));
+	FIELD("L2D_ECC1_TLB", "yesno_t", BITS("%MC2_CTL", 12));
+	FIELD("L2D_ECC1_SNP", "yesno_t", BITS("%MC2_CTL", 13));
+	FIELD("L2D_ECC1_CPB", "yesno_t", BITS("%MC2_CTL", 14));
+	FIELD("L2D_ECCM_TLB", "yesno_t", BITS("%MC2_CTL", 15));
+	FIELD("L2D_ECCM_SNP", "yesno_t", BITS("%MC2_CTL", 16));
+	FIELD("L2D_ECCM_CPB", "yesno_t", BITS("%MC2_CTL", 17));
+	FIELD("L2T_ECC1_SCR", "yesno_t", BITS("%MC2_CTL", 18));
+	FIELD("L2T_ECCM_SCR", "yesno_t", BITS("%MC2_CTL", 19));
+	FIELD("ERR_CODE", "hex16_t", BITS("%MC2_STATUS", 15, 0));
+	if (FIELD_TEST("ERR_CODE", 0x0800)) {
+		// Bus error
+		FIELD("ERR_CODE_CacheLevel",
+				ANON_ENUM(KV("level_0", 0),
+					  KV("level_1", 1),
+					  KV("level_2", 2),
+					  KV("generic", 3)),
+				BITS("%MC2_STATUS", 1, 0));
+		FIELD("ERR_CODE_MemoryOrIO",
+				ANON_ENUM(KV("memory_access", 0),
+					  KV("io_access", 2),
+					  KV("generic", 3)),
+				BITS("%MC2_STATUS", 3, 2));
+		FIELD("ERR_CODE_MemoryTransactionType",
+				ANON_ENUM(KV("generic_error", 0),
+					  KV("generic_read", 1),
+					  KV("generic_write", 2),
+					  KV("data_read", 3),
+					  KV("data_write", 4),
+					  KV("instruction_fetch", 5),
+					  KV("prefetch", 6),
+					  KV("evict", 7),
+					  KV("snoop", 8)),
+				BITS("%MC2_STATUS", 7, 4));
+		FIELD("ERR_CODE_Timeout", "yesno_t",
+				BITS("%MC2_STATUS", 8));
+		FIELD("ERR_CODE_ParticipationProcessor",
+				ANON_ENUM(KV("local_node_originated", 0),
+					  KV("local_node_responded", 1),
+					  KV("local_node_third_party", 2),
+					  KV("generic", 3)),
+				BITS("%MC2_STATUS", 10, 9));
+	} else if (FIELD_TEST("ERR_CODE", 0x0100)) {
+		// Memory error
+		FIELD("ERR_CODE_CacheLevel",
+				ANON_ENUM(KV("level_0", 0),
+					  KV("level_1", 1),
+					  KV("level_2", 2),
+					  KV("generic", 3)),
+				BITS("%MC2_STATUS", 1, 0));
+		FIELD("ERR_CODE_TransactionType",
+				ANON_ENUM(KV("instruction", 0),
+					  KV("data", 1),
+					  KV("generic", 2)),
+				BITS("%MC2_STATUS", 3, 2));
+		FIELD("ERR_CODE_MemoryTransactionType",
+				ANON_ENUM(KV("generic_error", 0),
+					  KV("generic_read", 1),
+					  KV("generic_write", 2),
+					  KV("data_read", 3),
+					  KV("data_write", 4),
+					  KV("instruction_fetch", 5),
+					  KV("prefetch", 6),
+					  KV("evict", 7),
+					  KV("snoop", 8)),
+				BITS("%MC2_STATUS", 7, 4));
+	} else if (FIELD_TEST("ERR_CODE", 0x0010)) {
+		// TLB error
+		FIELD("ERR_CODE_CacheLevel",
+				ANON_ENUM(KV("level_0", 0),
+					  KV("level_1", 1),
+					  KV("level_2", 2),
+					  KV("generic", 3)),
+				BITS("%MC2_STATUS", 1, 0));
+		FIELD("ERR_CODE_TransactionType",
+				ANON_ENUM(KV("instruction", 0),
+					  KV("data", 1),
+					  KV("generic", 2)),
+				BITS("%MC2_STATUS", 3, 2));
+	}
+	FIELD("EXT_ERR_CODE", ANON_ENUM(KV("bus_or_cache_data_array_error", 0),
+					KV("cache_tag_array_error", 2)),
+			BITS("%MC2_STATUS", 19, 16));
+	FIELD("SCRUB", "yesno_t", BITS("%MC2_STATUS", 40));
+	FIELD("UECC", "yesno_t", BITS("%MC2_STATUS", 45));
+	FIELD("CECC", "yesno_t", BITS("%MC2_STATUS", 46));
+	FIELD("SYND", "hex8_t", BITS("%MC2_STATUS", 54, 47));
+	FIELD("PCC", "yesno_t", BITS("%MC2_STATUS", 57));
+	FIELD("ADDRV", "yesno_t", BITS("%MC2_STATUS", 58));
+	FIELD("MISCV", "yesno_t", BITS("%MC2_STATUS", 59));
+	FIELD("EN", "yesno_t", BITS("%MC2_STATUS", 60));
+	FIELD("UC", "yesno_t", BITS("%MC2_STATUS", 61));
+	FIELD("OVER", "yesno_t", BITS("%MC2_STATUS", 62));
+	FIELD("VAL", "yesno_t", BITS("%MC2_STATUS", 63));
+	if (FIELD_EQ("ADDRV", 1)) {
+		// MC2_ADDR bits valid if ADDRV set
+		// TODO: what datatype for all of these?
+		if (FIELD_TEST("ERR_CODE", 0x0800) ||
+		    FIELD_TEST("ERR_CODE", 0x0100) &&
+		    FIELD_EQ("ERR_CODE_CacheLevel", "level_2")) {
+			// L2 Cache error
+			if (FIELD_EQ("EXT_ERR_CODE", 
+				     "bus_or_cache_data_array_error")) {
+				FIELD("Address", "hex_t",
+						BITS("%MC2_ADDR", 39, 6));
+			} else if (FIELD_EQ("EXT_ERR_CODE",
+					    "cache_tag_array_error")) {
+				// TODO: how do I determine L2 cache size?
+			}
+		}
+		// TODO: how do I detect a system address out of range error?
+	}
+
+	CLOSE_SCOPE(); // bus
+
+	OPEN_SCOPE("ls");
+
+	REG64("%MC3_CTL", 0X40c);
+	REG64("%MC3_STATUS", 0X40d);
+	REG64("%MC3_ADDR", 0X40e);
+	// REG64("%MC3_MISC", 0X40f); // unsupported on AMD
+
+	FIELD("S_RDE_L", "yesno_t", BITS("%MC3_CTL", 0));
+	FIELD("S_RDE_S", "yesno_t", BITS("%MC3_CTL", 0));
+	FIELD("ERR_CODE", "hex16_t", BITS("%MC3_STATUS", 15, 0));
+	if (FIELD_TEST("ERR_CODE", 0x0800)) {
+		// Bus error
+		FIELD("ERR_CODE_CacheLevel",
+				ANON_ENUM(KV("level_0", 0),
+					  KV("level_1", 1),
+					  KV("level_2", 2),
+					  KV("generic", 3)),
+				BITS("%MC3_STATUS", 1, 0));
+		FIELD("ERR_CODE_MemoryOrIO",
+				ANON_ENUM(KV("memory_access", 0),
+					  KV("io_access", 2),
+					  KV("generic", 3)),
+				BITS("%MC3_STATUS", 3, 2));
+		FIELD("ERR_CODE_MemoryTransactionType",
+				ANON_ENUM(KV("generic_error", 0),
+					  KV("generic_read", 1),
+					  KV("generic_write", 2),
+					  KV("data_read", 3),
+					  KV("data_write", 4),
+					  KV("instruction_fetch", 5),
+					  KV("prefetch", 6),
+					  KV("evict", 7),
+					  KV("snoop", 8)),
+				BITS("%MC3_STATUS", 7, 4));
+		FIELD("ERR_CODE_Timeout", "yesno_t",
+				BITS("%MC3_STATUS", 8));
+		FIELD("ERR_CODE_ParticipationProcessor",
+				ANON_ENUM(KV("local_node_originated", 0),
+					  KV("local_node_responded", 1),
+					  KV("local_node_third_party", 2),
+					  KV("generic", 3)),
+				BITS("%MC3_STATUS", 10, 9));
+	} else if (FIELD_TEST("ERR_CODE", 0x0100)) {
+		// Memory error
+		FIELD("ERR_CODE_CacheLevel",
+				ANON_ENUM(KV("level_0", 0),
+					  KV("level_1", 1),
+					  KV("level_2", 2),
+					  KV("generic", 3)),
+				BITS("%MC3_STATUS", 1, 0));
+		FIELD("ERR_CODE_TransactionType",
+				ANON_ENUM(KV("instruction", 0),
+					  KV("data", 1),
+					  KV("generic", 2)),
+				BITS("%MC3_STATUS", 3, 2));
+		FIELD("ERR_CODE_MemoryTransactionType",
+				ANON_ENUM(KV("generic_error", 0),
+					  KV("generic_read", 1),
+					  KV("generic_write", 2),
+					  KV("data_read", 3),
+					  KV("data_write", 4),
+					  KV("instruction_fetch", 5),
+					  KV("prefetch", 6),
+					  KV("evict", 7),
+					  KV("snoop", 8)),
+				BITS("%MC3_STATUS", 7, 4));
+	} else if (FIELD_TEST("ERR_CODE", 0x0010)) {
+		// TLB error
+		FIELD("ERR_CODE_CacheLevel",
+				ANON_ENUM(KV("level_0", 0),
+					  KV("level_1", 1),
+					  KV("level_2", 2),
+					  KV("generic", 3)),
+				BITS("%MC3_STATUS", 1, 0));
+		FIELD("ERR_CODE_TransactionType",
+				ANON_ENUM(KV("instruction", 0),
+					  KV("data", 1),
+					  KV("generic", 2)),
+				BITS("%MC3_STATUS", 3, 2));
+	}
+	FIELD("SCRUB", "yesno_t", BITS("%MC3_STATUS", 40));
+	FIELD("UECC", "yesno_t", BITS("%MC3_STATUS", 45));
+	FIELD("CECC", "yesno_t", BITS("%MC3_STATUS", 46));
+	FIELD("SYND", "hex8_t", BITS("%MC3_STATUS", 54, 47));
+	FIELD("PCC", "yesno_t", BITS("%MC3_STATUS", 57));
+	FIELD("ADDRV", "yesno_t", BITS("%MC3_STATUS", 58));
+	FIELD("MISCV", "yesno_t", BITS("%MC3_STATUS", 59));
+	FIELD("EN", "yesno_t", BITS("%MC3_STATUS", 60));
+	FIELD("UC", "yesno_t", BITS("%MC3_STATUS", 61));
+	FIELD("OVER", "yesno_t", BITS("%MC3_STATUS", 62));
+	FIELD("VAL", "yesno_t", BITS("%MC3_STATUS", 63));
+	if (FIELD_EQ("ADDRV", 1)) {
+		// MC3_ADDR bits valid if ADDRV set
+		// TODO: how do I detect a system address out of range error?
+	}
+
+	CLOSE_SCOPE(); // ls
+
+	OPEN_SCOPE("nb");
+
+	CLOSE_SCOPE(); // nb
+
+	CLOSE_SCOPE(); // mc
+
+	OPEN_SCOPE("debug");
+
+	REG64("%DebugCtl", 0x1d9);
+	BOOL("pb_t", "breakpoint_info", "performance_monitor_info");
+
+	FIELD("LastBranchFromIP", "addr64_t", REG64(0x1db));
+	FIELD("LastBranchToIP", "addr64_t", REG64(0x1dc));
+	FIELD("LastExceptionFromIP", "addr64_t", REG64(0x1dd));
+	FIELD("LastExceptionToIP", "addr64_t", REG64(0x1de));
+	FIELD("LBR", "yesno_t", BITS("%DebugCtl", 0));
+	FIELD("BTF", "yesno_t", BITS("%DebugCtl", 1));
+	FIELD("PB0", "pb_t", BITS("%DebugCtl", 2));
+	FIELD("PB1", "pb_t", BITS("%DebugCtl", 3));
+	FIELD("PB2", "pb_t", BITS("%DebugCtl", 4));
+	FIELD("PB3", "pb_t", BITS("%DebugCtl", 5));
+
+	CLOSE_SCOPE(); // debug
 
 	CLOSE_SCOPE(); // msr
 }
