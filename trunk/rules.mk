@@ -159,11 +159,9 @@ run_tests:
 		else \
 			echo FAIL; \
 		fi; \
-		cat $$f.err | while read LINE; do \
-			echo "    $$LINE"; \
-		done; \
+		cat $$f.err | sed 's/^/  /'; \
 		$(RM) -f $$f.err; \
-	done
+	done 2>/dev/null
 
 # NOTE: 'sinclude' is "silent-include".  This suppresses a warning if
 # .depend does not exist.  Since Makefile includes this file, and this
