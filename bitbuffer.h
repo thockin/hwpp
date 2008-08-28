@@ -3,6 +3,7 @@
 #define PP_BITBUFFER_H__
 
 #include <ostream>
+#include <sstream>
 #include <boost/format.hpp>
 #include <boost/shared_array.hpp>
 #include <stdint.h>
@@ -100,6 +101,9 @@ class bitbuffer
 	{
 		return m_array[index];
 	}
+
+	std::string
+	to_string() const;
 };
 
 // stream output
@@ -126,6 +130,14 @@ operator<<(std::ostream& o, const bitbuffer &bitbuf)
 	}
 
 	return o;
+}
+
+inline std::string
+bitbuffer::to_string() const
+{
+	std::ostringstream oss;
+	oss << *this;
+	return oss.str();
 }
 
 #endif // PP_BITBUFFER_H__

@@ -2,7 +2,6 @@
 #ifndef PP_TEST_H__
 #define PP_TEST_H__
 
-#include "pp.h"
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
@@ -51,14 +50,14 @@ operator<<(const TEST_output_helper_ptr &output, const Tdata &data)
 // generate a test failure
 #define TEST_ERROR(...) TEST_do_error(__FILE__, __LINE__, ##__VA_ARGS__)
 inline TEST_output_helper_ptr
-TEST_do_error(const string &file, int line)
+TEST_do_error(const std::string &file, int line)
 {
 	TEST_error_count++;
 	std::cerr << "FAIL: [" << file << ":" << line << "] ";
 	return TEST_new_output_helper(std::cerr);
 }
 inline TEST_output_helper_ptr
-TEST_do_error(const string &file, int line, const string &msg)
+TEST_do_error(const std::string &file, int line, const std::string &msg)
 {
 	TEST_error_count++;
 	std::cerr << "FAIL: [" << file << ":" << line << "] "
@@ -69,7 +68,7 @@ TEST_do_error(const string &file, int line, const string &msg)
 // assert a condition and fail if the condition is false
 #define TEST_ASSERT(...) TEST_do_assert(__FILE__, __LINE__, ##__VA_ARGS__)
 inline TEST_output_helper_ptr
-TEST_do_assert(const string &file, int line, bool predicate)
+TEST_do_assert(const std::string &file, int line, bool predicate)
 {
 	if (!predicate) {
 		return TEST_do_error(file, line);
@@ -79,7 +78,7 @@ TEST_do_assert(const string &file, int line, bool predicate)
 	}
 }
 inline TEST_output_helper_ptr
-TEST_do_assert(const string &file, int line, bool predicate, const string &msg)
+TEST_do_assert(const std::string &file, int line, bool predicate, const std::string &msg)
 {
 	if (!predicate) {
 		return TEST_do_error(file, line, msg);
@@ -94,7 +93,7 @@ TEST_do_assert(const string &file, int line, bool predicate, const string &msg)
 	TEST_do_assert_eq(__FILE__, __LINE__, ##__VA_ARGS__)
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_eq(const string &file, int line,
+TEST_do_assert_eq(const std::string &file, int line,
 		  const Tlhs &lhs, const Trhs &rhs)
 {
 	const TEST_output_helper_ptr &ret =
@@ -107,8 +106,8 @@ TEST_do_assert_eq(const string &file, int line,
 }
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_eq(const string &file, int line,
-		  const Tlhs &lhs, const Trhs &rhs, const string &msg)
+TEST_do_assert_eq(const std::string &file, int line,
+		  const Tlhs &lhs, const Trhs &rhs, const std::string &msg)
 {
 	const TEST_output_helper_ptr &ret =
 		TEST_do_assert(file, line, lhs == rhs, msg);
@@ -122,7 +121,7 @@ TEST_do_assert_eq(const string &file, int line,
 	TEST_do_assert_ne(__FILE__, __LINE__, ##__VA_ARGS__)
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_ne(const string &file, int line,
+TEST_do_assert_ne(const std::string &file, int line,
 		  const Tlhs &lhs, const Trhs &rhs)
 {
 	const TEST_output_helper_ptr &ret =
@@ -135,8 +134,8 @@ TEST_do_assert_ne(const string &file, int line,
 }
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_ne(const string &file, int line,
-		  const Tlhs &lhs, const Trhs &rhs, const string &msg)
+TEST_do_assert_ne(const std::string &file, int line,
+		  const Tlhs &lhs, const Trhs &rhs, const std::string &msg)
 {
 	const TEST_output_helper_ptr &ret =
 		TEST_do_assert(file, line, lhs != rhs, msg);
@@ -150,7 +149,7 @@ TEST_do_assert_ne(const string &file, int line,
 	TEST_do_assert_lt(__FILE__, __LINE__, ##__VA_ARGS__)
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_lt(const string &file, int line,
+TEST_do_assert_lt(const std::string &file, int line,
 		  const Tlhs &lhs, const Trhs &rhs)
 {
 	const TEST_output_helper_ptr &ret =
@@ -163,8 +162,8 @@ TEST_do_assert_lt(const string &file, int line,
 }
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_lt(const string &file, int line,
-		  const Tlhs &lhs, const Trhs &rhs, const string &msg)
+TEST_do_assert_lt(const std::string &file, int line,
+		  const Tlhs &lhs, const Trhs &rhs, const std::string &msg)
 {
 	const TEST_output_helper_ptr &ret =
 		TEST_do_assert(file, line, lhs < rhs, msg);
@@ -178,7 +177,7 @@ TEST_do_assert_lt(const string &file, int line,
 	TEST_do_assert_gt(__FILE__, __LINE__, ##__VA_ARGS__)
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_gt(const string &file, int line,
+TEST_do_assert_gt(const std::string &file, int line,
 		  const Tlhs &lhs, const Trhs &rhs)
 {
 	const TEST_output_helper_ptr &ret =
@@ -191,8 +190,8 @@ TEST_do_assert_gt(const string &file, int line,
 }
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_gt(const string &file, int line,
-		  const Tlhs &lhs, const Trhs &rhs, const string &msg)
+TEST_do_assert_gt(const std::string &file, int line,
+		  const Tlhs &lhs, const Trhs &rhs, const std::string &msg)
 {
 	const TEST_output_helper_ptr &ret =
 		TEST_do_assert(file, line, lhs > rhs, msg);
@@ -206,7 +205,7 @@ TEST_do_assert_gt(const string &file, int line,
 	TEST_do_assert_le(__FILE__, __LINE__, ##__VA_ARGS__)
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_le(const string &file, int line,
+TEST_do_assert_le(const std::string &file, int line,
 		  const Tlhs &lhs, const Trhs &rhs)
 {
 	const TEST_output_helper_ptr &ret =
@@ -219,8 +218,8 @@ TEST_do_assert_le(const string &file, int line,
 }
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_le(const string &file, int line,
-		  const Tlhs &lhs, const Trhs &rhs, const string &msg)
+TEST_do_assert_le(const std::string &file, int line,
+		  const Tlhs &lhs, const Trhs &rhs, const std::string &msg)
 {
 	const TEST_output_helper_ptr &ret =
 		TEST_do_assert(file, line, lhs <= rhs, msg);
@@ -234,7 +233,7 @@ TEST_do_assert_le(const string &file, int line,
 	TEST_do_assert_ge(__FILE__, __LINE__, ##__VA_ARGS__)
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_ge(const string &file, int line,
+TEST_do_assert_ge(const std::string &file, int line,
 		  const Tlhs &lhs, const Trhs &rhs)
 {
 	const TEST_output_helper_ptr &ret =
@@ -247,8 +246,8 @@ TEST_do_assert_ge(const string &file, int line,
 }
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_ge(const string &file, int line,
-		  const Tlhs &lhs, const Trhs &rhs, const string &msg)
+TEST_do_assert_ge(const std::string &file, int line,
+		  const Tlhs &lhs, const Trhs &rhs, const std::string &msg)
 {
 	const TEST_output_helper_ptr &ret =
 		TEST_do_assert(file, line, lhs >= rhs, msg);
@@ -262,13 +261,13 @@ TEST_do_assert_ge(const string &file, int line,
 // generate a warning message
 #define TEST_WARNING(...) TEST_do_warning(__FILE__, __LINE__, ##__VA_ARGS__)
 inline TEST_output_helper_ptr
-TEST_do_warning(const string &file, int line)
+TEST_do_warning(const std::string &file, int line)
 {
 	std::cerr << "WARN: [" << file << ":" << line << "] ";
 	return TEST_new_output_helper(std::cerr);
 }
 inline TEST_output_helper_ptr
-TEST_do_warning(const string &file, int line, const string &msg)
+TEST_do_warning(const std::string &file, int line, const std::string &msg)
 {
 	std::cerr << "WARN: [" << file << ":" << line << "] "
 		<< msg;

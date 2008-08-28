@@ -4,6 +4,7 @@
 
 #include <gmpxx.h>
 #include <ostream>
+#include <sstream>
 #include "bitbuffer.h"
 
 #define BITS_PER_LONG	(sizeof(long)*CHAR_BIT)
@@ -257,6 +258,40 @@ class bignum: public mpz_class
 	popcount() const
 	{
 		return mpz_popcount(get_mpz_t());
+	}
+
+	// convert to a decimal string
+	std::string
+	to_dec_string() const
+	{
+		std::ostringstream oss;
+		oss << *this;
+		return oss.str();
+	}
+
+	// convert to a hex string
+	std::string
+	to_hex_string() const
+	{
+		std::ostringstream oss;
+		oss << "0x" << std::hex << *this;
+		return oss.str();
+	}
+
+	// convert to an octal string
+	std::string
+	to_oct_string() const
+	{
+		std::ostringstream oss;
+		oss << "0" << std::oct << *this;
+		return oss.str();
+	}
+
+	// convert to a string
+	std::string
+	to_string() const
+	{
+		return to_dec_string();
 	}
 
     // This strangeness allows bignums to safely be treated as bools.
