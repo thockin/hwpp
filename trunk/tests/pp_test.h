@@ -299,6 +299,9 @@ TEST_do_assert_ge(const std::string &file, int line,
 	}
 }
 
+// exit the test
+#define TEST_EXIT() exit(TEST_error_count ?  EXIT_FAILURE : EXIT_SUCCESS)
+
 // a helper class to assign function ptrs
 struct TEST_funcptr_assigner
 {
@@ -384,8 +387,7 @@ main(void)
 		throw;
 	}
 	TEST_do_cleanup_global();
-	int exit_code = TEST_error_count ?  EXIT_FAILURE : EXIT_SUCCESS;
-	exit(exit_code);
+	TEST_EXIT();
 }
 
 #endif // PP_TEST_H__
