@@ -136,7 +136,7 @@ TEST(test_send_recv)
 		unix_socket::socket c(UNIX_SOCKET_PATH);
 		unix_socket::socket s = svr.accept();
 		c.send("This is a test message\n");
-		string str = s.recv_line();
+		std::string str = s.recv_line();
 		if (str != "This is a test message") {
 			TEST_ERROR() << "unix_socket::send() and "
 				<< "unix_socket::recv_line(): received \""
@@ -148,7 +148,7 @@ TEST(test_send_recv)
 		unix_socket::socket c(UNIX_SOCKET_PATH);
 		unix_socket::socket s = svr.accept();
 		s.send("This is a test message\n");
-		string str = c.recv_line();
+		std::string str = c.recv_line();
 		if (str != "This is a test message") {
 			TEST_ERROR() << "unix_socket::send() and "
 				<< "unix_socket::recv_line(): received \""
@@ -161,7 +161,7 @@ TEST(test_send_recv)
 		unix_socket::socket s = svr.accept();
 		c.send("Testing recv_line return on connection close");
 		c.close();
-		string str = s.recv_line();
+		std::string str = s.recv_line();
 		if (str != "Testing recv_line return on connection close") {
 			TEST_ERROR() << "unix_socket::send() and "
 				<< "unix_socket::recv_line(): received \""
@@ -174,7 +174,7 @@ TEST(test_send_recv)
 		unix_socket::socket s = svr.accept();
 		s.send("Testing recv_line return on connection close");
 		s.close();
-		string str = c.recv_line();
+		std::string str = c.recv_line();
 		if (str != "Testing recv_line return on connection "
 				     "close") {
 			TEST_ERROR() << "unix_socket::send() and "
@@ -191,7 +191,7 @@ TEST(test_send_recv)
 		c.send("12345678901234567890");
 		char buf[3];
 		s.recv_all(buf, 3);
-		string str(buf, 3);
+		std::string str(buf, 3);
 		if (str != "123") {
 			TEST_ERROR() << "unix_socket::send() and "
 				<< "unix_socket::recv_all(): received \""
@@ -205,7 +205,7 @@ TEST(test_send_recv)
 		s.send("12345678901234567890");
 		char buf[3];
 		c.recv_all(buf, 3);
-		string str(buf, 3);
+		std::string str(buf, 3);
 		if (str != "123") {
 			TEST_ERROR() << "unix_socket::send() and "
 				<< "unix_socket::recv_all(): received \""
@@ -281,7 +281,7 @@ TEST(test_send_recv)
 		char buf[3];
 		s.recv_all(buf, 3);
 		s.recv_all(buf, 3);
-		string str(buf, 3);
+		std::string str(buf, 3);
 		if (str != "456") {
 			TEST_ERROR() << "unix_socket::send() and "
 				<< "unix_socket::recv_all(): received \""
@@ -297,7 +297,7 @@ TEST(test_send_recv)
 		char buf[3];
 		c.recv_all(buf, 3);
 		c.recv_all(buf, 3);
-		string str(buf, 3);
+		std::string str(buf, 3);
 		if (str != "456") {
 			TEST_ERROR() << "unix_socket::send() and "
 				<< "unix_socket::recv_all(): received \""

@@ -210,10 +210,10 @@ TEST(test_ctors)
 		TEST_ASSERT(val.get_ui() == 0x12,
 			"bignum(bitbuffer)");
 		bitbuffer bb2 = val.get_bitbuffer();
-		TEST_ASSERT(to_string(bb2) == "0x12",
+		TEST_ASSERT(bb2.to_string() == "0x12",
 			"bignum::get_bitbuffer()");
-		bitbuffer bb3 = val.get_bitbuffer(BITS8);
-		TEST_ASSERT(to_string(bb3) == "0x12",
+		bitbuffer bb3 = val.get_bitbuffer(8);
+		TEST_ASSERT(bb3.to_string() == "0x12",
 			"bignum::get_bitbuffer(int)");
 	}
 	{
@@ -224,15 +224,15 @@ TEST(test_ctors)
 		TEST_ASSERT(val.get_ui() == 0x1234,
 			"bignum(bitbuffer)");
 		bitbuffer bb2 = val.get_bitbuffer();
-		TEST_ASSERT(to_string(bb2) == "0x1234",
+		TEST_ASSERT(bb2.to_string() == "0x1234",
 			"bignum::get_bitbuffer()");
-		bitbuffer bb3 = val.get_bitbuffer(BITS16);
-		TEST_ASSERT(to_string(bb3) == "0x1234",
+		bitbuffer bb3 = val.get_bitbuffer(16);
+		TEST_ASSERT(bb3.to_string() == "0x1234",
 			"bignum::get_bitbuffer(int)");
 	}
 	{
-		bitbuffer bb = pp_value(-1).get_bitbuffer();
-		TEST_ASSERT(to_string(bb) == "0x1",
+		bitbuffer bb = bignum(-1).get_bitbuffer();
+		TEST_ASSERT(bb.to_string() == "0x1",
 			"bignum::get_bitbuffer()");
 	}
 }
@@ -1571,6 +1571,13 @@ TEST(test_small_io)
 {
 	{
 		bignum val(15);
+		TEST_ASSERT(val.to_dec_string() == "15", "bignum::to_dec_string()");
+		TEST_ASSERT(val.to_string() == "15", "bignum::to_string()");
+		TEST_ASSERT(val.to_hex_string() == "0xf", "bignum::to_dec_string()");
+		TEST_ASSERT(val.to_oct_string() == "017", "bignum::to_dec_string()");
+	}
+	{
+		bignum val(15);
 		std::ostringstream rawoss;
 		rawoss << std::dec;
 		rawoss << 15;
@@ -2041,24 +2048,12 @@ TEST(test_small_io)
 			"bignum::operator<<(ostream)");
 		#endif
 	}
-
-	// test boost::format support
-	{
-		bignum val(15);
-		std::ostringstream oss;
-		oss.width(8);
-		oss.fill('0');
-		oss << std::hex;
-		oss << 15;
-		TEST_ASSERT(oss.str() == boost::format("%08x") %15,
-			"boost::format() % bignum");
-	}
 }
 
 TEST(test_large_io)
 {
 	{
-		string num = "12345678123456781234567812345678";
+		std::string num = "12345678123456781234567812345678";
 		bignum val(num);
 		std::ostringstream oss;
 		oss.setf(std::ios_base::showbase);
@@ -2068,7 +2063,7 @@ TEST(test_large_io)
 			"bignum::operator<<(ostream)");
 	}
 	{
-		string num = "012345671234567123456712345671234567";
+		std::string num = "012345671234567123456712345671234567";
 		bignum val(num);
 		std::ostringstream oss;
 		oss.setf(std::ios_base::showbase);
@@ -2078,7 +2073,7 @@ TEST(test_large_io)
 			"bignum::operator<<(ostream)");
 	}
 	{
-		string num = "0x123456789abcdef123456789abcdef";
+		std::string num = "0x123456789abcdef123456789abcdef";
 		bignum val(num);
 		std::ostringstream oss;
 		oss.setf(std::ios_base::showbase);
@@ -2093,8 +2088,8 @@ TEST(test_operators)
 {
 	// test operators with signed char
 	{
-		pp_value val = 1;
-		pp_value val2;
+		bignum val = 1;
+		bignum val2;
 
 		val2 = val + (signed char)1;
 		TEST_ASSERT(val2 == 2, "bignum::operator+()");
@@ -2152,8 +2147,8 @@ TEST(test_operators)
 
 	// test operators with unsigned char
 	{
-		pp_value val = 1;
-		pp_value val2;
+		bignum val = 1;
+		bignum val2;
 
 		val2 = val + (unsigned char)1;
 		TEST_ASSERT(val2 == 2, "bignum::operator+()");
@@ -2211,8 +2206,8 @@ TEST(test_operators)
 
 	// test operators with signed short
 	{
-		pp_value val = 1;
-		pp_value val2;
+		bignum val = 1;
+		bignum val2;
 
 		val2 = val + (signed short)1;
 		TEST_ASSERT(val2 == 2, "bignum::operator+()");
@@ -2270,8 +2265,8 @@ TEST(test_operators)
 
 	// test operators with unsigned short
 	{
-		pp_value val = 1;
-		pp_value val2;
+		bignum val = 1;
+		bignum val2;
 
 		val2 = val + (unsigned short)1;
 		TEST_ASSERT(val2 == 2, "bignum::operator+()");
@@ -2329,8 +2324,8 @@ TEST(test_operators)
 
 	// test operators with signed int
 	{
-		pp_value val = 1;
-		pp_value val2;
+		bignum val = 1;
+		bignum val2;
 
 		val2 = val + (signed int)1;
 		TEST_ASSERT(val2 == 2, "bignum::operator+()");
@@ -2388,8 +2383,8 @@ TEST(test_operators)
 
 	// test operators with unsigned int
 	{
-		pp_value val = 1;
-		pp_value val2;
+		bignum val = 1;
+		bignum val2;
 
 		val2 = val + (unsigned int)1;
 		TEST_ASSERT(val2 == 2, "bignum::operator+()");
@@ -2447,8 +2442,8 @@ TEST(test_operators)
 
 	// test operators with signed long
 	{
-		pp_value val = 1;
-		pp_value val2;
+		bignum val = 1;
+		bignum val2;
 
 		val2 = val + (signed long)1;
 		TEST_ASSERT(val2 == 2, "bignum::operator+()");
@@ -2506,8 +2501,8 @@ TEST(test_operators)
 
 	// test operators with unsigned long
 	{
-		pp_value val = 1;
-		pp_value val2;
+		bignum val = 1;
+		bignum val2;
 
 		val2 = val + (unsigned long)1;
 		TEST_ASSERT(val2 == 2, "bignum::operator+()");
@@ -2569,8 +2564,8 @@ TEST(test_operators)
 	// bothered to mess with it any further.
 	#if 0
 	{
-		pp_value val = 1;
-		pp_value val2;
+		bignum val = 1;
+		bignum val2;
 
 		val2 = val + (signed long long)1LL;
 		TEST_ASSERT(val2 == 2, "bignum::operator+()");
@@ -2628,8 +2623,8 @@ TEST(test_operators)
 
 	// test operators with unsigned long long
 	{
-		pp_value val = 1;
-		pp_value val2;
+		bignum val = 1;
+		bignum val2;
 
 		val2 = val + (unsigned long long)1ULL;
 		TEST_ASSERT(val2 == 2, "bignum::operator+()");

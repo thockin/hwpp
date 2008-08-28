@@ -122,25 +122,25 @@ TEST(test_io)
 {
 	{
 		bitbuffer bb(0);
-		TEST_ASSERT(to_string(bb) == "0x0",
+		TEST_ASSERT(bb.to_string() == "0x0",
 			"bitbuffer::operator<<(ostream, bitbuffer)");
 	}
 	{
 		bitbuffer bb(1);
-		TEST_ASSERT(to_string(bb) == "0x0",
+		TEST_ASSERT(bb.to_string() == "0x0",
 			"bitbuffer::operator<<(ostream, bitbuffer)");
 	}
 	{
 		bitbuffer bb(8);
 		bb.get()[0] = 0x5a;
-		TEST_ASSERT(to_string(bb) == "0x5a",
+		TEST_ASSERT(bb.to_string() == "0x5a",
 			"bitbuffer::operator<<(ostream, bitbuffer)");
 	}
 	{
 		bitbuffer bb(65);
 		bb.get()[0] = 0x5a;
 		bb.get()[1] = 0x96;
-		TEST_ASSERT(to_string(bb) == "0x965a",
+		TEST_ASSERT(bb.to_string() == "0x965a",
 			"bitbuffer::operator<<(ostream, bitbuffer)");
 	}
 }
