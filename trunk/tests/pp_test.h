@@ -12,6 +12,30 @@
 // how many failures have we had?
 static int TEST_error_count;
 
+// the global list of tests to run
+static std::vector<void (*)(void)> TEST_list;
+
+// a helper class to register tests
+struct TEST_definition
+{
+	TEST_definition(void (*func)(void))
+	{
+		TEST_list.push_back(func);
+	}
+};
+
+// define a test
+#define TEST(name_) \
+	void name_(void); \
+	static TEST_definition TEST_##name_##definition(name_);\
+	void name_(void)
+
+// test paths, for use inside tests
+#ifndef TEST_PATH_PREFIX
+#  define TEST_PATH_PREFIX "./"
+#endif
+#define TEST_TMP_DIR TEST_PATH_PREFIX "test_tmp"
+
 // a helper to use ostreams for error message output while
 // handling newline output sanely (on the client side, at least)
 struct TEST_output_helper
@@ -47,6 +71,22 @@ operator<<(const TEST_output_helper_ptr &output, const Tdata &data)
 	return output;
 }
 
+// generate a warning message
+#define TEST_WARNING(...) TEST_do_warning(__FILE__, __LINE__, ##__VA_ARGS__)
+inline TEST_output_helper_ptr
+TEST_do_warning(const std::string &file, int line)
+{
+	std::cerr << "WARN: [" << file << ":" << line << "] ";
+	return TEST_new_output_helper(std::cerr);
+}
+inline TEST_output_helper_ptr
+TEST_do_warning(const std::string &file, int line, const std::string &msg)
+{
+	std::cerr << "WARN: [" << file << ":" << line << "] "
+		<< msg;
+	return TEST_new_output_helper(std::cerr);
+}
+
 // generate a test failure
 #define TEST_ERROR(...) TEST_do_error(__FILE__, __LINE__, ##__VA_ARGS__)
 inline TEST_output_helper_ptr
@@ -78,7 +118,8 @@ TEST_do_assert(const std::string &file, int line, bool predicate)
 	}
 }
 inline TEST_output_helper_ptr
-TEST_do_assert(const std::string &file, int line, bool predicate, const std::string &msg)
+TEST_do_assert(const std::string &file, int line,
+               bool predicate, const std::string &msg)
 {
 	if (!predicate) {
 		return TEST_do_error(file, line, msg);
@@ -257,46 +298,6 @@ TEST_do_assert_ge(const std::string &file, int line,
 		return TEST_do_assert(file, line, rhs < lhs, msg);
 	}
 }
-
-// generate a warning message
-#define TEST_WARNING(...) TEST_do_warning(__FILE__, __LINE__, ##__VA_ARGS__)
-inline TEST_output_helper_ptr
-TEST_do_warning(const std::string &file, int line)
-{
-	std::cerr << "WARN: [" << file << ":" << line << "] ";
-	return TEST_new_output_helper(std::cerr);
-}
-inline TEST_output_helper_ptr
-TEST_do_warning(const std::string &file, int line, const std::string &msg)
-{
-	std::cerr << "WARN: [" << file << ":" << line << "] "
-		<< msg;
-	return TEST_new_output_helper(std::cerr);
-}
-
-// the global list of tests to run
-static std::vector<void (*)(void)> TEST_list;
-
-// a helper class to register tests
-struct TEST_definition
-{
-	TEST_definition(void (*func)(void))
-	{
-		TEST_list.push_back(func);
-	}
-};
-
-// define a test
-#define TEST(name_) \
-	void name_(void); \
-	static TEST_definition TEST_##name_##definition(name_);\
-	void name_(void)
-
-// test paths, for use inside tests
-#ifndef TEST_PATH_PREFIX
-#  define TEST_PATH_PREFIX "./"
-#endif
-#define TEST_TMP_DIR TEST_PATH_PREFIX "test_tmp"
 
 // a helper class to assign function ptrs
 struct TEST_funcptr_assigner
