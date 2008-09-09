@@ -2,10 +2,20 @@
 
 # Arguments to this script are passed through to upload.py.
 #
-# For example, use tools/do_review.sh -i [issuenum] to add a new patch set to
-# an existing issue.
+# For example, use tools/do_review.sh -i [issuenum] to add a new patch set
+# to an existing issue.
+
+PROJECT_LIST=pp-devel@googlegroups.com
 
 OFILE=.tmp.do_review.$$
+
+if [ -n "$EDITOR" ]; then
+	EDIT=$EDITOR
+elif [ -n "$VISUAL" ]; then
+	EDIT=$VISUAL
+else
+	EDIT=vi
+fi
 
 function cleanup
 {
@@ -32,14 +42,7 @@ __EOM__
 
 svn status | grep -v "^?" >> $OFILE
 
-if [ -n "$EDITOR" ]; then
-	ED=$EDITOR
-elif [ -n "$VISUAL" ]; then
-	ED=$VISUAL
-else
-	ED=vi
-fi
-if ! $ED $OFILE; then
+if ! $EDIT $OFILE; then
 	abort
 fi
 
@@ -58,14 +61,39 @@ if [ -z "$FILES" ]; then
 fi
 
 if [ -z "$GOOGLE_USER" ]; then
-	echo -ne "Google username (e.g. user@gmail.com):  "
+	echo -ne "Google username (e.g. user@gmail.com): "
 	read GOOGLE_USER
 fi
 
-echo -ne "Subject for this review:  "
+echo -ne "Subject for this review: "
 read SUBJECT
 
-./tools/upload.py "$@" -e "$GOOGLE_USER" -m "$SUBJECT" -- $FILES
+cat > $OFILE << __EOM__
+<describe your change set here>
+__EOM__
+
+if ! $EDIT $OFILE; then
+	abort
+fi
+
+echo >> $OFILE
+echo >> $OFILE
+svn diff $FILES | diffstat >> $OFILE
+
+echo -ne "Send this review?(y/N) "
+read YESNO
+if [ "$YESNO" != "y" -a "$YESNO" != "Y" ]; then
+	abort
+fi
+
+./tools/upload.py "$@" \
+	-e "$GOOGLE_USER" \
+	-m "$SUBJECT" \
+	-f "$OFILE" \
+	-r "$PROJECT_LIST" \
+	--cc "$GOOGLE_USER" \
+	--send_mail \
+	-- $FILES
 
 cleanup
 exit 0
