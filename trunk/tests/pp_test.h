@@ -130,8 +130,7 @@ TEST_assert(const std::string &file, int line,
 }
 
 // helpers for testing comparisons reciprocally
-#define TEST_ASSERT_EQ(...) \
-	TEST_assert_eq(__FILE__, __LINE__, ##__VA_ARGS__)
+#define TEST_ASSERT_EQ(...) TEST_assert_eq(__FILE__, __LINE__, ##__VA_ARGS__)
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
 TEST_assert_eq(const std::string &file, int line,
@@ -158,8 +157,7 @@ TEST_assert_eq(const std::string &file, int line,
 		return TEST_assert(file, line, rhs == lhs, msg);
 	}
 }
-#define TEST_ASSERT_NE(...) \
-	TEST_assert_ne(__FILE__, __LINE__, ##__VA_ARGS__)
+#define TEST_ASSERT_NE(...) TEST_assert_ne(__FILE__, __LINE__, ##__VA_ARGS__)
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
 TEST_assert_ne(const std::string &file, int line,
@@ -186,8 +184,7 @@ TEST_assert_ne(const std::string &file, int line,
 		return TEST_assert(file, line, rhs != lhs, msg);
 	}
 }
-#define TEST_ASSERT_LT(...) \
-	TEST_assert_lt(__FILE__, __LINE__, ##__VA_ARGS__)
+#define TEST_ASSERT_LT(...) TEST_assert_lt(__FILE__, __LINE__, ##__VA_ARGS__)
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
 TEST_assert_lt(const std::string &file, int line,
@@ -214,8 +211,7 @@ TEST_assert_lt(const std::string &file, int line,
 		return TEST_assert(file, line, rhs >= lhs, msg);
 	}
 }
-#define TEST_ASSERT_GT(...) \
-	TEST_assert_gt(__FILE__, __LINE__, ##__VA_ARGS__)
+#define TEST_ASSERT_GT(...) TEST_assert_gt(__FILE__, __LINE__, ##__VA_ARGS__)
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
 TEST_assert_gt(const std::string &file, int line,
@@ -242,8 +238,7 @@ TEST_assert_gt(const std::string &file, int line,
 		return TEST_assert(file, line, rhs <= lhs, msg);
 	}
 }
-#define TEST_ASSERT_LE(...) \
-	TEST_assert_le(__FILE__, __LINE__, ##__VA_ARGS__)
+#define TEST_ASSERT_LE(...) TEST_assert_le(__FILE__, __LINE__, ##__VA_ARGS__)
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
 TEST_assert_le(const std::string &file, int line,
@@ -270,8 +265,7 @@ TEST_assert_le(const std::string &file, int line,
 		return TEST_assert(file, line, rhs > lhs, msg);
 	}
 }
-#define TEST_ASSERT_GE(...) \
-	TEST_assert_ge(__FILE__, __LINE__, ##__VA_ARGS__)
+#define TEST_ASSERT_GE(...) TEST_assert_ge(__FILE__, __LINE__, ##__VA_ARGS__)
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
 TEST_assert_ge(const std::string &file, int line,
