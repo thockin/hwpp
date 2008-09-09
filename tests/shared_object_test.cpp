@@ -28,7 +28,7 @@ TEST(test_ctors)
 	{
 		try {
 			shared_object so("./nonexistant.so");
-			TEST_ERROR("shared_object::shared_object(string)");
+			TEST_FAIL("shared_object::shared_object(string)");
 		} catch (shared_object::load_error &e) {
 		}
 	}
@@ -94,7 +94,7 @@ TEST(test_lookup_symbol)
 		try {
 			shared_object so("libdl.so");
 			so.lookup_symbol("nonexistant");
-			TEST_ERROR("shared_object::lookup_symbol()");
+			TEST_FAIL("shared_object::lookup_symbol()");
 		} catch (shared_object::symbol_not_found_error &e) {
 		}
 	}
@@ -126,7 +126,7 @@ TEST(test_refcount)
 			"shared_object::shared_object()");
 		try {
 			p = so.lookup_symbol("dlopen");
-			TEST_ERROR("shared_object::lookup_symbol()");
+			TEST_FAIL("shared_object::lookup_symbol()");
 		} catch (shared_object::invalid_handle_error &e) {
 		}
 		p = so2.lookup_symbol("dlopen");
@@ -140,12 +140,12 @@ TEST(test_refcount)
 			"shared_object::shared_object()");
 		try {
 			p = so.lookup_symbol("dlopen");
-			TEST_ERROR("shared_object::lookup_symbol()");
+			TEST_FAIL("shared_object::lookup_symbol()");
 		} catch (shared_object::invalid_handle_error &e) {
 		}
 		try {
 			p = so2.lookup_symbol("dlopen");
-			TEST_ERROR("shared_object::lookup_symbol()");
+			TEST_FAIL("shared_object::lookup_symbol()");
 		} catch (shared_object::invalid_handle_error &e) {
 		}
 	}

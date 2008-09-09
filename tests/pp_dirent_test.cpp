@@ -31,42 +31,42 @@ TEST(test_pp_dirent)
 
 	/* test the dirent_type() method */
 	if (dirent->dirent_type() != PP_DIRENT_FIELD) {
-		TEST_ERROR("pp_dirent::dirent_type()");
+		TEST_FAIL("pp_dirent::dirent_type()");
 	}
 	if (!dirent->is_field()) {
-		TEST_ERROR("pp_dirent::is_field()");
+		TEST_FAIL("pp_dirent::is_field()");
 	}
 	if (dirent->is_register()) {
-		TEST_ERROR("pp_dirent::is_register()");
+		TEST_FAIL("pp_dirent::is_register()");
 	}
 
 	if (to_string(PP_DIRENT_FIELD) != "pp_field") {
-		TEST_ERROR("pp_dirent::operator<<(ostream)");
+		TEST_FAIL("pp_dirent::operator<<(ostream)");
 	}
 	if (to_string(PP_DIRENT_REGISTER) != "pp_register") {
-		TEST_ERROR("pp_dirent::operator<<(ostream)");
+		TEST_FAIL("pp_dirent::operator<<(ostream)");
 	}
 	if (to_string(PP_DIRENT_SCOPE) != "pp_scope") {
-		TEST_ERROR("pp_dirent::operator<<(ostream)");
+		TEST_FAIL("pp_dirent::operator<<(ostream)");
 	}
 	if (to_string(PP_DIRENT_ARRAY) != "pp_array") {
-		TEST_ERROR("pp_dirent::operator<<(ostream)");
+		TEST_FAIL("pp_dirent::operator<<(ostream)");
 	}
 
 	/* test up-casting */
 	try {
 		pp_field_from_dirent(dirent);
 	} catch (pp_dirent::conversion_error &e) {
-		TEST_ERROR("pp_field_from_dirent()");
+		TEST_FAIL("pp_field_from_dirent()");
 	}
 	try {
 		pp_register_from_dirent(dirent);
-		TEST_ERROR("pp_register_from_dirent()");
+		TEST_FAIL("pp_register_from_dirent()");
 	} catch (pp_dirent::conversion_error &e) {
 	}
 	try {
 		pp_scope_from_dirent(dirent);
-		TEST_ERROR("pp_scope_from_dirent()");
+		TEST_FAIL("pp_scope_from_dirent()");
 	} catch (pp_dirent::conversion_error &e) {
 	}
 }

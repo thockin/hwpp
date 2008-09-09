@@ -65,7 +65,7 @@ TEST(test_regex)
 	{
 		try {
 			regex re(".*\\1");
-			TEST_ERROR("regex::regex()");
+			TEST_FAIL("regex::regex()");
 		} catch (std::invalid_argument &e) {
 		}
 	}

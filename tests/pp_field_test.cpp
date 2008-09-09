@@ -25,22 +25,22 @@ TEST(test_int_field)
 
 	/* test read() */
 	if (f1.read() != 8721) {
-		TEST_ERROR("pp_direct_field::read()");
+		TEST_FAIL("pp_direct_field::read()");
 	}
 	if (f1.evaluate() != "8721") {
-		TEST_ERROR("pp_direct_field::evaluate()");
+		TEST_FAIL("pp_direct_field::evaluate()");
 	}
 
 	/* test write */
 	f1.write(0x0102);
 	if (f1.read() != 0x0102) {
-		TEST_ERROR("pp_direct_field::write()");
+		TEST_FAIL("pp_direct_field::write()");
 	}
 	if (r1->read() != 0x1102) {
-		TEST_ERROR("pp_direct_field::write()");
+		TEST_FAIL("pp_direct_field::write()");
 	}
 	if (r2->read() != 0x2201) {
-		TEST_ERROR("pp_direct_field::write()");
+		TEST_FAIL("pp_direct_field::write()");
 	}
 }
 
@@ -61,22 +61,22 @@ TEST(test_hex_field)
 
 	/* test read() */
 	if (f1.read() != 0x2211) {
-		TEST_ERROR("pp_direct_field::read()");
+		TEST_FAIL("pp_direct_field::read()");
 	}
 	if (f1.evaluate() != "0x2211") {
-		TEST_ERROR("pp_direct_field::evaluate()");
+		TEST_FAIL("pp_direct_field::evaluate()");
 	}
 
 	/* test write */
 	f1.write(0x0102);
 	if (f1.read() != 0x0102) {
-		TEST_ERROR("pp_direct_field::write()");
+		TEST_FAIL("pp_direct_field::write()");
 	}
 	if (r1->read() != 0x1102) {
-		TEST_ERROR("pp_direct_field::write()");
+		TEST_FAIL("pp_direct_field::write()");
 	}
 	if (r2->read() != 0x2201) {
-		TEST_ERROR("pp_direct_field::write()");
+		TEST_FAIL("pp_direct_field::write()");
 	}
 }
 
@@ -101,23 +101,23 @@ TEST(test_enum_field)
 
 	/* test read() */
 	if (f1->read() != 0x2211) {
-		TEST_ERROR("pp_direct_field::read()");
+		TEST_FAIL("pp_direct_field::read()");
 	}
 	if (f1->evaluate() != "correct") {
-		TEST_ERROR("pp_direct_field::evaluate()");
+		TEST_FAIL("pp_direct_field::evaluate()");
 	}
 
 	/* test write */
 	//FIXME: write by string? or lookup by string?
 	f1->write(1);
 	if (f1->read() != 0x1) {
-		TEST_ERROR("pp_direct_field::write()");
+		TEST_FAIL("pp_direct_field::write()");
 	}
 	if (r1->read() != 0x1101) {
-		TEST_ERROR("pp_direct_field::write()");
+		TEST_FAIL("pp_direct_field::write()");
 	}
 	if (r2->read() != 0x2200) {
-		TEST_ERROR("pp_direct_field::write()");
+		TEST_FAIL("pp_direct_field::write()");
 	}
 }
 
@@ -145,23 +145,23 @@ TEST(test_bitmask_field)
 
 	/* test read() */
 	if (f1->read() != 0x2211) {
-		TEST_ERROR("pp_direct_field::read()");
+		TEST_FAIL("pp_direct_field::read()");
 	}
 	if (f1->evaluate() != "zero four nine thirteen") {
-		TEST_ERROR("pp_direct_field::evaluate()");
+		TEST_FAIL("pp_direct_field::evaluate()");
 	}
 
 	/* test write */
 	//FIXME: write by string? or lookup by string?
 	f1->write(0x207);
 	if (f1->read() != 0x207) {
-		TEST_ERROR("pp_direct_field::write()");
+		TEST_FAIL("pp_direct_field::write()");
 	}
 	if (r1->read() != 0x1107) {
-		TEST_ERROR("pp_direct_field::write()");
+		TEST_FAIL("pp_direct_field::write()");
 	}
 	if (r2->read() != 0x2202) {
-		TEST_ERROR("pp_direct_field::write()");
+		TEST_FAIL("pp_direct_field::write()");
 	}
 }
 
@@ -189,10 +189,10 @@ TEST(test_proc_field)
 	pp_proc_field f(hex, procs);
 	f.write(0x12345678);
 	if (f.read() != 0x12345678) {
-		TEST_ERROR("pp_proc_field::write()");
+		TEST_FAIL("pp_proc_field::write()");
 	}
 	if (f.evaluate() != "0x12345678") {
-		TEST_ERROR("pp_proc_field::write()");
+		TEST_FAIL("pp_proc_field::write()");
 	}
 }
 
@@ -201,13 +201,13 @@ TEST(test_constant_field)
 	pp_datatype_ptr hex = new_pp_hex_datatype();
 	pp_constant_field f(hex, 0x12345678);
 	if (f.read() != 0x12345678) {
-		TEST_ERROR("pp_constant_field::read()");
+		TEST_FAIL("pp_constant_field::read()");
 	}
 	if (f.evaluate() != "0x12345678") {
-		TEST_ERROR("pp_constant_field::read()");
+		TEST_FAIL("pp_constant_field::read()");
 	}
 	f.write(0);
 	if (f.read() != 0x12345678) {
-		TEST_ERROR("pp_constant_field::write()");
+		TEST_FAIL("pp_constant_field::write()");
 	}
 }

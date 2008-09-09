@@ -16,7 +16,7 @@ TEST(test_ctors)
 	// default ctor
 	si_keyvec keyvec;
 	if (keyvec.size() != 0) {
-		TEST_ERROR("keyed_vector::keyed_vector()");
+		TEST_FAIL("keyed_vector::keyed_vector()");
 	}
 
 	// copy ctor
@@ -27,14 +27,14 @@ TEST(test_ctors)
 		keyvec.insert("two", 2);
 		kvp = new si_keyvec(keyvec);
 		if (kvp->size() != 2) {
-			TEST_ERROR("keyed_vector::keyed_vector(keyed_vector)");
+			TEST_FAIL("keyed_vector::keyed_vector(keyed_vector)");
 		}
 	}
 	if (kvp->size() != 2) {
-		TEST_ERROR("keyed_vector::keyed_vector(keyed_vector)");
+		TEST_FAIL("keyed_vector::keyed_vector(keyed_vector)");
 	}
 	if (kvp->key_at(0) != "one") {
-		TEST_ERROR("keyed_vector::keyed_vector(keyed_vector)");
+		TEST_FAIL("keyed_vector::keyed_vector(keyed_vector)");
 	}
 
 	// assignment
@@ -43,18 +43,18 @@ TEST(test_ctors)
 		keyvec.insert("one", 1);
 		keyvec.insert("two", 2);
 		if (keyvec.size() != 2) {
-			TEST_ERROR("keyed_vector::opersator=(keyed_vector)");
+			TEST_FAIL("keyed_vector::opersator=(keyed_vector)");
 		}
 
 		si_keyvec keyvec2;
 		keyvec2.insert("three", 3);
 		if (keyvec2.size() != 1) {
-			TEST_ERROR("keyed_vector::opersator=(keyed_vector)");
+			TEST_FAIL("keyed_vector::opersator=(keyed_vector)");
 		}
 
 		keyvec2 = keyvec;
 		if (keyvec2.size() != 2) {
-			TEST_ERROR("keyed_vector::opersator=(keyed_vector)");
+			TEST_FAIL("keyed_vector::opersator=(keyed_vector)");
 		}
 	}
 }
@@ -65,52 +65,52 @@ TEST(test_exceptions)
 
 	si_keyvec keyvec;
 	if (keyvec.size() != 0) {
-		TEST_ERROR("keyed_vector::size()");
+		TEST_FAIL("keyed_vector::size()");
 	}
 
 	try {
 		keyvec.at(0);
-		TEST_ERROR("keyed_vector::at(int)");
+		TEST_FAIL("keyed_vector::at(int)");
 	} catch (std::out_of_range &e) {
 	}
 	try {
 		keyvec[0];
-		TEST_ERROR("keyed_vector::operator[](int)");
+		TEST_FAIL("keyed_vector::operator[](int)");
 	} catch (std::out_of_range &e) {
 	}
 	try {
 		keyvec.key_at(0);
-		TEST_ERROR("keyed_vector::key_at(int)");
+		TEST_FAIL("keyed_vector::key_at(int)");
 	} catch (std::out_of_range &e) {
 	}
 	try {
 		keyvec.at("foo");
-		TEST_ERROR("keyed_vector::at(Tkey)");
+		TEST_FAIL("keyed_vector::at(Tkey)");
 	} catch (std::out_of_range &e) {
 	}
 	try {
 		keyvec["foo"];
-		TEST_ERROR("keyed_vector::operator[](Tkey)");
+		TEST_FAIL("keyed_vector::operator[](Tkey)");
 	} catch (std::out_of_range &e) {
 	}
 	try {
 		keyvec.front();
-		TEST_ERROR("keyed_vector::front()");
+		TEST_FAIL("keyed_vector::front()");
 	} catch (std::out_of_range &e) {
 	}
 	try {
 		keyvec.back();
-		TEST_ERROR("keyed_vector::back()");
+		TEST_FAIL("keyed_vector::back()");
 	} catch (std::out_of_range &e) {
 	}
 	try {
 		keyvec.pop_front();
-		TEST_ERROR("keyed_vector::pop_front()");
+		TEST_FAIL("keyed_vector::pop_front()");
 	} catch (std::out_of_range &e) {
 	}
 	try {
 		keyvec.pop_back();
-		TEST_ERROR("keyed_vector::pop_back()");
+		TEST_FAIL("keyed_vector::pop_back()");
 	} catch (std::out_of_range &e) {
 	}
 }
@@ -124,10 +124,10 @@ TEST(test_int)
 
 	// verify that it has the right size
 	if (keyvec.size() != 0) {
-		TEST_ERROR("keyed_vector::keyed_vector()");
+		TEST_FAIL("keyed_vector::keyed_vector()");
 	}
 	if (!keyvec.empty()) {
-		TEST_ERROR("keyed_vector::empty()");
+		TEST_FAIL("keyed_vector::empty()");
 	}
 
 	// add some items
@@ -137,24 +137,24 @@ TEST(test_int)
 
 	// verify that it has the right size
 	if (keyvec.size() != 3) {
-		TEST_ERROR("keyed_vector::push_back()");
+		TEST_FAIL("keyed_vector::push_back()");
 	}
 	if (keyvec.empty()) {
-		TEST_ERROR("keyed_vector::empty()");
+		TEST_FAIL("keyed_vector::empty()");
 	}
 
 	// test simple iterator fetchers
 	if (*keyvec.begin() != 1) {
-		TEST_ERROR("keyed_vector::begin()");
+		TEST_FAIL("keyed_vector::begin()");
 	}
 	if (*const_keyvec.begin() != 1) {
-		TEST_ERROR("keyed_vector::begin()");
+		TEST_FAIL("keyed_vector::begin()");
 	}
 	if (keyvec.end() != keyvec.begin()+3) {
-		TEST_ERROR("keyed_vector::end()");
+		TEST_FAIL("keyed_vector::end()");
 	}
 	if (const_keyvec.end() != const_keyvec.begin()+3) {
-		TEST_ERROR("keyed_vector::end()");
+		TEST_FAIL("keyed_vector::end()");
 	}
 	si_keyvec::const_iterator cit = const_keyvec.begin();
 	cit = keyvec.begin();
@@ -163,16 +163,16 @@ TEST(test_int)
 
 	/* test reverse iterator fetchers */
 	if (*keyvec.rbegin() != 3) {
-		TEST_ERROR("keyed_vector::rbegin()");
+		TEST_FAIL("keyed_vector::rbegin()");
 	}
 	if (*const_keyvec.rbegin() != 3) {
-		TEST_ERROR("keyed_vector::rbegin()");
+		TEST_FAIL("keyed_vector::rbegin()");
 	}
 	if (keyvec.rend() != keyvec.rbegin()+3) {
-		TEST_ERROR("keyed_vector::rend()");
+		TEST_FAIL("keyed_vector::rend()");
 	}
 	if (const_keyvec.rend() != const_keyvec.rbegin()+3) {
-		TEST_ERROR("keyed_vector::rend()");
+		TEST_FAIL("keyed_vector::rend()");
 	}
 
 	/* test forward iterator */
@@ -183,109 +183,109 @@ TEST(test_int)
 		it++;
 	}
 	if (count != 3) {
-		TEST_ERROR("keyed_vector::iterator");
+		TEST_FAIL("keyed_vector::iterator");
 	}
 
 	/* test simple int indexing and at() */
 	if (keyvec[0] != 1) {
-		TEST_ERROR("keyed_vector::operator[int]");
+		TEST_FAIL("keyed_vector::operator[int]");
 	}
 	if (const_keyvec[0] != 1) {
-		TEST_ERROR("const keyed_vector::operator[int]");
+		TEST_FAIL("const keyed_vector::operator[int]");
 	}
 	if (keyvec.at(0) != 1) {
-		TEST_ERROR("keyed_vector::at(int)");
+		TEST_FAIL("keyed_vector::at(int)");
 	}
 	if (const_keyvec.at(0) != 1) {
-		TEST_ERROR("const keyed_vector::at(int)");
+		TEST_FAIL("const keyed_vector::at(int)");
 	}
 
 	/* test simple Tkey indexing and at() */
 	if (keyvec["one"] != 1) {
-		TEST_ERROR("keyed_vector::operator[Tkey]");
+		TEST_FAIL("keyed_vector::operator[Tkey]");
 	}
 	if (const_keyvec["one"] != 1) {
-		TEST_ERROR("const keyed_vector::operator[Tkey]");
+		TEST_FAIL("const keyed_vector::operator[Tkey]");
 	}
 	if (keyvec.at("one") != 1) {
-		TEST_ERROR("keyed_vector::at(Tkey)");
+		TEST_FAIL("keyed_vector::at(Tkey)");
 	}
 	if (const_keyvec.at("one") != 1) {
-		TEST_ERROR("const keyed_vector::at(Tkey)");
+		TEST_FAIL("const keyed_vector::at(Tkey)");
 	}
 
 	/* test overwrites */
 	if (keyvec["two"] != 2) {
-		TEST_ERROR("keyed_vector::at(Tkey)");
+		TEST_FAIL("keyed_vector::at(Tkey)");
 	}
 	keyvec.push_back("two", 22);
 	if (keyvec["two"] != 22) {
-		TEST_ERROR("keyed_vector::push_back()");
+		TEST_FAIL("keyed_vector::push_back()");
 	}
 	if (const_keyvec["two"] != 22) {
-		TEST_ERROR("keyed_vector::push_back()");
+		TEST_FAIL("keyed_vector::push_back()");
 	}
 
 	/* test the has_key() method */
 	if (!keyvec.has_key("one")) {
-		TEST_ERROR("keyed_vector::has_key()");
+		TEST_FAIL("keyed_vector::has_key()");
 	}
 	if (!const_keyvec.has_key("one")) {
-		TEST_ERROR("const keyed_vector::has_key()");
+		TEST_FAIL("const keyed_vector::has_key()");
 	}
 	if (keyvec.has_key("four")) {
-		TEST_ERROR("keyed_vector::has_key()");
+		TEST_FAIL("keyed_vector::has_key()");
 	}
 
 	/* test the find() method */
 	it = keyvec.find("one");
 	if (it == keyvec.end() || *it != 1) {
-		TEST_ERROR("keyed_vector::find()");
+		TEST_FAIL("keyed_vector::find()");
 	}
 	it = keyvec.find("four");
 	if (it != keyvec.end()) {
-		TEST_ERROR("keyed_vector::find()");
+		TEST_FAIL("keyed_vector::find()");
 	}
 
 	/* test the key_at() method */
 	if (keyvec.key_at(0) != "one") {
-		TEST_ERROR("keyed_vector::key_at()");
+		TEST_FAIL("keyed_vector::key_at()");
 	}
 	// keyvec.key_at(0) = "four"; // must fail
 
 	/* test writes through a subscript */
 	keyvec[1] = 1234;
 	if (keyvec[1] != 1234) {
-		TEST_ERROR("keyed_vector::operator[int]");
+		TEST_FAIL("keyed_vector::operator[int]");
 	}
 	keyvec["two"] = 5678;
 	if (keyvec["two"] != 5678) {
-		TEST_ERROR("keyed_vector::operator[Tkey]");
+		TEST_FAIL("keyed_vector::operator[Tkey]");
 	}
 
 	/* test erase() */
 	keyvec.insert("four", 4);
 
 	if (keyvec.at(3) != 4 || keyvec.at("four") != 4) {
-		TEST_ERROR("keyed_vector::insert()");
+		TEST_FAIL("keyed_vector::insert()");
 	}
 	if (keyvec.size() != 4) {
-		TEST_ERROR("keyed_vector::insert()");
+		TEST_FAIL("keyed_vector::insert()");
 	}
 	keyvec.erase(keyvec.begin());
 	if (keyvec.size() != 3) {
-		TEST_ERROR("keyed_vector::erase()");
+		TEST_FAIL("keyed_vector::erase()");
 	}
 
 	/* erase should have adjusted everything */
 	if (keyvec.at(2) != 4 || keyvec.at("four") != 4) {
-		TEST_ERROR("keyed_vector::erase()");
+		TEST_FAIL("keyed_vector::erase()");
 	}
 
 	/* test clear() */
 	keyvec.clear();
 	if (keyvec.size() != 0) {
-		TEST_ERROR("keyed_vector::push_back()");
+		TEST_FAIL("keyed_vector::push_back()");
 	}
 }
 
@@ -324,10 +324,10 @@ TEST(test_xypair)
 
 	// verify that it has the right size
 	if (keyvec.size() != 0) {
-		TEST_ERROR("keyed_vector::keyed_vector()");
+		TEST_FAIL("keyed_vector::keyed_vector()");
 	}
 	if (!keyvec.empty()) {
-		TEST_ERROR("keyed_vector::empty()");
+		TEST_FAIL("keyed_vector::empty()");
 	}
 
 	// add some items
@@ -337,40 +337,40 @@ TEST(test_xypair)
 
 	// verify that it has the right size
 	if (keyvec.size() != 3) {
-		TEST_ERROR("keyed_vector::push_back()");
+		TEST_FAIL("keyed_vector::push_back()");
 	}
 	if (keyvec.empty()) {
-		TEST_ERROR("keyed_vector::empty()");
+		TEST_FAIL("keyed_vector::empty()");
 	}
 
 	// test simple iterator fetchers
 	if (*keyvec.begin() != zero) {
-		TEST_ERROR("keyed_vector::begin()");
+		TEST_FAIL("keyed_vector::begin()");
 	}
 	if (*const_keyvec.begin() != zero) {
-		TEST_ERROR("keyed_vector::begin()");
+		TEST_FAIL("keyed_vector::begin()");
 	}
 	if (keyvec.end() != keyvec.begin()+3) {
-		TEST_ERROR("keyed_vector::end()");
+		TEST_FAIL("keyed_vector::end()");
 	}
 	if (const_keyvec.end() != const_keyvec.begin()+3) {
-		TEST_ERROR("keyed_vector::end()");
+		TEST_FAIL("keyed_vector::end()");
 	}
 	xy_keyvec::const_iterator cit = const_keyvec.begin();
 	cit = keyvec.begin();
 
 	/* test reverse iterator fetchers */
 	if (*keyvec.rbegin() != two) {
-		TEST_ERROR("keyed_vector::rbegin()");
+		TEST_FAIL("keyed_vector::rbegin()");
 	}
 	if (*const_keyvec.rbegin() != two) {
-		TEST_ERROR("keyed_vector::rbegin()");
+		TEST_FAIL("keyed_vector::rbegin()");
 	}
 	if (keyvec.rend() != keyvec.rbegin()+3) {
-		TEST_ERROR("keyed_vector::rend()");
+		TEST_FAIL("keyed_vector::rend()");
 	}
 	if (const_keyvec.rend() != const_keyvec.rbegin()+3) {
-		TEST_ERROR("keyed_vector::rend()");
+		TEST_FAIL("keyed_vector::rend()");
 	}
 
 	/* test forward iterator */
@@ -381,93 +381,93 @@ TEST(test_xypair)
 		it++;
 	}
 	if (count != 3) {
-		TEST_ERROR("keyed_vector::iterator");
+		TEST_FAIL("keyed_vector::iterator");
 	}
 
 	/* test simple int indexing and at() */
 	if (keyvec[0] != zero) {
-		TEST_ERROR("keyed_vector::operator[int]");
+		TEST_FAIL("keyed_vector::operator[int]");
 	}
 	if (const_keyvec[0] != zero) {
-		TEST_ERROR("const keyed_vector::operator[int]");
+		TEST_FAIL("const keyed_vector::operator[int]");
 	}
 	if (keyvec.at(0) != zero) {
-		TEST_ERROR("keyed_vector::at(int)");
+		TEST_FAIL("keyed_vector::at(int)");
 	}
 	if (const_keyvec.at(0) != zero) {
-		TEST_ERROR("const keyed_vector::at(int)");
+		TEST_FAIL("const keyed_vector::at(int)");
 	}
 
 	/* test simple Tkey indexing and at() */
 	if (keyvec["zero,zero"] != zero) {
-		TEST_ERROR("keyed_vector::operator[Tkey]");
+		TEST_FAIL("keyed_vector::operator[Tkey]");
 	}
 	if (const_keyvec["zero,zero"] != zero) {
-		TEST_ERROR("const keyed_vector::operator[Tkey]");
+		TEST_FAIL("const keyed_vector::operator[Tkey]");
 	}
 	if (keyvec.at("zero,zero") != zero) {
-		TEST_ERROR("keyed_vector::at(Tkey)");
+		TEST_FAIL("keyed_vector::at(Tkey)");
 	}
 	if (const_keyvec.at("zero,zero") != zero) {
-		TEST_ERROR("const keyed_vector::at(Tkey)");
+		TEST_FAIL("const keyed_vector::at(Tkey)");
 	}
 
 	/* test overwrites */
 	if (keyvec["two,four"] != two) {
-		TEST_ERROR("keyed_vector::at(Tkey)");
+		TEST_FAIL("keyed_vector::at(Tkey)");
 	}
 	keyvec.push_back("two,four", zero);
 	if (keyvec["two,four"] != zero) {
-		TEST_ERROR("keyed_vector::push_back()");
+		TEST_FAIL("keyed_vector::push_back()");
 	}
 	if (const_keyvec["two,four"] != zero) {
-		TEST_ERROR("keyed_vector::push_back()");
+		TEST_FAIL("keyed_vector::push_back()");
 	}
 
 	/* test the has_key() method */
 	if (!keyvec.has_key("one,minusone")) {
-		TEST_ERROR("keyed_vector::has_key()");
+		TEST_FAIL("keyed_vector::has_key()");
 	}
 	if (!const_keyvec.has_key("one,minusone")) {
-		TEST_ERROR("const keyed_vector::has_key()");
+		TEST_FAIL("const keyed_vector::has_key()");
 	}
 	if (keyvec.has_key("four,score")) {
-		TEST_ERROR("keyed_vector::has_key()");
+		TEST_FAIL("keyed_vector::has_key()");
 	}
 
 	/* test the find() method */
 	it = keyvec.find("one,minusone");
 	if (it == keyvec.end() || *it != one) {
-		TEST_ERROR("keyed_vector::find()");
+		TEST_FAIL("keyed_vector::find()");
 	}
 	it = keyvec.find("four,score");
 	if (it != keyvec.end()) {
-		TEST_ERROR("keyed_vector::find()");
+		TEST_FAIL("keyed_vector::find()");
 	}
 
 	/* test the key_at() method */
 	if (keyvec.key_at(0) != "zero,zero") {
-		TEST_ERROR("keyed_vector::key_at()");
+		TEST_FAIL("keyed_vector::key_at()");
 	}
 	// keyvec.key_at(0) = "four,score"; // must fail
 
 	/* test writes through a subscript */
 	keyvec[1] = two;
 	if (keyvec[1] != two) {
-		TEST_ERROR("keyed_vector::operator[int]");
+		TEST_FAIL("keyed_vector::operator[int]");
 	}
 	keyvec["two,four"] = zero;
 	if (keyvec["two,four"] != zero) {
-		TEST_ERROR("keyed_vector::operator[Tkey]");
+		TEST_FAIL("keyed_vector::operator[Tkey]");
 	}
 
 	/* test erase() */
 	keyvec.insert("four,score", four);
 	if (keyvec.size() != 4) {
-		TEST_ERROR("keyed_vector::insert()");
+		TEST_FAIL("keyed_vector::insert()");
 	}
 	keyvec.erase(keyvec.begin());
 	if (keyvec.size() != 3) {
-		TEST_ERROR("keyed_vector::erase()");
+		TEST_FAIL("keyed_vector::erase()");
 	}
 }

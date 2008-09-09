@@ -164,42 +164,42 @@ TEST(test_element)
 	{
 		try {
 			pp_path::element e("foo$bar");
-			TEST_ERROR("pp_path::pp_path()");
+			TEST_FAIL("pp_path::pp_path()");
 		} catch (pp_path::invalid_error &e) {
 		}
 	}
 	{
 		try {
 			pp_path::element e("$123");
-			TEST_ERROR("pp_path::pp_path()");
+			TEST_FAIL("pp_path::pp_path()");
 		} catch (pp_path::invalid_error &e) {
 		}
 	}
 	{
 		try {
 			pp_path::element e("$");
-			TEST_ERROR("pp_path::pp_path()");
+			TEST_FAIL("pp_path::pp_path()");
 		} catch (pp_path::invalid_error &e) {
 		}
 	}
 	{
 		try {
 			pp_path::element e("$$");
-			TEST_ERROR("pp_path::pp_path()");
+			TEST_FAIL("pp_path::pp_path()");
 		} catch (pp_path::invalid_error &e) {
 		}
 	}
 	{
 		try {
 			pp_path::element e("123");
-			TEST_ERROR("pp_path::pp_path()");
+			TEST_FAIL("pp_path::pp_path()");
 		} catch (pp_path::invalid_error &e) {
 		}
 	}
 	{
 		try {
 			pp_path::element e("");
-			TEST_ERROR("pp_path::pp_path()");
+			TEST_FAIL("pp_path::pp_path()");
 		} catch (pp_path::invalid_error &e) {
 		}
 	}
@@ -461,7 +461,7 @@ TEST(test_ctors)
 	{
 		try {
 			pp_path path("123");
-			TEST_ERROR("pp_path::pp_path()");
+			TEST_FAIL("pp_path::pp_path()");
 		} catch (pp_path::invalid_error &e) {
 		}
 	}
@@ -630,22 +630,22 @@ TEST(test_contents)
 	// cause exceptions
 	try {
 		path.pop_front();
-		TEST_ERROR("pp_path::pop_front()");
+		TEST_FAIL("pp_path::pop_front()");
 	} catch (std::out_of_range &e) {
 	}
 	try {
 		path.pop_back();
-		TEST_ERROR("pp_path::pop_back()");
+		TEST_FAIL("pp_path::pop_back()");
 	} catch (std::out_of_range &e) {
 	}
 	try {
 		path.front();
-		TEST_ERROR("pp_path::front()");
+		TEST_FAIL("pp_path::front()");
 	} catch (std::out_of_range &e) {
 	}
 	try {
 		path.back();
-		TEST_ERROR("pp_path::back()");
+		TEST_FAIL("pp_path::back()");
 	} catch (std::out_of_range &e) {
 	}
 
