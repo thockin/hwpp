@@ -183,12 +183,9 @@ fkl_open_scope(const parse_location &loc,
 		pp_scope_ptr tmp_scope = new_pp_scope(binding);
 		pp_context new_ctxt(elem, tmp_scope);
 
-		// save the current scope
+		// save the current scope, and set the new scope
 		tmp_scope->set_parent(current_context.scope());
-		context_stack.push_back(current_context);
-
-		// set current_context
-		current_context = new_ctxt;
+		pp_context_push(new_ctxt);
 	} catch (pp_path::invalid_error &e) {
 		throw pp_parse_error(e.what(), loc);
 	}
@@ -206,16 +203,14 @@ fkl_close_scope(const parse_location &loc)
 	DASSERT_MSG(!current_context.is_readonly(),
 		"current_context is read-only");
 
-	// there had better be a current scope and a parent scope
-	DASSERT_MSG(!context_stack.empty(), "invalid parent context");
+	// keep a copy of the current context
+	pp_context new_ctxt = current_context;
 
-	// add the current scope to the parent context
-	pp_context old_ctxt = context_stack.back();
-	old_ctxt.add_dirent(current_context);
+	// retore the previous context
+	pp_context_pop();
 
-	// restore the parent context
-	current_context = old_ctxt;
-	context_stack.pop_back();
+	// add the now-closed new context to the parent
+	current_context.add_dirent(new_ctxt);
 }
 void
 fkl_close_scope(const parse_location &loc, const string &new_name)
@@ -224,9 +219,6 @@ fkl_close_scope(const parse_location &loc, const string &new_name)
 
 	DASSERT_MSG(!current_context.is_readonly(),
 	    "current_context is read-only");
-
-	// there had better be a current scope and a parent scope
-	DASSERT_MSG(!context_stack.empty(), "invalid parent context");
 
 	try {
 		pp_path::element elem(new_name);

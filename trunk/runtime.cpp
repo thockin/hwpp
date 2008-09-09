@@ -9,10 +9,10 @@
 
 //
 // These comprise the current context within the PP tree.  The name
-// doesn't matter, it just has to be *something* valid.
+// of the root doesn't matter, it just has to be *something* valid.
 //
 pp_context current_context("pp", new_pp_scope());
-std::vector<pp_context> context_stack;
+static std::vector<pp_context> context_stack;
 
 // Initialize the PP runtime.
 pp_scope_ptr
@@ -31,39 +31,30 @@ pp_init()
 	return current_context.scope();
 }
 
-//
-// This is a transaction-management helper.
-//
-class pp_saved_context_impl
-{
-    private:
-	pp_context m_context;
-
-    public:
-	pp_saved_context_impl(const pp_context &context)
-	    : m_context(context)
-	{
-	}
-	~pp_saved_context_impl()
-	{
-		DTRACE(TRACE_SCOPES, "restoring scope: " + m_context.name());
-		current_context = m_context;
-	}
-};
-
 // get a read-only copy of the current context
 pp_context
-pp_get_current_context()
+pp_context_snapshot()
 {
 	return current_context.snapshot();
 }
 
-// when this saved_context expires, the context will be restored
-pp_saved_context
-pp_set_current_context(const pp_context &new_ctxt)
+// push a new context onto the stack
+void
+pp_context_push(const pp_context &new_ctxt)
 {
-	DTRACE(TRACE_SCOPES, "setting scope: " + new_ctxt.name());
-	pp_saved_context old_ctxt(new pp_saved_context_impl(current_context));
+	DTRACE(TRACE_SCOPES, "setting context: " + new_ctxt.name());
+	context_stack.push_back(current_context);
 	current_context = new_ctxt;
-	return old_ctxt;
+}
+
+// restore the previous context
+void
+pp_context_pop()
+{
+	// there had better be a parent context
+	DASSERT_MSG(!context_stack.empty(), "invalid parent context");
+
+	DTRACE(TRACE_SCOPES, "restoring context: " + context_stack.back().name());
+	current_context = context_stack.back();
+	context_stack.pop_back();
 }
