@@ -50,7 +50,7 @@
 //   Example:
 //   	TEST_WARNING("something went badly");
 //   	TEST_WARNING("something went badly: ") << status;
-//   	TEST_WARNING(") << something went badly: " << status;
+//   	TEST_WARNING() << something went badly: " << status;
 //
 // * TEST_ERROR()
 // * TEST_ERROR(msg)
