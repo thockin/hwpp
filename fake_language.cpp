@@ -224,7 +224,7 @@ fkl_close_scope(const parse_location &loc, const string &new_name)
 		pp_path::element elem(new_name);
 
 		// note: this is not a debug-only test
-		if (fkl_defined(loc, pp_path("..", elem))) {
+		if (fkl_defined(loc, pp_path(pp_path::element(".."), elem))) {
 			PP_WARN(to_string(loc)
 					+ ": '" + new_name + "' redefined");
 		}
