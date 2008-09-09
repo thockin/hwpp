@@ -21,6 +21,10 @@ class pp_context
 	bool m_readonly;
 
     public:
+	pp_context(const string &n, const pp_scope_ptr &s)
+	    : m_name(n), m_scope(s), m_readonly(false)
+	{
+	}
 	pp_context(const pp_path::element &n, const pp_scope_ptr &s)
 	    : m_name(n), m_scope(s), m_readonly(false)
 	{
@@ -40,6 +44,11 @@ class pp_context
 	/*
 	 * Rename the current context
 	 */
+	void
+	rename(const string &name)
+	{
+		rename(pp_path::element(name));
+	}
 	void
 	rename(const pp_path::element &name)
 	{
@@ -93,6 +102,11 @@ class pp_context
 	add_dirent(const pp_context &ctxt)
 	{
 		m_scope->add_dirent(ctxt.m_name, ctxt.m_scope);
+	}
+	void
+	add_dirent(const string &name, const pp_dirent_ptr &dirent)
+	{
+		m_scope->add_dirent(name, dirent);
 	}
 	void
 	add_dirent(const pp_path::element &name, const pp_dirent_ptr &dirent)

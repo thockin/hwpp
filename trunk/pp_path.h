@@ -108,15 +108,17 @@ class pp_path
 			ARRAY_APPEND,
 		};
 
-		// implicit ctor from string
+		// explicit ctor from string
 		// throws:
 		// 	pp_path::invalid_error
+		explicit
 		element(const string &str)
 		    : m_name(), m_array_mode(ARRAY_NONE), m_array_index(0),
 		      m_is_bookmark(false)
 		{
 			parse(str);
 		}
+		explicit
 		element(const char *str)
 		    : m_name(), m_array_mode(ARRAY_NONE), m_array_index(0),
 		      m_is_bookmark(false)
