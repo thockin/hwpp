@@ -13,10 +13,10 @@ TEST(test_pp_enum_datatype)
 	e.add_value("two", 2);
 	e.add_value("three", 3);
 	if (e.evaluate(2) != "two") {
-		TEST_ERROR("pp_enum_datatype::evaluate()");
+		TEST_FAIL("pp_enum_datatype::evaluate()");
 	}
 	if (e.evaluate(0) != "<!0!>") {
-		TEST_ERROR("pp_enum_datatype::evaluate()");
+		TEST_FAIL("pp_enum_datatype::evaluate()");
 	}
 
 	// test lookup()
@@ -28,12 +28,12 @@ TEST(test_pp_enum_datatype)
 	TEST_ASSERT(e.lookup(2) == 2, "pp_enum_datatype::lookup(int)");
 	try {
 		e.lookup("foo");
-		TEST_ERROR("pp_enum_datatype::lookup(string)");
+		TEST_FAIL("pp_enum_datatype::lookup(string)");
 	} catch (pp_datatype::invalid_error &e) {
 	}
 	try {
 		e.lookup(4);
-		TEST_ERROR("pp_enum_datatype::lookup(int)");
+		TEST_FAIL("pp_enum_datatype::lookup(int)");
 	} catch (pp_datatype::invalid_error &e) {
 	}
 }
@@ -53,7 +53,7 @@ TEST(test_pp_multi_datatype)
 		m.add_range(new_pp_int_datatype(), 15, 16);
 		m.add_range(new_pp_int_datatype(), 0, 10);
 	} catch (std::exception &e) {
-		TEST_ERROR("pp_multi_datatype::add_range()");
+		TEST_FAIL("pp_multi_datatype::add_range()");
 	}
 	try {
 		// adding in between
@@ -62,7 +62,7 @@ TEST(test_pp_multi_datatype)
 		m.add_range(new_pp_hex_datatype(), 20, 30);
 		m.add_range(new_pp_int_datatype(), 15, 16);
 	} catch (std::exception &e) {
-		TEST_ERROR("pp_multi_datatype::add_range()");
+		TEST_FAIL("pp_multi_datatype::add_range()");
 	}
 	try {
 		// adding to end
@@ -71,7 +71,7 @@ TEST(test_pp_multi_datatype)
 		m.add_range(new_pp_hex_datatype(), 11, 12);
 		m.add_range(new_pp_string_datatype(), 13, 20);
 	} catch (std::exception &e) {
-		TEST_ERROR("pp_multi_datatype::add_range()");
+		TEST_FAIL("pp_multi_datatype::add_range()");
 	}
 	try {
 		// overlap at the beginning
@@ -79,7 +79,7 @@ TEST(test_pp_multi_datatype)
 		m.add_range(new_pp_int_datatype(), 0, 10);
 		m.add_range(new_pp_hex_datatype(), 11, 12);
 		m.add_range(new_pp_int_datatype(), 0, 3);
-		TEST_ERROR("pp_multi_datatype::add_range()");
+		TEST_FAIL("pp_multi_datatype::add_range()");
 	} catch (std::exception &e) {
 	}
 	try {
@@ -88,7 +88,7 @@ TEST(test_pp_multi_datatype)
 		m.add_range(new_pp_int_datatype(), 0, 10);
 		m.add_range(new_pp_hex_datatype(), 11, 13);
 		m.add_range(new_pp_int_datatype(), 8, 9);
-		TEST_ERROR("pp_multi_datatype::add_range()");
+		TEST_FAIL("pp_multi_datatype::add_range()");
 	} catch (std::exception &e) {
 	}
 	try {
@@ -97,7 +97,7 @@ TEST(test_pp_multi_datatype)
 		m.add_range(new_pp_int_datatype(), 0, 10);
 		m.add_range(new_pp_hex_datatype(), 11, 13);
 		m.add_range(new_pp_int_datatype(), 9, 12);
-		TEST_ERROR("pp_multi_datatype::add_range()");
+		TEST_FAIL("pp_multi_datatype::add_range()");
 	} catch (std::exception &e) {
 	}
 	try {
@@ -106,7 +106,7 @@ TEST(test_pp_multi_datatype)
 		m.add_range(new_pp_int_datatype(), 0, 10);
 		m.add_range(new_pp_hex_datatype(), 11, 13);
 		m.add_range(new_pp_int_datatype(), 11, 11);
-		TEST_ERROR("pp_multi_datatype::add_range()");
+		TEST_FAIL("pp_multi_datatype::add_range()");
 	} catch (std::exception &e) {
 	}
 	try {
@@ -115,7 +115,7 @@ TEST(test_pp_multi_datatype)
 		m.add_range(new_pp_int_datatype(), 0, 10);
 		m.add_range(new_pp_hex_datatype(), 11, 13);
 		m.add_range(new_pp_int_datatype(), 10, 10);
-		TEST_ERROR("pp_multi_datatype::add_range()");
+		TEST_FAIL("pp_multi_datatype::add_range()");
 	} catch (std::exception &e) {
 	}
 	try {
@@ -124,7 +124,7 @@ TEST(test_pp_multi_datatype)
 		m.add_range(new_pp_int_datatype(), 0, 10);
 		m.add_range(new_pp_hex_datatype(), 11, 13);
 		m.add_range(new_pp_int_datatype(), 12, 15);
-		TEST_ERROR("pp_multi_datatype::add_range()");
+		TEST_FAIL("pp_multi_datatype::add_range()");
 	} catch (std::exception &e) {
 	}
 	try {
@@ -133,7 +133,7 @@ TEST(test_pp_multi_datatype)
 		m.add_range(new_pp_int_datatype(), 0, 10);
 		m.add_range(new_pp_hex_datatype(), 11, 13);
 		m.add_range(new_pp_int_datatype(), 13, 15);
-		TEST_ERROR("pp_multi_datatype::add_range()");
+		TEST_FAIL("pp_multi_datatype::add_range()");
 	} catch (std::exception &e) {
 	}
 	try {
@@ -142,7 +142,7 @@ TEST(test_pp_multi_datatype)
 		m.add_range(new_pp_int_datatype(), 0, 10);
 		m.add_range(new_pp_hex_datatype(), 11, 13);
 		m.add_range(new_pp_int_datatype(), 25, 20);
-		TEST_ERROR("pp_multi_datatype::add_range()");
+		TEST_FAIL("pp_multi_datatype::add_range()");
 	} catch (std::exception &e) {
 	}
 
@@ -196,24 +196,24 @@ TEST(test_pp_multi_datatype)
 			TEST_ASSERT(m.lookup(pp_value(0)) == pp_value(0),
 				"pp_multi_datatype::lookup()");
 		} catch (std::exception &e) {
-			TEST_ERROR("pp_multi_datatype::lookup()");
+			TEST_FAIL("pp_multi_datatype::lookup()");
 		}
 		try {
 			TEST_ASSERT(m.lookup(pp_value(7)) == pp_value(7),
 				"pp_multi_datatype::lookup()");
 		} catch (std::exception &e) {
-			TEST_ERROR("pp_multi_datatype::lookup()");
+			TEST_FAIL("pp_multi_datatype::lookup()");
 		}
 		try {
 			TEST_ASSERT(m.lookup(pp_value(20)) == pp_value(20),
 				"pp_multi_datatype::lookup()");
 		} catch (std::exception &e) {
-			TEST_ERROR("pp_multi_datatype::lookup()");
+			TEST_FAIL("pp_multi_datatype::lookup()");
 		}
 		try {
 			// out of range
 			m.lookup(pp_value(13));
-			TEST_ERROR("pp_multi_datatype::lookup()");
+			TEST_FAIL("pp_multi_datatype::lookup()");
 		} catch (std::exception &e) {
 		}
 		// ...lookup(string)
@@ -221,25 +221,25 @@ TEST(test_pp_multi_datatype)
 			TEST_ASSERT(m.lookup("true") == pp_value(1),
 				"pp_multi_datatype::lookup()");
 		} catch (std::exception &e) {
-			TEST_ERROR("pp_multi_datatype::lookup()");
+			TEST_FAIL("pp_multi_datatype::lookup()");
 		}
 		try {
 			TEST_ASSERT(m.lookup("true") == pp_value(1),
 				"pp_multi_datatype::lookup()");
 		} catch (std::exception &e) {
-			TEST_ERROR("pp_multi_datatype::lookup()");
+			TEST_FAIL("pp_multi_datatype::lookup()");
 		}
 		try {
 			TEST_ASSERT(m.lookup("0x0000000f") == pp_value(15),
 				"pp_multi_datatype::lookup()");
 		} catch (std::exception &e) {
-			TEST_ERROR("pp_multi_datatype::lookup()");
+			TEST_FAIL("pp_multi_datatype::lookup()");
 		}
 		try {
 			TEST_ASSERT(m.lookup("test_key") == pp_value(27),
 				"pp_multi_datatype::lookup()");
 		} catch (std::exception &e) {
-			TEST_ERROR("pp_multi_datatype::lookup()");
+			TEST_FAIL("pp_multi_datatype::lookup()");
 		}
 		// FIXME: This test fails because of the ambiguity in the
 		// multi datatype; both pp_value(11) and pp_value(26)
@@ -251,7 +251,7 @@ TEST(test_pp_multi_datatype)
 			TEST_ASSERT(m.lookup("11") == pp_value(26),
 				"pp_multi_datatype::lookup()");
 		} catch (std::exception &e) {
-			TEST_ERROR("pp_multi_datatype::lookup()");
+			TEST_FAIL("pp_multi_datatype::lookup()");
 		}
 #endif
 	}
@@ -264,29 +264,29 @@ TEST(test_pp_string_datatype)
 
 	// test the evaluate() method
 	if (s.evaluate(0x41) != "A") {
-		TEST_ERROR("pp_string_datatype::evaluate() returns " +
+		TEST_FAIL("pp_string_datatype::evaluate() returns " +
 			   s.evaluate(pp_value(0x41)));
 	}
 	// ...test null character
 	if (s.evaluate(pp_value(0x00)) != "") {
-		TEST_ERROR("pp_string_datatype::evaluate() returns " +
+		TEST_FAIL("pp_string_datatype::evaluate() returns " +
 			   s.evaluate(pp_value(0x00)));
 	}
 	// ...test multicharacter strings
 	if (s.evaluate(pp_value("0x6f6c6c6548")) != "Hello") {
-		TEST_ERROR("pp_string_datatype::evaluate() returns " +
+		TEST_FAIL("pp_string_datatype::evaluate() returns " +
 			   s.evaluate(pp_value("0x6f6c6c6548")));
 	}
 	// ...test multicharacter strings with nulls
 	if (s.evaluate(pp_value("0x00006f6c6c6548")) != "Hello") {
-		TEST_ERROR("pp_string_datatype::evaluate() returns " +
+		TEST_FAIL("pp_string_datatype::evaluate() returns " +
 			   s.evaluate(pp_value("0x00006f6c6c6548")));
 	}
 	if (s.evaluate(pp_value("0x6f006c006c0065004800"))
 	    == "Hello") {
 		// These should not be equal because the string returned
 		// by evaluate() contains embedded null characters.
-		TEST_ERROR("pp_string_datatype::evaluate() returns " +
+		TEST_FAIL("pp_string_datatype::evaluate() returns " +
 			   s.evaluate(pp_value("0x6f006c006c0065004800")));
 	}
 
@@ -324,13 +324,13 @@ TEST(test_pp_bool_datatype)
 
 	// test the evaluate() method
 	if (b.evaluate(0) != "FALSE") {
-		TEST_ERROR("pp_bool_datatype::evaluate()");
+		TEST_FAIL("pp_bool_datatype::evaluate()");
 	}
 	if (b.evaluate(1) != "TRUE") {
-		TEST_ERROR("pp_bool_datatype::evaluate()");
+		TEST_FAIL("pp_bool_datatype::evaluate()");
 	}
 	if (b.evaluate(2) != "TRUE") {
-		TEST_ERROR("pp_bool_datatype::evaluate()");
+		TEST_FAIL("pp_bool_datatype::evaluate()");
 	}
 
 	// test lookup()
@@ -346,7 +346,7 @@ TEST(test_pp_bool_datatype)
 	    "pp_bool_datatype::lookup(int)");
 	try {
 		b.lookup("foo");
-		TEST_ERROR("pp_bool_datatype::lookup(string)");
+		TEST_FAIL("pp_bool_datatype::lookup(string)");
 	} catch (pp_datatype::invalid_error &e) {
 	}
 }
@@ -361,16 +361,16 @@ TEST(test_pp_bitmask_datatype)
 	b.add_bit("bit_two", 2);
 	b.add_bit("bit_three", 3);
 	if (b.evaluate(2) != "bit_one") {
-		TEST_ERROR("pp_bitmask_datatype::evaluate()");
+		TEST_FAIL("pp_bitmask_datatype::evaluate()");
 	}
 	if (b.evaluate(1) != "<!0!>") {
-		TEST_ERROR("pp_bitmask_datatype::evaluate()");
+		TEST_FAIL("pp_bitmask_datatype::evaluate()");
 	}
 	if (b.evaluate(6) != "bit_one bit_two") {
-		TEST_ERROR("pp_bitmask_datatype::evaluate()");
+		TEST_FAIL("pp_bitmask_datatype::evaluate()");
 	}
 	if (b.evaluate(0) != "") {
-		TEST_ERROR("pp_bitmask_datatype::evaluate()");
+		TEST_FAIL("pp_bitmask_datatype::evaluate()");
 	}
 
 	// test lookup()
@@ -384,12 +384,12 @@ TEST(test_pp_bitmask_datatype)
 			"pp_bitmask_datatype::lookup(int)");
 	try {
 		b.lookup("foo");
-		TEST_ERROR("pp_bitmask_datatype::lookup(string)");
+		TEST_FAIL("pp_bitmask_datatype::lookup(string)");
 	} catch (pp_datatype::invalid_error &e) {
 	}
 	try {
 		b.lookup(4);
-		TEST_ERROR("pp_bitmask_datatype::lookup(int)");
+		TEST_FAIL("pp_bitmask_datatype::lookup(int)");
 	} catch (pp_datatype::invalid_error &e) {
 	}
 }
@@ -401,10 +401,10 @@ TEST(test_pp_int_datatype)
 
 	// test the evaluate() method
 	if (i1.evaluate(1) != "1") {
-		TEST_ERROR("pp_int_datatype::evaluate()");
+		TEST_FAIL("pp_int_datatype::evaluate()");
 	}
 	if (i1.evaluate(-1) != "-1") {
-		TEST_ERROR("pp_int_datatype::evaluate()");
+		TEST_FAIL("pp_int_datatype::evaluate()");
 	}
 
 	// test lookup()
@@ -416,7 +416,7 @@ TEST(test_pp_int_datatype)
 	TEST_ASSERT(i1.lookup(23) == 23, "pp_int_datatype::lookup(int)");
 	try {
 		i1.lookup("foo");
-		TEST_ERROR("pp_int_datatype::lookup(string)");
+		TEST_FAIL("pp_int_datatype::lookup(string)");
 	} catch (pp_datatype::invalid_error &e) {
 	}
 
@@ -425,10 +425,10 @@ TEST(test_pp_int_datatype)
 
 	// test the evaluate() method
 	if (i2.evaluate(1) != "1 units") {
-		TEST_ERROR("pp_int_datatype::evaluate()");
+		TEST_FAIL("pp_int_datatype::evaluate()");
 	}
 	if (i2.evaluate(-1) != "-1 units") {
-		TEST_ERROR("pp_int_datatype::evaluate()");
+		TEST_FAIL("pp_int_datatype::evaluate()");
 	}
 
 	// test lookup()
@@ -446,7 +446,7 @@ TEST(test_pp_int_datatype)
 	    "pp_int_datatype::lookup(int)");
 	try {
 		i2.lookup("foo");
-		TEST_ERROR("pp_int_datatype::lookup(string)");
+		TEST_FAIL("pp_int_datatype::lookup(string)");
 	} catch (pp_datatype::invalid_error &e) {
 	}
 }
@@ -458,7 +458,7 @@ TEST(test_pp_hex_datatype)
 
 	// test the evaluate() method
 	if (h1.evaluate(1) != "0x1") {
-		TEST_ERROR("pp_hex_datatype::evaluate()");
+		TEST_FAIL("pp_hex_datatype::evaluate()");
 	}
 
 	// test lookup()
@@ -472,14 +472,14 @@ TEST(test_pp_hex_datatype)
 	    "pp_hex_datatype::lookup(int)");
 	try {
 		h1.lookup("foo");
-		TEST_ERROR("pp_hex_datatype::lookup(string)");
+		TEST_FAIL("pp_hex_datatype::lookup(string)");
 	} catch (pp_datatype::invalid_error &e) {
 	}
 
 	// test the units constructor
 	pp_hex_datatype h2(BITS0, "units");
 	if (h2.evaluate(1) != "0x1 units") {
-		TEST_ERROR("pp_hex_datatype::evaluate()");
+		TEST_FAIL("pp_hex_datatype::evaluate()");
 	}
 
 	// test lookup()
@@ -497,7 +497,7 @@ TEST(test_pp_hex_datatype)
 	    "pp_hex_datatype::lookup(int)");
 	try {
 		h1.lookup("foo");
-		TEST_ERROR("pp_hex_datatype::lookup(string)");
+		TEST_FAIL("pp_hex_datatype::lookup(string)");
 	} catch (pp_datatype::invalid_error &e) {
 	}
 
@@ -506,20 +506,20 @@ TEST(test_pp_hex_datatype)
 
 	// test the evaluate() method
 	if (h3.evaluate(1) != "0x01") {
-		TEST_ERROR("pp_hex_datatype::evaluate()");
+		TEST_FAIL("pp_hex_datatype::evaluate()");
 	}
 	pp_hex_datatype h4(BITS16);
 	if (h4.evaluate(0x0201) != "0x0201") {
-		TEST_ERROR("pp_hex_datatype::evaluate()");
+		TEST_FAIL("pp_hex_datatype::evaluate()");
 	}
 	pp_hex_datatype h5(BITS32);
 	if (h5.evaluate(0x04030201) != "0x04030201") {
-		TEST_ERROR("pp_hex_datatype::evaluate()");
+		TEST_FAIL("pp_hex_datatype::evaluate()");
 	}
 	pp_hex_datatype h6(BITS64);
 	if (h6.evaluate(pp_value("0x0807060504030201")) !=
 			"0x0807060504030201") {
-		TEST_ERROR("pp_hex_datatype::evaluate()");
+		TEST_FAIL("pp_hex_datatype::evaluate()");
 	}
 
 	// test the units-and-width constructor
@@ -527,20 +527,20 @@ TEST(test_pp_hex_datatype)
 
 	// test the evaluate() method
 	if (h7.evaluate(1) != "0x01 units") {
-		TEST_ERROR("pp_hex_datatype::evaluate()");
+		TEST_FAIL("pp_hex_datatype::evaluate()");
 	}
 	pp_hex_datatype h8(BITS16, "units");
 	if (h8.evaluate(0x0201) != "0x0201 units") {
-		TEST_ERROR("pp_hex_datatype::evaluate()");
+		TEST_FAIL("pp_hex_datatype::evaluate()");
 	}
 	pp_hex_datatype h9(BITS32, "units");
 	if (h9.evaluate(0x04030201) != "0x04030201 units") {
-		TEST_ERROR("pp_hex_datatype::evaluate()");
+		TEST_FAIL("pp_hex_datatype::evaluate()");
 	}
 	pp_hex_datatype h10(BITS64, "units");
 	if (h10.evaluate(pp_value("0x0807060504030201")) !=
 			 "0x0807060504030201 units") {
-		TEST_ERROR("h10.evaluate()");
+		TEST_FAIL("h10.evaluate()");
 	}
 }
 
@@ -552,10 +552,10 @@ TEST(test_pp_transform_datatype)
 
 	// test the evaluate() method
 	if (t1->evaluate(0) != "1") {
-		TEST_ERROR("pp_transform_datatype::evaluate()");
+		TEST_FAIL("pp_transform_datatype::evaluate()");
 	}
 	if (t1->evaluate(1) != "2") {
-		TEST_ERROR("pp_transform_datatype::evaluate()");
+		TEST_FAIL("pp_transform_datatype::evaluate()");
 	}
 
 	// test lookup()
@@ -569,7 +569,7 @@ TEST(test_pp_transform_datatype)
 			"pp_transform_datatype::lookup(int)");
 	try {
 		t1->lookup("foo");
-		TEST_ERROR("pp_transform_datatype::lookup(string)");
+		TEST_FAIL("pp_transform_datatype::lookup(string)");
 	} catch (pp_datatype::invalid_error &e) {
 	}
 }

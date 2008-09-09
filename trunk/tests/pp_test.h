@@ -19,9 +19,10 @@
 // execution.  If you need to terminate the test function, return.  If you
 // need to terminate the test file, call TEST_EXIT().
 //
-// Third: The only way to make a test fail is to call TEST_ERROR() or to
-// fail one of the TEST_ASSERT()s.  Simply returning early from a test
-// funtion or calling TEST_EXIT() will not cause a test to fail.
+// Third: The only way to make a test fail is to call TEST_ERROR() or
+// TEST_FAIL() or to fail one of the TEST_ASSERT()s.  Simply returning early
+// from a test function or calling TEST_EXIT() will not cause a test to
+// fail.
 //
 // In order to keep this a single header file, the "public" API is mixed
 // up with the "private" details.  In order to avoid name conflicts, all
@@ -40,36 +41,49 @@
 //   		goes(here);
 //   	}
 //
-// * TEST_WARNING()
-// * TEST_WARNING(msg)
+// * TEST_WARN()
+// * TEST_WARN(msg)
 //
 //   Issue a warning message.  This does not cause the current test to
 //   fail.  The return value of this function can be used to stream
 //   further details to the test output.
 //
 //   Example:
-//   	TEST_WARNING("something went badly");
-//   	TEST_WARNING("something went badly: ") << status;
-//   	TEST_WARNING() << something went badly: " << status;
+//   	TEST_WARN("something went badly");
+//   	TEST_WARN("something went badly: ") << status;
+//   	TEST_WARN() << something went badly: " << status;
 //
-// * TEST_ERROR()
-// * TEST_ERROR(msg)
+// * TEST_FAIL()
+// * TEST_FAIL(msg)
 //
-//   Issue an error message.  This causes the current test to fail.  The
+//   Issue a failure message.  This causes the current test to fail.  The
 //   return value of this function can be used to stream further details
 //   to the test output.
 //
 //   Example:
-//   	TEST_ERROR("something went very badly");
-//   	TEST_ERROR("something went very badly: ") << status;
-//   	TEST_ERROR() << "something went very badly" << status;
+//   	TEST_FAIL("something went very badly");
+//   	TEST_FAIL("something went very badly: ") << status;
+//   	TEST_FAIL() << "something went very badly" << status;
+//
+// * TEST_ERROR()
+// * TEST_ERROR(msg)
+//
+//   Issue an error message.  This causes the current test to fail.  A
+//   TEST_ERROR() indicates that something in the test itself went wrong, as
+//   opposed to the test simply failing.  The return value of this function
+//   can be used to stream further details to the test output.
+//
+//   Example:
+//   	TEST_ERROR("something went horribly badly");
+//   	TEST_ERROR("something went horribly badly: ") << status;
+//   	TEST_ERROR() << "something went horribly badly" << status;
 //
 // * TEST_ASSERT(pred)
 // * TEST_ASSERT(pred, msg)
 //
 //   Assert that pred evaluates to boolean true (non-zero).  If pred
 //   evaluates to boolean false (0), the msg is issued as through
-//   TEST_ERROR(msg).  The return value of this function (and all of the
+//   TEST_FAIL(msg).  The return value of this function (and all of the
 //   TEST_ASSERT_* functions) can be used to stream further details to the
 //   test output.
 //
@@ -84,7 +98,7 @@
 //   Assert that lhs equals rhs via the '==' operator.  This assertion is
 //   tested in both directions (lhs == rhs && rhs == lhs).  If the
 //   assertion evaluates to boolean false, the msg is issued as through
-//   TEST_ERROR(msg).
+//   TEST_FAIL(msg).
 //
 //   Example:
 //   	TEST_ASSERT_EQ(ret, 0, "ret was not 0");
@@ -95,7 +109,7 @@
 //   Assert that lhs does not equal rhs via the '!=' operator.  This
 //   assertion is tested in both directions (lhs != rhs && rhs != lhs).
 //   If the assertion evaluates to boolean false, the msg is issued as
-//   through TEST_ERROR(msg).
+//   through TEST_FAIL(msg).
 //
 //   Example:
 //   	TEST_ASSERT_NE(ret, 0, "ret was 0");
@@ -106,7 +120,7 @@
 //   Assert that lhs is less than rhs via the '< operator.  This assertion
 //   is tested in both directions (lhs < rhs && rhs >= lhs).  If the
 //   assertion evaluates to boolean false, the msg is issued as through
-//   TEST_ERROR(msg).
+//   TEST_FAIL(msg).
 //
 //   Example:
 //   	TEST_ASSERT_LT(ret, 0, "ret was not < 0");
@@ -117,7 +131,7 @@
 //   Assert that lhs is less than or equal to rhs via the '<=' operator.
 //   This assertion is tested in both directions (lhs <= rhs && rhs > lhs).
 //   If the assertion evaluates to boolean false, the msg is issued as
-//   through TEST_ERROR(msg).
+//   through TEST_FAIL(msg).
 //
 //   Example:
 //   	TEST_ASSERT_LE(ret, 0, "ret was not <= 0");
@@ -128,7 +142,7 @@
 //   Assert that lhs is greater than rhs via the '> operator.  This
 //   assertion is tested in both directions (lhs > rhs && rhs <= lhs).
 //   If the assertion evaluates to boolean false, the msg is issued as
-//   through TEST_ERROR(msg).
+//   through TEST_FAIL(msg).
 //
 //   Example:
 //   	TEST_ASSERT_GT(ret, 0, "ret was not > 0");
@@ -139,7 +153,7 @@
 //   Assert that lhs is greater than or equal to rhs via the '>=' operator.
 //   This assertion is tested in both directions (lhs >= rhs && rhs < lhs).
 //   If the assertion evaluates to boolean false, the msg is issued as
-//   through TEST_ERROR(msg).
+//   through TEST_FAIL(msg).
 //
 //   Example:
 //   	TEST_ASSERT_GE(ret, 0, "ret was not >= 0");
@@ -147,8 +161,8 @@
 // * TEST_EXIT()
 //
 //   Exit the current test.  If any assertions have failed, or if
-//   TEST_ERROR() was called, the test will exit with a failure code.
-//   Otherwise it will exit with a success code.
+//   TEST_FAIL() or TEST_ERROR() were called, the test will exit with a
+//   failure code.  Otherwise it will exit with a success code.
 //
 //   Example:
 //   	TEST_EXIT();
@@ -302,29 +316,49 @@ TEST_start_msg(const std::string &prefix)
 
 // generate a test warning message
 inline TEST_output_helper_ptr
-TEST_warning_msg()
+TEST_warn_msg()
 {
 	return TEST_start_msg("WARN");
 }
 inline TEST_output_helper_ptr
-TEST_warning_msg(const std::string &file, int line)
+TEST_warn_msg(const std::string &file, int line)
 {
-	return TEST_warning_msg() << "[" << file << ":" << line << "] ";
+	return TEST_warn_msg() << "[" << file << ":" << line << "] ";
 }
 
 // log a test warning
-#define TEST_WARNING(...) TEST_warning(__FILE__, __LINE__, ##__VA_ARGS__)
+#define TEST_WARN(...) TEST_warn(__FILE__, __LINE__, ##__VA_ARGS__)
 inline TEST_output_helper_ptr
-TEST_warning(const std::string &file, int line, const std::string &msg="")
+TEST_warn(const std::string &file, int line, const std::string &msg="")
 {
-	return TEST_warning_msg(file, line) << msg;
+	return TEST_warn_msg(file, line) << msg;
 }
 
 // generate a test failure message
 inline TEST_output_helper_ptr
-TEST_error_msg()
+TEST_fail_msg()
 {
 	return TEST_start_msg("FAIL");
+}
+inline TEST_output_helper_ptr
+TEST_fail_msg(const std::string &file, int line)
+{
+	return TEST_fail_msg() << "[" << file << ":" << line << "] ";
+}
+
+// log a test failure
+#define TEST_FAIL(...) TEST_fail(__FILE__, __LINE__, ##__VA_ARGS__)
+inline TEST_output_helper_ptr
+TEST_fail(const std::string &file, int line, const std::string &msg="")
+{
+	return TEST_fail_msg(file, line) << msg;
+}
+
+// generate a test error message
+inline TEST_output_helper_ptr
+TEST_error_msg()
+{
+	return TEST_start_msg("ERROR");
 }
 inline TEST_output_helper_ptr
 TEST_error_msg(const std::string &file, int line)
@@ -348,7 +382,7 @@ TEST_assert(const std::string &file, int line,
             bool predicate, const std::string &msg="")
 {
 	if (!predicate) {
-		return TEST_error(file, line, msg);
+		return TEST_fail(file, line, msg);
 	} else {
 		static std::ofstream null_stream("/dev/null");
 		return TEST_new_output_helper(null_stream);

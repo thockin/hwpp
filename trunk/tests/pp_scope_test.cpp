@@ -14,16 +14,16 @@ TEST(test_ctors)
 	pp_scope_ptr scope = new_pp_scope();
 
 	if (!scope->is_root()) {
-		TEST_ERROR("pp_scope::is_root()");
+		TEST_FAIL("pp_scope::is_root()");
 	}
 	if (scope->parent() != scope) {
-		TEST_ERROR("pp_scope::parent()");
+		TEST_FAIL("pp_scope::parent()");
 	}
 	if (scope->binding()) {
-		TEST_ERROR("pp_scope::binding()");
+		TEST_FAIL("pp_scope::binding()");
 	}
 	if (scope->is_bound()) {
-		TEST_ERROR("pp_scope::is_bound()");
+		TEST_FAIL("pp_scope::is_bound()");
 	}
 
 	// test the pp_binding constructor
@@ -31,16 +31,16 @@ TEST(test_ctors)
 	pp_scope_ptr scope2 = new_pp_scope(bind);
 
 	if (!scope2->is_root()) {
-		TEST_ERROR("pp_scope::is_root()");
+		TEST_FAIL("pp_scope::is_root()");
 	}
 	if (scope2->parent() != scope2) {
-		TEST_ERROR("pp_scope::parent()");
+		TEST_FAIL("pp_scope::parent()");
 	}
 	if (scope2->binding() != bind) {
-		TEST_ERROR("pp_scope::binding()");
+		TEST_FAIL("pp_scope::binding()");
 	}
 	if (!scope2->is_bound()) {
-		TEST_ERROR("pp_scope::is_bound()");
+		TEST_FAIL("pp_scope::is_bound()");
 	}
 }
 
@@ -48,21 +48,21 @@ TEST(test_parentage)
 {
 	pp_scope_ptr scope = new_pp_scope();
 	if (!scope->is_root()) {
-		TEST_ERROR("pp_scope::is_root()");
+		TEST_FAIL("pp_scope::is_root()");
 	}
 
 	pp_scope_ptr scope2 = new_pp_scope();
 	if (!scope2->is_root()) {
-		TEST_ERROR("pp_scope::is_root()");
+		TEST_FAIL("pp_scope::is_root()");
 	}
 
 	// test the set_parent() method
 	scope2->set_parent(scope);
 	if (scope2->parent() != scope) {
-		TEST_ERROR("pp_scope::set_parent()");
+		TEST_FAIL("pp_scope::set_parent()");
 	}
 	if (scope2->is_root()) {
-		TEST_ERROR("pp_scope::is_root()");
+		TEST_FAIL("pp_scope::is_root()");
 	}
 }
 
@@ -72,33 +72,33 @@ TEST(test_datatypes)
 
 	// nonexistent datatypes
 	if (scope->resolve_datatype("nonexistent-type") != NULL) {
-		TEST_ERROR("pp_scope::resolve_datatype()");
+		TEST_FAIL("pp_scope::resolve_datatype()");
 	}
 
 	// test add_datatype() and datatype()
 	pp_datatype_ptr type = new_pp_int_datatype();
 	scope->add_datatype("type", type);
 	if (scope->datatype(0) != type) {
-		TEST_ERROR("pp_scope::add_datatype()");
+		TEST_FAIL("pp_scope::add_datatype()");
 	}
 	if (scope->datatype("type") != type) {
-		TEST_ERROR("pp_scope::add_datatype()");
+		TEST_FAIL("pp_scope::add_datatype()");
 	}
 
 	// test n_datatypes()
 	if (scope->n_datatypes() != 1) {
-		TEST_ERROR("pp_scope::n_datatypes()");
+		TEST_FAIL("pp_scope::n_datatypes()");
 	}
 
 	// test datatype_name()
 	if (scope->datatype_name(0) != "type") {
-		TEST_ERROR("pp_scope::datatype_name()");
+		TEST_FAIL("pp_scope::datatype_name()");
 	}
 
 	// test resolve_datatype()
 	pp_datatype_const_ptr type2 = scope->resolve_datatype("type");
 	if (type2 != type) {
-		TEST_ERROR("pp_scope::resolve_datatype()");
+		TEST_FAIL("pp_scope::resolve_datatype()");
 	}
 
 	// test recursive resolve_datatype()
@@ -106,13 +106,13 @@ TEST(test_datatypes)
 	psub->set_parent(scope);
 	type2 = psub->resolve_datatype("type");
 	if (type2 != type) {
-		TEST_ERROR("pp_scope::resolve_datatype()");
+		TEST_FAIL("pp_scope::resolve_datatype()");
 	}
 
 	// nonexistent type for chained scopes
 	type2 = psub->resolve_datatype("nonexistent-type");
 	if (type2 != NULL) {
-		TEST_ERROR("pp_scope::resolve_datatype()");
+		TEST_FAIL("pp_scope::resolve_datatype()");
 	}
 }
 
@@ -123,14 +123,14 @@ TEST(test_exceptions)
 	// test out-of-bounds accesses
 	TEST_ASSERT(scope->n_dirents() == 0, "pp_scope::n_dirents()");
 	if (scope->dirent(0) != NULL) {
-		TEST_ERROR("pp_scope::dirent()");
+		TEST_FAIL("pp_scope::dirent()");
 	}
 	if (scope->dirent("foo") != NULL) {
-		TEST_ERROR("pp_scope::dirent()");
+		TEST_FAIL("pp_scope::dirent()");
 	}
 	try {
 		scope->dirent_name(0);
-		TEST_ERROR("pp_scope::dirent_name()");
+		TEST_FAIL("pp_scope::dirent_name()");
 	} catch (std::out_of_range &e) {
 	}
 
@@ -146,47 +146,47 @@ TEST(test_exceptions)
 	// test invalid path elements
 	try {
 		scope->add_dirent("123", pp_field_ptr());
-		TEST_ERROR("pp_scope::add_dirent()");
+		TEST_FAIL("pp_scope::add_dirent()");
 	} catch (pp_path::invalid_error &e) {
 	}
 	try {
 		scope->lookup_dirent("foo/123");
-		TEST_ERROR("pp_scope::lookup_dirent()");
+		TEST_FAIL("pp_scope::lookup_dirent()");
 	} catch (pp_path::invalid_error &e) {
 	}
 	try {
 		scope->lookup_field("foo/123");
-		TEST_ERROR("pp_scope::lookup_field()");
+		TEST_FAIL("pp_scope::lookup_field()");
 	} catch (pp_path::invalid_error &e) {
 	}
 	try {
 		scope->lookup_register("foo/123");
-		TEST_ERROR("pp_scope::lookup_register()");
+		TEST_FAIL("pp_scope::lookup_register()");
 	} catch (pp_path::invalid_error &e) {
 	}
 	try {
 		scope->lookup_scope("foo/123");
-		TEST_ERROR("pp_scope::lookup_scope()");
+		TEST_FAIL("pp_scope::lookup_scope()");
 	} catch (pp_path::invalid_error &e) {
 	}
 	try {
 		scope->lookup_array("foo/123");
-		TEST_ERROR("pp_scope::lookup_array()");
+		TEST_FAIL("pp_scope::lookup_array()");
 	} catch (pp_path::invalid_error &e) {
 	}
 
 	// test array screwups
 	try {
 		scope->lookup_dirent("field[0]");
-		TEST_ERROR("pp_scope::lookup_dirent()");
+		TEST_FAIL("pp_scope::lookup_dirent()");
 	} catch (pp_dirent::conversion_error &e) {
 	}
 	if (scope->lookup_dirent("array[0]") != NULL) {
-		TEST_ERROR("pp_scope::lookup_dirent()");
+		TEST_FAIL("pp_scope::lookup_dirent()");
 	}
 	try {
 		scope->add_dirent("array[0]", new_pp_scope());
-		TEST_ERROR("pp_scope::add_dirent()");
+		TEST_FAIL("pp_scope::add_dirent()");
 	} catch (pp_path::invalid_error &e) {
 	}
 }
@@ -281,25 +281,25 @@ TEST(test_dirents)
 
 		// search for a field, non-existing
 		if (root->lookup_field("scope0/foo") != NULL) {
-			TEST_ERROR("pp_scope::lookup_field()");
+			TEST_FAIL("pp_scope::lookup_field()");
 		}
 
 		// search for a non-field, existing
 		try {
 			root->lookup_field("scope0/reg1");
-			TEST_ERROR("pp_scope::lookup_field()");
+			TEST_FAIL("pp_scope::lookup_field()");
 		} catch (pp_dirent::conversion_error &e) {
 		}
 
 		// search for an item that is not a leaf node
 		try {
 			root->lookup_field("scope0/field1/foo");
-			TEST_ERROR("pp_scope::lookup_field()");
+			TEST_FAIL("pp_scope::lookup_field()");
 		} catch (pp_dirent::conversion_error &e) {
 		}
 		try {
 			root->lookup_field("scope0/reg1/foo");
-			TEST_ERROR("pp_scope::lookup_field()");
+			TEST_FAIL("pp_scope::lookup_field()");
 		} catch (pp_dirent::conversion_error &e) {
 		}
 
@@ -334,25 +334,25 @@ TEST(test_dirents)
 
 		// search for a register, non-existing
 		if (root->lookup_register("scope0/foo") != NULL) {
-			TEST_ERROR("pp_scope::lookup_register()");
+			TEST_FAIL("pp_scope::lookup_register()");
 		}
 
 		// search for a non-register, existing
 		try {
 			root->lookup_register("scope0/field1");
-			TEST_ERROR("pp_scope::lookup_register()");
+			TEST_FAIL("pp_scope::lookup_register()");
 		} catch (pp_dirent::conversion_error &e) {
 		}
 
 		// search for an item that is not a leaf node
 		try {
 			root->lookup_register("scope0/reg1/foo");
-			TEST_ERROR("pp_scope::lookup_register()");
+			TEST_FAIL("pp_scope::lookup_register()");
 		} catch (pp_dirent::conversion_error &e) {
 		}
 		try {
 			root->lookup_register("scope0/field1/foo");
-			TEST_ERROR("pp_scope::lookup_register()");
+			TEST_FAIL("pp_scope::lookup_register()");
 		} catch (pp_dirent::conversion_error &e) {
 		}
 
@@ -372,13 +372,13 @@ TEST(test_dirents)
 
 		// search for a scope, non-existing
 		if (root->lookup_scope("scope0/foo") != NULL) {
-			TEST_ERROR("pp_scope::lookup_scope()");
+			TEST_FAIL("pp_scope::lookup_scope()");
 		}
 
 		// search for a non-scope, existing
 		try {
 			root->lookup_scope("scope0/field1");
-			TEST_ERROR("pp_scope::lookup_scope()");
+			TEST_FAIL("pp_scope::lookup_scope()");
 		} catch (pp_dirent::conversion_error &e) {
 		}
 
@@ -408,13 +408,13 @@ TEST(test_dirents)
 
 		// search for a array, non-existing
 		if (root->lookup_array("scope0/foo") != NULL) {
-			TEST_ERROR("pp_scope::lookup_array()");
+			TEST_FAIL("pp_scope::lookup_array()");
 		}
 
 		// search for a non-array, existing
 		try {
 			root->lookup_array("scope0/field1");
-			TEST_ERROR("pp_scope::lookup_array()");
+			TEST_FAIL("pp_scope::lookup_array()");
 		} catch (pp_dirent::conversion_error &e) {
 		}
 
@@ -444,13 +444,13 @@ TEST(test_dirents)
 
 		// search for a dirent, non-existing
 		if (root->lookup_dirent("scope0/foo") != NULL) {
-			TEST_ERROR("pp_scope::lookup_dirent()");
+			TEST_FAIL("pp_scope::lookup_dirent()");
 		}
 
 		// search for an item that is not a leaf node
 		try {
 			root->lookup_dirent("scope0/reg1/foo");
-			TEST_ERROR("pp_scope::lookup_dirent()");
+			TEST_FAIL("pp_scope::lookup_dirent()");
 		} catch (pp_dirent::conversion_error &e) {
 		}
 
@@ -490,7 +490,7 @@ TEST(test_dirents)
 		// search for an item that is not a leaf node
 		try {
 			found = root->dirent_defined("scope0/reg1/foo");
-			TEST_ERROR("pp_scope::dirent_defined()");
+			TEST_FAIL("pp_scope::dirent_defined()");
 		} catch (pp_dirent::conversion_error &e) {
 		}
 

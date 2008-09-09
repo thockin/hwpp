@@ -49,7 +49,7 @@ TEST(test_simple_regbits)
 		pp_register_ptr reg =
 		    new_pp_bound_register(bind, 0, BITS16);
 		pp_regbits rb(reg, 32);
-		TEST_ERROR("pp_regbits::pp_regbits()");
+		TEST_FAIL("pp_regbits::pp_regbits()");
 	} catch (std::exception &e) {
 	}
 
@@ -141,7 +141,7 @@ TEST(test_exceptions)
 		pp_register_ptr reg =
 		    new_pp_bound_register(bind, 0, BITS16);
 		pp_regbits rb(reg, 0, 15);
-		TEST_ERROR("pp_regbits::pp_regbits(r, lo, hi)");
+		TEST_FAIL("pp_regbits::pp_regbits(r, lo, hi)");
 	} catch (pp_regbits::range_error &e) {
 	}
 	try {
@@ -149,7 +149,7 @@ TEST(test_exceptions)
 		pp_register_ptr reg =
 		    new_pp_bound_register(bind, 0, BITS16);
 		pp_regbits rb(reg, 16);
-		TEST_ERROR("pp_regbits::pp_regbits(r, too_hi)");
+		TEST_FAIL("pp_regbits::pp_regbits(r, too_hi)");
 	} catch (pp_regbits::range_error &e) {
 	}
 }

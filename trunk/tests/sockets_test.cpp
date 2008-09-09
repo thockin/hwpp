@@ -10,30 +10,30 @@ TEST(test_ctors)
 	try {
 		unix_socket::server svr(UNIX_SOCKET_PATH);
 	} catch (std::exception &e) { //FIXME: catch specific exceptions
-		TEST_ERROR("unix_socket::server()");
+		TEST_FAIL("unix_socket::server()");
 	}
 	// test again for proper unlinking
 	try {
 		unix_socket::server svr(UNIX_SOCKET_PATH);
 	} catch (std::exception &e) {
-		TEST_ERROR("unix_socket::server()");
+		TEST_FAIL("unix_socket::server()");
 	}
 	// test socket constructor
 	try {
 		unix_socket::socket c(UNIX_SOCKET_PATH);
-		TEST_ERROR("unix_socket::socket()");
+		TEST_FAIL("unix_socket::socket()");
 	} catch (std::exception &e) {
 	}
 	try {
 		unix_socket::socket c(UNIX_SOCKET_PATH ".not");
-		TEST_ERROR("unix_socket::socket()");
+		TEST_FAIL("unix_socket::socket()");
 	} catch (std::exception &e) {
 	}
 	try {
 		unix_socket::server svr(UNIX_SOCKET_PATH);
 		unix_socket::socket c(UNIX_SOCKET_PATH);
 	} catch (std::exception &e) {
-		TEST_ERROR("unix_socket::server() and unix_socket::socket()");
+		TEST_FAIL("unix_socket::server() and unix_socket::socket()");
 	}
 	{
 		{
@@ -42,7 +42,7 @@ TEST(test_ctors)
 		}
 		try {
 			unix_socket::socket c2(UNIX_SOCKET_PATH);
-			TEST_ERROR("unix_socket::server()");
+			TEST_FAIL("unix_socket::server()");
 		} catch (std::exception &e) {
 		}
 	}
@@ -138,7 +138,7 @@ TEST(test_send_recv)
 		c.send("This is a test message\n");
 		std::string str = s.recv_line();
 		if (str != "This is a test message") {
-			TEST_ERROR() << "unix_socket::send() and "
+			TEST_FAIL() << "unix_socket::send() and "
 				<< "unix_socket::recv_line(): received \""
 				<< str << "\"";
 		}
@@ -150,7 +150,7 @@ TEST(test_send_recv)
 		s.send("This is a test message\n");
 		std::string str = c.recv_line();
 		if (str != "This is a test message") {
-			TEST_ERROR() << "unix_socket::send() and "
+			TEST_FAIL() << "unix_socket::send() and "
 				<< "unix_socket::recv_line(): received \""
 				<< str << "\"";
 		}
@@ -163,7 +163,7 @@ TEST(test_send_recv)
 		c.close();
 		std::string str = s.recv_line();
 		if (str != "Testing recv_line return on connection close") {
-			TEST_ERROR() << "unix_socket::send() and "
+			TEST_FAIL() << "unix_socket::send() and "
 				<< "unix_socket::recv_line(): received \""
 				<< str << "\"";
 		}
@@ -177,7 +177,7 @@ TEST(test_send_recv)
 		std::string str = c.recv_line();
 		if (str != "Testing recv_line return on connection "
 				     "close") {
-			TEST_ERROR() << "unix_socket::send() and "
+			TEST_FAIL() << "unix_socket::send() and "
 				<< "unix_socket::recv_line(): received \""
 				<< str << "\"";
 		}
@@ -193,7 +193,7 @@ TEST(test_send_recv)
 		s.recv_all(buf, 3);
 		std::string str(buf, 3);
 		if (str != "123") {
-			TEST_ERROR() << "unix_socket::send() and "
+			TEST_FAIL() << "unix_socket::send() and "
 				<< "unix_socket::recv_all(): received \""
 				<< str << "\"";
 		}
@@ -207,7 +207,7 @@ TEST(test_send_recv)
 		c.recv_all(buf, 3);
 		std::string str(buf, 3);
 		if (str != "123") {
-			TEST_ERROR() << "unix_socket::send() and "
+			TEST_FAIL() << "unix_socket::send() and "
 				<< "unix_socket::recv_all(): received \""
 				<< str << "\"";
 		}
@@ -222,7 +222,7 @@ TEST(test_send_recv)
 		int i = s.recv_all(buf, 25);
 		if (i != 20) {
 			// This should stop trying to receive on remote close
-			TEST_ERROR() << "unix_socket::send() and "
+			TEST_FAIL() << "unix_socket::send() and "
 				<< "unix_socket::recv_all(): received "
 				<< i << " bytes";
 		}
@@ -237,7 +237,7 @@ TEST(test_send_recv)
 		int i = c.recv_all(buf, 25);
 		if (i != 20) {
 			// This should stop trying to receive on remote close
-			TEST_ERROR() << "unix_socket::send() and "
+			TEST_FAIL() << "unix_socket::send() and "
 				<< "unix_socket::recv_all(): received "
 				<< i << " bytes";
 		}
@@ -251,7 +251,7 @@ TEST(test_send_recv)
 		int i = s.recv_all(buf, 3);
 		if (i != 3) {
 			// Should fill the buffer to capacity
-			TEST_ERROR() << "unix_socket::send() and "
+			TEST_FAIL() << "unix_socket::send() and "
 				<< "unix_socket::recv_all(): received "
 				<< i << " bytes";
 		}
@@ -265,7 +265,7 @@ TEST(test_send_recv)
 		int i = c.recv_all(buf, 3);
 		if (i != 3) {
 			// Should fill the buffer to capacity
-			TEST_ERROR() << "unix_socket::send() and "
+			TEST_FAIL() << "unix_socket::send() and "
 				<< "unix_socket::recv_all(): received "
 				<< i << " bytes";
 		}
@@ -283,7 +283,7 @@ TEST(test_send_recv)
 		s.recv_all(buf, 3);
 		std::string str(buf, 3);
 		if (str != "456") {
-			TEST_ERROR() << "unix_socket::send() and "
+			TEST_FAIL() << "unix_socket::send() and "
 				<< "unix_socket::recv_all(): received \""
 				<< str << "\"";
 		}
@@ -299,7 +299,7 @@ TEST(test_send_recv)
 		c.recv_all(buf, 3);
 		std::string str(buf, 3);
 		if (str != "456") {
-			TEST_ERROR() << "unix_socket::send() and "
+			TEST_FAIL() << "unix_socket::send() and "
 				<< "unix_socket::recv_all(): received \""
 				<< str << "\"";
 		}
@@ -313,10 +313,10 @@ TEST(test_send_recv)
 		char buf[1];
 		s.recv_all(buf, 0);
 		if (!s.is_connected()) {
-			TEST_ERROR("unix_socket::recv_all()");
+			TEST_FAIL("unix_socket::recv_all()");
 		}
 		if (!c.is_connected()) {
-			TEST_ERROR("unix_socket::recv_all()");
+			TEST_FAIL("unix_socket::recv_all()");
 		}
 	}
 	{
@@ -327,10 +327,10 @@ TEST(test_send_recv)
 		char buf[1];
 		c.recv_all(buf, 0);
 		if (!s.is_connected()) {
-			TEST_ERROR("unix_socket::recv_all()");
+			TEST_FAIL("unix_socket::recv_all()");
 		}
 		if (!c.is_connected()) {
-			TEST_ERROR("unix_socket::recv_all()");
+			TEST_FAIL("unix_socket::recv_all()");
 		}
 	}
 }
