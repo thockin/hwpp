@@ -13,21 +13,29 @@
 static int TEST_error_count;
 
 // the global list of tests to run
-static std::vector<void (*)(void)> TEST_list;
+struct TEST_definition;
+static std::vector<TEST_definition *> TEST_list;
 
-// a helper class to register tests
+// the currently running test
+static const TEST_definition *TEST_current;
+
+// the main test definition class
 struct TEST_definition
 {
-	TEST_definition(void (*func)(void))
+	std::string test_name;
+	void (*test_function)(void);
+
+	TEST_definition(const std::string &name, void (*func)(void))
+	: test_name(name), test_function(func)
 	{
-		TEST_list.push_back(func);
+		TEST_list.push_back(this);
 	}
 };
 
 // define a test
 #define TEST(name_) \
 	void name_(void); \
-	static TEST_definition TEST_##name_##definition(name_);\
+	static TEST_definition TEST_##name_##definition(#name_, name_); \
 	void name_(void)
 
 // test paths, for use inside tests
@@ -90,10 +98,25 @@ TEST_warning(const std::string &file, int line, const std::string &msg)
 // generate a test failure
 #define TEST_ERROR(...) TEST_error(__FILE__, __LINE__, ##__VA_ARGS__)
 inline TEST_output_helper_ptr
-TEST_error(const std::string &file, int line, const std::string &msg="")
+TEST_error()
 {
 	TEST_error_count++;
-	std::cerr << "FAIL: [" << file << ":" << line << "] " << msg;
+	std::cerr << "FAIL: ";
+	return TEST_new_output_helper(std::cerr);
+}
+inline TEST_output_helper_ptr
+TEST_error(const std::string &file, int line)
+{
+	TEST_error_count++;
+	std::cerr << "FAIL: [" << file << ":" << line << "] ";
+	return TEST_new_output_helper(std::cerr);
+}
+inline TEST_output_helper_ptr
+TEST_error(const std::string &file, int line, const std::string &msg)
+{
+	TEST_error_count++;
+	std::cerr << "FAIL: [" << file << ":" << line << "] "
+		<< msg;
 	return TEST_new_output_helper(std::cerr);
 }
 
@@ -235,10 +258,12 @@ main(void)
 	TEST_setup_global();
 	try {
 		for (size_t i = 0; i < TEST_list.size(); i++) {
+			TEST_current = TEST_list[i];
 			TEST_setup_each();
 			try {
-				TEST_list[i]();
+				TEST_current->test_function();
 			} catch (...) {
+				TEST_error() << "unhandled exception";
 				TEST_cleanup_each();
 				throw;
 			}
