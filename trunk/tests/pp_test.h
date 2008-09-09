@@ -72,15 +72,15 @@ operator<<(const TEST_output_helper_ptr &output, const Tdata &data)
 }
 
 // generate a warning message
-#define TEST_WARNING(...) TEST_do_warning(__FILE__, __LINE__, ##__VA_ARGS__)
+#define TEST_WARNING(...) TEST_warning(__FILE__, __LINE__, ##__VA_ARGS__)
 inline TEST_output_helper_ptr
-TEST_do_warning(const std::string &file, int line)
+TEST_warning(const std::string &file, int line)
 {
 	std::cerr << "WARN: [" << file << ":" << line << "] ";
 	return TEST_new_output_helper(std::cerr);
 }
 inline TEST_output_helper_ptr
-TEST_do_warning(const std::string &file, int line, const std::string &msg)
+TEST_warning(const std::string &file, int line, const std::string &msg)
 {
 	std::cerr << "WARN: [" << file << ":" << line << "] "
 		<< msg;
@@ -88,16 +88,16 @@ TEST_do_warning(const std::string &file, int line, const std::string &msg)
 }
 
 // generate a test failure
-#define TEST_ERROR(...) TEST_do_error(__FILE__, __LINE__, ##__VA_ARGS__)
+#define TEST_ERROR(...) TEST_error(__FILE__, __LINE__, ##__VA_ARGS__)
 inline TEST_output_helper_ptr
-TEST_do_error(const std::string &file, int line)
+TEST_error(const std::string &file, int line)
 {
 	TEST_error_count++;
 	std::cerr << "FAIL: [" << file << ":" << line << "] ";
 	return TEST_new_output_helper(std::cerr);
 }
 inline TEST_output_helper_ptr
-TEST_do_error(const std::string &file, int line, const std::string &msg)
+TEST_error(const std::string &file, int line, const std::string &msg)
 {
 	TEST_error_count++;
 	std::cerr << "FAIL: [" << file << ":" << line << "] "
@@ -106,23 +106,23 @@ TEST_do_error(const std::string &file, int line, const std::string &msg)
 }
 
 // assert a condition and fail if the condition is false
-#define TEST_ASSERT(...) TEST_do_assert(__FILE__, __LINE__, ##__VA_ARGS__)
+#define TEST_ASSERT(...) TEST_assert(__FILE__, __LINE__, ##__VA_ARGS__)
 inline TEST_output_helper_ptr
-TEST_do_assert(const std::string &file, int line, bool predicate)
+TEST_assert(const std::string &file, int line, bool predicate)
 {
 	if (!predicate) {
-		return TEST_do_error(file, line);
+		return TEST_error(file, line);
 	} else {
 		static std::ofstream null_stream("/dev/null");
 		return TEST_new_output_helper(null_stream);
 	}
 }
 inline TEST_output_helper_ptr
-TEST_do_assert(const std::string &file, int line,
+TEST_assert(const std::string &file, int line,
                bool predicate, const std::string &msg)
 {
 	if (!predicate) {
-		return TEST_do_error(file, line, msg);
+		return TEST_error(file, line, msg);
 	} else {
 		static std::ofstream null_stream("/dev/null");
 		return TEST_new_output_helper(null_stream);
@@ -131,171 +131,171 @@ TEST_do_assert(const std::string &file, int line,
 
 // helpers for testing comparisons reciprocally
 #define TEST_ASSERT_EQ(...) \
-	TEST_do_assert_eq(__FILE__, __LINE__, ##__VA_ARGS__)
+	TEST_assert_eq(__FILE__, __LINE__, ##__VA_ARGS__)
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_eq(const std::string &file, int line,
+TEST_assert_eq(const std::string &file, int line,
                   const Tlhs &lhs, const Trhs &rhs)
 {
 	const TEST_output_helper_ptr &ret =
-		TEST_do_assert(file, line, lhs == rhs);
+		TEST_assert(file, line, lhs == rhs);
 	if (ret->output_stream == std::cerr) {
 		return ret;
 	} else {
-		return TEST_do_assert(file, line, rhs == lhs);
+		return TEST_assert(file, line, rhs == lhs);
 	}
 }
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_eq(const std::string &file, int line,
+TEST_assert_eq(const std::string &file, int line,
                   const Tlhs &lhs, const Trhs &rhs, const std::string &msg)
 {
 	const TEST_output_helper_ptr &ret =
-		TEST_do_assert(file, line, lhs == rhs, msg);
+		TEST_assert(file, line, lhs == rhs, msg);
 	if (ret->output_stream == std::cerr) {
 		return ret;
 	} else {
-		return TEST_do_assert(file, line, rhs == lhs, msg);
+		return TEST_assert(file, line, rhs == lhs, msg);
 	}
 }
 #define TEST_ASSERT_NE(...) \
-	TEST_do_assert_ne(__FILE__, __LINE__, ##__VA_ARGS__)
+	TEST_assert_ne(__FILE__, __LINE__, ##__VA_ARGS__)
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_ne(const std::string &file, int line,
+TEST_assert_ne(const std::string &file, int line,
                   const Tlhs &lhs, const Trhs &rhs)
 {
 	const TEST_output_helper_ptr &ret =
-		TEST_do_assert(file, line, lhs != rhs);
+		TEST_assert(file, line, lhs != rhs);
 	if (ret->output_stream == std::cerr) {
 		return ret;
 	} else {
-		return TEST_do_assert(file, line, rhs != lhs);
+		return TEST_assert(file, line, rhs != lhs);
 	}
 }
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_ne(const std::string &file, int line,
+TEST_assert_ne(const std::string &file, int line,
                   const Tlhs &lhs, const Trhs &rhs, const std::string &msg)
 {
 	const TEST_output_helper_ptr &ret =
-		TEST_do_assert(file, line, lhs != rhs, msg);
+		TEST_assert(file, line, lhs != rhs, msg);
 	if (ret->output_stream == std::cerr) {
 		return ret;
 	} else {
-		return TEST_do_assert(file, line, rhs != lhs, msg);
+		return TEST_assert(file, line, rhs != lhs, msg);
 	}
 }
 #define TEST_ASSERT_LT(...) \
-	TEST_do_assert_lt(__FILE__, __LINE__, ##__VA_ARGS__)
+	TEST_assert_lt(__FILE__, __LINE__, ##__VA_ARGS__)
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_lt(const std::string &file, int line,
+TEST_assert_lt(const std::string &file, int line,
                   const Tlhs &lhs, const Trhs &rhs)
 {
 	const TEST_output_helper_ptr &ret =
-		TEST_do_assert(file, line, lhs < rhs);
+		TEST_assert(file, line, lhs < rhs);
 	if (ret->output_stream == std::cerr) {
 		return ret;
 	} else {
-		return TEST_do_assert(file, line, rhs >= lhs);
+		return TEST_assert(file, line, rhs >= lhs);
 	}
 }
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_lt(const std::string &file, int line,
+TEST_assert_lt(const std::string &file, int line,
                   const Tlhs &lhs, const Trhs &rhs, const std::string &msg)
 {
 	const TEST_output_helper_ptr &ret =
-		TEST_do_assert(file, line, lhs < rhs, msg);
+		TEST_assert(file, line, lhs < rhs, msg);
 	if (ret->output_stream == std::cerr) {
 		return ret;
 	} else {
-		return TEST_do_assert(file, line, rhs >= lhs, msg);
+		return TEST_assert(file, line, rhs >= lhs, msg);
 	}
 }
 #define TEST_ASSERT_GT(...) \
-	TEST_do_assert_gt(__FILE__, __LINE__, ##__VA_ARGS__)
+	TEST_assert_gt(__FILE__, __LINE__, ##__VA_ARGS__)
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_gt(const std::string &file, int line,
+TEST_assert_gt(const std::string &file, int line,
                   const Tlhs &lhs, const Trhs &rhs)
 {
 	const TEST_output_helper_ptr &ret =
-		TEST_do_assert(file, line, lhs > rhs);
+		TEST_assert(file, line, lhs > rhs);
 	if (ret->output_stream == std::cerr) {
 		return ret;
 	} else {
-		return TEST_do_assert(file, line, rhs <= lhs);
+		return TEST_assert(file, line, rhs <= lhs);
 	}
 }
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_gt(const std::string &file, int line,
+TEST_assert_gt(const std::string &file, int line,
                   const Tlhs &lhs, const Trhs &rhs, const std::string &msg)
 {
 	const TEST_output_helper_ptr &ret =
-		TEST_do_assert(file, line, lhs > rhs, msg);
+		TEST_assert(file, line, lhs > rhs, msg);
 	if (ret->output_stream == std::cerr) {
 		return ret;
 	} else {
-		return TEST_do_assert(file, line, rhs <= lhs, msg);
+		return TEST_assert(file, line, rhs <= lhs, msg);
 	}
 }
 #define TEST_ASSERT_LE(...) \
-	TEST_do_assert_le(__FILE__, __LINE__, ##__VA_ARGS__)
+	TEST_assert_le(__FILE__, __LINE__, ##__VA_ARGS__)
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_le(const std::string &file, int line,
+TEST_assert_le(const std::string &file, int line,
                   const Tlhs &lhs, const Trhs &rhs)
 {
 	const TEST_output_helper_ptr &ret =
-		TEST_do_assert(file, line, lhs <= rhs);
+		TEST_assert(file, line, lhs <= rhs);
 	if (ret->output_stream == std::cerr) {
 		return ret;
 	} else {
-		return TEST_do_assert(file, line, rhs > lhs);
+		return TEST_assert(file, line, rhs > lhs);
 	}
 }
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_le(const std::string &file, int line,
+TEST_assert_le(const std::string &file, int line,
                   const Tlhs &lhs, const Trhs &rhs, const std::string &msg)
 {
 	const TEST_output_helper_ptr &ret =
-		TEST_do_assert(file, line, lhs <= rhs, msg);
+		TEST_assert(file, line, lhs <= rhs, msg);
 	if (ret->output_stream == std::cerr) {
 		return ret;
 	} else {
-		return TEST_do_assert(file, line, rhs > lhs, msg);
+		return TEST_assert(file, line, rhs > lhs, msg);
 	}
 }
 #define TEST_ASSERT_GE(...) \
-	TEST_do_assert_ge(__FILE__, __LINE__, ##__VA_ARGS__)
+	TEST_assert_ge(__FILE__, __LINE__, ##__VA_ARGS__)
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_ge(const std::string &file, int line,
+TEST_assert_ge(const std::string &file, int line,
                   const Tlhs &lhs, const Trhs &rhs)
 {
 	const TEST_output_helper_ptr &ret =
-		TEST_do_assert(file, line, lhs >= rhs);
+		TEST_assert(file, line, lhs >= rhs);
 	if (ret->output_stream == std::cerr) {
 		return ret;
 	} else {
-		return TEST_do_assert(file, line, rhs < lhs);
+		return TEST_assert(file, line, rhs < lhs);
 	}
 }
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
-TEST_do_assert_ge(const std::string &file, int line,
+TEST_assert_ge(const std::string &file, int line,
                   const Tlhs &lhs, const Trhs &rhs, const std::string &msg)
 {
 	const TEST_output_helper_ptr &ret =
-		TEST_do_assert(file, line, lhs >= rhs, msg);
+		TEST_assert(file, line, lhs >= rhs, msg);
 	if (ret->output_stream == std::cerr) {
 		return ret;
 	} else {
-		return TEST_do_assert(file, line, rhs < lhs, msg);
+		return TEST_assert(file, line, rhs < lhs, msg);
 	}
 }
 
@@ -316,42 +316,42 @@ static void (*TEST_setup_global_ptr)(void);
 #define TEST_SETUP() \
 	void TEST_SETUP(void); \
 	static TEST_funcptr_assigner \
-	    TEST_setup(&TEST_setup_global_ptr, TEST_SETUP); \
+	  TEST_setup_assign(&TEST_setup_global_ptr, TEST_SETUP); \
 	void TEST_SETUP(void)
 static void (*TEST_cleanup_global_ptr)(void);
 #define TEST_CLEANUP() \
 	void TEST_CLEANUP(void); \
 	static TEST_funcptr_assigner \
-	    TEST_cleanup(&TEST_cleanup_global_ptr, TEST_CLEANUP); \
+	  TEST_cleanup_assign(&TEST_cleanup_global_ptr, TEST_CLEANUP); \
 	void TEST_CLEANUP(void)
 static void (*TEST_setup_each_ptr)(void);
 #define TEST_SETUP_EACH() \
 	void TEST_SETUP_EACH(void); \
 	static TEST_funcptr_assigner \
-	    TEST_setup_each(&TEST_setup_each_ptr, TEST_SETUP_EACH); \
+	  TEST_setup_each_assign(&TEST_setup_each_ptr, TEST_SETUP_EACH); \
 	void TEST_SETUP_EACH(void)
 static void (*TEST_cleanup_each_ptr)(void);
 #define TEST_CLEANUP_EACH() \
 	void TEST_CLEANUP_EACH(void); \
 	static TEST_funcptr_assigner \
-	    TEST_cleanup_each(&TEST_cleanup_each_ptr, TEST_CLEANUP_EACH); \
+	  TEST_cleanup_each_assign(&TEST_cleanup_each_ptr, TEST_CLEANUP_EACH); \
 	void TEST_CLEANUP_EACH(void)
 
 // helpers to call the setup/cleanup functions
 inline void
-TEST_do_setup_global(void)
+TEST_setup_global(void)
 {
 	if (TEST_setup_global_ptr)
 		TEST_setup_global_ptr();
 }
 inline void
-TEST_do_cleanup_global(void)
+TEST_cleanup_global(void)
 {
 	if (TEST_cleanup_global_ptr)
 		TEST_cleanup_global_ptr();
 }
 inline void
-TEST_do_setup_each(void)
+TEST_setup_each(void)
 {
 	system("rm -rf " TEST_TMP_DIR);
 	system("mkdir -p " TEST_TMP_DIR);
@@ -359,7 +359,7 @@ TEST_do_setup_each(void)
 		TEST_setup_each_ptr();
 }
 inline void
-TEST_do_cleanup_each(void)
+TEST_cleanup_each(void)
 {
 	if (TEST_cleanup_each_ptr)
 		TEST_cleanup_each_ptr();
@@ -370,23 +370,23 @@ TEST_do_cleanup_each(void)
 int
 main(void)
 {
-	TEST_do_setup_global();
+	TEST_setup_global();
 	try {
 		for (size_t i = 0; i < TEST_list.size(); i++) {
-			TEST_do_setup_each();
+			TEST_setup_each();
 			try {
 				TEST_list[i]();
 			} catch (...) {
-				TEST_do_cleanup_each();
+				TEST_cleanup_each();
 				throw;
 			}
-			TEST_do_cleanup_each();
+			TEST_cleanup_each();
 		}
 	} catch (...) {
-		TEST_do_cleanup_global();
+		TEST_cleanup_global();
 		throw;
 	}
-	TEST_do_cleanup_global();
+	TEST_cleanup_global();
 	TEST_EXIT();
 }
 
