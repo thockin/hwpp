@@ -90,18 +90,10 @@ TEST_warning(const std::string &file, int line, const std::string &msg)
 // generate a test failure
 #define TEST_ERROR(...) TEST_error(__FILE__, __LINE__, ##__VA_ARGS__)
 inline TEST_output_helper_ptr
-TEST_error(const std::string &file, int line)
+TEST_error(const std::string &file, int line, const std::string &msg="")
 {
 	TEST_error_count++;
-	std::cerr << "FAIL: [" << file << ":" << line << "] ";
-	return TEST_new_output_helper(std::cerr);
-}
-inline TEST_output_helper_ptr
-TEST_error(const std::string &file, int line, const std::string &msg)
-{
-	TEST_error_count++;
-	std::cerr << "FAIL: [" << file << ":" << line << "] "
-		<< msg;
+	std::cerr << "FAIL: [" << file << ":" << line << "] " << msg;
 	return TEST_new_output_helper(std::cerr);
 }
 
