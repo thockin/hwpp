@@ -1,4 +1,214 @@
-/* Copyright (c) Tim Hockin, 2007 */
+// Copyright (c) Tim Hockin, 2007-2008
+//
+// A basic unit testing framework.
+//
+// This should be familiar to anyone who has used other popular unit test
+// frameworks, and should be easy to learn for anyone who hasn't.
+//
+// The code in this file is very C++ oriented, but could be made to work
+// on plain C, if you hold your nose while adapting it (hint: use GCC's
+// __attribute__((constructor))).  Some of the stuff in here is pretty
+// hacky, but it is all to an end of making tests as easy as possible to
+// write.
+//
+// First: Don't define main().  Just #include this file and write test
+// functions.
+//
+// Second: A failed assertion causes an entire test function, and thereby
+// the entire test file, to be marked as failing but DOES NOT halt
+// execution.  If you need to terminate the test function, return.  If you
+// need to terminate the test file, call TEST_EXIT().
+//
+// Third: The only way to make a test fail is to call TEST_ERROR() or to
+// fail one of the TEST_ASSERT()s.  Simply returning early from a test
+// funtion or calling TEST_EXIT() will not cause a test to fail.
+//
+// In order to keep this a single header file, the "public" API is mixed
+// up with the "private" details.  In order to avoid name conflicts, all
+// symbols which begin with "TEST" are reserved.
+//
+// Here is the public API:
+//
+// * TEST(name)
+//
+//   Define a single test function.  This function is essentially C code.
+//   There is no 'this' object.
+//
+//   Example:
+//   	TEST(test_name) {
+//   		your_test_code();
+//   		goes(here);
+//   	}
+//
+// * TEST_WARNING()
+// * TEST_WARNING(msg)
+//
+//   Issue a warning message.  This does not cause the current test to
+//   fail.  The return value of this function can be used to stream
+//   further details to the test output.
+//
+//   Example:
+//   	TEST_WARNING("something went badly");
+//   	TEST_WARNING("something went badly: ") << status;
+//   	TEST_WARNING(") << something went badly: " << status;
+//
+// * TEST_ERROR()
+// * TEST_ERROR(msg)
+//
+//   Issue an error message.  This causes the current test to fail.  The
+//   return value of this function can be used to stream further details
+//   to the test output.
+//
+//   Example:
+//   	TEST_ERROR("something went very badly");
+//   	TEST_ERROR("something went very badly: ") << status;
+//   	TEST_ERROR() << "something went very badly" << status;
+//
+// * TEST_ASSERT(pred)
+// * TEST_ASSERT(pred)
+// * TEST_ASSERT(pred, msg)
+//
+//   Assert that pred evaluates to boolean true (non-zero).  If pred
+//   evaluates to boolean false (0), the msg is issued as through
+//   TEST_ERROR(msg).  The return value of this function (and all of the
+//   TEST_ASSERT_* functions) can be used to stream further details to the
+//   test output.
+//
+//   Example:
+//   	TEST_ASSERT(condition(), "condition() was false");
+//   	TEST_ASSERT(condition(), "condition() was false: ") << status;
+//   	TEST_ASSERT(condition()) << "condition() was false: " << status;
+//
+// * TEST_ASSERT_EQ(lhs, rhs)
+// * TEST_ASSERT_EQ(lhs, rhs, msg)
+//
+//   Assert that lhs equals rhs via the '==' operator.  This assertion is
+//   tested in both directions (lhs == rhs && rhs == lhs).  If the
+//   assertion evaluates to boolean false, the msg is issued as through
+//   TEST_ERROR(msg).
+//
+//   Example:
+//   	TEST_ASSERT_EQ(ret, 0, "ret was not 0");
+//
+// * TEST_ASSERT_NE(lhs, rhs)
+// * TEST_ASSERT_NE(lhs, rhs, msg)
+//
+//   Assert that lhs does not equal rhs via the '!=' operator.  This
+//   assertion is tested in both directions (lhs != rhs && rhs != lhs).
+//   If the assertion evaluates to boolean false, the msg is issued as
+//   through TEST_ERROR(msg).
+//
+//   Example:
+//   	TEST_ASSERT_NE(ret, 0, "ret was 0");
+//
+// * TEST_ASSERT_LT(lhs, rhs)
+// * TEST_ASSERT_LT(lhs, rhs, msg)
+//
+//   Assert that lhs is less than rhs via the '< operator.  This assertion
+//   is tested in both directions (lhs < rhs && rhs >= lhs).  If the
+//   assertion evaluates to boolean false, the msg is issued as through
+//   TEST_ERROR(msg).
+//
+//   Example:
+//   	TEST_ASSERT_LT(ret, 0, "ret was not < 0");
+//
+// * TEST_ASSERT_LE(lhs, rhs)
+// * TEST_ASSERT_LE(lhs, rhs, msg)
+//
+//   Assert that lhs is less than or equal to rhs via the '<=' operator.
+//   This assertion is tested in both directions (lhs <= rhs && rhs > lhs).
+//   If the assertion evaluates to boolean false, the msg is issued as
+//   through TEST_ERROR(msg).
+//
+//   Example:
+//   	TEST_ASSERT_LE(ret, 0, "ret was not <= 0");
+//
+// * TEST_ASSERT_GT(lhs, rhs)
+// * TEST_ASSERT_GT(lhs, rhs, msg)
+//
+//   Assert that lhs is greater than rhs via the '> operator.  This
+//   assertion is tested in both directions (lhs > rhs && rhs <= lhs).
+//   If the assertion evaluates to boolean false, the msg is issued as
+//   through TEST_ERROR(msg).
+//
+//   Example:
+//   	TEST_ASSERT_GT(ret, 0, "ret was not > 0");
+//
+// * TEST_ASSERT_GE(lhs, rhs)
+// * TEST_ASSERT_GE(lhs, rhs, msg)
+//
+//   Assert that lhs is greater than or equal to rhs via the '>=' operator.
+//   This assertion is tested in both directions (lhs >= rhs && rhs < lhs).
+//   If the assertion evaluates to boolean false, the msg is issued as
+//   through TEST_ERROR(msg).
+//
+//   Example:
+//   	TEST_ASSERT_GE(ret, 0, "ret was not >= 0");
+//
+// * TEST_EXIT()
+//
+//   Exit the current test.  If any assertions have failed, or if
+//   TEST_ERROR() was called, the test will exit with a failure code.
+//   Otherwise it will exit with a success code.
+//
+//   Example:
+//   	TEST_EXIT();
+//
+// * TEST_SETUP()
+//
+//   Define a one-time test setup function.  This is called once before
+//   any test functions are run.  This function is optional.
+//
+//   Example:
+//   	TEST_SETUP() {
+//   		your_setup_code();
+//   		goes(here);
+//   	}
+//
+// * TEST_CLEANUP()
+//
+//   Define a one-time test cleanup function.  This is called once after
+//   all tests functions are run.  This function is optional.
+//
+//   Example:
+//   	TEST_CLEANUP() {
+//   		your_cleanup_code();
+//   		goes(here);
+//   	}
+//
+// * TEST_SETUP_EACH()
+//
+//   Define a per-test setup function.  This is called once before
+//   each test function is run.  This function is optional.
+//
+//   Example:
+//   	TEST_SETUP_EACH() {
+//   		your_setup_each_code();
+//   		goes(here);
+//   	}
+//
+// * TEST_CLEANUP_EACH()
+//
+//   Define a per-test cleanup function.  This is called once after
+//   each test function is run.  This function is optional.
+//
+//   Example:
+//   	TEST_CLEANUP_EACH() {
+//   		your_cleanup_each_code();
+//   		goes(here);
+//   	}
+//
+// * TEST_PATH_PREFIX
+//
+//   If this macro is defined before this file is #include-ed, it will
+//   become the prefix for all test-related paths.
+//
+// * TEST_TMP_DIR
+//
+//   This macro is a string literal which contains the path to a usable
+//   temporary directory under the TEST_PATH_PREFIX.  This directory will
+//   be destroyed and created anew for each test function.
+
 #ifndef PP_TEST_H__
 #define PP_TEST_H__
 
