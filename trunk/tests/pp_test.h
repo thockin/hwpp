@@ -288,45 +288,57 @@ operator<<(const TEST_output_helper_ptr &output, const Tdata &data)
 	return output;
 }
 
-// generate a warning message
-#define TEST_WARNING(...) TEST_warning(__FILE__, __LINE__, ##__VA_ARGS__)
 inline TEST_output_helper_ptr
-TEST_warning(const std::string &file, int line)
+TEST_start_msg(const std::string &prefix)
 {
-	std::cerr << "WARN: [" << file << ":" << line << "] ";
-	return TEST_new_output_helper(std::cerr);
-}
-inline TEST_output_helper_ptr
-TEST_warning(const std::string &file, int line, const std::string &msg)
-{
-	std::cerr << "WARN: [" << file << ":" << line << "] "
-		<< msg;
+	static const TEST_definition *last_test;
+	if (TEST_current != last_test) {
+		last_test = TEST_current;
+		std::cerr << TEST_current->test_name << "(): " << std::endl;
+	}
+	std::cerr << "  " << prefix << ": ";
 	return TEST_new_output_helper(std::cerr);
 }
 
-// generate a test failure
+// generate a test warning message
+inline TEST_output_helper_ptr
+TEST_warning_msg()
+{
+	return TEST_start_msg("WARN");
+}
+inline TEST_output_helper_ptr
+TEST_warning_msg(const std::string &file, int line)
+{
+	return TEST_warning_msg() << "[" << file << ":" << line << "] ";
+}
+
+// log a test warning
+#define TEST_WARNING(...) TEST_warning(__FILE__, __LINE__, ##__VA_ARGS__)
+inline TEST_output_helper_ptr
+TEST_warning(const std::string &file, int line, const std::string &msg="")
+{
+	return TEST_warning_msg(file, line) << msg;
+}
+
+// generate a test failure message
+inline TEST_output_helper_ptr
+TEST_error_msg()
+{
+	return TEST_start_msg("FAIL");
+}
+inline TEST_output_helper_ptr
+TEST_error_msg(const std::string &file, int line)
+{
+	return TEST_error_msg() << "[" << file << ":" << line << "] ";
+}
+
+// log a test error
 #define TEST_ERROR(...) TEST_error(__FILE__, __LINE__, ##__VA_ARGS__)
 inline TEST_output_helper_ptr
-TEST_error()
+TEST_error(const std::string &file, int line, const std::string &msg="")
 {
 	TEST_error_count++;
-	std::cerr << "FAIL: ";
-	return TEST_new_output_helper(std::cerr);
-}
-inline TEST_output_helper_ptr
-TEST_error(const std::string &file, int line)
-{
-	TEST_error_count++;
-	std::cerr << "FAIL: [" << file << ":" << line << "] ";
-	return TEST_new_output_helper(std::cerr);
-}
-inline TEST_output_helper_ptr
-TEST_error(const std::string &file, int line, const std::string &msg)
-{
-	TEST_error_count++;
-	std::cerr << "FAIL: [" << file << ":" << line << "] "
-		<< msg;
-	return TEST_new_output_helper(std::cerr);
+	return TEST_error_msg(file, line) << msg;
 }
 
 // assert a condition and fail if the condition is false
@@ -472,7 +484,7 @@ main(void)
 			try {
 				TEST_current->test_function();
 			} catch (...) {
-				TEST_error() << "unhandled exception";
+				TEST_error_msg() << "unhandled exception";
 				TEST_cleanup_each();
 				throw;
 			}
