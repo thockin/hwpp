@@ -65,7 +65,6 @@
 //   	TEST_ERROR() << "something went very badly" << status;
 //
 // * TEST_ASSERT(pred)
-// * TEST_ASSERT(pred)
 // * TEST_ASSERT(pred, msg)
 //
 //   Assert that pred evaluates to boolean true (non-zero).  If pred
