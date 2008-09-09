@@ -77,7 +77,7 @@ class pp_proc_register: public pp_register
     public:
 	pp_proc_register(const pp_rwprocs_ptr &access, const pp_bitwidth width)
 	    : pp_register(width), m_access(access),
-	      m_context(pp_get_current_context())
+	      m_context(pp_context_snapshot())
 	{
 	}
 
@@ -99,8 +99,10 @@ class pp_proc_register: public pp_register
 	virtual pp_value
 	read() const
 	{
-		pp_saved_context old_ctxt = pp_set_current_context(m_context);
-		return (m_access->read() & PP_MASK(width()));
+		pp_context_push(m_context);
+		pp_value ret = m_access->read() & PP_MASK(width());
+		pp_context_pop();
+		return ret;
 	}
 
 	/*
@@ -111,8 +113,9 @@ class pp_proc_register: public pp_register
 	virtual void
 	write(const pp_value &value) const
 	{
-		pp_saved_context old_ctxt = pp_set_current_context(m_context);
+		pp_context_push(m_context);
 		m_access->write(value & PP_MASK(width()));
+		pp_context_pop();
 	}
 };
 

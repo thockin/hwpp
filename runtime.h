@@ -11,19 +11,19 @@
 extern pp_scope_ptr
 pp_init();
 
+// the global current context
 extern pp_context current_context;
-extern std::vector<pp_context> context_stack;
 
-class pp_saved_context_impl;
-typedef boost::shared_ptr<pp_saved_context_impl> pp_saved_context;
-
-//
-// Get/set the current active context.
-//
+// get a read-only copy of the current context
 extern pp_context
-pp_get_current_context();
+pp_context_snapshot();
 
-extern pp_saved_context
-pp_set_current_context(const pp_context &new_context);
+// push a new context onto the stack
+extern void
+pp_context_push(const pp_context &new_ctxt);
+
+// restore the previous context
+extern void
+pp_context_pop();
 
 #endif // PP_RUNTIME_H__
