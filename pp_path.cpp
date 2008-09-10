@@ -46,7 +46,7 @@ pp_path::element::name() const
 bool
 pp_path::element::is_array() const
 {
-	return !(m_array_mode == pp_path::element::ARRAY_NONE);
+	return (m_array_mode != pp_path::element::ARRAY_NONE);
 }
 
 enum pp_path::element::array_mode
@@ -303,8 +303,8 @@ pp_path::append(const string &str)
 		m_absolute = true;
 	}
 
-	// add each non-empty part to the list (leading and trailing
-	// delimiters yield blank parts).
+	// Add each non-empty part to the list (leading and trailing
+	// delimiters yield blank parts) as a pp_path::element.
 	for (size_t i = 0; i < parts.size(); i++) {
 		if (parts[i].length() != 0) {
 			m_list.push_back(element(parts[i]));
