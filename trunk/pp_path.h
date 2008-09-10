@@ -345,6 +345,11 @@ class pp_path
 			it++;
 		}
 	}
+	void
+	push_back(const element &elem)
+	{
+		m_list.push_back(elem);
+	}
 
 	// remove items from the front or back
 	// throws:
