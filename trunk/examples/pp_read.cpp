@@ -12,6 +12,7 @@ using namespace std;
 
 bool do_regs = true;
 bool do_fields = true;
+bool do_scopes = true;
 
 static void
 dump_field(const string &name, const pp_field_const_ptr &field);
@@ -48,11 +49,13 @@ dump_register(const string &name, const pp_register_const_ptr &reg)
 static void
 dump_scope(const string &name, const pp_scope_const_ptr &scope)
 {
-	cout << name << "/";
-	if (scope->is_bound()) {
-		cout << " (@" << *scope->binding() << ")";
+	if (do_scopes) {
+		cout << name << "/";
+		if (scope->is_bound()) {
+			cout << " (@" << *scope->binding() << ")";
+		}
+		cout << endl;
 	}
-	cout << endl;
 
 	for (size_t i = 0; i < scope->n_dirents(); i++) {
 		string subname = name + "/" + scope->dirent_name(i);
@@ -129,22 +132,32 @@ static struct cmdline_opt pp_opts[] = {
 	{
 		"-r", "--registers",
 		false, "",
-		"evaluate registers"
+		"print registers"
 	},
 	{
 		"-nr", "--no-registers",
 		false, "",
-		"don't evaluate registers"
+		"don't print registers"
 	},
 	{
 		"-f", "--fields",
 		false, "",
-		"evaluate fields"
+		"print fields"
 	},
 	{
 		"-nf", "--no-fields",
 		false, "",
-		"don't evaluate fields"
+		"don't print fields"
+	},
+	{
+		"-s", "--scopes",
+		false, "",
+		"print scopes"
+	},
+	{
+		"-ns", "--no-scopes",
+		false, "",
+		"don't print scopes"
 	},
 	{
 		"-h", "--help",
