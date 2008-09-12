@@ -9,16 +9,16 @@
 
 using namespace std;
 
-void
+static void
 dump_field(const string &name, const pp_field_const_ptr &field);
-void
+static void
 dump_register(const string &name, const pp_register_const_ptr &reg);
-void
+static void
 dump_scope(const string &name, const pp_scope_const_ptr &scope);
-void
+static void
 dump_array(const string &name, const pp_array_const_ptr &array);
 
-void
+static void
 dump_field(const string &name, const pp_field_const_ptr &field)
 {
 	cout << name << ": "
@@ -28,7 +28,7 @@ dump_field(const string &name, const pp_field_const_ptr &field)
 	     << endl;
 }
 
-void
+static void
 dump_register(const string &name, const pp_register_const_ptr &reg)
 {
 	cout << name << ": "
@@ -37,7 +37,7 @@ dump_register(const string &name, const pp_register_const_ptr &reg)
 	     << endl;
 }
 
-void
+static void
 dump_scope(const string &name, const pp_scope_const_ptr &scope)
 {
 	cout << name << "/";
@@ -67,7 +67,7 @@ dump_scope(const string &name, const pp_scope_const_ptr &scope)
 	}
 }
 
-void
+static void
 dump_array(const string &name, const pp_array_const_ptr &array)
 {
 	for (size_t i = 0; i < array->size(); i++) {
@@ -92,7 +92,7 @@ dump_array(const string &name, const pp_array_const_ptr &array)
 	}
 }
 
-void
+static void
 dump_dirent(pp_scope_ptr &root, const string &path)
 {
 	const pp_dirent_const_ptr &de = root->lookup_dirent(path);
@@ -112,7 +112,7 @@ dump_dirent(pp_scope_ptr &root, const string &path)
 	}
 }
 
-void
+static void
 usage(ostream &out, const char *progname)
 {
 	out << "usage: " << progname << " <paths>" << endl;

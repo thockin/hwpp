@@ -7,20 +7,20 @@
 
 using namespace std;
 
-void
+static void
 dump_field(const string &name, const pp_field_const_ptr &field,
            const string &indent="");
-void
+static void
 dump_reg(const string &name, const pp_register_const_ptr &reg,
          const string &indent="");
-void
+static void
 dump_scope(const string &name, const pp_scope_const_ptr &scope,
            const string &indent="");
-void
+static void
 dump_array(const string &name, const pp_array_const_ptr &array,
            const string &indent="");
 
-void
+static void
 dump_field(const string &name, const pp_field_const_ptr &field,
            const string &indent)
 {
@@ -32,7 +32,7 @@ dump_field(const string &name, const pp_field_const_ptr &field,
 	     << endl;
 }
 
-void
+static void
 dump_reg(const string &name, const pp_register_const_ptr &reg,
          const string &indent)
 {
@@ -43,7 +43,7 @@ dump_reg(const string &name, const pp_register_const_ptr &reg,
 	     << endl;
 }
 
-void
+static void
 dump_array(const string &name, const pp_array_const_ptr &array,
            const string &indent)
 {
@@ -65,7 +65,7 @@ dump_array(const string &name, const pp_array_const_ptr &array,
 	}
 }
 
-void
+static void
 dump_scope(const string &name, const pp_scope_const_ptr &scope,
            const string &indent)
 {

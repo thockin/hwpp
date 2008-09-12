@@ -7,14 +7,14 @@
 
 using namespace std;
 
-void
+static void
 dump_field(const string &name, const pp_field_const_ptr &field);
-void
+static void
 dump_scope(const string &name, const pp_scope_const_ptr &scope);
-void
+static void
 dump_array(const string &name, const pp_array_const_ptr &array);
 
-void
+static void
 dump_field(const string &name, const pp_field_const_ptr &field)
 {
 	cout << name << ": "
@@ -24,7 +24,7 @@ dump_field(const string &name, const pp_field_const_ptr &field)
 	     << endl;
 }
 
-void
+static void
 dump_array(const string &name, const pp_array_const_ptr &array)
 {
 	for (size_t i = 0; i < array->size(); i++) {
@@ -42,7 +42,7 @@ dump_array(const string &name, const pp_array_const_ptr &array)
 	}
 }
 
-void
+static void
 dump_scope(const string &name, const pp_scope_const_ptr &scope)
 {
 	cout << name << "/";
