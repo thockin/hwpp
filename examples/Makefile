@@ -17,7 +17,7 @@ endif
 
 all: $(BINS)
 
-$(BINS): %: %.o $(TOPDIR)/libpp.a
+$(BINS): %: %.o $(TOPDIR)/libpp.a cmdline.o
 
 .PHONY: test
 test: all
