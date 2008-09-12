@@ -6,8 +6,12 @@
 #include "pp_register.h"
 #include "pp_scope.h"
 #include "pp_array.h"
+#include "cmdline.h"
 
 using namespace std;
+
+bool do_regs = true;
+bool do_fields = true;
 
 static void
 dump_field(const string &name, const pp_field_const_ptr &field);
@@ -21,20 +25,24 @@ dump_array(const string &name, const pp_array_const_ptr &array);
 static void
 dump_field(const string &name, const pp_field_const_ptr &field)
 {
-	cout << name << ": "
-	     << field->evaluate()
-	     << std::hex
-	     << " (0x" << field->read() << ")"
-	     << endl;
+	if (do_fields) {
+		cout << name << ": "
+		     << field->evaluate()
+		     << std::hex
+		     << " (0x" << field->read() << ")"
+		     << endl;
+	}
 }
 
 static void
 dump_register(const string &name, const pp_register_const_ptr &reg)
 {
-	cout << name << ": "
-	     << std::hex
-	     << "0x" << reg->read()
-	     << endl;
+	if (do_regs) {
+		cout << name << ": "
+		     << std::hex
+		     << "0x" << reg->read()
+		     << endl;
+	}
 }
 
 static void
@@ -93,8 +101,13 @@ dump_array(const string &name, const pp_array_const_ptr &array)
 }
 
 static void
-dump_dirent(pp_scope_ptr &root, const string &path)
+dump_dirent(pp_scope_ptr &root, string path)
 {
+	// special-case for "/"
+	if (path == "/") {
+		path = "";
+	}
+
 	const pp_dirent_const_ptr &de = root->lookup_dirent(path);
 	if (de == NULL) {
 		cerr << path << ": path not found" << endl;
@@ -112,31 +125,88 @@ dump_dirent(pp_scope_ptr &root, const string &path)
 	}
 }
 
+static struct cmdline_opt pp_opts[] = {
+	{
+		"-r", "--registers",
+		false, "",
+		"evaluate registers"
+	},
+	{
+		"-nr", "--no-registers",
+		false, "",
+		"don't evaluate registers"
+	},
+	{
+		"-f", "--fields",
+		false, "",
+		"evaluate fields"
+	},
+	{
+		"-nf", "--no-fields",
+		false, "",
+		"don't evaluate fields"
+	},
+	{
+		"-h", "--help",
+		false, "",
+		"produce this help message"
+	},
+	{ NULL, NULL, false, NULL, NULL },
+};
+
 static void
-usage(ostream &out, const char *progname)
+usage()
 {
-	out << "usage: " << progname << " <paths>" << endl;
+	cout << "usage: " << cmdline_progname << " [OPTIONS]" << std::endl;
+	cout << std::endl;
+	cout << "OPTIONS:" << std::endl;
+	cmdline_help(CMDLINE_STDOUT, pp_opts);
+}
+
+static pp_scope_ptr root;
+static bool did_cmdline_path = false;
+
+static void
+cmdline_callback(const char *opt, const char *arg)
+{
+	(void)arg;
+	if (!strcmp(opt, "-r") || !strcmp(opt, "--registers")) {
+		do_regs = true;
+		return;
+	}
+	if (!strcmp(opt, "-nr") || !strcmp(opt, "--no-registers")) {
+		do_regs = false;
+		return;
+	}
+	if (!strcmp(opt, "-f") || !strcmp(opt, "--fields")) {
+		do_fields = true;
+		return;
+	}
+	if (!strcmp(opt, "-nf") || !strcmp(opt, "--no-fields")) {
+		do_fields = false;
+		return;
+	}
+	if (!strcmp(opt, "-h") || !strcmp(opt, "--help")) {
+		usage();
+		exit(EXIT_SUCCESS);
+	}
+
+	// default
+	dump_dirent(root, opt);
 }
 
 int
 main(int argc, const char *argv[])
 {
-	if (argc > 1 && string(argv[1]) == "-h") {
-		usage(cout, argv[0]);
-		return EXIT_SUCCESS;
-	}
-
-	pp_scope_ptr root = pp_init();
+	root = pp_init();
 	pp_do_discovery();
 
-	if (argc == 1) {
+	cmdline_parse(&argc, &argv, pp_opts, cmdline_callback);
+
+	if (!did_cmdline_path) {
 		string path;
 		while (cin >> path) {
 			dump_dirent(root, path);
-		}
-	} else {
-		for (int i = 1; i < argc; i++) {
-			dump_dirent(root, argv[i]);
 		}
 	}
 
