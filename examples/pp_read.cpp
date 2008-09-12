@@ -199,6 +199,14 @@ cmdline_callback(const char *opt, const char *arg)
 		do_fields = false;
 		return;
 	}
+	if (!strcmp(opt, "-s") || !strcmp(opt, "--scopes")) {
+		do_fields = true;
+		return;
+	}
+	if (!strcmp(opt, "-ns") || !strcmp(opt, "--no-scopes")) {
+		do_fields = false;
+		return;
+	}
 	if (!strcmp(opt, "-h") || !strcmp(opt, "--help")) {
 		usage();
 		exit(EXIT_SUCCESS);
