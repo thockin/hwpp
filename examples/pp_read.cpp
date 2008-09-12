@@ -200,11 +200,11 @@ cmdline_callback(const char *opt, const char *arg)
 		return;
 	}
 	if (!strcmp(opt, "-s") || !strcmp(opt, "--scopes")) {
-		do_fields = true;
+		do_scopes = true;
 		return;
 	}
 	if (!strcmp(opt, "-ns") || !strcmp(opt, "--no-scopes")) {
-		do_fields = false;
+		do_scopes = false;
 		return;
 	}
 	if (!strcmp(opt, "-h") || !strcmp(opt, "--help")) {
