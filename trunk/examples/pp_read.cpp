@@ -206,6 +206,7 @@ cmdline_callback(const char *opt, const char *arg)
 
 	// default
 	dump_dirent(root, opt);
+	did_cmdline_path = true;
 }
 
 int
