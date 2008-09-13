@@ -25,45 +25,51 @@ export PROFILE ?= 0	# boolean: 0=no, 1=yes
 # user-overrideable variables
 
 # CPPFLAGS	# extra pre-processor flags
-# CXXFLAGS	# extra compiler flags
+# CFLAGS	# extra C compiler flags
+# CXXFLAGS	# extra C++ compiler flags
 # ARCHFLAGS	# output architecture flags
 # LDFLAGS	# extra linker flags
 # INCLUDES	# extra includes
 # LIBS		# extra linker libs, linked statically for non-zero STATIC=
 # LIBS_DYN	# extra linker libs, linked dynamically unless STATIC=1
-# WARNS		# extra compiler warnings
+# CWARNS	# extra C compiler warnings
+# CXXWARNS	# extra C++ compiler warnings
 # DEFS		# extra pre-processor definitions
 
 
 # per-target variables
 
 # $@_CPPFLAGS	# extra pre-processor flags
-# $@_CXXFLAGS	# extra compiler flags
+# $@_CFLAGS	# extra C compiler flags
+# $@_CXXFLAGS	# extra C++ compiler flags
 # $@_LDFLAGS	# extra linker flags
 # $@_INCLUDES	# extra includes
 # $@_LIBS	# extra linker libs, linked statically for non-zero STATIC=
 # $@_LIBS_DYN	# extra linker libs, linked dynamically unless STATIC=1
-# $@_WARNS	# extra compiler warnings
+# $@_CWARNS	# extra C compiler warnings
+# $@_CXXWARNS	# extra C++ compiler warnings
 # $@_DEFS	# extra pre-processor definitions
 
 
 # build tools
 
-CXX = $(CROSS_COMPILE)g++
-CC = $(CXX)
 CPP = $(CROSS_COMPILE)cpp
+CC  = $(CROSS_COMPILE)gcc
+CXX = $(CROSS_COMPILE)g++
 
 
 # build flags
 
 PP_CPPFLAGS = $($@_CPPFLAGS)
-PP_CXXFLAGS = $(ARCHFLAGS) $($@_CXXFLAGS)
+PP_CFLAGS = $(ARCHFLAGS) $($@_CFLAGS)
+PP_CXXFLAGS = $(PP_CFLAGS) $($@_CXXFLAGS)
 PP_LDFLAGS = $(ARCHFLAGS) $($@_LDFLAGS)
-PP_WARNS = -Wall -Wextra -Werror -Woverloaded-virtual $(WARNS) $($@_WARNS)
+PP_CWARNS = -Wall -Wextra -Werror $(CWARNS) $($@_CWARNS)
+PP_CXXWARNS = $(PP_CWARNS) -Woverloaded-virtual $(CXXWARNS) $($@_CXXWARNS)
 PP_DEFS = -DPP_VERSION="\"$(PP_VERSION)\"" -D_GNU_SOURCE $(DEFS) $($@_DEFS)
 PP_INCLUDES = -I$(TOPDIR) $(DIR_INCLUDES) $(INCLUDES) $($@_INCLUDES)
 PP_LDLIBS = -lgmpxx -lgmp $(LIBS) $($@_LDLIBS)
-PP_LDLIBS_DYN = $(LIBS_DYN) $($@_LDLIBS_DYN)
+PP_LDLIBS_DYN = $(LIBS_DYN) -lstdc++ $($@_LDLIBS_DYN)
 
 ifeq ($(strip $(STATIC)),1)
 PP_STATIC = -static
@@ -78,7 +84,7 @@ ifeq ($(strip $(PROFILE)),1)
 ifeq ($(strip $(DEBUG)),1)
 $(warning WARNING: PROFILE and DEBUG are both enabled)
 endif
-PP_CXXFLAGS += -pg
+PP_CFLAGS += -pg
 PP_LDFLAGS += -pg
 PP_LDLIBS += -lgcov
 endif
@@ -86,13 +92,15 @@ endif
 # debug options should go last
 ifeq ($(strip $(DEBUG)),1)
 PP_TRACE = $(foreach trace, $(TRACE), -DTRACE_$(trace)=1)
-PP_DEBUG = -O0 -ggdb -DDEBUG -UNDEBUG -fno-default-inline $(PP_TRACE)
+PP_CDEBUG = -O0 -ggdb -DDEBUG -UNDEBUG $(PP_TRACE)
+PP_CXXDEBUG = $(PP_CDEBUG) -fno-default-inline
 else
-PP_DEBUG = -O2 -DNDEBUG
+PP_CDEBUG = -O2 -DNDEBUG
 endif
 
 CPPFLAGS += $(PP_DEFS) $(PP_INCLUDES)
-CXXFLAGS += $(PP_CXXFLAGS) $(PP_WARNS) $(PP_DEBUG)
+CFLAGS += $(PP_CFLAGS) $(PP_CWARNS) $(PP_CDEBUG)
+CXXFLAGS += $(PP_CXXFLAGS) $(PP_CXXWARNS) $(PP_CXXDEBUG)
 LDFLAGS += $(PP_LDFLAGS)
 LDLIBS += $(PP_STATIC) $(PP_LDLIBS) $(PP_DYNAMIC) $(PP_LDLIBS_DYN)
 
@@ -109,8 +117,10 @@ all: make_flags
 make_flags:
 	@\
 	NEW=$$($$(which echo) -e \
+	       "CC='$$(which $(CC))'\n" \
 	       "CXX='$$(which $(CXX))'\n" \
 	       "CROSS_COMPILE='$(CROSS_COMPILE)'\n" \
+	       "CFLAGS='$(CFLAGS)'\n" \
 	       "CXXFLAGS='$(CXXFLAGS)'\n" \
 	       "CPPFLAGS='$(CPPFLAGS)'\n" \
 	       "LDFLAGS='$(LDFLAGS)'\n" \
