@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdint.h>
 #include "cmdline.h"
 
 /* globals */
@@ -9,16 +10,60 @@ const char *cmdline_progname;
 int cmdline_argc;
 const char * const *cmdline_argv;
 
+static int
+found_opt(const struct cmdline_opt *opt, int *argc, const char **argv[])
+{
+	if (opt->type == CMDLINE_OPT_BOOL) {
+		/* no arg */
+		*(cmdline_bool *)opt->arg = 1;
+	} else if (opt->type == CMDLINE_OPT_COUNTER) {
+		/* no arg */
+		*(cmdline_uint *)opt->arg += 1;
+	} else if (opt->type == CMDLINE_OPT_STRING) {
+		/* string arg */
+		(*argc)--; (*argv)++;
+		if (*argc < 1) {
+			return CMDLINE_ERR_REQUIRES_ARG;
+		}
+		*(cmdline_string *)opt->arg = (*argv)[0];
+	} else if (opt->type == CMDLINE_OPT_INT) {
+		/* signed number arg */
+		(*argc)--; (*argv)++;
+		if (*argc < 1) {
+			return CMDLINE_ERR_REQUIRES_ARG;
+		}
+		*(cmdline_int *)opt->arg = strtoll((*argv)[0], NULL, 0);
+	} else if (opt->type == CMDLINE_OPT_UINT) {
+		/* unsigned number arg */
+		(*argc)--; (*argv)++;
+		if (*argc < 1) {
+			return CMDLINE_ERR_REQUIRES_ARG;
+		}
+		*(cmdline_uint *)opt->arg = strtoull((*argv)[0], NULL, 0);
+	} else if (opt->type == CMDLINE_OPT_CALLBACK) {
+		/* callback function arg */
+		cmdline_callback callback = (cmdline_callback)opt->arg;
+		callback(opt, argc, argv);
+	} else {
+		return CMDLINE_ERR_UNKNOWN_TYPE;
+	}
+	return 0;
+}
+
 /* parse command line options */
 int
-cmdline_parse(int *argc, const char **argv[], const struct cmdline_opt *opts,
-              void (*callback)(const char *opt, const char *arg))
+cmdline_parse(int *argc, const char **argv[], const struct cmdline_opt *opts)
 {
 	const char **new_argv;
 	int new_argc;
 
 	/* save progname, argc, and argv */
-	cmdline_progname = (*argv)[0];
+	cmdline_progname = strrchr((*argv)[0], '/');
+	if (cmdline_progname) {
+		cmdline_progname++;
+	} else {
+		cmdline_progname = (*argv)[0];
+	}
 	cmdline_argc = *argc;
 	cmdline_argv = *argv;
 	(*argc)--; (*argv)++;
@@ -43,14 +88,8 @@ cmdline_parse(int *argc, const char **argv[], const struct cmdline_opt *opts,
 			if (strcmp(argp, optp->short_name) == 0
 			 || strcmp(argp, optp->long_name) == 0) {
 				/* found a known option */
-				const char *arg = NULL;
 				found = 1;
-				if (optp->has_arg) {
-					(*argc)--; (*argv)++;
-					arg = *(*argv);
-				}
-				/* call the callback */
-				callback(argp, arg);
+			 	found_opt(&opts[i], argc, argv);
 				break;
 			}
 		}
@@ -89,7 +128,7 @@ cmdline_help(int which_out, const struct cmdline_opt *opts)
 		if (size > maxlen2) {
 			maxlen2 = size;
 		}
-		size = strlen(opt->arg_help);
+		size = strlen(opt->arg_name);
 		if (size > maxlen3) {
 			maxlen3 = size;
 		}
@@ -100,8 +139,7 @@ cmdline_help(int which_out, const struct cmdline_opt *opts)
 		        maxlen1, opt->short_name,
 		        maxlen2, opt->long_name,
 		        (maxlen3 > 0) ? " " : "",
-		        maxlen3, opt->arg_help);
+		        maxlen3, opt->arg_name);
 		fprintf(out, "  %s\n", opt->help);
 	}
-	fprintf(out, "\n");
 }
