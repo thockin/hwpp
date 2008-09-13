@@ -1,6 +1,10 @@
 #ifndef CMDLINE_H__
 #define CMDLINE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* a command line option */
 struct cmdline_opt {
 	const char *short_name;
@@ -22,5 +26,9 @@ cmdline_help(int which_out, const struct cmdline_opt *opts);
 extern const char *cmdline_progname;
 extern int cmdline_argc;
 extern const char * const *cmdline_argv;
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* CMDLINE_H__ */
