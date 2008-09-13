@@ -1099,8 +1099,7 @@ k8_msr(const pp_value &cpu)
 	if (FIELD_EQ("ADDRV", 1)) {
 		// MC2_ADDR bits valid if ADDRV set
 		// TODO: what datatype for all of these?
-		if (FIELD_TEST("ERR_CODE", 0x0800) ||
-		    FIELD_TEST("ERR_CODE", 0x0100) &&
+		if (FIELD_TEST("ERR_CODE", 0x0800 | 0x0100) &&
 		    FIELD_EQ("ERR_CODE_CacheLevel", "level_2")) {
 			// L2 Cache error
 			if (FIELD_EQ("EXT_ERR_CODE", 
