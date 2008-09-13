@@ -8,9 +8,9 @@
 
 using namespace std;
 
-bool skip_regs = false;
-bool skip_fields = false;
-bool skip_scopes = false;
+cmdline_bool skip_regs = false;
+cmdline_bool skip_fields = false;
+cmdline_bool skip_scopes = false;
 
 static void
 dump_field(const string &name, const pp_field_const_ptr &field);
@@ -94,28 +94,29 @@ dump_scope(const string &name, const pp_scope_const_ptr &scope)
 	}
 }
 
+static void do_help(...);
 static struct cmdline_opt pp_opts[] = {
 	{
 		"-nr", "--no-registers",
-		false, "",
-		"don't print registers"
+		CMDLINE_OPT_BOOL, &skip_regs,
+		"", "don't print registers"
 	},
 	{
 		"-nf", "--no-fields",
-		false, "",
-		"don't print fields"
+		CMDLINE_OPT_BOOL, &skip_fields,
+		"", "don't print fields"
 	},
 	{
 		"-ns", "--no-scopes",
-		false, "",
-		"don't print scopes"
+		CMDLINE_OPT_BOOL, &skip_scopes,
+		"", "don't print scopes"
 	},
 	{
 		"-h", "--help",
-		false, "",
-		"produce this help message"
+		CMDLINE_OPT_CALLBACK, (void *)do_help,
+		"", "produce this help message"
 	},
-	{ NULL, NULL, false, NULL, NULL },
+	CMDLINE_OPT_END_OF_LIST
 };
 
 static void
@@ -136,36 +137,21 @@ usage(const char *bad_opt)
 	*out << "usage: " << cmdline_progname << " [OPTIONS]" << std::endl;
 	*out << std::endl;
 	*out << "OPTIONS:" << std::endl;
-
 	cmdline_help(which_out, pp_opts);
+	*out << std::endl;
 }
 
 static void
-cmdline_callback(const char *opt, const char *arg)
+do_help(...)
 {
-	(void)arg;
-	if (!strcmp(opt, "-nr") || !strcmp(opt, "--no-registers")) {
-		skip_regs = true;
-		return;
-	}
-	if (!strcmp(opt, "-nf") || !strcmp(opt, "--no-fields")) {
-		skip_fields = true;
-		return;
-	}
-	if (!strcmp(opt, "-ns") || !strcmp(opt, "--no-scopes")) {
-		skip_scopes = true;
-		return;
-	}
-	if (!strcmp(opt, "-h") || !strcmp(opt, "--help")) {
-		usage(NULL);
-		exit(EXIT_SUCCESS);
-	}
+	usage(NULL);
+	exit(EXIT_SUCCESS);
 }
 
 int
 main(int argc, const char *argv[])
 {
-	cmdline_parse(&argc, &argv, pp_opts, cmdline_callback);
+	cmdline_parse(&argc, &argv, pp_opts);
 	if (argc != 1) {
 		usage(argv[1]);
 		exit(EXIT_FAILURE);
