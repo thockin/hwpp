@@ -14,11 +14,22 @@ int
 cmdline_parse(int *argc, const char **argv[], const struct cmdline_opt *opts,
               void (*callback)(const char *opt, const char *arg))
 {
+	const char **new_argv;
+	int new_argc;
+
 	/* save progname, argc, and argv */
 	cmdline_progname = (*argv)[0];
 	cmdline_argc = *argc;
 	cmdline_argv = *argv;
 	(*argc)--; (*argv)++;
+
+	/* allocate a new argv for leftover args, argc is a safe size */
+	new_argc = 0;
+	new_argv = malloc(sizeof(char *) * (*argc));
+	if (new_argv == NULL) {
+		return -1;
+	}
+	new_argv[new_argc++] = cmdline_progname;
 
 	/* for each option on the command line */
 	while (*argc) {
@@ -44,11 +55,13 @@ cmdline_parse(int *argc, const char **argv[], const struct cmdline_opt *opts,
 			}
 		}
 		if (!found) {
-			callback(argp, NULL);
+			new_argv[new_argc++] = argp;
 		}
 		(*argc)--; (*argv)++;
 	}
 
+	(*argc) = new_argc;
+	(*argv) = new_argv;
 	return 0;
 }
 
@@ -56,7 +69,7 @@ void
 cmdline_help(int which_out, const struct cmdline_opt *opts)
 {
 	FILE *out;
-	int maxlen1, maxlen2, maxlen3;
+	size_t maxlen1, maxlen2, maxlen3;
 	const struct cmdline_opt *opt;
 
 	if (which_out == CMDLINE_STDOUT) {
