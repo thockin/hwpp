@@ -10,9 +10,9 @@
 
 using namespace std;
 
-bool do_regs = true;
-bool do_fields = true;
-bool do_scopes = true;
+bool skip_regs = false;
+bool skip_fields = false;
+bool skip_scopes = false;
 
 static void
 dump_field(const string &name, const pp_field_const_ptr &field);
@@ -26,7 +26,7 @@ dump_array(const string &name, const pp_array_const_ptr &array);
 static void
 dump_field(const string &name, const pp_field_const_ptr &field)
 {
-	if (do_fields) {
+	if (!skip_fields) {
 		cout << name << ": "
 		     << field->evaluate()
 		     << std::hex
@@ -38,7 +38,7 @@ dump_field(const string &name, const pp_field_const_ptr &field)
 static void
 dump_register(const string &name, const pp_register_const_ptr &reg)
 {
-	if (do_regs) {
+	if (!skip_regs) {
 		cout << name << ": "
 		     << std::hex
 		     << "0x" << reg->read()
@@ -49,7 +49,7 @@ dump_register(const string &name, const pp_register_const_ptr &reg)
 static void
 dump_scope(const string &name, const pp_scope_const_ptr &scope)
 {
-	if (do_scopes) {
+	if (!skip_scopes) {
 		cout << name << "/";
 		if (scope->is_bound()) {
 			cout << " (@" << *scope->binding() << ")";
@@ -130,29 +130,14 @@ dump_dirent(pp_scope_ptr &root, string path)
 
 static struct cmdline_opt pp_opts[] = {
 	{
-		"-r", "--registers",
-		false, "",
-		"print registers"
-	},
-	{
 		"-nr", "--no-registers",
 		false, "",
 		"don't print registers"
 	},
 	{
-		"-f", "--fields",
-		false, "",
-		"print fields"
-	},
-	{
 		"-nf", "--no-fields",
 		false, "",
 		"don't print fields"
-	},
-	{
-		"-s", "--scopes",
-		false, "",
-		"print scopes"
 	},
 	{
 		"-ns", "--no-scopes",
@@ -176,59 +161,44 @@ usage()
 	cmdline_help(CMDLINE_STDOUT, pp_opts);
 }
 
-static pp_scope_ptr root;
-static bool did_cmdline_path = false;
-
 static void
 cmdline_callback(const char *opt, const char *arg)
 {
 	(void)arg;
-	if (!strcmp(opt, "-r") || !strcmp(opt, "--registers")) {
-		do_regs = true;
-		return;
-	}
 	if (!strcmp(opt, "-nr") || !strcmp(opt, "--no-registers")) {
-		do_regs = false;
-		return;
-	}
-	if (!strcmp(opt, "-f") || !strcmp(opt, "--fields")) {
-		do_fields = true;
+		skip_regs = true;
 		return;
 	}
 	if (!strcmp(opt, "-nf") || !strcmp(opt, "--no-fields")) {
-		do_fields = false;
-		return;
-	}
-	if (!strcmp(opt, "-s") || !strcmp(opt, "--scopes")) {
-		do_scopes = true;
+		skip_fields = true;
 		return;
 	}
 	if (!strcmp(opt, "-ns") || !strcmp(opt, "--no-scopes")) {
-		do_scopes = false;
+		skip_scopes = true;
 		return;
 	}
 	if (!strcmp(opt, "-h") || !strcmp(opt, "--help")) {
 		usage();
 		exit(EXIT_SUCCESS);
 	}
-
-	// default
-	dump_dirent(root, opt);
-	did_cmdline_path = true;
 }
 
 int
 main(int argc, const char *argv[])
 {
-	root = pp_init();
-	pp_do_discovery();
-
 	cmdline_parse(&argc, &argv, pp_opts, cmdline_callback);
 
-	if (!did_cmdline_path) {
+	pp_scope_ptr root = pp_init();
+	pp_do_discovery();
+
+	if (argc == 1) {
 		string path;
 		while (cin >> path) {
 			dump_dirent(root, path);
+		}
+	} else {
+		for (int i = 1; i < argc; i++) {
+			dump_dirent(root, argv[i]);
 		}
 	}
 

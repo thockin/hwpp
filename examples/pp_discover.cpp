@@ -8,9 +8,9 @@
 
 using namespace std;
 
-bool do_regs = true;
-bool do_fields = true;
-bool do_scopes = true;
+bool skip_regs = false;
+bool skip_fields = false;
+bool skip_scopes = false;
 
 static void
 dump_field(const string &name, const pp_field_const_ptr &field);
@@ -24,7 +24,7 @@ dump_array(const string &name, const pp_array_const_ptr &array);
 static void
 dump_field(const string &name, const pp_field_const_ptr &field)
 {
-	if (do_fields) {
+	if (!skip_fields) {
 		cout << name << ": "
 		     << field->evaluate()
 		     << std::hex
@@ -36,7 +36,7 @@ dump_field(const string &name, const pp_field_const_ptr &field)
 static void
 dump_register(const string &name, const pp_register_const_ptr &reg)
 {
-	if (do_regs) {
+	if (!skip_regs) {
 		cout << name << ": "
 			<< std::hex
 			<< "0x" << reg->read()
@@ -68,7 +68,7 @@ dump_array(const string &name, const pp_array_const_ptr &array)
 static void
 dump_scope(const string &name, const pp_scope_const_ptr &scope)
 {
-	if (do_scopes) {
+	if (!skip_scopes) {
 		cout << name << "/";
 		if (scope->is_bound()) {
 			cout << " (@" << *scope->binding() << ")";
@@ -145,34 +145,34 @@ cmdline_callback(const char *opt, const char *arg)
 {
 	(void)arg;
 	if (!strcmp(opt, "-nr") || !strcmp(opt, "--no-registers")) {
-		do_regs = false;
+		skip_regs = true;
 		return;
 	}
 	if (!strcmp(opt, "-nf") || !strcmp(opt, "--no-fields")) {
-		do_fields = false;
+		skip_fields = true;
 		return;
 	}
 	if (!strcmp(opt, "-ns") || !strcmp(opt, "--no-scopes")) {
-		do_scopes = false;
+		skip_scopes = true;
 		return;
 	}
 	if (!strcmp(opt, "-h") || !strcmp(opt, "--help")) {
 		usage(NULL);
 		exit(EXIT_SUCCESS);
 	}
-
-	// default
-	usage(opt);
-	exit(EXIT_FAILURE);
 }
 
 int
 main(int argc, const char *argv[])
 {
+	cmdline_parse(&argc, &argv, pp_opts, cmdline_callback);
+	if (argc != 1) {
+		usage(argv[1]);
+		exit(EXIT_FAILURE);
+	}
+
 	pp_scope_ptr root = pp_init();
 	pp_do_discovery();
-
-	cmdline_parse(&argc, &argv, pp_opts, cmdline_callback);
 	dump_scope("", root);
 
 	return 0;
