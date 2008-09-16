@@ -104,42 +104,52 @@ cmdline_parse(int *argc, const char **argv[], const struct cmdline_opt *opts)
 	return 0;
 }
 
-void
-cmdline_help(int which_out, const struct cmdline_opt *opts)
+const char *
+cmdline_help(const struct cmdline_opt *opts)
 {
-	FILE *out;
-	size_t maxlen1, maxlen2, maxlen3;
+	static const struct cmdline_opt *saved_opts;
+	static int saved_index;
+	static size_t maxlen1, maxlen2, maxlen3;
+	static char buf[1024];
 	const struct cmdline_opt *opt;
 
-	if (which_out == CMDLINE_STDOUT) {
-		out = stdout;
-	} else {
-		out = stderr;
-	}
-	maxlen1 = maxlen2 = maxlen3 = 0;
-	for (opt = opts; opt->short_name; opt++) {
-		size_t size;
+	/* if we were passed a different opts than last time... */
+	if (saved_opts != opts) {
+		saved_index = 0;
+		saved_opts = opts;
 
-		size = strlen(opt->short_name);
-		if (size > maxlen1) {
-			maxlen1 = size;
-		}
-		size = strlen(opt->long_name);
-		if (size > maxlen2) {
-			maxlen2 = size;
-		}
-		size = strlen(opt->arg_name);
-		if (size > maxlen3) {
-			maxlen3 = size;
+		/* recalculate field widths */
+		maxlen1 = maxlen2 = maxlen3 = 0;
+		for (opt = opts; opt->short_name; opt++) {
+			size_t size;
+
+			size = strlen(opt->short_name);
+			if (size > maxlen1) {
+				maxlen1 = size;
+			}
+			size = strlen(opt->long_name);
+			if (size > maxlen2) {
+				maxlen2 = size;
+			}
+			size = strlen(opt->arg_name);
+			if (size > maxlen3) {
+				maxlen3 = size;
+			}
 		}
 	}
 
-	for (opt = opts; opt->short_name; opt++) {
-		fprintf(out, "  %-*s %-*s%s%*s",
-		        maxlen1, opt->short_name,
-		        maxlen2, opt->long_name,
+	/* if the next opt is valid, build a string */
+	opt = &opts[saved_index];
+	if (opt->short_name) {
+		snprintf(buf, sizeof(buf), "%-*s %-*s%s%*s    %s",
+		        maxlen1, opt->short_name ? opt->short_name : "",
+		        maxlen2, opt->long_name ? opt->long_name : "",
 		        (maxlen3 > 0) ? " " : "",
-		        maxlen3, opt->arg_name);
-		fprintf(out, "  %s\n", opt->help);
+		        maxlen3, opt->arg_name ? opt->arg_name : "",
+		        opt->help);
+		saved_index++;
+		return buf;
 	}
+
+	return NULL;
 }

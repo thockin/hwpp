@@ -123,21 +123,20 @@ static void
 usage(const char *bad_opt)
 {
 	ostream *out;
-	int which_out;
 
 	if (bad_opt == NULL) {
 		out = &cout;
-		which_out = CMDLINE_STDOUT;
 	} else {
 		out = &cerr;
-		which_out = CMDLINE_STDERR;
 		*out << "unknown option: '" << bad_opt << "'" << std::endl;
 	}
 
 	*out << "usage: " << cmdline_progname << " [OPTIONS]" << std::endl;
 	*out << std::endl;
 	*out << "OPTIONS:" << std::endl;
-	cmdline_help(which_out, pp_opts);
+	while (const char *help_str = cmdline_help(pp_opts)) {
+		*out << "  " << help_str << std::endl;
+	}
 	*out << std::endl;
 }
 

@@ -159,7 +159,9 @@ usage()
 	cout << "usage: " << cmdline_progname << " [OPTIONS]" << std::endl;
 	cout << std::endl;
 	cout << "OPTIONS:" << std::endl;
-	cmdline_help(CMDLINE_STDOUT, pp_opts);
+	while (const char *help_str = cmdline_help(pp_opts)) {
+		cout << "  " << help_str << std::endl;
+	}
 	cout << std::endl;
 }
 
