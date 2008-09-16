@@ -50,12 +50,31 @@ found_opt(const struct cmdline_opt *opt, int *argc, const char **argv[])
 	return 0;
 }
 
+static size_t
+safe_strlen(const char *str)
+{
+	if (str) {
+		return strlen(str);
+	}
+	return 0;
+}
+
+static int
+safe_streq(const char *lhs, const char *rhs)
+{
+	if (lhs && rhs) {
+		return !strcmp(lhs, rhs);
+	}
+	return 0;
+}
+
 /* parse command line options */
 int
 cmdline_parse(int *argc, const char **argv[], const struct cmdline_opt *opts)
 {
 	const char **new_argv;
 	int new_argc;
+	int dash_dash = 0;
 
 	/* save progname, argc, and argv */
 	cmdline_progname = strrchr((*argv)[0], '/');
@@ -80,21 +99,29 @@ cmdline_parse(int *argc, const char **argv[], const struct cmdline_opt *opts)
 	while (*argc) {
 		int i;
 		int found = 0;
-		const char *argp = &(*argv)[0][0];
+		const char *arg = &(*argv)[0][0];
+
+		/* special case "--" */
+		if (!dash_dash && safe_streq(arg, "--")) {
+			dash_dash = 1;
+			(*argc)--; (*argv)++;
+			continue;
+		}
 
 		/* check each valid option */
-		for (i = 0; opts[i].short_name != NULL; i++) {
-			const struct cmdline_opt *optp = &opts[i];
-			if (strcmp(argp, optp->short_name) == 0
-			 || strcmp(argp, optp->long_name) == 0) {
+		for (i = 0; !dash_dash
+		         && opts[i].type != CMDLINE_OPT_EOL; i++) {
+			const struct cmdline_opt *opt = &opts[i];
+			if (safe_streq(arg, opt->short_name)
+			 || safe_streq(arg, opt->long_name)) {
 				/* found a known option */
 				found = 1;
-			 	found_opt(&opts[i], argc, argv);
+				found_opt(&opts[i], argc, argv);
 				break;
 			}
 		}
 		if (!found) {
-			new_argv[new_argc++] = argp;
+			new_argv[new_argc++] = arg;
 		}
 		(*argc)--; (*argv)++;
 	}
@@ -120,18 +147,18 @@ cmdline_help(const struct cmdline_opt *opts)
 
 		/* recalculate field widths */
 		maxlen1 = maxlen2 = maxlen3 = 0;
-		for (opt = opts; opt->short_name; opt++) {
+		for (opt = opts; opt->type != CMDLINE_OPT_EOL; opt++) {
 			size_t size;
 
-			size = strlen(opt->short_name);
+			size = safe_strlen(opt->short_name);
 			if (size > maxlen1) {
 				maxlen1 = size;
 			}
-			size = strlen(opt->long_name);
+			size = safe_strlen(opt->long_name);
 			if (size > maxlen2) {
 				maxlen2 = size;
 			}
-			size = strlen(opt->arg_name);
+			size = safe_strlen(opt->arg_name);
 			if (size > maxlen3) {
 				maxlen3 = size;
 			}
@@ -140,7 +167,7 @@ cmdline_help(const struct cmdline_opt *opts)
 
 	/* if the next opt is valid, build a string */
 	opt = &opts[saved_index];
-	if (opt->short_name) {
+	if (opt->type != CMDLINE_OPT_EOL) {
 		snprintf(buf, sizeof(buf), "%-*s %-*s%s%*s    %s",
 		        maxlen1, opt->short_name ? opt->short_name : "",
 		        maxlen2, opt->long_name ? opt->long_name : "",
