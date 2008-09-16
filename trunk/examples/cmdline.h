@@ -51,11 +51,17 @@ cmdline_parse(int *argc, const char **argv[], const struct cmdline_opt *opts);
 #define CMDLINE_ERR_REQUIRES_ARG -1
 #define CMDLINE_ERR_UNKNOWN_TYPE -2
 
-/* print the help for each cmdline_opt */
-extern void
-cmdline_help(int which_out, const struct cmdline_opt *opts);
-#define CMDLINE_STDOUT 1
-#define CMDLINE_STDERR 2
+/*
+ * Build command line help strings.
+ *
+ * Build a help string for each cmdline_opt, returning one string for each
+ * call to this function.
+ *
+ * Returns a valid pointer on success.
+ * Returns NULL when done
+ */
+const char *
+cmdline_help(const struct cmdline_opt *opts);
 
 extern const char *cmdline_progname;
 extern int cmdline_argc;
