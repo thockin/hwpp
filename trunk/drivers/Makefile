@@ -1,5 +1,5 @@
-TOPDIR = ..
-include $(TOPDIR)/rules.mk
+TOPDIR ?= ..
+include $(TOPDIR)/pp.mk
 
 DRIVERS = io mem pci msr cpuid
 DRIVER_LIB = libdrivers.a
@@ -22,8 +22,6 @@ DRIVER_INIT_FUNCS = $(foreach dir,$(DRIVERS), \
 DRIVER_INIT_PROTOS = $(foreach dir,$(DRIVERS), \
 	extern pp_driver *load_$(dir)_driver(); \
 )
-
-lib: $(DRIVER_LIB)
 
 $(DRIVER_LIB): $(OBJS) $(DRIVERS_TO_ADD)
 	ar rcs $@ $^

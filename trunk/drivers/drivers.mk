@@ -1,5 +1,5 @@
-TOPDIR = ../..
-include $(TOPDIR)/rules.mk
+TOPDIR ?= ../..
+include $(TOPDIR)/pp.mk
 
 DRIVER_TARGET = $(DRIVER_NAME)_driver_module.o
 
