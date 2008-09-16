@@ -103,6 +103,17 @@
 //   Example:
 //   	TEST_ASSERT_EQ(ret, 0, "ret was not 0");
 //
+// * TEST_ASSERT_EQZ(lhs)
+// * TEST_ASSERT_EQZ(lhs, msg)
+//
+//   Assert that lhs equals 0 via the '==' operator.  This assertion is
+//   tested in both directions (lhs == 0 && 0 == lhs).  If the assertion
+//   evaluates to boolean false, the msg is issued as through
+//   TEST_FAIL(msg).
+//
+//   Example:
+//   	TEST_ASSERT_EQZ(ret, "ret was not 0");
+//
 // * TEST_ASSERT_NE(lhs, rhs)
 // * TEST_ASSERT_NE(lhs, rhs, msg)
 //
@@ -113,6 +124,17 @@
 //
 //   Example:
 //   	TEST_ASSERT_NE(ret, 0, "ret was 0");
+//
+// * TEST_ASSERT_NEZ(lhs)
+// * TEST_ASSERT_NEZ(lhs, msg)
+//
+//   Assert that lhs does not equal 0 via the '!=' operator.  This
+//   assertion is tested in both directions (lhs != 0 && 0 != lhs).  If
+//   the assertion evaluates to boolean false, the msg is issued as
+//   through TEST_FAIL(msg).
+//
+//   Example:
+//   	TEST_ASSERT_NEZ(ret, "ret was 0");
 //
 // * TEST_ASSERT_LT(lhs, rhs)
 // * TEST_ASSERT_LT(lhs, rhs, msg)
@@ -125,6 +147,17 @@
 //   Example:
 //   	TEST_ASSERT_LT(ret, 0, "ret was not < 0");
 //
+// * TEST_ASSERT_LTZ(lhs)
+// * TEST_ASSERT_LTZ(lhs, msg)
+//
+//   Assert that lhs is less than 0 via the '< operator.  This assertion
+//   is tested in both directions (lhs < 0 && 0 >= lhs).  If the assertion
+//   evaluates to boolean false, the msg is issued as through
+//   TEST_FAIL(msg).
+//
+//   Example:
+//   	TEST_ASSERT_LTZ(ret, "ret was not < 0");
+//
 // * TEST_ASSERT_LE(lhs, rhs)
 // * TEST_ASSERT_LE(lhs, rhs, msg)
 //
@@ -135,6 +168,17 @@
 //
 //   Example:
 //   	TEST_ASSERT_LE(ret, 0, "ret was not <= 0");
+//
+// * TEST_ASSERT_LEZ(lhs)
+// * TEST_ASSERT_LEZ(lhs, msg)
+//
+//   Assert that lhs is less than or equal to 0 via the '<=' operator.
+//   This assertion is tested in both directions (lhs <= 0 && 0 > lhs).
+//   If the assertion evaluates to boolean false, the msg is issued as
+//   through TEST_FAIL(msg).
+//
+//   Example:
+//   	TEST_ASSERT_LEZ(ret, "ret was not <= 0");
 //
 // * TEST_ASSERT_GT(lhs, rhs)
 // * TEST_ASSERT_GT(lhs, rhs, msg)
@@ -147,6 +191,17 @@
 //   Example:
 //   	TEST_ASSERT_GT(ret, 0, "ret was not > 0");
 //
+// * TEST_ASSERT_GTZ(lhs)
+// * TEST_ASSERT_GTZ(lhs, msg)
+//
+//   Assert that lhs is greater than 0 via the '> operator.  This
+//   assertion is tested in both directions (lhs > 0 && 0 <= lhs).  If the
+//   assertion evaluates to boolean false, the msg is issued as through
+//   TEST_FAIL(msg).
+//
+//   Example:
+//   	TEST_ASSERT_GTZ(ret, "ret was not > 0");
+//
 // * TEST_ASSERT_GE(lhs, rhs)
 // * TEST_ASSERT_GE(lhs, rhs, msg)
 //
@@ -157,6 +212,17 @@
 //
 //   Example:
 //   	TEST_ASSERT_GE(ret, 0, "ret was not >= 0");
+//
+// * TEST_ASSERT_GEZ(lhs)
+// * TEST_ASSERT_GEZ(lhs, msg)
+//
+//   Assert that lhs is greater than or equal to 0 via the '>=' operator.
+//   This assertion is tested in both directions (lhs >= 0 && 0 < lhs).
+//   If the assertion evaluates to boolean false, the msg is issued as
+//   through TEST_FAIL(msg).
+//
+//   Example:
+//   	TEST_ASSERT_GEZ(ret, "ret was not >= 0");
 //
 // * TEST_EXIT()
 //
@@ -398,6 +464,14 @@ TEST_assert_eq(const std::string &file, int line,
 {
 	return TEST_assert(file, line, ((lhs == rhs) && (rhs == lhs)), msg);
 }
+#define TEST_ASSERT_EQZ(...) TEST_assert_eqz(__FILE__, __LINE__, ##__VA_ARGS__)
+template <typename Tlhs>
+inline TEST_output_helper_ptr
+TEST_assert_eqz(const std::string &file, int line,
+                const Tlhs &lhs, const std::string &msg="")
+{
+	return TEST_assert_eq(file, line, lhs, 0, msg);
+}
 #define TEST_ASSERT_NE(...) TEST_assert_ne(__FILE__, __LINE__, ##__VA_ARGS__)
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
@@ -405,6 +479,14 @@ TEST_assert_ne(const std::string &file, int line,
                const Tlhs &lhs, const Trhs &rhs, const std::string &msg="")
 {
 	return TEST_assert(file, line, ((lhs != rhs) && (rhs != lhs)), msg);
+}
+#define TEST_ASSERT_NEZ(...) TEST_assert_nez(__FILE__, __LINE__, ##__VA_ARGS__)
+template <typename Tlhs>
+inline TEST_output_helper_ptr
+TEST_assert_nez(const std::string &file, int line,
+                const Tlhs &lhs, const std::string &msg="")
+{
+	return TEST_assert_ne(file, line, lhs, 0, msg);
 }
 #define TEST_ASSERT_LT(...) TEST_assert_lt(__FILE__, __LINE__, ##__VA_ARGS__)
 template <typename Tlhs, typename Trhs>
@@ -414,6 +496,14 @@ TEST_assert_lt(const std::string &file, int line,
 {
 	return TEST_assert(file, line, ((lhs < rhs) && (rhs >= lhs)), msg);
 }
+#define TEST_ASSERT_LTZ(...) TEST_assert_ltz(__FILE__, __LINE__, ##__VA_ARGS__)
+template <typename Tlhs>
+inline TEST_output_helper_ptr
+TEST_assert_ltz(const std::string &file, int line,
+                const Tlhs &lhs, const std::string &msg="")
+{
+	return TEST_assert_lt(file, line, lhs, 0, msg);
+}
 #define TEST_ASSERT_GT(...) TEST_assert_gt(__FILE__, __LINE__, ##__VA_ARGS__)
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
@@ -421,6 +511,14 @@ TEST_assert_gt(const std::string &file, int line,
                const Tlhs &lhs, const Trhs &rhs, const std::string &msg="")
 {
 	return TEST_assert(file, line, ((lhs > rhs) && (rhs <= lhs)), msg);
+}
+#define TEST_ASSERT_GTZ(...) TEST_assert_gtz(__FILE__, __LINE__, ##__VA_ARGS__)
+template <typename Tlhs>
+inline TEST_output_helper_ptr
+TEST_assert_gtz(const std::string &file, int line,
+                const Tlhs &lhs, const std::string &msg="")
+{
+	return TEST_assert_gt(file, line, lhs, 0, msg);
 }
 #define TEST_ASSERT_LE(...) TEST_assert_le(__FILE__, __LINE__, ##__VA_ARGS__)
 template <typename Tlhs, typename Trhs>
@@ -430,6 +528,14 @@ TEST_assert_le(const std::string &file, int line,
 {
 	return TEST_assert(file, line, ((lhs <= rhs) && (rhs > lhs)), msg);
 }
+#define TEST_ASSERT_LEZ(...) TEST_assert_lez(__FILE__, __LINE__, ##__VA_ARGS__)
+template <typename Tlhs>
+inline TEST_output_helper_ptr
+TEST_assert_lez(const std::string &file, int line,
+                const Tlhs &lhs, const std::string &msg="")
+{
+	return TEST_assert_le(file, line, lhs, 0, msg);
+}
 #define TEST_ASSERT_GE(...) TEST_assert_ge(__FILE__, __LINE__, ##__VA_ARGS__)
 template <typename Tlhs, typename Trhs>
 inline TEST_output_helper_ptr
@@ -437,6 +543,14 @@ TEST_assert_ge(const std::string &file, int line,
                const Tlhs &lhs, const Trhs &rhs, const std::string &msg="")
 {
 	return TEST_assert(file, line, ((lhs >= rhs) && (rhs < lhs)), msg);
+}
+#define TEST_ASSERT_GEZ(...) TEST_assert_ge(__FILE__, __LINE__, ##__VA_ARGS__)
+template <typename Tlhs>
+inline TEST_output_helper_ptr
+TEST_assert_gez(const std::string &file, int line,
+                const Tlhs &lhs, const std::string &msg="")
+{
+	return TEST_assert_ge(file, line, lhs, 0, msg);
 }
 
 // exit the test
