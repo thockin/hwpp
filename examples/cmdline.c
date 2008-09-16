@@ -74,7 +74,7 @@ cmdline_parse(int *argc, const char **argv[], const struct cmdline_opt *opts)
 {
 	const char **new_argv;
 	int new_argc;
-	int dash_dash = 0;
+	int found_dash_dash = 0;
 
 	/* save progname, argc, and argv */
 	cmdline_progname = strrchr((*argv)[0], '/');
@@ -98,22 +98,34 @@ cmdline_parse(int *argc, const char **argv[], const struct cmdline_opt *opts)
 	/* for each option on the command line */
 	while (*argc) {
 		int i;
+		int ndashes = 0;
 		int found = 0;
-		const char *arg = &(*argv)[0][0];
+		const char *next_argv = &(*argv)[0][0];
+		const char *arg = next_argv;
 
 		/* special case "--" */
-		if (!dash_dash && safe_streq(arg, "--")) {
-			dash_dash = 1;
+		if (!found_dash_dash && safe_streq(arg, "--")) {
+			found_dash_dash = 1;
 			(*argc)--; (*argv)++;
 			continue;
 		}
 
+		/* figure out if this is a short name or long name */
+		if (arg[0] == '-') {
+			ndashes++;
+			arg++;
+			if (arg[0] == '-') {
+				ndashes++;
+				arg++;
+			}
+		}
+
 		/* check each valid option */
-		for (i = 0; !dash_dash
+		for (i = 0; !found_dash_dash && ndashes > 0
 		         && opts[i].type != CMDLINE_OPT_EOL; i++) {
 			const struct cmdline_opt *opt = &opts[i];
-			if (safe_streq(arg, opt->short_name)
-			 || safe_streq(arg, opt->long_name)) {
+			if ((ndashes == 1 && safe_streq(arg, opt->short_name))
+			 || (ndashes == 2 && safe_streq(arg, opt->long_name))) {
 				/* found a known option */
 				found = 1;
 				found_opt(&opts[i], argc, argv);
@@ -121,7 +133,7 @@ cmdline_parse(int *argc, const char **argv[], const struct cmdline_opt *opts)
 			}
 		}
 		if (!found) {
-			new_argv[new_argc++] = arg;
+			new_argv[new_argc++] = next_argv;
 		}
 		(*argc)--; (*argv)++;
 	}
@@ -168,7 +180,7 @@ cmdline_help(const struct cmdline_opt *opts)
 	/* if the next opt is valid, build a string */
 	opt = &opts[saved_index];
 	if (opt->type != CMDLINE_OPT_EOL) {
-		snprintf(buf, sizeof(buf), "%-*s %-*s%s%*s    %s",
+		snprintf(buf, sizeof(buf), "-%-*s --%-*s%s%*s    %s",
 		        maxlen1, opt->short_name ? opt->short_name : "",
 		        maxlen2, opt->long_name ? opt->long_name : "",
 		        (maxlen3 > 0) ? " " : "",

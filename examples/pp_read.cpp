@@ -131,22 +131,22 @@ dump_dirent(pp_scope_ptr &root, string path)
 static void do_help(...);
 static struct cmdline_opt pp_opts[] = {
 	{
-		"-nr", "--no-registers",
+		"nr", "no-registers",
 		CMDLINE_OPT_BOOL, &skip_regs,
 		"", "don't print registers"
 	},
 	{
-		"-nf", "--no-fields",
+		"nf", "no-fields",
 		CMDLINE_OPT_BOOL, &skip_fields,
 		"", "don't print fields"
 	},
 	{
-		"-ns", "--no-scopes",
+		"ns", "no-scopes",
 		CMDLINE_OPT_BOOL, &skip_scopes,
 		"", "don't print scopes"
 	},
 	{
-		"-h", "--help",
+		"h", "help",
 		CMDLINE_OPT_CALLBACK, (void *)do_help,
 		"", "produce this help message"
 	},
