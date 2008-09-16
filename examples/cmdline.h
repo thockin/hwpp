@@ -13,7 +13,7 @@ enum cmdline_opt_type {
 	CMDLINE_OPT_INT,		/* arg = cmdline_int */
 	CMDLINE_OPT_UINT,		/* arg = cmdline_uint */
 	CMDLINE_OPT_CALLBACK,		/* arg = cmdline_callback */
-	CMDLINE_OPT_MAX,
+	CMDLINE_OPT_EOL,		/* end-of-list */
 };
 
 /* a command line option */
@@ -25,7 +25,7 @@ struct cmdline_opt {
 	const char *arg_name;
 	const char *help;
 };
-#define CMDLINE_OPT_END_OF_LIST { NULL,NULL,CMDLINE_OPT_MAX,NULL,NULL,NULL }
+#define CMDLINE_OPT_END_OF_LIST { NULL,NULL,CMDLINE_OPT_EOL,NULL,NULL,NULL }
 
 /* use these for cmdline flag variables */
 typedef int cmdline_bool;

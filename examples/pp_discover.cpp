@@ -128,7 +128,7 @@ usage(const char *bad_opt)
 		out = &cout;
 	} else {
 		out = &cerr;
-		*out << "unknown option: '" << bad_opt << "'" << std::endl;
+		*out << "unknown argument: '" << bad_opt << "'" << std::endl;
 	}
 
 	*out << "usage: " << cmdline_progname << " [OPTIONS]" << std::endl;
