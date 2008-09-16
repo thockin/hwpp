@@ -1,5 +1,5 @@
-TOPDIR = ..
-include $(TOPDIR)/rules.mk
+TOPDIR ?= ..
+include $(TOPDIR)/pp.mk
 
 BINS = pp_discover \
 	pp_pci \

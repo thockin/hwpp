@@ -1,54 +1,63 @@
-# load optional user-provided saved flags first
-BUILD_CONFIG=$(TOPDIR)/BUILD_CONFIG
-ifeq ($(BUILD_CONFIG), $(wildcard $(BUILD_CONFIG)))
-  ifeq ($(DID_LOAD_BUILD_CONFIG),)
-    $(info loading BUILD_CONFIG)
-  endif
-  include $(BUILD_CONFIG)
+# This file is intended to be generically useful make infrastructure.
+# Anything that is really project specific should be defined outside of
+# this file.
+
+ifeq ($(strip $(TOPDIR)),)
+  $(error TOPDIR is not defined)
 endif
-export DID_LOAD_BUILD_CONFIG := 1
+export TOPDIR
+
+# load optional user-provided saved flags first
+ifneq ($(strip $(BUILD_CONFIG)),)
+  ifeq ($(BUILD_CONFIG), $(wildcard $(BUILD_CONFIG)))
+    ifeq ($(DID_LOAD_BUILD_CONFIG),)
+      $(info loading BUILD_CONFIG)
+    endif
+    include $(BUILD_CONFIG)
+  endif
+  export DID_LOAD_BUILD_CONFIG := 1
+endif
 
 
-# project version
-PP_VERSION = 0.2.0
+# common build options
+#
+# The caller should define default values for these before including this
+# file.  Use '?=' variable assignment so ENV variables can be used.
+# Otherwise 'DEBUG=1 make all' would still build with debugging disabled.
+
+export DEBUG ?= 0       # boolean: 0=no, 1=yes
+export STATIC ?= 0      # option: 0=no, 1=yes, 2=partial
+export PROFILE ?= 0     # boolean: 0=no, 1=yes
+
+# overrideable flags variables
+#
+# CPPFLAGS      # extra pre-processor flags
+# CFLAGS        # extra C compiler flags
+# CXXFLAGS      # extra C++ compiler flags
+# CWARNS        # extra C compiler warnings
+# CXXWARNS      # extra C++ compiler warnings
+# ARCHFLAGS     # output architecture flags
+# INCLUDES      # extra includes
+# DEFS          # extra pre-processor definitions
+# LDFLAGS       # extra linker flags
+# LIBS          # extra linker libs, linked statically for non-zero STATIC=
+# LIBS_DYN      # extra linker libs, linked dynamically unless STATIC=1
+# TRACE         # a list of trace names (e.g.: TRACE="FOO BAR" turns into
+#               #   -DTRACE_FOO -DTRACE_BAR)
 
 
-# build options
-# use '?=' variable assignment so ENV variables can be used.
-# Otherwise 'DEBUG= make all' would still build with debugging enabled.
-
-export DEBUG ?= 1	# boolean: 0=no, 1=yes
-export STATIC ?= 0	# option: 0=no, 1=yes, 2=partial
-export PROFILE ?= 0	# boolean: 0=no, 1=yes
-
-
-# user-overrideable variables
-
-# CPPFLAGS	# extra pre-processor flags
-# CFLAGS	# extra C compiler flags
-# CXXFLAGS	# extra C++ compiler flags
-# ARCHFLAGS	# output architecture flags
-# LDFLAGS	# extra linker flags
-# INCLUDES	# extra includes
-# LIBS		# extra linker libs, linked statically for non-zero STATIC=
-# LIBS_DYN	# extra linker libs, linked dynamically unless STATIC=1
-# CWARNS	# extra C compiler warnings
-# CXXWARNS	# extra C++ compiler warnings
-# DEFS		# extra pre-processor definitions
-
-
-# per-target variables
-
-# $@_CPPFLAGS	# extra pre-processor flags
-# $@_CFLAGS	# extra C compiler flags
-# $@_CXXFLAGS	# extra C++ compiler flags
-# $@_LDFLAGS	# extra linker flags
-# $@_INCLUDES	# extra includes
-# $@_LIBS	# extra linker libs, linked statically for non-zero STATIC=
-# $@_LIBS_DYN	# extra linker libs, linked dynamically unless STATIC=1
-# $@_CWARNS	# extra C compiler warnings
-# $@_CXXWARNS	# extra C++ compiler warnings
-# $@_DEFS	# extra pre-processor definitions
+# per-target flags variables
+#
+# $@_CPPFLAGS   # extra pre-processor flags
+# $@_CFLAGS     # extra C compiler flags
+# $@_CXXFLAGS   # extra C++ compiler flags
+# $@_CWARNS     # extra C compiler warnings
+# $@_CXXWARNS   # extra C++ compiler warnings
+# $@_INCLUDES   # extra includes
+# $@_DEFS       # extra pre-processor definitions
+# $@_LDFLAGS    # extra linker flags
+# $@_LIBS       # extra linker libs, linked statically for non-zero STATIC=
+# $@_LIBS_DYN   # extra linker libs, linked dynamically unless STATIC=1
 
 
 # build tools
@@ -60,51 +69,49 @@ CXX = $(CROSS_COMPILE)g++
 
 # build flags
 
-PP_CPPFLAGS = $($@_CPPFLAGS)
-PP_CFLAGS = $(ARCHFLAGS) $($@_CFLAGS)
-PP_CXXFLAGS = $(PP_CFLAGS) $($@_CXXFLAGS)
-PP_LDFLAGS = $(ARCHFLAGS) $($@_LDFLAGS)
-PP_CWARNS = -Wall -Wextra -Werror $(CWARNS) $($@_CWARNS)
-PP_CXXWARNS = $(PP_CWARNS) -Woverloaded-virtual $(CXXWARNS) $($@_CXXWARNS)
-PP_DEFS = -DPP_VERSION="\"$(PP_VERSION)\"" -D_GNU_SOURCE $(DEFS) $($@_DEFS)
-PP_INCLUDES = -I$(TOPDIR) $(DIR_INCLUDES) $(INCLUDES) $($@_INCLUDES)
-PP_LDLIBS = -lgmpxx -lgmp $(LIBS) $($@_LDLIBS)
-PP_LDLIBS_DYN = $(LIBS_DYN) -lstdc++ $($@_LDLIBS_DYN)
+PRJ_CPPFLAGS   = $($@_CPPFLAGS)
+PRJ_CFLAGS     = $(ARCHFLAGS) $($@_CFLAGS)
+PRJ_CXXFLAGS   = $(PRJ_CFLAGS) $($@_CXXFLAGS)
+PRJ_LDFLAGS    = $(ARCHFLAGS) $($@_LDFLAGS)
+PRJ_CWARNS     = -W -Wall -Wextra -Werror $(CWARNS) $($@_CWARNS)
+PRJ_CXXWARNS   = $(PRJ_CWARNS) -Woverloaded-virtual $(CXXWARNS) $($@_CXXWARNS)
+PRJ_DEFS       = -DPRJ_VERSION="\"$(PRJ_VERSION)\"" $(DEFS) $($@_DEFS)
+PRJ_INCLUDES   = -I$(TOPDIR) $(INCLUDES) $($@_INCLUDES)
+PRJ_LDLIBS     = $(LIBS) $($@_LDLIBS)
+PRJ_LDLIBS_DYN = $(LIBS_DYN) $($@_LDLIBS_DYN)
 
 ifeq ($(strip $(STATIC)),1)
-PP_STATIC = -static
-PP_DYNAMIC =
+PRJ_STATIC  = -static
+PRJ_DYNAMIC =
 endif
 ifeq ($(strip $(STATIC)),2)
-PP_STATIC = -Wl,-Bstatic
-PP_DYNAMIC = -Wl,-Bdynamic
+PRJ_STATIC  = -Wl,-Bstatic
+PRJ_DYNAMIC = -Wl,-Bdynamic
 endif
 
 ifeq ($(strip $(PROFILE)),1)
 ifeq ($(strip $(DEBUG)),1)
 $(warning WARNING: PROFILE and DEBUG are both enabled)
 endif
-PP_CFLAGS += -pg
-PP_LDFLAGS += -pg
-PP_LDLIBS += -lgcov
+PRJ_CFLAGS  += -pg
+PRJ_LDFLAGS += -pg
+PRJ_LDLIBS  += -lgcov
 endif
 
 # debug options should go last
 ifeq ($(strip $(DEBUG)),1)
-PP_TRACE = $(foreach trace, $(TRACE), -DTRACE_$(trace)=1)
-PP_CDEBUG = -O0 -ggdb -DDEBUG -UNDEBUG $(PP_TRACE)
-PP_CXXDEBUG = $(PP_CDEBUG) -fno-default-inline
+PRJ_TRACE    = $(foreach trace, $(TRACE), -DTRACE_$(trace)=1)
+PRJ_CDEBUG   = -O0 -ggdb -DDEBUG -UNDEBUG $(PRJ_TRACE)
+PRJ_CXXDEBUG = $(PRJ_CDEBUG) -fno-default-inline
 else
-PP_CDEBUG = -O2 -DNDEBUG
+PRJ_CDEBUG   = -O2 -DNDEBUG
 endif
 
-CPPFLAGS += $(PP_DEFS) $(PP_INCLUDES)
-CFLAGS += $(PP_CFLAGS) $(PP_CWARNS) $(PP_CDEBUG)
-CXXFLAGS += $(PP_CXXFLAGS) $(PP_CXXWARNS) $(PP_CXXDEBUG)
-LDFLAGS += $(PP_LDFLAGS)
-LDLIBS += $(PP_STATIC) $(PP_LDLIBS) $(PP_DYNAMIC) $(PP_LDLIBS_DYN)
-
-MAKEFLAGS += --no-print-directory
+CPPFLAGS += $(PRJ_DEFS) $(PRJ_INCLUDES)
+CFLAGS   += $(PRJ_CFLAGS) $(PRJ_CWARNS) $(PRJ_CDEBUG)
+CXXFLAGS += $(PRJ_CXXFLAGS) $(PRJ_CXXWARNS) $(PRJ_CXXDEBUG)
+LDFLAGS  += $(PRJ_LDFLAGS)
+LDLIBS   += $(PRJ_STATIC) $(PRJ_LDLIBS) $(PRJ_DYNAMIC) $(PRJ_LDLIBS_DYN)
 
 
 # common rules
@@ -117,6 +124,7 @@ all: make_flags
 make_flags:
 	@\
 	NEW=$$($$(which echo) -e \
+	       "CPP='$$(which $(CPP))'\n" \
 	       "CC='$$(which $(CC))'\n" \
 	       "CXX='$$(which $(CXX))'\n" \
 	       "CROSS_COMPILE='$(CROSS_COMPILE)'\n" \
@@ -137,6 +145,13 @@ clean_make_flags:
 
 .PHONY: clean
 clean: clean_make_flags
+
+.PHONY: clean_depends
+clean_depends:
+	@$(RM) .depend
+
+.PHONY: distclean
+distclean: clean clean_depends
 
 .PHONY: dep depend
 dep depend:

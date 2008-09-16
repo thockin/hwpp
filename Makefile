@@ -1,5 +1,5 @@
 TOPDIR = $(shell pwd)
-include rules.mk
+include pp.mk
 
 DRIVER_LIB = drivers/libdrivers.a
 
@@ -28,7 +28,7 @@ libpp.a: $(OBJS) devices/all_devices.o $(DRIVER_LIB)
 	ranlib $@
 
 $(DRIVER_LIB): drivers
-	@$(MAKE) -C drivers lib
+	@$(MAKE) -C drivers $$(basename $@)
 
 .PHONY: drivers devices
 drivers devices:
@@ -58,8 +58,11 @@ clean:
 	@$(MAKE) -C examples clean
 
 .PHONY: distclean
-distclean: clean
-	@find . -type f -name .depend | xargs $(RM)
-	@$(RM) BUILD_CONFIG
+distclean:
+	@$(RM) $(BUILD_CONFIG)
+	@$(MAKE) -C tests distclean
+	@$(MAKE) -C drivers distclean
+	@$(MAKE) -C devices distclean
+	@$(MAKE) -C examples distclean
 
 .depend: $(SRCS)

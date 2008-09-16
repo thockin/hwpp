@@ -1,7 +1,7 @@
-TOPDIR = ../../..
-include $(TOPDIR)/rules.mk
+TOPDIR ?= ../../..
+include $(TOPDIR)/pp.mk
 
-DIR_INCLUDES = -I.. -I$(TOPDIR)/tests
+INCLUDES += -I.. -I$(TOPDIR)/tests
 
 TESTS = cpuid_io_test
 TESTS_SRCS = $(TESTS:=.cpp)
