@@ -72,7 +72,7 @@ dump_scope(const string &name, const pp_scope_const_ptr &scope)
 			dump_array(subname,
 			    pp_array_from_dirent(scope->dirent(i)));
 		} else {
-			cerr << subname << "unknown dirent type: "
+			cerr << subname << ": unknown dirent type: "
 			     << scope->dirent(i)->dirent_type() << endl;
 		}
 	}
