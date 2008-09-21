@@ -572,7 +572,7 @@ msix_capability(const pp_value &address)
 	OPEN_SCOPE("pba", BIND("mem", ARGS(base, size * 8))); {
 		pp_value tmp_size = table_size;
 		// loop for each PBA QWORD
-		for (unsigned i = 0; i < table_size; i++) {
+		for (unsigned i = 0; i < size; i++) {
 			REG64("%pending[]", i);
 			for (size_t j = 0; j < 64; j++) {
 				if (j >= tmp_size)
