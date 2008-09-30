@@ -317,29 +317,19 @@ pp_scope::lookup_dirent_internal(pp_path &path) const
 		}
 
 		pp_array_const_ptr ar = pp_array_from_dirent(de);
-		size_t index;
+		int index = path_front.array_index();
 
-		// if path is an array_tail, but dirent is empty: error
-		if (path_front.array_mode() == path_front.ARRAY_TAIL
-		 && ar->size() == 0) {
-			//FIXME: this should never happen, how could an array
-			//be empty?
-			//FIXME: What if you rename a scope that was
-			//temporarily in an array?
-			//FIXME: how do I know how big an array is?
+		// handle a negative index
+		if (index < 0) {
+			index = ar->size() + index;
+		}
+
+		// sanity check the index
+		if (index < 0 || size_t(index) >= ar->size()) {
 			return pp_dirent_ptr();
 		}
-		// if path is an array_tail, access the last index
-		if (path_front.array_mode() == path_front.ARRAY_TAIL) {
-			index = ar->size() - 1;
-		} else {
-			// must be a direct access
-			index = path_front.array_index();
-		}
+
 		// index into the array
-		if (index >= ar->size()) {
-			return pp_dirent_ptr();
-		}
 		de = ar->at(index);
 	}
 

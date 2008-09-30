@@ -104,14 +104,13 @@ class pp_path
 		enum array_mode {
 			ARRAY_NONE = 0,
 			ARRAY_INDEX,
-			ARRAY_TAIL,
 			ARRAY_APPEND,
 		};
 
 	    private:
 		string m_name;
 		enum array_mode m_array_mode;
-		size_t m_array_index;
+		int m_array_index;
 		bool m_is_bookmark;
 
 	    public:
@@ -148,7 +147,7 @@ class pp_path
 		enum array_mode
 		array_mode() const;
 
-		size_t
+		int
 		array_index() const;
 
 		bool

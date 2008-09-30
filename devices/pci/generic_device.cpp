@@ -578,7 +578,7 @@ msix_capability(const pp_value &address)
 				if (j >= tmp_size)
 					break;
 				FIELD("pending" + to_string(i*64 + j),
-				    "yesno_t", BITS("%pending[$]", j));
+				    "yesno_t", BITS("%pending[-1]", j));
 			}
 			tmp_size -= 64;
 		}
