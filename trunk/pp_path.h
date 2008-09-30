@@ -336,6 +336,12 @@ class pp_path
 		return m_list.back();
 	}
 
+	//
+	// NOTE: all of the operations which modify the internal list are
+	// ignorant of whether a path is absolute or not.  The "correct"
+	// behavior is not clear, so it is left up to the caller.
+	//
+
 	// add elements onto a path
 	void
 	push_back(const pp_path &path)
@@ -360,7 +366,6 @@ class pp_path
 	{
 		element old_front = front();
 		m_list.pop_front();
-		m_absolute = false;
 		return old_front;
 	}
 	element
@@ -371,6 +376,38 @@ class pp_path
 		return old_back;
 	}
 
+	// insert one or more elements
+	void
+	insert(iterator pos, const element &elem)
+	{
+		m_list.insert(pos.get(), elem);
+	}
+	void
+	insert(iterator pos, iterator first, iterator last)
+	{
+		m_list.insert(pos.get(), first.get(), last.get());
+	}
+
+	// erase one or more elements
+	iterator
+	erase(iterator pos)
+	{
+		return m_list.erase(pos.get());
+	}
+	iterator
+	erase(iterator first, iterator last)
+	{
+		return m_list.erase(first.get(), last.get());
+	}
+
+	// splice in a second path
+	void
+	splice(iterator pos, const pp_path &path)
+	{
+		pp_path tmp(path);
+		m_list.splice(pos.get(), tmp.m_list);
+	}
+
 	// reset everything
 	void
 	clear()
@@ -379,7 +416,7 @@ class pp_path
 		m_list.clear();
 	}
 
-	// handle absolute vs relative paths
+	// handle absolute vs. relative paths
 	bool
 	is_absolute() const
 	{
@@ -389,6 +426,11 @@ class pp_path
 	is_relative() const
 	{
 		return !m_absolute;
+	}
+	void
+	set_absolute(bool val)
+	{
+		m_absolute = val;
 	}
 
 	string

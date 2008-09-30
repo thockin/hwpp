@@ -657,6 +657,8 @@ TEST(test_iters)
 TEST(test_contents)
 {
 	pp_path path;
+	pp_path path2;
+	pp_path::iterator it;
 
 	// create a path
 	path.push_back("a");
@@ -664,7 +666,7 @@ TEST(test_contents)
 	path.push_back("c");
 	TEST_ASSERT(path.size() == 3, "pp_path::size()");
 
-	pp_path::iterator it = path.begin();
+	it = path.begin();
 	TEST_ASSERT(*it == "a", "pp_path::begin()");
 	it++;
 	TEST_ASSERT(*it == "b", "pp_path::iterator::operator++()");
@@ -749,6 +751,43 @@ TEST(test_contents)
 	path = pp_path("a/b/c") + "d/e/f";
 	TEST_ASSERT(path == "a/b/c/d/e/f",
 	    "pp_path::operator+(pp_path, string)");
+
+	// test insert
+	path = "a/b";
+	it = path.begin();
+	it++;
+	TEST_ASSERT(*it == "b", "pp_path::iterator::operator++()");
+	path.insert(it, pp_path::element("c"));
+	TEST_ASSERT(path == "a/c/b", "pp_path::insert(iterator, element)");
+	it = path.begin();
+	it++;
+	TEST_ASSERT(*it == "c", "pp_path::iterator::operator++()");
+	path2 = "d/e/f";
+	path.insert(it, path2.begin(), path2.end());
+	TEST_ASSERT(path == "a/d/e/f/c/b",
+	    "pp_path::insert(iterator, iterator, iterator)");
+
+	// test erase()
+	path = pp_path("a/b/c/d/e");
+	it = path.begin();
+	it++;
+	TEST_ASSERT(*it == "b", "pp_path::iterator::operator++()");
+	path.erase(it);
+	TEST_ASSERT(path == "a/c/d/e", "pp_path::erase(iterator)");
+	it = path.begin();
+	it++;
+	TEST_ASSERT(*it == "c", "pp_path::iterator::operator++()");
+	path.erase(it, path.end());
+	TEST_ASSERT(path == "a", "pp_path::erase(iterator, iterator)");
+
+	// test splice()
+	path = "a/b";
+	path2 = "c/d/e";
+	it = path.begin();
+	it++;
+	TEST_ASSERT(*it == "b", "pp_path::iterator::operator++()");
+	path.splice(it, path2);
+	TEST_ASSERT(path == "a/c/d/e/b", "pp_path::splice(iterator, pp_path)");
 }
 
 TEST(test_const)
