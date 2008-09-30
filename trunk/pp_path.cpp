@@ -19,8 +19,6 @@ pp_path::element::to_string() const
 		ret = name() + "[";
 		if (m_array_mode == pp_path::element::ARRAY_INDEX) {
 			ret += ::to_string(m_array_index);
-		} else if (m_array_mode == pp_path::element::ARRAY_TAIL) {
-			ret += "$";
 		}
 		ret += "]";
 	} else if (is_bookmark()) {
@@ -46,16 +44,17 @@ pp_path::element::name() const
 bool
 pp_path::element::is_array() const
 {
-	return (m_array_mode != pp_path::element::ARRAY_NONE);
+	return (m_array_mode != ARRAY_NONE);
 }
 
+//FIXME: need a better name for the type pr the accessor, drop enum
 enum pp_path::element::array_mode
 pp_path::element::array_mode() const
 {
 	return m_array_mode;
 }
 
-size_t
+int
 pp_path::element::array_index() const
 {
 	return m_array_index;
@@ -72,16 +71,17 @@ pp_path::element::parse(const string &input)
 {
 	enum {
 		ST_START,
-		ST_FIRSTCHAR,
+		ST_GOT_LEADING_SPECIAL,
 		ST_BODY,
-		ST_DOT,
-		ST_ARRAY_OPEN,
-		ST_ARRAY_CLOSE,
-		ST_ARRAY_INDEX_BASE,
+		ST_GOT_LEADING_DOT,
+		ST_GOT_ARRAY_OPEN,
+		ST_GOT_ARRAY_INDEX_NEGATIVE,
+		ST_DETECT_ARRAY_INDEX_BASE,
 		ST_ARRAY_INDEX,
 		ST_DONE,
 	} state = ST_START;
 	int idx_base = 10;
+	int idx_sign = 1;
 
 	for (size_t i = 0; i < input.size(); i++) {
 		char c = input[i];
@@ -90,22 +90,22 @@ pp_path::element::parse(const string &input)
 		    case ST_START:
 			if (c == '%') {
 				m_name += c;
-				state = ST_FIRSTCHAR;
+				state = ST_GOT_LEADING_SPECIAL;
 			} else if (c == '$') {
 				m_is_bookmark = true;
-				state = ST_FIRSTCHAR;
+				state = ST_GOT_LEADING_SPECIAL;
 			} else if (isalpha(c) || c == '_') {
 				m_name += c;
 				state = ST_BODY;
 			} else if (c == '.') {
-				state = ST_DOT;
+				state = ST_GOT_LEADING_DOT;
 				m_name += c;
 			} else {
 				parse_error(input);
 				return;
 			}
 			break;
-		    case ST_FIRSTCHAR:
+		    case ST_GOT_LEADING_SPECIAL:
 			if (isalpha(c) || c == '_') {
 				m_name += c;
 				state = ST_BODY;
@@ -119,13 +119,13 @@ pp_path::element::parse(const string &input)
 				m_name += c;
 				state = ST_BODY;
 			} else if (c == '[') {
-				state = ST_ARRAY_OPEN;
+				state = ST_GOT_ARRAY_OPEN;
 			} else {
 				parse_error(input);
 				return;
 			}
 			break;
-		    case ST_DOT:
+		    case ST_GOT_LEADING_DOT:
 			if (c == '.') {
 				m_name += c;
 				state = ST_DONE;
@@ -134,17 +134,18 @@ pp_path::element::parse(const string &input)
 				return;
 			}
 			break;
-		    case ST_ARRAY_OPEN:
+		    case ST_GOT_ARRAY_OPEN:
 			if (c == ']') {
 				m_array_mode = ARRAY_APPEND;
 				state = ST_DONE;
-			} else if (c == '$') {
-				m_array_mode = ARRAY_TAIL;
-				state = ST_ARRAY_CLOSE;
-			} else if (c == '0') {
-				m_array_index = 0;
+			} else if (c == '-') {
+				idx_sign = -1;
 				m_array_mode = ARRAY_INDEX;
-				state = ST_ARRAY_INDEX_BASE;
+				state = ST_GOT_ARRAY_INDEX_NEGATIVE;
+			} else if (c == '0') {
+				m_array_mode = ARRAY_INDEX;
+				m_array_index = 0;
+				state = ST_DETECT_ARRAY_INDEX_BASE;
 			} else if (isdigit(c)) {
 				idx_base = 10;
 				m_array_mode = ARRAY_INDEX;
@@ -155,16 +156,23 @@ pp_path::element::parse(const string &input)
 				return;
 			}
 			break;
-		    case ST_ARRAY_CLOSE:
-			if (c == ']') {
-				state = ST_DONE;
+		    case ST_GOT_ARRAY_INDEX_NEGATIVE:
+			if (c == '0') {
+				m_array_mode = ARRAY_INDEX;
+				m_array_index = 0;
+				state = ST_DETECT_ARRAY_INDEX_BASE;
+			} else if (isdigit(c)) {
+				idx_base = 10;
+				m_array_mode = ARRAY_INDEX;
+				m_array_index = c - '0';
+				state = ST_ARRAY_INDEX;
 			} else {
 				parse_error(input);
 				return;
 			}
 			break;
-		    case ST_ARRAY_INDEX_BASE:
-			if (c == 'x') {
+		    case ST_DETECT_ARRAY_INDEX_BASE:
+			if (tolower(c) == 'x') {
 				idx_base = 16;
 				state = ST_ARRAY_INDEX;
 			} else if (isdigit(c) && c <= '7') {
@@ -173,6 +181,7 @@ pp_path::element::parse(const string &input)
 				state = ST_ARRAY_INDEX;
 			} else if (c == ']') {
 				idx_base = 10;
+				m_array_index *= idx_sign;
 				state = ST_DONE;
 			} else {
 				parse_error(input);
@@ -197,6 +206,7 @@ pp_path::element::parse(const string &input)
 				}
 				state = ST_ARRAY_INDEX;
 			} else if (c == ']') {
+				m_array_index *= idx_sign;
 				state = ST_DONE;
 			} else {
 				parse_error(input);

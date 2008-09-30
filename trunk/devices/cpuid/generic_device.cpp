@@ -215,51 +215,51 @@ cpuid_generic_device()
 
 			if (i == 0) {
 				FIELD("queries_needed", "int_t",
-						EAX("%function_2[$]", 7, 0));
+						EAX("%function_2[-1]", 7, 0));
 				queries_needed =
 					READ("queries_needed").get_uint();
 			}
 
-			if (READ(EAX("%function_2[$]", 31)) == pp_value(0)) {
+			if (READ(EAX("%function_2[-1]", 31)) == pp_value(0)) {
 				for (int i = 31; i > 7; i -= 8) {
-					if (READ(EAX("%function_2[$]",
+					if (READ(EAX("%function_2[-1]",
 					    i, i-7)) != 0) {
 						FIELD("descriptor[]",
 						      cache_descriptor_t,
-						      EAX("%function_2[$]",
+						      EAX("%function_2[-1]",
 						          i, i - 7));
 					}
 				}
 			}
-			if (READ(EBX("%function_2[$]", 31)) == pp_value(0)) {
+			if (READ(EBX("%function_2[-1]", 31)) == pp_value(0)) {
 				for (int i = 31; i > 0; i -= 8) {
-					if (READ(EBX("%function_2[$]",
+					if (READ(EBX("%function_2[-1]",
 					    i, i-7)) != 0) {
 						FIELD("descriptor[]",
 						      cache_descriptor_t,
-						      EBX("%function_2[$]",
+						      EBX("%function_2[-1]",
 						          i, i - 7));
 					}
 				}
 			}
-			if (READ(ECX("%function_2[$]", 31)) == pp_value(0)) {
+			if (READ(ECX("%function_2[-1]", 31)) == pp_value(0)) {
 				for (int i = 31; i > 0; i -= 8) {
-					if (READ(ECX("%function_2[$]",
+					if (READ(ECX("%function_2[-1]",
 					    i, i-7)) != 0) {
 						FIELD("descriptor[]",
 						      cache_descriptor_t,
-						      ECX("%function_2[$]",
+						      ECX("%function_2[-1]",
 						          i, i - 7));
 					}
 				}
 			}
-			if (READ(EDX("%function_2[$]", 31)) == pp_value(0)) {
+			if (READ(EDX("%function_2[-1]", 31)) == pp_value(0)) {
 				for (int i = 31; i > 0; i -= 8) {
-					if (READ(EDX("%function_2[$]",
+					if (READ(EDX("%function_2[-1]",
 					    i, i-7)) != 0) {
 						FIELD("descriptor[]",
 						      cache_descriptor_t,
-						      EDX("%function_2[$]",
+						      EDX("%function_2[-1]",
 						          i, i - 7));
 					}
 				}

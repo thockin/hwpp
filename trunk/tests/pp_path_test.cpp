@@ -62,23 +62,6 @@ TEST(test_element)
 			"pp_path::element::element()");
 	}
 	{
-		pp_path::element e("foo[$]");
-		TEST_ASSERT(e.to_string() == "foo[$]",
-			"pp_path::element::element()");
-		TEST_ASSERT(e.equals(pp_path::element("foo[$]")),
-			"pp_path::element::element()");
-		TEST_ASSERT(!e.equals(pp_path::element("foo")),
-			"pp_path::element::element()");
-		TEST_ASSERT(!e.equals(pp_path::element("bar[$]")),
-			"pp_path::element::element()");
-		TEST_ASSERT(e.is_array() == true,
-			"pp_path::element::element()");
-		TEST_ASSERT(e.array_mode() == e.ARRAY_TAIL,
-			"pp_path::element::element()");
-		TEST_ASSERT(e.is_bookmark() == false,
-			"pp_path::element::element()");
-	}
-	{
 		pp_path::element e("foo[0]");
 		TEST_ASSERT(e.to_string() == "foo[0]",
 			"pp_path::element::element()");
@@ -139,6 +122,82 @@ TEST(test_element)
 		TEST_ASSERT(e.array_mode() == e.ARRAY_INDEX,
 			"pp_path::element::element()");
 		TEST_ASSERT(e.array_index() == 16,
+			"pp_path::element::element()");
+		TEST_ASSERT(e.is_bookmark() == false,
+			"pp_path::element::element()");
+	}
+	{
+		pp_path::element e("foo[-1]");
+		TEST_ASSERT(e.to_string() == "foo[-1]",
+			"pp_path::element::element()");
+		TEST_ASSERT(e.equals(pp_path::element("foo[-1]")),
+			"pp_path::element::element()");
+		TEST_ASSERT(!e.equals(pp_path::element("foo")),
+			"pp_path::element::element()");
+		TEST_ASSERT(!e.equals(pp_path::element("bar[-1]")),
+			"pp_path::element::element()");
+		TEST_ASSERT(e.is_array() == true,
+			"pp_path::element::element()");
+		TEST_ASSERT(e.array_mode() == e.ARRAY_INDEX,
+			"pp_path::element::element()");
+		TEST_ASSERT(e.array_index() == -1,
+			"pp_path::element::element()");
+		TEST_ASSERT(e.is_bookmark() == false,
+			"pp_path::element::element()");
+	}
+	{
+		pp_path::element e("foo[-2]");
+		TEST_ASSERT(e.to_string() == "foo[-2]",
+			"pp_path::element::element()");
+		TEST_ASSERT(e.equals(pp_path::element("foo[-2]")),
+			"pp_path::element::element()");
+		TEST_ASSERT(!e.equals(pp_path::element("foo")),
+			"pp_path::element::element()");
+		TEST_ASSERT(!e.equals(pp_path::element("bar[-2]")),
+			"pp_path::element::element()");
+		TEST_ASSERT(e.is_array() == true,
+			"pp_path::element::element()");
+		TEST_ASSERT(e.array_mode() == e.ARRAY_INDEX,
+			"pp_path::element::element()");
+		TEST_ASSERT(e.array_index() == -2,
+			"pp_path::element::element()");
+		TEST_ASSERT(e.is_bookmark() == false,
+			"pp_path::element::element()");
+	}
+	{
+		pp_path::element e("foo[-010]");
+		TEST_ASSERT(e.to_string() == "foo[-8]",
+			"pp_path::element::element()");
+		TEST_ASSERT(e.equals(pp_path::element("foo[-8]")),
+			"pp_path::element::element()");
+		TEST_ASSERT(!e.equals(pp_path::element("foo")),
+			"pp_path::element::element()");
+		TEST_ASSERT(!e.equals(pp_path::element("bar[-8]")),
+			"pp_path::element::element()");
+		TEST_ASSERT(e.is_array() == true,
+			"pp_path::element::element()");
+		TEST_ASSERT(e.array_mode() == e.ARRAY_INDEX,
+			"pp_path::element::element()");
+		TEST_ASSERT(e.array_index() == -8,
+			"pp_path::element::element()");
+		TEST_ASSERT(e.is_bookmark() == false,
+			"pp_path::element::element()");
+	}
+	{
+		pp_path::element e("foo[-0x10]");
+		TEST_ASSERT(e.to_string() == "foo[-16]",
+			"pp_path::element::element()");
+		TEST_ASSERT(e.equals(pp_path::element("foo[-16]")),
+			"pp_path::element::element()");
+		TEST_ASSERT(!e.equals(pp_path::element("foo")),
+			"pp_path::element::element()");
+		TEST_ASSERT(!e.equals(pp_path::element("bar[-16]")),
+			"pp_path::element::element()");
+		TEST_ASSERT(e.is_array() == true,
+			"pp_path::element::element()");
+		TEST_ASSERT(e.array_mode() == e.ARRAY_INDEX,
+			"pp_path::element::element()");
+		TEST_ASSERT(e.array_index() == -16,
 			"pp_path::element::element()");
 		TEST_ASSERT(e.is_bookmark() == false,
 			"pp_path::element::element()");

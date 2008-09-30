@@ -583,7 +583,7 @@ k8_msr(const pp_value &cpu)
 
 	for (int i = 0; i < 5; i++) {
 		REG64("%MC_CTL_MASK[]", 0xc0010044 + i);
-		FIELD("MC_CTL_MASK[]", "bitmask_t", BITS("%MC_CTL_MASK[$]"));
+		FIELD("MC_CTL_MASK[]", "bitmask_t", BITS("%MC_CTL_MASK[-1]"));
 	}
 
 	CLOSE_SCOPE(); // mc_ctl_mask
@@ -1746,22 +1746,22 @@ dram_additional_data(const string &name, const pp_value &address)
 	      PROCS(dram_addtional_data_procs(address + 0x10)));
 	FIELD("DqsRcvEnDelay[]", ANON_XFORM(ANON_INT("ps"),
 				LAMBDA(_1 * 50), LAMBDA(_1)),
-			BITS("%dqs_receiver_enable_timing_ctrl[$]", 7, 0));
+			BITS("%dqs_receiver_enable_timing_ctrl[-1]", 7, 0));
 	REG32("%dqs_receiver_enable_timing_ctrl[]",
 	      PROCS(dram_addtional_data_procs(address + 0x13)));
 	FIELD("DqsRcvEnDelay[]", ANON_XFORM(ANON_INT("ps"),
 				LAMBDA(_1 * 50), LAMBDA(_1)),
-			BITS("%dqs_receiver_enable_timing_ctrl[$]", 7, 0));
+			BITS("%dqs_receiver_enable_timing_ctrl[-1]", 7, 0));
 	REG32("%dqs_receiver_enable_timing_ctrl[]",
 	      PROCS(dram_addtional_data_procs(address + 0x16)));
 	FIELD("DqsRcvEnDelay[]", ANON_XFORM(ANON_INT("ps"),
 				LAMBDA(_1 * 50), LAMBDA(_1)),
-			BITS("%dqs_receiver_enable_timing_ctrl[$]", 7, 0));
+			BITS("%dqs_receiver_enable_timing_ctrl[-1]", 7, 0));
 	REG32("%dqs_receiver_enable_timing_ctrl[]",
 	      PROCS(dram_addtional_data_procs(address + 0x19)));
 	FIELD("DqsRcvEnDelay[]", ANON_XFORM(ANON_INT("ps"),
 				LAMBDA(_1 * 50), LAMBDA(_1)),
-			BITS("%dqs_receiver_enable_timing_ctrl[$]", 7, 0));
+			BITS("%dqs_receiver_enable_timing_ctrl[-1]", 7, 0));
 
 	CLOSE_SCOPE();
 }
