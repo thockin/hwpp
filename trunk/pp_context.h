@@ -98,6 +98,12 @@ class pp_context
 		return m_scope->resolve_datatype(name);
 	}
 
+	pp_path
+	resolve_path(const string &path_str) const
+	{
+		return m_scope->resolve_path(path_str);
+	}
+
 	void
 	add_dirent(const pp_context &ctxt)
 	{

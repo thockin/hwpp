@@ -111,6 +111,20 @@ class pp_scope: public pp_dirent,
 	resolve_datatype(const string &name) const;
 
 	//
+	// Canonicalize a path string, expanding and finalizing things
+	// like bookmarks and array reverse-indices.
+	//
+	// Returns:
+	// 	a valid pp_path on success.
+	// 	an uninitialized, empty pp_path on error.
+	// Throws:
+	// 	pp_path::invalid_error		- invalid path element
+	// 	pp_dirent::conversion_error	- path element is not a scope
+	//
+	pp_path
+	resolve_path(const pp_path &path) const;
+
+	//
 	// Add a named dirent to this scope.
 	//
 	// Throws:
@@ -158,7 +172,6 @@ class pp_scope: public pp_dirent,
 
 	//
 	// Return a pointer to the specified dirent.
-	// NOTE: This takes path as a copy.
 	//
 	// Returns:
 	// 	NULL if path not found.
@@ -168,7 +181,7 @@ class pp_scope: public pp_dirent,
 	//
 	//
 	pp_dirent_const_ptr
-	lookup_dirent(pp_path path) const;
+	lookup_dirent(const pp_path &path) const;
 
 	//
 	// Tests whether the path resolves to a defined dirent.
@@ -237,9 +250,13 @@ class pp_scope: public pp_dirent,
 	has_bookmark(const string &name) const;
 
     private:
-	// Returned desired dirent specified by path, NULL if not found.
-	pp_dirent_const_ptr
-	lookup_dirent_internal(pp_path &path) const;
+	// Walk a path.
+	int
+	walk_path(const pp_path &path,
+	          pp_dirent_const_ptr *out_de, pp_path *out_path) const;
+	int
+	walk_path_internal(pp_path &path,
+	          pp_dirent_const_ptr *out_de, pp_path *out_path) const;
 };
 
 #define new_pp_scope(...) pp_scope_ptr(new pp_scope(__VA_ARGS__))
