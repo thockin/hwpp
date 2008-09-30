@@ -108,6 +108,13 @@ class pp_path
 			ARRAY_APPEND,
 		};
 
+	    private:
+		string m_name;
+		enum array_mode m_array_mode;
+		size_t m_array_index;
+		bool m_is_bookmark;
+
+	    public:
 		// explicit ctor from string
 		// throws:
 		// 	pp_path::invalid_error
@@ -148,11 +155,6 @@ class pp_path
 		is_bookmark() const;
 
 	    private:
-		string m_name;
-		enum array_mode m_array_mode;
-		size_t m_array_index;
-		bool m_is_bookmark;
-
 		void
 		parse(const string &input);
 
