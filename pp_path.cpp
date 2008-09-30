@@ -47,7 +47,6 @@ pp_path::element::is_array() const
 	return (m_array_mode != ARRAY_NONE);
 }
 
-//FIXME: need a better name for the type pr the accessor, drop enum
 enum pp_path::element::array_mode
 pp_path::element::array_mode() const
 {
