@@ -217,7 +217,8 @@ TEST(test_dirents)
 	    "pp_scope::n_dirents()");
 
 	// create a register and add it to scope0
-	pp_register_ptr reg1 = new_pp_bound_register(scope0->binding(), 1, BITS16);
+	pp_register_ptr reg1 = new_pp_bound_register(scope0->binding(),
+	                                             1, BITS16);
 	scope0->add_dirent("reg1", reg1);
 	TEST_ASSERT(scope0->n_dirents() == 2,
 	    "pp_scope::n_dirents()");
@@ -509,5 +510,64 @@ TEST(test_dirents)
 		TEST_ASSERT(found, "pp_scope::dirent_defined()");
 		found = root->dirent_defined("scope0/array1[1]");
 		TEST_ASSERT(!found, "pp_scope::dirent_defined()");
+	}
+	// test resolve_path()
+	{
+		pp_path final;
+
+		// resolve a path, exists
+		final = root->resolve_path("scope0/field1");
+		TEST_ASSERT(final == "scope0/field1")
+		    << "pp_scope::resolve_path(): got '" << final << "'";
+
+		// resolve a path, non-existing
+		final = root->resolve_path("scope0/foo");
+		TEST_ASSERT(!final.is_initialized())
+		    << "pp_scope::resolve_path(): got '" << final << "'";
+
+		// resolve an item through a path with leading ".."
+		final = scope1->resolve_path("../field1");
+		TEST_ASSERT(final == "../field1")
+		    << "pp_scope::resolve_path(): got '" << final << "'";
+
+		// resolve an item through a path with embedded ".."
+		final = root->resolve_path("scope0/scope1/../field1");
+		TEST_ASSERT(final == "scope0/field1")
+		    << "pp_scope::resolve_path(): got '" << final << "'";
+
+		// resolve an item through an absolute path
+		final = root->resolve_path("/scope0");
+		TEST_ASSERT(final == "/scope0")
+		    << "pp_scope::resolve_path(): got '" << final << "'";
+
+		// resolve an array-held item, positive index, in bounds
+		final = root->resolve_path("scope0/array1[0]");
+		TEST_ASSERT(final == "scope0/array1[0]")
+		    << "pp_scope::resolve_path(): got '" << final << "'";
+
+		// resolve an array-held item, positive index, out of bounds
+		final = root->resolve_path("scope0/array1[3]");
+		TEST_ASSERT(!final.is_initialized())
+		    << "pp_scope::resolve_path(): got '" << final << "'";
+
+		// resolve an array-held item, negative index, in bounds
+		final = root->resolve_path("scope0/array1[-1]");
+		TEST_ASSERT(final == "scope0/array1[0]")
+		    << "pp_scope::resolve_path(): got '" << final << "'";
+
+		// resolve an array-held item, negative index, out of bounds
+		final = root->resolve_path("scope0/array1[-3]");
+		TEST_ASSERT(!final.is_initialized())
+		    << "pp_scope::resolve_path(): got '" << final << "'";
+
+		// resolve an item through a bookmark
+		final = scope1->resolve_path("$bookmark/field1");
+		TEST_ASSERT(final == "../field1")
+		    << "pp_scope::resolve_path(): got '" << final << "'";
+
+		// resolve an item through a bookmark
+		final = scope1->resolve_path("$bad_bookmark/field1");
+		TEST_ASSERT(!final.is_initialized())
+		    << "pp_scope::resolve_path(): got '" << final << "'";
 	}
 }

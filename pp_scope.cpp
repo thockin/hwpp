@@ -141,6 +141,20 @@ pp_scope::resolve_datatype(const string &name) const
 }
 
 //
+// Canonicalize a path string, expanding and finalizing things
+// like bookmarks and array reverse-indices.
+//
+pp_path
+pp_scope::resolve_path(const pp_path &path) const
+{
+	pp_path ret;
+	if (walk_path(path, NULL, &ret) < 0) {
+		return pp_path();
+	}
+	return ret;
+}
+
+//
 // Add a named dirent to this scope.
 //
 // Throws:
@@ -249,7 +263,6 @@ pp_scope::dirent_name(int index) const
 
 //
 // Return a pointer to the specified dirent.
-// NOTE: This takes path as a copy.
 //
 // Returns:
 // 	NULL if path not found.
@@ -258,26 +271,50 @@ pp_scope::dirent_name(int index) const
 // 	pp_dirent::conversion_error	- path element is not a scope
 //
 pp_dirent_const_ptr
-pp_scope::lookup_dirent(pp_path path) const
+pp_scope::lookup_dirent(const pp_path &path) const
 {
+	pp_dirent_const_ptr de;
+	if (walk_path(path, &de, NULL) < 0) {
+		return pp_dirent_ptr();
+	}
+	return de;
+}
+
+// This is a helper for lookup_dirent() and resolve_path().  It walks a
+// path through a scope, producing a final dirent and a canonicalized
+// path.
+int
+pp_scope::walk_path(const pp_path &path,
+                    pp_dirent_const_ptr *out_de,
+                    pp_path *out_path) const
+{
+	pp_path my_path(path);
 	const pp_scope *scope = this;
 
-	if (path.is_absolute()) {
+	if (my_path.is_absolute()) {
+		if (out_path) {
+			out_path->set_absolute(true);
+		}
 		while (!scope->is_root()) {
 			scope = scope->parent().get();
 		}
 	}
 
-	if (path.size() == 0) {
-		return scope->shared_from_this();
+	if (my_path.size() == 0) {
+		if (out_de) {
+			*out_de = scope->shared_from_this();
+		}
+		// out_path is correct already
+		return 0;
 	}
 
-	return scope->lookup_dirent_internal(path);
+	return scope->walk_path_internal(my_path, out_de, out_path);
 }
-// Returned desired dirent specified by path, NULL if not found.
 // NOTE: this takes path as a non-const reference
-pp_dirent_const_ptr
-pp_scope::lookup_dirent_internal(pp_path &path) const
+int
+pp_scope::walk_path_internal(pp_path &path,
+                             pp_dirent_const_ptr *out_de,
+                             pp_path *out_path) const
 {
 	// get the next element of the path
 	pp_path::element path_front = path.pop_front();
@@ -287,24 +324,34 @@ pp_scope::lookup_dirent_internal(pp_path &path) const
 	if (path_front == "..") {
 		// go up one level in the tree
 		de = parent();
+		if (out_path) {
+			if (out_path->size() > 0 && out_path->back() != "..") {
+				out_path->pop_back();
+			} else {
+				out_path->push_back(path_front);
+			}
+		}
 	} else if (path_front.is_bookmark()) {
+		// climb back up the stack, looking for the bookmark
 		const pp_scope *s = this;
 		while (!s->has_bookmark(path_front.name()) && !s->is_root()) {
 			s = s->parent().get();
+			if (out_path) {
+				out_path->push_back(pp_path::element(".."));
+			}
 		}
+		// did we not find the bookmark?
 		if (!s->has_bookmark(path_front.name())) {
-			return pp_dirent_ptr();
+			return -1;
 		}
 		de = s->shared_from_this();
-	} else {
+	} else if (path_front.is_array()) {
+		// it must be a dirent in the current scope
 		de = dirent(path_front.name());
 		if (!de) {
-			return pp_dirent_ptr();
+			return -1;
 		}
-	}
 
-	// handle arrays
-	if (path_front.is_array()) {
 		// if path is array and dirent is not array: error
 		if (!de->is_array()) {
 			throw pp_dirent::conversion_error(
@@ -313,7 +360,7 @@ pp_scope::lookup_dirent_internal(pp_path &path) const
 		}
 		// if path is array_append, return not_found
 		if (path_front.array_mode() == path_front.ARRAY_APPEND) {
-			return pp_dirent_ptr();
+			return -1;
 		}
 
 		pp_array_const_ptr ar = pp_array_from_dirent(de);
@@ -326,22 +373,39 @@ pp_scope::lookup_dirent_internal(pp_path &path) const
 
 		// sanity check the index
 		if (index < 0 || size_t(index) >= ar->size()) {
-			return pp_dirent_ptr();
+			return -1;
 		}
 
 		// index into the array
 		de = ar->at(index);
+		if (out_path) {
+			string name = sprintfxx("%s[%d]",
+			                        path_front.name(), index);
+			out_path->push_back(pp_path::element(name));
+		}
+	} else {
+		// it must be a dirent in the current scope
+		de = dirent(path_front.name());
+		if (!de) {
+			return -1;
+		}
+		if (out_path) {
+			out_path->push_back(path_front);
+		}
 	}
 
 	// did we find the dirent?
 	if (path.size() == 0) {
-		return de;
+		if (out_de) {
+			*out_de = de;
+		}
+		return 0;
 	}
 
 	// keep looking
 	if (de->is_scope()) {
 		pp_scope_const_ptr s = pp_scope_from_dirent(de);
-		return s->lookup_dirent_internal(path);
+		return s->walk_path_internal(path, out_de, out_path);
 	}
 
 	// error
