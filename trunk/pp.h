@@ -16,60 +16,9 @@ using std::size_t;
 #include <boost/smart_ptr.hpp>
 using boost::static_pointer_cast;
 using boost::const_pointer_cast;
+#include "printfxx.h"
 #include "bignum.h"
 #include "debug.h"
-
-/* convert any stream-ready object to a string */
-#include <sstream>
-template <typename T>
-inline string
-to_string(const T &val)
-{
-	std::ostringstream oss;
-	oss << val;
-	return oss.str();
-}
-
-/* enable simple string manipulations of boost::format */
-inline string &
-operator+=(string &str, const boost::format &fmt)
-{
-	/* return the original lhs */
-	str += to_string(fmt);
-	return str;
-}
-inline string
-operator+(const string &str, const boost::format &fmt)
-{
-	/* return a new string */
-	return string(str + to_string(fmt));
-}
-inline string
-operator+(const boost::format &fmt, const string &str)
-{
-	/* return a new string */
-	return string(to_string(fmt) + str);
-}
-inline bool
-operator==(const string &str, const boost::format &fmt)
-{
-	return (str == to_string(fmt));
-}
-inline bool
-operator==(const boost::format &fmt, const string &str)
-{
-	return (str == fmt);
-}
-inline bool
-operator!=(const string &str, const boost::format &fmt)
-{
-	return !(str == fmt);
-}
-inline bool
-operator!=(const boost::format &fmt, const string &str)
-{
-	return !(str == fmt);
-}
 
 /*
  * pp_value - a numeric value, such as data from a register.

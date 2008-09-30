@@ -9,6 +9,7 @@ TESTS = keyed_vector_test \
 	bitbuffer_test \
 	bignum_test \
 	regex_test \
+	printfxx_test \
 	syserror_test \
 	sockets_test \
 	pp_path_test \
