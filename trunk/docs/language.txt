@@ -476,9 +476,11 @@ Arrays
     of the array is an error.  This notation can not be used for creating a
     dirent.
 
-  Syntax: array[$]
+  Syntax: array[-n]
     When used as a path element, such as when testing a field, this notation
-    accesses the last element in the array.
+    accesses the index nth element from the end of the array.  Therefore
+    'array[-1] always means the last element.  If the absolute value of
+    the index is larger than the array's size, the access is an error.
 
   Like C arrays, PP arrays are zero-based.  That is to say the first element
   in the array is [0].
