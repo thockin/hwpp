@@ -17,7 +17,7 @@ pp_path::element::to_string() const
 	string ret;
 	if (is_array()) {
 		ret = name() + "[";
-		if (m_array_mode == pp_path::element::ARRAY_INDEX) {
+		if (m_array_mode == ARRAY_INDEX) {
 			ret += ::to_string(m_array_index);
 		}
 		ret += "]";
@@ -157,12 +157,10 @@ pp_path::element::parse(const string &input)
 			break;
 		    case ST_GOT_ARRAY_INDEX_NEGATIVE:
 			if (c == '0') {
-				m_array_mode = ARRAY_INDEX;
 				m_array_index = 0;
 				state = ST_DETECT_ARRAY_INDEX_BASE;
 			} else if (isdigit(c)) {
 				idx_base = 10;
-				m_array_mode = ARRAY_INDEX;
 				m_array_index = c - '0';
 				state = ST_ARRAY_INDEX;
 			} else {
