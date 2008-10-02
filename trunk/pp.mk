@@ -7,7 +7,9 @@ BUILD_CONFIG = $(TOPDIR)/BUILD_CONFIG
 
 
 # project version
-PRJ_VERSION = 0.2.0
+PRJ_VER_MAJOR = 0
+PRJ_VER_MINOR = 2
+PRJ_VER_MICRO = 0
 
 
 # assign build options default values

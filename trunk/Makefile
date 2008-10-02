@@ -9,7 +9,8 @@ SRCS = fake_language.cpp \
 	magic_regs.cpp \
 	drivers.cpp \
 	pp_path.cpp \
-	pp_scope.cpp
+	pp_scope.cpp \
+	version.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 
