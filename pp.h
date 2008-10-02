@@ -52,11 +52,26 @@ PP_MASK(pp_bitwidth nbits)
 	return val;
 }
 
-/*
- * PP_WARN() - issue a runtime warning
- */
+//
+// PP_WARN() - issue a runtime warning
+//
 #define PP_WARN(message) do { \
 	std::cerr << "WARN: " << message << std::endl; \
 } while (0)
+
+//
+// PP version constants
+//
+extern const uint8_t  pp_ver_major;
+extern const uint8_t  pp_ver_minor;
+extern const uint16_t pp_ver_micro;
+extern const uint32_t pp_version;
+extern const char *pp_version_string;
+
+static inline uint32_t
+PP_MKVERSION(uint8_t major, uint8_t minor, uint16_t micro)
+{
+	return ((major << 24) | (minor << 16) | (micro));
+}
 
 #endif // PP_PP_H__
