@@ -2879,16 +2879,15 @@ k8_misc_control(const pp_value &seg, const pp_value &bus,
 		OPEN_SCOPE("PMM[]");
 
 		FIELD("CPULowPrEn", "enabledisable_t",
-				BITS("../%power_mgmt_control_low", 0 + i));
+				BITS("../%power_mgmt_control_low", 0+i));
 		FIELD("NBLowPwrEn", "enabledisable_t",
-				BITS("../%power_mgmt_control_low", 1 + i));
+				BITS("../%power_mgmt_control_low", 1+i));
 		FIELD("FidVidEn", "enabledisable_t",
-				BITS("../%power_mgmt_control_low", 2 + i));
+				BITS("../%power_mgmt_control_low", 2+i));
 		FIELD("AltVidEn", "enabledisable_t",
-				BITS("../%power_mgmt_control_low", 3 + i));
+				BITS("../%power_mgmt_control_low", 3+i));
 		FIELD("ClkSel", "clksel_t",
-				BITS("../%power_mgmt_control_low",
-				     6 + i, 4 + i));
+				BITS("../%power_mgmt_control_low", 6+i, 4+i));
 
 		CLOSE_SCOPE();
 	}
@@ -2898,16 +2897,15 @@ k8_misc_control(const pp_value &seg, const pp_value &bus,
 		OPEN_SCOPE("PMM[]");
 
 		FIELD("CPULowPrEn", "enabledisable_t",
-				BITS("../%power_mgmt_control_high", 0 + i));
+				BITS("../%power_mgmt_control_high", 0+i));
 		FIELD("NBLowPwrEn", "enabledisable_t",
-				BITS("../%power_mgmt_control_high", 1 + i));
+				BITS("../%power_mgmt_control_high", 1+i));
 		FIELD("FidVidEn", "enabledisable_t",
-				BITS("../%power_mgmt_control_high", 2 + i));
+				BITS("../%power_mgmt_control_high", 2+i));
 		FIELD("AltVidEn", "enabledisable_t",
-				BITS("../%power_mgmt_control_high", 3 + i));
+				BITS("../%power_mgmt_control_high", 3+i));
 		FIELD("ClkSel", "clksel_t",
-				BITS("../%power_mgmt_control_high",
-					6 + i, 4 + i));
+				BITS("../%power_mgmt_control_high", 6+i, 4+i));
 
 		CLOSE_SCOPE();
 	}
