@@ -42,6 +42,8 @@ msr_generic_device()
 
 	CLOSE_SCOPE(); // apic
 
+	FIELD("PATCH_LEVEL", "hex64_t", REG64(0x8b));
+
 	//FIXME: need to wrap this with a CPUID check for MTRR capability
 	OPEN_SCOPE("mtrr");
 
@@ -287,6 +289,15 @@ msr_generic_device()
 
 	CLOSE_SCOPE(); // sysenter
 
+	REG64("%DebugCtl", 0x1d9);
+	FIELD("LBR", "enabledisable_t", BITS("%DebugCtl", 0));
+	FIELD("BTF", "enabledisable_t", BITS("%DebugCtl", 1));
+
+	FIELD("LastBranchFromIP", "addr64_t", REG64(0x1db));
+	FIELD("LastBranchToIP", "addr64_t", REG64(0x1dc));
+	FIELD("LastExceptionFromIP", "addr64_t", REG64(0x1dd));
+	FIELD("LastExceptionToIP", "addr64_t", REG64(0x1de));
+
 	REG64("%PAT", 0x277);
 	FIELD("PA0", "pat_type_t", BITS("%PAT", 2, 0));
 	FIELD("PA1", "pat_type_t", BITS("%PAT", 10, 8));
@@ -297,5 +308,5 @@ msr_generic_device()
 	FIELD("PA6", "pat_type_t", BITS("%PAT", 50, 48));
 	FIELD("PA7", "pat_type_t", BITS("%PAT", 58, 56));
 
-	//FIXME: more
+	//FIXME: more MCG_CAP, MCG_STAT, MCG_CTL, MC*
 }
