@@ -875,6 +875,37 @@ TEST(test_parse_errors)
 	}
 
 	//
+	// FIXED
+	//
+	// should not throw
+	try {
+		FIXED("int1", 1);
+		// expected
+	} catch (pp_parse_error &e) {
+		TEST_FAIL("FIXED()");
+	} catch (std::exception &e) {
+		TEST_FAIL("FIXED()");
+	}
+	// should throw a parse_error
+	try {
+		FIXED("123_invalid", 1);
+		TEST_FAIL("FIXED()");
+	} catch (pp_parse_error &e) {
+		// expected
+	} catch (std::exception &e) {
+		TEST_FAIL("FIXED()");
+	}
+	// should not throw
+	try {
+		ANON_FIXED(1);
+		// expected
+	} catch (pp_parse_error &e) {
+		TEST_FAIL("ANON_FIXED()");
+	} catch (std::exception &e) {
+		TEST_FAIL("ANON_FIXED()");
+	}
+
+	//
 	// BOOKMARK
 	//
 	// should not throw

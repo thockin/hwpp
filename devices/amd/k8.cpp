@@ -1843,15 +1843,9 @@ k8_dram_controller(const pp_value &seg, const pp_value &bus,
 		OPEN_SCOPE("dram_control");
 
 		FIELD("RdPtrInit", "hex_t", BITS("../%dram_control", 3, 0));
-		// FIXME: this field would benefit from a fixed-point datatype
-		FIELD("RdPadRcvFifoDly", ANON_ENUM(KV("memory_clocks_0_5", 0),
-						   KV("memory_clocks_1_0", 1),
-						   KV("memory_clocks_1_5", 2),
-						   KV("memory_clocks_2_0", 3),
-						   KV("memory_clocks_2_5", 4),
-						   KV("memory_clocks_3_0", 5),
-						   KV("memory_clocks_3_5", 6),
-						   KV("memory_clocks_4_0", 7)),
+		FIELD("RdPadRcvFifoDly", ANON_XFORM(
+				ANON_FIXED(1, "memory clocks(s)" ),
+					LAMBDA(_1+1), LAMBDA(_1-1)),
 				BITS("../%dram_control", 6, 4));
 		FIELD("AltVidC3MemClkTriEn", "enabledisable_t",
 				BITS("../%dram_control", 16));
@@ -2151,23 +2145,8 @@ k8_dram_controller(const pp_value &seg, const pp_value &bus,
 	// dram_config_high
 	if (FIELD_EQ("$k8/k8_rev", "rev_e")) {
 		FIELD("AsyncLat", "ns_t", BITS("../%dram_config_high", 3, 0));
-		// FIXME: this field could benefit from a fixed-point datatype
-		FIELD("RdPreamble", ANON_ENUM(KV("ns_2_0", 0),
-					      KV("ns_2_5", 1),
-					      KV("ns_3_0", 2),
-					      KV("ns_3_5", 3),
-					      KV("ns_4_0", 4),
-					      KV("ns_4_5", 5),
-					      KV("ns_5_0", 6),
-					      KV("ns_5_5", 7),
-					      KV("ns_6_0", 8),
-					      KV("ns_6_5", 9),
-					      KV("ns_7_0", 10),
-					      KV("ns_7_5", 11),
-					      KV("ns_8_0", 12),
-					      KV("ns_8_5", 13),
-					      KV("ns_9_0", 14),
-					      KV("ns_9_5", 15)),
+		FIELD("RdPreamble", ANON_XFORM(ANON_FIXED(1, "ns" ),
+					LAMBDA(_1+4), LAMBDA(_1-4)),
 				BITS("../%dram_config_high", 11, 8));
 		FIELD("MemDQDrvStren", ANON_ENUM(
 					KV("reduction_none", 0),

@@ -658,4 +658,79 @@ new_pp_transform_datatype(const pp_datatype_const_ptr &real_type,
 	        decode_func, encode_func));
 }
 
+/*
+ * pp_fixed_datatype - datatype for fixed-point values.
+ *
+ * Notes:
+ * 	This class makes a private copy of the 'units' argument.
+ */
+class pp_fixed_datatype: public pp_datatype
+{
+    public:
+	explicit pp_fixed_datatype(int nbits, const string &units = "")
+	    : m_nbits(nbits), m_units(units)
+	{}
+	virtual ~pp_fixed_datatype()
+	{}
+
+	/*
+	 * pp_fixed_datatype::evaluate(value)
+	 *
+	 * Evaluate a value against this datatype.  This method returns a
+	 * string containing the evaluated representation of the 'value'
+	 * argument.
+	 */
+	virtual string
+	evaluate(const pp_value &value) const
+	{
+		pp_value numer = value & ((pp_value(1) << m_nbits) - 1);
+		pp_value denom = pp_value::pow(2, m_nbits);
+		pp_value scalar = pp_value::pow(10, m_nbits);
+
+		pp_value decimal = (numer * scalar) / denom;
+		pp_value integral = value >> m_nbits;
+
+		// right align things like 0.500 to 0.5
+		while (decimal > 0 && (decimal % 10) == 0) {
+			decimal /= 10;
+		}
+		string ret = integral.to_string() + "." + decimal.to_string();
+		if (!m_units.empty()) {
+			ret += " ";
+			ret += m_units;
+		}
+		return ret;
+	}
+
+	/*
+	 * pp_fixed_datatype::lookup(value)
+	 *
+	 * Lookup the value of a (potentially valid) evaluation for this
+	 * datatype.  For an int type, this is a no-op.
+	 */
+	virtual pp_value
+	lookup(const pp_value &value) const
+	{
+		return value;
+	}
+	virtual pp_value
+	lookup(const string &str) const
+	{
+		try {
+			//FIXME:
+			return pp_value(str);
+		} catch (std::invalid_argument &e) {
+			throw pp_datatype::invalid_error(str);
+		}
+	}
+
+    protected:
+	int m_nbits;
+	string m_units;
+};
+typedef boost::shared_ptr<pp_fixed_datatype> pp_fixed_datatype_ptr;
+
+#define new_pp_fixed_datatype(...) \
+		pp_fixed_datatype_ptr(new pp_fixed_datatype(__VA_ARGS__))
+
 #endif // PP_PP_DATATYPES_H__

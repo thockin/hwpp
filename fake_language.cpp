@@ -662,3 +662,24 @@ fkl_bool(const parse_location &loc,
 	}
 	return bool_ptr;
 }
+
+//
+// Define a pp_fixed_datatype.
+//
+pp_datatype_ptr
+fkl_fixed(const parse_location &loc,
+          const string &name, int nbits, const string &units)
+{
+	DTRACE(TRACE_TYPES, "fixed: " + name);
+
+	DASSERT_MSG(!current_context.is_readonly(),
+		"current_context is read-only");
+
+	pp_fixed_datatype_ptr fixed_ptr = new_pp_fixed_datatype(nbits, units);
+	if (name != "") {
+		fkl_validate_type_name(name, loc);
+		current_context.add_datatype(name, fixed_ptr);
+	}
+	return fixed_ptr;
+}
+
