@@ -1571,10 +1571,14 @@ TEST(test_small_io)
 {
 	{
 		bignum val(15);
-		TEST_ASSERT(val.to_dec_string() == "15", "bignum::to_dec_string()");
-		TEST_ASSERT(val.to_string() == "15", "bignum::to_string()");
-		TEST_ASSERT(val.to_hex_string() == "0xf", "bignum::to_dec_string()");
-		TEST_ASSERT(val.to_oct_string() == "017", "bignum::to_dec_string()");
+		TEST_ASSERT(val.to_dec_string() == "15",
+				"bignum::to_dec_string()");
+		TEST_ASSERT(val.to_string() == "15",
+				"bignum::to_string()");
+		TEST_ASSERT(val.to_hex_string() == "0xf",
+				"bignum::to_dec_string()");
+		TEST_ASSERT(val.to_oct_string() == "017",
+				"bignum::to_dec_string()");
 	}
 	{
 		bignum val(15);
@@ -2681,3 +2685,114 @@ TEST(test_operators)
 	}
 	#endif // 0
 }
+
+TEST(test_extensions)
+{
+	// test popcount()
+	{
+		TEST_ASSERT(bignum::popcount(1) == 1);
+		TEST_ASSERT(bignum::popcount(2) == 1);
+		TEST_ASSERT(bignum::popcount(3) == 2);
+		TEST_ASSERT(bignum::popcount(0xffff) == 16);
+		TEST_ASSERT(bignum::popcount(0xffffffff) == 32);
+		TEST_ASSERT(
+		    bignum::popcount(bignum("0xffffffffffffffff")) == 64);
+		TEST_ASSERT(
+		    bignum::popcount(bignum("0xffffffffffffffffffff")) == 80);
+	}
+	{
+		bignum val;
+
+		val = 1;
+		TEST_ASSERT(val.popcount() == 1);
+		val <<= 1;
+		TEST_ASSERT(val.popcount() == 1);
+
+		val = 3;
+		TEST_ASSERT(val.popcount() == 2);
+
+		val = 0xffff;
+		TEST_ASSERT(val.popcount() == 16);
+
+		val = 0xffffffff;
+		TEST_ASSERT(val.popcount() == 32);
+
+		val = "0xffffffffffffffff";
+		TEST_ASSERT(val.popcount() == 64);
+
+		val = "0xffffffffffffffffffffffffffffffff";
+		TEST_ASSERT(val.popcount() == 128);
+	}
+
+	// test pow()
+	{
+		TEST_ASSERT(bignum::pow(2, 2) == 4);
+		TEST_ASSERT(bignum::pow(2, 3) == 8);
+		TEST_ASSERT(bignum::pow(2, 16) == 0x10000);
+
+		TEST_ASSERT(bignum::pow(3, 2) == 9);
+		TEST_ASSERT(bignum::pow(3, 3) == 27);
+		TEST_ASSERT(bignum::pow(3, 4) == 81);
+
+		TEST_ASSERT(bignum::pow(10, 2) == 100);
+		TEST_ASSERT(bignum::pow(10, 3) == 1000);
+		TEST_ASSERT(bignum::pow(10, 6) == 1000000);
+	}
+	{
+		bignum val;
+
+		val = 2;
+		TEST_ASSERT(val.pow(2) == 4);
+		TEST_ASSERT(val == 2);
+		TEST_ASSERT(val.pow(3) == 8);
+		TEST_ASSERT(val.pow(16) == 0x10000);
+
+		val = 3;
+		TEST_ASSERT(val.pow(2) == 9);
+		TEST_ASSERT(val == 3);
+		TEST_ASSERT(val.pow(3) == 27);
+		TEST_ASSERT(val.pow(4) == 81);
+
+		val = 10;
+		TEST_ASSERT(val.pow(2) == 100);
+		TEST_ASSERT(val == 10);
+		TEST_ASSERT(val.pow(3) == 1000);
+		TEST_ASSERT(val.pow(6) == 1000000);
+	}
+
+	// test raise()
+	{
+		bignum val;
+
+		val = 2;
+		val.raise(2);
+		TEST_ASSERT(val == 4);
+		val = 2;
+		val.raise(3);
+		TEST_ASSERT(val == 8);
+		val = 2;
+		val.raise(16);
+		TEST_ASSERT(val == 0x10000);
+
+		val = 3;
+		val.raise(2);
+		TEST_ASSERT(val == 9);
+		val = 3;
+		val.raise(3);
+		TEST_ASSERT(val == 27);
+		val = 3;
+		val.raise(4);
+		TEST_ASSERT(val == 81);
+
+		val = 10;
+		val.raise(2);
+		TEST_ASSERT(val == 100);
+		val = 10;
+		val.raise(3);
+		TEST_ASSERT(val == 1000);
+		val = 10;
+		val.raise(6);
+		TEST_ASSERT(val == 1000000);
+	}
+}
+

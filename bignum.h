@@ -259,6 +259,32 @@ class bignum: public mpz_class
 	{
 		return mpz_popcount(get_mpz_t());
 	}
+	static unsigned long
+	popcount(const bignum &val)
+	{
+		return val.popcount();
+	}
+
+	// Exponentiate this bignum and return the result.
+	bignum
+	pow(unsigned long exponent) const
+	{
+		bignum bn(*this);
+		mpz_pow_ui(bn.get_mpz_t(), get_mpz_t(), exponent);
+		return bn;
+	}
+	static bignum
+	pow(const bignum &val, unsigned long exponent)
+	{
+		return val.pow(exponent);
+	}
+
+	// Exponentiate this bignum in place.
+	void
+	raise(unsigned long exponent)
+	{
+		mpz_pow_ui(get_mpz_t(), get_mpz_t(), exponent);
+	}
 
 	// convert to a decimal string
 	std::string
