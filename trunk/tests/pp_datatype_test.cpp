@@ -573,3 +573,39 @@ TEST(test_pp_transform_datatype)
 	} catch (pp_datatype::invalid_error &e) {
 	}
 }
+
+TEST(test_pp_fixed_datatype)
+{
+	// test the basic constructor
+	pp_fixed_datatype_ptr f1 = new_pp_fixed_datatype(2);
+
+	// test the evaluate() method
+	std::string str;
+	str = f1->evaluate(0);
+	TEST_ASSERT(str == "0.0")
+		<< "pp_fixed_datatype::evaluate(): " << str;
+	str = f1->evaluate(1);
+	TEST_ASSERT(str == "0.25")
+		<< "pp_fixed_datatype::evaluate(): " << str;
+	str = f1->evaluate(2);
+	TEST_ASSERT(str == "0.5")
+		<< "pp_fixed_datatype::evaluate(): " << str;
+	str = f1->evaluate(3);
+	TEST_ASSERT(str == "0.75")
+		<< "pp_fixed_datatype::evaluate(): " << str;
+	str = f1->evaluate(4);
+	TEST_ASSERT(str == "1.0")
+		<< "pp_fixed_datatype::evaluate(): " << str;
+	str = f1->evaluate(5);
+	TEST_ASSERT(str == "1.25")
+		<< "pp_fixed_datatype::evaluate(): " << str;
+	str = f1->evaluate(6);
+	TEST_ASSERT(str == "1.5")
+		<< "pp_fixed_datatype::evaluate(): " << str;
+	str = f1->evaluate(7);
+	TEST_ASSERT(str == "1.75")
+		<< "pp_fixed_datatype::evaluate(): " << str;
+
+	// test lookup
+	// FIXME:
+}

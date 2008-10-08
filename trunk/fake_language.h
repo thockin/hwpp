@@ -578,4 +578,28 @@ fkl_xform(const parse_location &loc,
 #define ANON_XFORM(...)		fkl_xform(THIS_LOCATION, "", ##__VA_ARGS__)
 #define LAMBDA // for clarity in callers
 
+//
+// Declare a fixed-point datatype.
+//
+extern pp_datatype_ptr
+fkl_fixed(const parse_location &loc,
+          const string &name, int nbits, const string &units);
+inline pp_datatype_ptr
+fkl_fixed(const parse_location &loc, const string &name, int nbits)
+{
+	return fkl_fixed(loc, name, nbits, "");
+}
+inline pp_datatype_ptr
+fkl_anon_fixed(const parse_location &loc, int nbits, const string &units)
+{
+	return fkl_fixed(loc, "", nbits, units);
+}
+inline pp_datatype_ptr
+fkl_anon_fixed(const parse_location &loc, int nbits)
+{
+	return fkl_fixed(loc, "", nbits, "");
+}
+#define FIXED(...)		fkl_fixed(THIS_LOCATION, ##__VA_ARGS__)
+#define ANON_FIXED(...)		fkl_anon_fixed(THIS_LOCATION, ##__VA_ARGS__)
+
 #endif // PP_FAKE_LANGUAGE_H__
