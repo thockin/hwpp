@@ -19,7 +19,7 @@ class pp_multi_datatype: public pp_datatype
 	struct pp_multi_range
 	{
 		pp_multi_range(const pp_datatype_const_ptr &datatype,
-				   pp_value min, pp_value max)
+		               pp_value min, pp_value max)
 		    : type(datatype), low(min), high(max) {}
 		pp_datatype_const_ptr type;
 		pp_value low;
@@ -35,7 +35,8 @@ class pp_multi_datatype: public pp_datatype
 
     public:
 	pp_multi_datatype()
-	{}
+	{
+	}
 
 	virtual ~pp_multi_datatype()
 	{
@@ -178,8 +179,9 @@ class pp_enum_datatype: public pp_datatype
     public:
 	pp_enum_datatype()
 	    : m_custom_unknown(false)
-	{}
-	pp_enum_datatype(const keyed_vector<string, pp_value> &values)
+	{
+	}
+	explicit pp_enum_datatype(const keyed_vector<string, pp_value> &values)
 	    : m_values(values), m_custom_unknown(false)
 	{
 	}
@@ -314,8 +316,9 @@ class pp_bitmask_datatype: public pp_datatype
 
     public:
 	pp_bitmask_datatype()
-	{}
-	pp_bitmask_datatype(const keyed_vector<string, pp_value> &bits)
+	{
+	}
+	explicit pp_bitmask_datatype(const keyed_vector<string, pp_value> &bits)
 	    : m_bits(bits)
 	{
 	}
@@ -434,9 +437,11 @@ class pp_string_datatype: public pp_datatype
 {
     public:
 	pp_string_datatype()
-	{}
+	{
+	}
 	virtual ~pp_string_datatype()
-	{}
+	{
+	}
 
 	/*
 	 * pp_string_datatype::evaluate(value)
@@ -486,11 +491,13 @@ typedef boost::shared_ptr<pp_string_datatype> pp_string_datatype_ptr;
 class pp_int_datatype: public pp_datatype
 {
     public:
-	pp_int_datatype(const string &units = "")
+	explicit pp_int_datatype(const string &units = "")
 	    : m_units(units)
-	{}
+	{
+	}
 	virtual ~pp_int_datatype()
-	{}
+	{
+	}
 
 	/*
 	 * pp_int_datatype::evaluate(value)
@@ -545,11 +552,14 @@ typedef boost::shared_ptr<pp_int_datatype> pp_int_datatype_ptr;
 class pp_hex_datatype: public pp_int_datatype
 {
     public:
-	pp_hex_datatype(const pp_bitwidth width = BITS0, const string &units = "")
+	explicit pp_hex_datatype(const pp_bitwidth width = BITS0,
+	                         const string &units = "")
 	    : pp_int_datatype(units), m_width(width)
-	{}
+	{
+	}
 	virtual ~pp_hex_datatype()
-	{}
+	{
+	}
 
 	/*
 	 * pp_hex_datatype::evaluate(value)
