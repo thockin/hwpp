@@ -33,6 +33,10 @@ class pp_scope: public pp_dirent,
 	std::map<string, int> m_bookmarks;
 
     public:
+	// This flag indicates that lookup_dirent() should resolve aliases
+	// if the final dirent is an alias.
+	static const unsigned RESOLVE_ALIAS = 0x01;
+
 	explicit pp_scope(const pp_binding_ptr &binding = pp_binding_ptr())
 	    : pp_dirent(PP_DIRENT_SCOPE), m_parent(), m_binding(binding)
 	{
@@ -181,61 +185,13 @@ class pp_scope: public pp_dirent,
 	//
 	//
 	pp_dirent_const_ptr
-	lookup_dirent(const pp_path &path) const;
+	lookup_dirent(const pp_path &path, unsigned flags=0) const;
 
 	//
 	// Tests whether the path resolves to a defined dirent.
 	//
 	bool
 	dirent_defined(const pp_path &path) const;
-
-	//
-	// Return a pointer to the specified register.
-	//
-	// Returns:
-	// 	NULL if path not found.
-	// Throws:
-	// 	pp_path::invalid_error		- invalid path element
-	// 	pp_dirent::conversion_error	- path element is not a scope
-	//
-	pp_register_const_ptr
-	lookup_register(const pp_path &path) const;
-
-	//
-	// Return a pointer to the specified field.
-	//
-	// Returns:
-	// 	NULL if path not found.
-	// Throws:
-	// 	pp_path::invalid_error		- invalid path element
-	// 	pp_dirent::conversion_error	- path element is not a scope
-	//
-	pp_field_const_ptr
-	lookup_field(const pp_path &path) const;
-
-	//
-	// Return a pointer to the specified scope.
-	//
-	// Returns:
-	// 	NULL if path not found.
-	// Throws:
-	// 	pp_path::invalid_error		- invalid path element
-	// 	pp_dirent::conversion_error	- path element is not a scope
-	//
-	pp_scope_const_ptr
-	lookup_scope(const pp_path &path) const;
-
-	//
-	// Return a pointer to the specified array.
-	//
-	// Returns:
-	// 	NULL if path not found.
-	// Throws:
-	// 	pp_path::invalid_error		- invalid path element
-	// 	pp_dirent::conversion_error	- path element is not a scope
-	//
-	pp_array_const_ptr
-	lookup_array(const pp_path &path) const;
 
 	//
 	// Add a bookmark for this scope.
@@ -252,10 +208,10 @@ class pp_scope: public pp_dirent,
     private:
 	// Walk a path.
 	int
-	walk_path(const pp_path &path,
+	walk_path(const pp_path &path, unsigned flags,
 	          pp_dirent_const_ptr *out_de, pp_path *out_path) const;
 	int
-	walk_path_internal(pp_path &path,
+	walk_path_internal(pp_path &path, unsigned flags,
 	          pp_dirent_const_ptr *out_de, pp_path *out_path) const;
 };
 

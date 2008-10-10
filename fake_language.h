@@ -10,6 +10,7 @@
 #include "pp_dirent.h"
 #include "pp_registers.h"
 #include "pp_field.h"
+#include "pp_alias.h"
 #include "pp_regbits.h"
 #include "pp_binding.h"
 #include "pp_lambda.h"
@@ -130,8 +131,6 @@ fkl_open_scope(const parse_location &loc, const string &name)
 //
 extern void
 fkl_close_scope(const parse_location &loc);
-extern void
-fkl_close_scope(const parse_location &loc, const string &new_name);
 #define CLOSE_SCOPE(...)	fkl_close_scope(THIS_LOCATION, ##__VA_ARGS__)
 
 //
@@ -307,6 +306,13 @@ fkl_field(const parse_location &loc,
           const pp_rwprocs_ptr &access);
 
 #define FIELD(...)		fkl_field(THIS_LOCATION, ##__VA_ARGS__)
+
+//
+// Create an alias to another dirent
+//
+extern pp_alias_ptr
+fkl_alias(const parse_location &loc, const string &name, const string &tgt_path);
+#define ALIAS(...)		fkl_alias(THIS_LOCATION, ##__VA_ARGS__)
 
 #include "pp_datatypes.h"
 

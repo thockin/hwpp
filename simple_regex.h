@@ -21,11 +21,11 @@ class regex
 
     public:
 	// global defaults
-	static const unsigned default_flags = (REG_EXTENDED | REG_NOSUB);
-	static const unsigned default_exec_flags = 0;
+	static const unsigned DEFAULT_FLAGS = (REG_EXTENDED | REG_NOSUB);
+	static const unsigned DEFAULT_EXEC_FLAGS = 0;
 
 	// ctor from string
-	regex(const string &re_str, unsigned flags = default_flags)
+	regex(const string &re_str, unsigned flags = DEFAULT_FLAGS)
 	    : m_re_string(re_str), m_flags(flags)
 	{
 		compile();
@@ -55,7 +55,7 @@ class regex
 	// see if a string matches against this regex
 	bool
 	matches(const string &test_string,
-			unsigned exec_flags = default_exec_flags) const
+			unsigned exec_flags = DEFAULT_EXEC_FLAGS) const
 	{
 		int ret;
 		ret = regexec(&m_c_regex, test_string.c_str(),

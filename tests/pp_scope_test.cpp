@@ -154,26 +154,6 @@ TEST(test_exceptions)
 		TEST_FAIL("pp_scope::lookup_dirent()");
 	} catch (pp_path::invalid_error &e) {
 	}
-	try {
-		scope->lookup_field("foo/123");
-		TEST_FAIL("pp_scope::lookup_field()");
-	} catch (pp_path::invalid_error &e) {
-	}
-	try {
-		scope->lookup_register("foo/123");
-		TEST_FAIL("pp_scope::lookup_register()");
-	} catch (pp_path::invalid_error &e) {
-	}
-	try {
-		scope->lookup_scope("foo/123");
-		TEST_FAIL("pp_scope::lookup_scope()");
-	} catch (pp_path::invalid_error &e) {
-	}
-	try {
-		scope->lookup_array("foo/123");
-		TEST_FAIL("pp_scope::lookup_array()");
-	} catch (pp_path::invalid_error &e) {
-	}
 
 	// test array screwups
 	try {
@@ -242,16 +222,14 @@ TEST(test_dirents)
 	// create an array of fields in scope0
 	pp_constant_field_ptr field3 = new_pp_constant_field(dt, 0);
 	scope0->add_dirent("array2[]", field3);
-	TEST_ASSERT(scope0->n_dirents() == 5,
-	    "pp_scope::n_dirents()");
-	TEST_ASSERT(scope0->lookup_array("array2")->size() == 1,
-	    "pp_scope::n_dirents()");
+	TEST_ASSERT(scope0->n_dirents() == 5, "pp_scope::n_dirents()");
+	pp_array_const_ptr ar = pp_array_from_dirent(
+			scope0->lookup_dirent("array2"));
+	TEST_ASSERT(ar->size() == 1, "pp_array::size()");
 	pp_constant_field_ptr field4 = new_pp_constant_field(dt, 0);
 	scope0->add_dirent("array2[]", field4);
-	TEST_ASSERT(scope0->n_dirents() == 5,
-	    "pp_scope::n_dirents()");
-	TEST_ASSERT(scope0->lookup_array("array2")->size() == 2,
-	    "pp_scope::n_dirents()");
+	TEST_ASSERT(scope0->n_dirents() == 5, "pp_scope::n_dirents()");
+	TEST_ASSERT(ar->size() == 2, "pp_array::size()");
 
 	// test dirent()
 	{
@@ -270,159 +248,6 @@ TEST(test_dirents)
 	{
 		TEST_ASSERT(scope0->dirent_name(0) == "field1",
 			"pp_scope::dirent_name()");
-	}
-	// test lookup_field()
-	{
-		pp_field_const_ptr f;
-
-		// search for a field, exists
-		f = root->lookup_field("scope0/field1");
-		TEST_ASSERT(f == field1,
-		    "pp_scope::lookup_field()");
-
-		// search for a field, non-existing
-		if (root->lookup_field("scope0/foo") != NULL) {
-			TEST_FAIL("pp_scope::lookup_field()");
-		}
-
-		// search for a non-field, existing
-		try {
-			root->lookup_field("scope0/reg1");
-			TEST_FAIL("pp_scope::lookup_field()");
-		} catch (pp_dirent::conversion_error &e) {
-		}
-
-		// search for an item that is not a leaf node
-		try {
-			root->lookup_field("scope0/field1/foo");
-			TEST_FAIL("pp_scope::lookup_field()");
-		} catch (pp_dirent::conversion_error &e) {
-		}
-		try {
-			root->lookup_field("scope0/reg1/foo");
-			TEST_FAIL("pp_scope::lookup_field()");
-		} catch (pp_dirent::conversion_error &e) {
-		}
-
-		// search for an item through a path with ".."
-		f = root->lookup_field("scope0/scope1/../field1");
-		TEST_ASSERT(f == field1,
-		    "pp_scope::lookup_field()");
-
-		// search for an item through an absolute path
-		f = root->lookup_field("/scope0/field1");
-		TEST_ASSERT(f == field1,
-		    "pp_scope::lookup_field()");
-
-		// search for an array-held item
-		f = root->lookup_field("scope0/array1[0]");
-		TEST_ASSERT(f == field2,
-		    "pp_scope::lookup_field()");
-
-		// search for an item through a bookmark
-		f = scope1->lookup_field("$bookmark/field1");
-		TEST_ASSERT(f == field1,
-		    "pp_scope::lookup_field()");
-	}
-	// test lookup_register()
-	{
-		pp_register_const_ptr r;
-
-		// search for a register, exists
-		r = root->lookup_register("scope0/reg1");
-		TEST_ASSERT(r == reg1,
-		    "pp_scope::lookup_register()");
-
-		// search for a register, non-existing
-		if (root->lookup_register("scope0/foo") != NULL) {
-			TEST_FAIL("pp_scope::lookup_register()");
-		}
-
-		// search for a non-register, existing
-		try {
-			root->lookup_register("scope0/field1");
-			TEST_FAIL("pp_scope::lookup_register()");
-		} catch (pp_dirent::conversion_error &e) {
-		}
-
-		// search for an item that is not a leaf node
-		try {
-			root->lookup_register("scope0/reg1/foo");
-			TEST_FAIL("pp_scope::lookup_register()");
-		} catch (pp_dirent::conversion_error &e) {
-		}
-		try {
-			root->lookup_register("scope0/field1/foo");
-			TEST_FAIL("pp_scope::lookup_register()");
-		} catch (pp_dirent::conversion_error &e) {
-		}
-
-		// search for an item through a path with ".."
-		r = root->lookup_register("scope0/scope1/../reg1");
-		TEST_ASSERT(r == reg1,
-		    "pp_scope::lookup_register()");
-	}
-	// test lookup_scope()
-	{
-		pp_scope_const_ptr s;
-
-		// search for a scope, exists
-		s = root->lookup_scope("scope0/scope1");
-		TEST_ASSERT(s == scope1,
-		    "pp_scope::lookup_scope()");
-
-		// search for a scope, non-existing
-		if (root->lookup_scope("scope0/foo") != NULL) {
-			TEST_FAIL("pp_scope::lookup_scope()");
-		}
-
-		// search for a non-scope, existing
-		try {
-			root->lookup_scope("scope0/field1");
-			TEST_FAIL("pp_scope::lookup_scope()");
-		} catch (pp_dirent::conversion_error &e) {
-		}
-
-		// search for an item through a path with ".."
-		s = root->lookup_scope("scope0/scope1/../scope1");
-		TEST_ASSERT(s == scope1,
-		    "pp_scope::lookup_scope()");
-
-		// search for the root
-		s = root->lookup_scope("/");
-		TEST_ASSERT(s == root,
-		    "pp_scope::lookup_scope()");
-
-		// search for an item through an absolute path
-		s = root->lookup_scope("/scope0");
-		TEST_ASSERT(s == scope0,
-		    "pp_scope::lookup_scope()");
-	}
-	// test lookup_array()
-	{
-		pp_array_const_ptr a;
-
-		// search for an array, exists
-		a = root->lookup_array("scope0/array1");
-		TEST_ASSERT(a == array1,
-		    "pp_scope::lookup_array()");
-
-		// search for a array, non-existing
-		if (root->lookup_array("scope0/foo") != NULL) {
-			TEST_FAIL("pp_scope::lookup_array()");
-		}
-
-		// search for a non-array, existing
-		try {
-			root->lookup_array("scope0/field1");
-			TEST_FAIL("pp_scope::lookup_array()");
-		} catch (pp_dirent::conversion_error &e) {
-		}
-
-		// search for an item through a path with ".."
-		a = root->lookup_array("scope0/scope1/../array1");
-		TEST_ASSERT(a == array1,
-		    "pp_scope::lookup_array()");
 	}
 	// test lookup_dirent()
 	{
@@ -537,7 +362,12 @@ TEST(test_dirents)
 
 		// resolve an item through an absolute path
 		final = root->resolve_path("/scope0");
-		TEST_ASSERT(final == "/scope0")
+		TEST_ASSERT(final == "scope0")
+		    << "pp_scope::resolve_path(): got '" << final << "'";
+
+		// resolve an item through an absolute path
+		final = scope1->resolve_path("/scope0");
+		TEST_ASSERT(final == "../../scope0")
 		    << "pp_scope::resolve_path(): got '" << final << "'";
 
 		// resolve an array-held item, positive index, in bounds

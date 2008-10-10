@@ -13,6 +13,7 @@ typedef enum {
 	PP_DIRENT_FIELD,
 	PP_DIRENT_SCOPE,
 	PP_DIRENT_ARRAY,
+	PP_DIRENT_ALIAS,
 	PP_DIRENT_MAX,
 } pp_dirent_type;
 
@@ -21,6 +22,7 @@ static const char *dirent_type_strings[] = {
 	"pp_field",
 	"pp_scope",
 	"pp_array",
+	"pp_alias",
 };
 
 inline std::ostream &
@@ -90,6 +92,11 @@ class pp_dirent {
 	is_array() const
 	{
 		return (m_type == PP_DIRENT_ARRAY);
+	}
+	bool
+	is_alias() const
+	{
+		return (m_type == PP_DIRENT_ALIAS);
 	}
 
     private:

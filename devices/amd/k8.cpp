@@ -590,6 +590,7 @@ k8_msr(const pp_value &cpu)
 
 	OPEN_SCOPE("io_trap");
 
+	REG64("%IOTRAP_CTL", 0xc0010054);
 	for (int i = 0; i < 4; i++) {
 		OPEN_SCOPE("trap[]");
 		REG64("%IOTRAP_ADDR", 0xc0010050 + i);
@@ -600,19 +601,20 @@ k8_msr(const pp_value &cpu)
 				BITS("%IOTRAP_ADDR", 62));
 		FIELD("SmiOnRdEn", "enabledisable_t",
 				BITS("%IOTRAP_ADDR", 63));
+		FIELD("SmiSts", "yesno_t", BITS("../%IOTRAP_CTL", (2*i)));
+		FIELD("SmiEn", "enabledisable_t",
+				BITS("../%IOTRAP_CTL", (2*i)+1));
 		CLOSE_SCOPE(); // trap[]
-		// FIXME: add an ALIAS to SmiEn_* and SmiSts_*
 	}
 
-	REG64("%IOTRAP_CTL", 0xc0010054);
-	FIELD("SmiSts_0", "yesno_t", BITS("%IOTRAP_CTL", 0));
-	FIELD("SmiEn_0", "enabledisable_t", BITS("%IOTRAP_CTL", 1));
-	FIELD("SmiSts_1", "yesno_t", BITS("%IOTRAP_CTL", 2));
-	FIELD("SmiEn_1", "enabledisable_t", BITS("%IOTRAP_CTL", 3));
-	FIELD("SmiSts_2", "yesno_t", BITS("%IOTRAP_CTL", 4));
-	FIELD("SmiEn_2", "enabledisable_t", BITS("%IOTRAP_CTL", 5));
-	FIELD("SmiSts_3", "yesno_t", BITS("%IOTRAP_CTL", 6));
-	FIELD("SmiEn_3", "enabledisable_t", BITS("%IOTRAP_CTL", 7));
+	ALIAS("SmiSts_0", "trap[0]/SmiSts");
+	ALIAS("SmiEn_0", "trap[0]/SmiEn");
+	ALIAS("SmiSts_1", "trap[1]/SmiSts");
+	ALIAS("SmiEn_1", "trap[1]/SmiEn");
+	ALIAS("SmiSts_2", "trap[2]/SmiSts");
+	ALIAS("SmiEn_2", "trap[2]/SmiEn");
+	ALIAS("SmiSts_3", "trap[3]/SmiSts");
+	ALIAS("SmiEn_3", "trap[3]/SmiEn");
 	FIELD("IoTrapCtlRsmSpcEn", "enabledisable_t", BITS("%IOTRAP_CTL", 13));
 	FIELD("IoTrapCtlSmiSpcEn", "enabledisable_t", BITS("%IOTRAP_CTL", 14));
 	FIELD("IoTrapEn", "enabledisable_t", BITS("%IOTRAP_CTL", 15));
@@ -3194,22 +3196,7 @@ k8_discovered(const std::vector<pp_value> &args)
 	}
 
 	// for simplicity
-	ENUM("k8_rev_t",
-		KV("rev_e", 'e'),
-		KV("rev_f", 'f'),
-		KV("unknown", 0));
-	// FIXME: when aliases are added, change to alias to "core[0]/k8_rev"
-	if (FIELD_EQ("core[0]/cpuid/family", 0xf)) {
-		if (FIELD_GE("core[0]/cpuid/model", 0x40)) {
-			FIELD("k8_rev", "k8_rev_t", 'f');
-		} else if (FIELD_GE("core[0]/cpuid/model", 0x20)) {
-			FIELD("k8_rev", "k8_rev_t", 'e');
-		} else {
-			FIELD("k8_rev", "k8_rev_t", pp_value(0));
-		}
-	} else {
-		FIELD("k8_rev", "k8_rev_t", pp_value(0));
-	}
+	ALIAS("k8_rev", "core[0]/k8_rev");
 
 	// function 0
 	k8_ht_config(seg, bus, dev, func);
