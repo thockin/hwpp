@@ -47,7 +47,7 @@ class shared_object
 
     public:
 	// these are the default flags with which to open a shared_object
-	static const unsigned default_flags = (RTLD_NOW | RTLD_LOCAL);
+	static const unsigned DEFAULT_FLAGS = (RTLD_NOW | RTLD_LOCAL);
 
 	// default ctor - does not open anything
 	shared_object()
@@ -56,7 +56,7 @@ class shared_object
 	}
 	// ctor - open a shared object file
 	explicit
-	shared_object(const std::string &path, unsigned flags=default_flags)
+	shared_object(const std::string &path, unsigned flags=DEFAULT_FLAGS)
 	    : m_handle(), m_path(path)
 	{
 		open(path, flags);
@@ -68,7 +68,7 @@ class shared_object
 	// Open a new shared object file.  See the man-page for dlopen() for
 	// details about flags and path handling.
 	void
-	open(const std::string &path, unsigned flags = default_flags)
+	open(const std::string &path, unsigned flags = DEFAULT_FLAGS)
 	{
 		void *handle = dlopen(path.c_str(), flags);
 		if (handle == NULL) {

@@ -217,27 +217,16 @@ TEST(test_parse_errors)
 	}
 	// should throw a parse_error
 	try {
-		OPEN_SCOPE("123_invalid");
-		TEST_FAIL("OPEN_SCOPE()");
+		OPEN_SCOPE("%invalid");
+		TEST_ERROR("OPEN_SCOPE()");
 	} catch (pp_parse_error &e) {
 		// expected
 	} catch (std::exception &e) {
-		TEST_FAIL("OPEN_SCOPE()");
-	}
-	// should not throw
-	try {
-		OPEN_SCOPE("scope2");
-		CLOSE_SCOPE("also_valid");
-		// expected
-	} catch (pp_parse_error &e) {
-		TEST_FAIL("OPEN_SCOPE()");
-	} catch (std::exception &e) {
-		TEST_FAIL("OPEN_SCOPE()");
+		TEST_ERROR("OPEN_SCOPE()");
 	}
 	// should throw a parse_error
 	try {
-		OPEN_SCOPE("scope3");
-		CLOSE_SCOPE("123_invalid");
+		OPEN_SCOPE("123_invalid");
 		TEST_FAIL("OPEN_SCOPE()");
 	} catch (pp_parse_error &e) {
 		// expected
@@ -582,6 +571,15 @@ TEST(test_parse_errors)
 	}
 	// should throw a parse_error
 	try {
+		FIELD("%invalid", "int_t", BITS("%reg8"));
+		TEST_ERROR("FIELD()");
+	} catch (pp_parse_error &e) {
+		// expected
+	} catch (std::exception &e) {
+		TEST_ERROR("FIELD()");
+	}
+	// should throw a parse_error
+	try {
 		FIELD("123_invalid", "int_t", BITS("%reg8"));
 		TEST_FAIL("FIELD()");
 	} catch (pp_parse_error &e) {
@@ -624,6 +622,55 @@ TEST(test_parse_errors)
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("FIELD()");
+	}
+
+	//
+	// ALIAS
+	//
+	// should not throw
+	try {
+		ALIAS("valid_from1", "field1");
+		// expected
+	} catch (pp_parse_error &e) {
+		TEST_ERROR("ALIAS()");
+	} catch (std::exception &e) {
+		TEST_ERROR("ALIAS()");
+	}
+	// should not throw
+	try {
+		ALIAS("valid_from2", "%reg8");
+		// expected
+	} catch (pp_parse_error &e) {
+		TEST_ERROR("ALIAS()");
+	} catch (std::exception &e) {
+		TEST_ERROR("ALIAS()");
+	}
+	// should throw a parse_error
+	try {
+		ALIAS("123_invalid_from", "valid_to");
+		TEST_ERROR("FIELD()");
+	} catch (pp_parse_error &e) {
+		// expected
+	} catch (std::exception &e) {
+		TEST_ERROR("FIELD()");
+	}
+	// should throw a parse_error
+	try {
+		ALIAS("valid_from3", "123_invalid_to");
+		TEST_ERROR("FIELD()");
+	} catch (pp_parse_error &e) {
+		// expected
+	} catch (std::exception &e) {
+		TEST_ERROR("FIELD()");
+	}
+	// should throw a parse_error
+	try {
+		ALIAS("123_invalid_from", "123_invalid_to");
+		TEST_ERROR("FIELD()");
+	} catch (pp_parse_error &e) {
+		// expected
+	} catch (std::exception &e) {
+		TEST_ERROR("FIELD()");
 	}
 
 	//
@@ -927,3 +974,120 @@ TEST(test_parse_errors)
 		TEST_FAIL("BOOKMARK()");
 	}
 }
+
+TEST(test_read_write)
+{
+	//
+	// set up a bound scope and contents for testing
+	//
+	OPEN_SCOPE("bound", new_test_binding());
+	REG8("%reg8", 0);
+	OPEN_SCOPE("scope"); CLOSE_SCOPE();
+	FIELD("field", "int_t", BITS("%reg8"));
+	REG8("%array[]", 0); REG8("%array[]", 0);
+	ALIAS("alias", "field");
+
+	// read an anonymous register
+	TEST_ASSERT(READ(REG8(0)) == 0xff) << "READ(REG8())";
+
+	// read a named register
+	TEST_ASSERT(READ("%reg8") == 0xff) << "READ(%reg8)";
+
+	// write a named register
+	WRITE("%reg8", 0x93);
+	TEST_ASSERT(READ("%reg8") == 0x93) << "WRITE(%reg8)";
+	WRITE("%reg8", 0xff);
+	TEST_ASSERT(READ("%reg8") == 0xff) << "WRITE(%reg8)";
+
+	// read a field
+	TEST_ASSERT(READ("field") == 0xff) << "READ(field)";
+
+	// write a field
+	WRITE("field", 0x93);
+	TEST_ASSERT(READ("field") == 0x93) << "WRITE(field)";
+	WRITE("field", 0xff);
+	TEST_ASSERT(READ("field") == 0xff) << "WRITE(field)";
+
+	// try to read a scope
+	try {
+		READ("scope");
+		TEST_ERROR("READ(scope)");
+	} catch (std::exception &e) {
+		// expected
+	}
+
+	// try to read an array
+	try {
+		READ("%array");
+		TEST_ERROR("READ(array)");
+	} catch (std::exception &e) {
+		// expected
+	}
+
+	// read an alias
+	TEST_ASSERT(READ("alias") == 0xff) << "READ(alias)";
+
+	// write an alias
+	WRITE("field", 0x93);
+	TEST_ASSERT(READ("alias") == 0x93) << "READ(alias)";
+	WRITE("alias", 0x76);
+	TEST_ASSERT(READ("field") == 0x76) << "WRITE(alias)";
+	TEST_ASSERT(READ("alias") == 0x76) << "WRITE(alias)";
+	WRITE("alias", 0xff);
+	TEST_ASSERT(READ("alias") == 0xff) << "WRITE(alias)";
+
+	// try to read a bad alias
+	try {
+		ALIAS("bad_alias", "non_existent");
+		TEST_ERROR("ALIAS(non_existent)");
+	} catch (pp_path::not_found_error &e) {
+		// expected
+	} catch (std::exception &e) {
+		TEST_ERROR("ALIAS(non_existent)");
+	}
+}
+
+TEST(test_alias_to_array)
+{
+	//
+	// set up a bound scope and contents for testing
+	//
+	OPEN_SCOPE("bound", new_test_binding());
+	REG8("%reg[]", 0);
+
+	// alias to an existing index
+	TEST_ASSERT(ALIAS("alias1", "%reg[0]")->link_path() == "%reg[0]")
+		<< "ALIAS(array[0])";
+
+	// alias to a non-existing index
+	try {
+		ALIAS("alias2", "%reg[1]");
+		TEST_ERROR("ALIAS(%reg[1])");
+	} catch (pp_path::not_found_error &e) {
+		// expected
+	} catch (std::exception &e) {
+		TEST_ERROR("ALIAS(%reg[1])");
+	}
+
+	// alias to an array tail
+	TEST_ASSERT(ALIAS("alias3", "%reg[-1]")->link_path() == "%reg[0]")
+		<< "ALIAS(array[-1])";
+
+	// alias to an array tail again
+	REG8("%reg[]", 1);
+	TEST_ASSERT(ALIAS("alias4", "%reg[-1]")->link_path() == "%reg[1]")
+		<< "ALIAS(array[-1])";
+	TEST_ASSERT(ALIAS("alias5", "%reg[-2]")->link_path() == "%reg[0]")
+		<< "ALIAS(array[-2])";
+
+	// alias to an array append
+	try {
+		ALIAS("alias6", "%reg[]");
+		TEST_ERROR("ALIAS(%reg[])");
+	} catch (pp_path::not_found_error &e) {
+		// expected
+	} catch (std::exception &e) {
+		TEST_ERROR("ALIAS(%reg[])");
+	}
+}
+

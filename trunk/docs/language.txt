@@ -65,9 +65,6 @@ Scopes
   Syntax: CLOSE_SCOPE()
     Close the current scope and resume the previous scope.
 
-  Syntax: CLOSE_SCOPE(dirent_name)
-    Close the current scope, rename it, and resume the previous scope.
-
 Bindings
 
   PP provides access to actual hardware devices via it's driver model.  Any
@@ -385,6 +382,20 @@ Fields
     read() and write() methods.  When the field is read or written, the
     accessor's methods will be run.  See below for information on the READ
     and WRITE functions.
+
+Aliases
+
+  An alias is simply a dirent which is a pointer to another dirent.  Think
+  of a symbolic link in a filesystem.  Reading or writing an alias reads
+  or writes the dirent to which the alias points.
+
+  Aliases are fully resolved when they are defined.  That means that you
+  can only alias to a dirent that already exists.  You can alias to array
+  "tails" (negative indices) or bookmarks, as long as the aliased dirent
+  is valid.
+
+  Syntax: ALIAS(dirent_name, target_dirent_name)
+    Define a new ALIAS dirent.
 
 Flow Control
 

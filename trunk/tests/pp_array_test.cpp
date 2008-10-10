@@ -31,6 +31,12 @@ TEST(test_ctors)
 			TEST_FAIL("pp_array::pp_array()");
 		}
 	}
+	{
+		pp_array_ptr array = new_pp_array(PP_DIRENT_ALIAS);
+		if (array->array_type() != PP_DIRENT_ALIAS) {
+			TEST_ERROR("pp_array::pp_array()");
+		}
+	}
 }
 
 TEST(test_indexing)

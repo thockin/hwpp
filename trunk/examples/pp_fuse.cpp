@@ -31,6 +31,8 @@
 #include "pp_register.h"
 #include "pp_datatypes.h"
 #include "pp_fields.h"
+#include "pp_array.h"
+#include "pp_alias.h"
 
 using namespace std;
 
@@ -62,6 +64,13 @@ fill_dir_stat(struct stat *st)
 	// this is a documented hack that allows 'find' to work properly
 	st->st_nlink = 1;
 }
+static void
+fill_link_stat(struct stat *st)
+{
+	fill_base_stat(st);
+	st->st_mode = S_IFLNK | 0644;
+	st->st_nlink = 1;
+}
 static int
 fill_stat(const pp_dirent_const_ptr &de, struct stat *st)
 {
@@ -69,6 +78,8 @@ fill_stat(const pp_dirent_const_ptr &de, struct stat *st)
 		fill_file_stat(st);
 	} else if (de->is_scope()) {
 		fill_dir_stat(st);
+	} else if (de->is_alias()) {
+		fill_link_stat(st);
 	} else if (de->is_array()) {
 		return -ENOENT;
 	} else {
@@ -80,19 +91,18 @@ fill_stat(const pp_dirent_const_ptr &de, struct stat *st)
 static int
 ppfs_getattr(const char *path, struct stat *st)
 {
-	int res = 0;
-
 printf("%d getattr: path = %s\n", getpid(), path);
 	try {
 		const pp_dirent_const_ptr &de = platform->lookup_dirent(path);
-		res = fill_stat(de, st);
+		if (!de) {
+			return -ENOENT;
+		}
+		return fill_stat(de, st);
 	} catch (std::out_of_range &e) {
-		res = -ENOENT;
+		return -ENOENT;
 	} catch (pp_path::invalid_error &e) {
-		res = -ENOENT;
+		return -ENOENT;
 	}
-
-	return res;
 }
 
 static int
@@ -133,6 +143,9 @@ ppfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 
 printf("%d readdir: path = %s\n", getpid(), path);
 	const pp_dirent_const_ptr &de = platform->lookup_dirent(path);
+	if (!de) {
+		return -ENOENT;
+	}
 	if (de->is_scope()) {
 		struct stat st;
 		int ret;
@@ -151,6 +164,28 @@ printf("%d readdir: path = %s\n", getpid(), path);
 		}
 	} else {
 		return -ENOTDIR;
+	}
+
+	return 0;
+}
+
+static int
+ppfs_readlink(const char *path, char *buf, size_t bufsize)
+{
+printf("%d readlink: path = %s, size = %d\n", getpid(), path, bufsize);
+	const pp_dirent_const_ptr &de = platform->lookup_dirent(path);
+	if (!de) {
+		return -ENOENT;
+	}
+	if (de->is_alias()) {
+		const pp_alias_const_ptr &alias = pp_alias_from_dirent(de);
+		std::string pointee = to_string(alias->link_path());
+		if (bufsize > pointee.size()) {
+			bufsize = pointee.size();
+		}
+		strncpy(buf, pointee.data(), bufsize);
+	} else {
+		return -EINVAL;
 	}
 
 	return 0;
@@ -184,6 +219,9 @@ ppfs_read(const char *path, char *data, size_t size, off_t offset,
 printf("%d read: path = %s\n", getpid(), path);
 	try {
 		const pp_dirent_const_ptr &de = platform->lookup_dirent(path);
+		if (!de) {
+			return -ENOENT;
+		}
 		pp_value val;
 		string str;
 		if (de->is_register()) {
@@ -253,6 +291,9 @@ printf("%d write: path = %s\n", getpid(), path);
 		char *clean_data = chomp(&my_data[0], size);
 
 		const pp_dirent_const_ptr &de = platform->lookup_dirent(path);
+		if (!de) {
+			return -ENOENT;
+		}
 		if (de->is_register()) {
 			const pp_register_const_ptr &reg =
 			   pp_register_from_dirent(de);
@@ -309,6 +350,7 @@ int main(int argc, char *argv[])
 
 	ppfs_ops.getattr	= ppfs_getattr;
 	ppfs_ops.readdir	= ppfs_readdir;
+	ppfs_ops.readlink	= ppfs_readlink;
 	ppfs_ops.truncate	= ppfs_truncate;
 	ppfs_ops.open		= ppfs_open;
 	ppfs_ops.read		= ppfs_read;

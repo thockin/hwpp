@@ -1277,7 +1277,7 @@ explore_capabilities()
 
 		pp_value ptr = READ("capptr");
 		while (ptr != 0 && ptr != 0xff) {
-			OPEN_SCOPE("capability");
+			OPEN_SCOPE("capability[]");
 
 			FIELD("offset", "hex8_t", ptr);
 			FIELD("id", "pci_capability_t", REG8(ptr));
@@ -1343,9 +1343,11 @@ explore_capabilities()
 			}
 
 			ptr = READ("next");
-			CLOSE_SCOPE("capability."
-			    + GET_FIELD("id")->evaluate() + "[]");
-			//FIXME: need to return a valid path_element, or be sanitized
+			CLOSE_SCOPE();
+			ALIAS("capability."
+			      +GET_FIELD("capability[-1]/id")->evaluate()+"[]",
+			      "capability[-1]");
+			//FIXME: need evaluate to return a valid path_element, or be sanitized
 		}
 	}
 
@@ -1359,7 +1361,7 @@ explore_capabilities()
 	 && DEFINED("$pci/%PCI.100") && (READ("$pci/%PCI.100") != 0)) {
 		pp_value ptr = 0x100;
 		while (ptr != 0 && ptr != 0xfff) {
-			OPEN_SCOPE("ecapability");
+			OPEN_SCOPE("ecapability[]");
 
 			FIELD("offset", "hex16_t", ptr);
 			FIELD("id", "pcie_capability_t", REG16(ptr));
@@ -1404,9 +1406,11 @@ explore_capabilities()
 			}
 
 			ptr = READ("next");
-			CLOSE_SCOPE("ecapability."
-			    + GET_FIELD("id")->evaluate() + "[]");
-			//FIXME: need to return a valid path_element, or be sanitized
+			CLOSE_SCOPE();
+			ALIAS("ecapability."
+			      +GET_FIELD("ecapability[-1]/id")->evaluate()+"[]",
+			      "ecapability[-1]");
+			//FIXME: need evaluate to return a valid path_element, or be sanitized
 		}
 	}
 	//FIXME: scan EHCI extended capabilities

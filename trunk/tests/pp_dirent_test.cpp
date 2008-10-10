@@ -52,6 +52,9 @@ TEST(test_pp_dirent)
 	if (to_string(PP_DIRENT_ARRAY) != "pp_array") {
 		TEST_FAIL("pp_dirent::operator<<(ostream)");
 	}
+	if (to_string(PP_DIRENT_ALIAS) != "pp_alias") {
+		TEST_ERROR("pp_dirent::operator<<(ostream)");
+	}
 
 	/* test up-casting */
 	try {

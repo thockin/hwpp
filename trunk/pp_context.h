@@ -105,11 +105,6 @@ class pp_context
 	}
 
 	void
-	add_dirent(const pp_context &ctxt)
-	{
-		m_scope->add_dirent(ctxt.m_name, ctxt.m_scope);
-	}
-	void
 	add_dirent(const string &name, const pp_dirent_ptr &dirent)
 	{
 		m_scope->add_dirent(name, dirent);
@@ -127,27 +122,9 @@ class pp_context
 	}
 
 	pp_dirent_const_ptr
-	lookup_dirent(pp_path path) const
+	lookup_dirent(pp_path path, unsigned flags=0) const
 	{
-		return m_scope->lookup_dirent(path);
-	}
-
-	pp_register_const_ptr
-	lookup_register(const pp_path &path) const
-	{
-		return m_scope->lookup_register(path);
-	}
-
-	pp_field_const_ptr
-	lookup_field(const pp_path &path) const
-	{
-		return m_scope->lookup_field(path);
-	}
-
-	pp_scope_const_ptr
-	lookup_scope(const pp_path &path) const
-	{
-		return m_scope->lookup_scope(path);
+		return m_scope->lookup_dirent(path, flags);
 	}
 
 	void

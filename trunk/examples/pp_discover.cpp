@@ -4,6 +4,7 @@
 #include "pp_datatypes.h"
 #include "pp_fields.h"
 #include "pp_array.h"
+#include "pp_alias.h"
 #include "cmdline.h"
 
 using namespace std;
@@ -11,6 +12,7 @@ using namespace std;
 cmdline_bool skip_regs = false;
 cmdline_bool skip_fields = false;
 cmdline_bool skip_scopes = false;
+cmdline_bool skip_aliases = false;
 
 static void
 dump_field(const string &name, const pp_field_const_ptr &field);
@@ -20,6 +22,8 @@ static void
 dump_scope(const string &name, const pp_scope_const_ptr &scope);
 static void
 dump_array(const string &name, const pp_array_const_ptr &array);
+static void
+dump_alias(const string &name, const pp_alias_const_ptr &alias);
 
 static void
 dump_field(const string &name, const pp_field_const_ptr &field)
@@ -61,10 +65,24 @@ dump_array(const string &name, const pp_array_const_ptr &array)
 		} else if (array->array_type() == PP_DIRENT_ARRAY) {
 			dump_array(subname,
 			    pp_array_from_dirent(array->at(i)));
+		} else if (array->array_type() == PP_DIRENT_ALIAS) {
+			dump_alias(subname,
+			    pp_alias_from_dirent(array->at(i)));
 		}
 	}
 }
 
+static void
+dump_alias(const string &name, const pp_alias_const_ptr &alias)
+{
+	if (!skip_aliases) {
+		cout << name << ": ->"
+		     << std::hex
+		     << alias->link_path()
+		     << endl;
+	}
+}
+ 
 static void
 dump_scope(const string &name, const pp_scope_const_ptr &scope)
 {
@@ -90,6 +108,9 @@ dump_scope(const string &name, const pp_scope_const_ptr &scope)
 		} else if (scope->dirent(i)->is_array()) {
 			dump_array(subname,
 			    pp_array_from_dirent(scope->dirent(i)));
+		} else if (scope->dirent(i)->is_alias()) {
+			dump_alias(subname,
+			    pp_alias_from_dirent(scope->dirent(i)));
 		}
 	}
 }
@@ -110,6 +131,11 @@ static struct cmdline_opt pp_opts[] = {
 		"ns", "no-scopes",
 		CMDLINE_OPT_BOOL, &skip_scopes,
 		"", "don't print scopes"
+	},
+	{
+		"na", "no-aliases",
+		CMDLINE_OPT_BOOL, &skip_aliases,
+		"", "don't print aliases"
 	},
 	{
 		"h", "help",

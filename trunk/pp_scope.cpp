@@ -10,6 +10,7 @@
 #include "pp_register.h"
 #include "pp_field.h"
 #include "pp_array.h"
+#include "pp_alias.h"
 #include "language.h"
 
 //
@@ -148,7 +149,7 @@ pp_path
 pp_scope::resolve_path(const pp_path &path) const
 {
 	pp_path ret;
-	if (walk_path(path, NULL, &ret) < 0) {
+	if (walk_path(path, RESOLVE_ALIAS, NULL, &ret) < 0) {
 		return pp_path();
 	}
 	return ret;
@@ -271,10 +272,10 @@ pp_scope::dirent_name(int index) const
 // 	pp_dirent::conversion_error	- path element is not a scope
 //
 pp_dirent_const_ptr
-pp_scope::lookup_dirent(const pp_path &path) const
+pp_scope::lookup_dirent(const pp_path &path, unsigned flags) const
 {
 	pp_dirent_const_ptr de;
-	if (walk_path(path, &de, NULL) < 0) {
+	if (walk_path(path, flags, &de, NULL) < 0) {
 		return pp_dirent_ptr();
 	}
 	return de;
@@ -284,7 +285,7 @@ pp_scope::lookup_dirent(const pp_path &path) const
 // path through a scope, producing a final dirent and a canonicalized
 // path.
 int
-pp_scope::walk_path(const pp_path &path,
+pp_scope::walk_path(const pp_path &path, unsigned flags,
                     pp_dirent_const_ptr *out_de,
                     pp_path *out_path) const
 {
@@ -292,11 +293,11 @@ pp_scope::walk_path(const pp_path &path,
 	const pp_scope *scope = this;
 
 	if (my_path.is_absolute()) {
-		if (out_path) {
-			out_path->set_absolute(true);
-		}
 		while (!scope->is_root()) {
 			scope = scope->parent().get();
+			if (out_path) {
+				out_path->push_back(pp_path::element(".."));
+			}
 		}
 	}
 
@@ -308,11 +309,11 @@ pp_scope::walk_path(const pp_path &path,
 		return 0;
 	}
 
-	return scope->walk_path_internal(my_path, out_de, out_path);
+	return scope->walk_path_internal(my_path, flags, out_de, out_path);
 }
 // NOTE: this takes path as a non-const reference
 int
-pp_scope::walk_path_internal(pp_path &path,
+pp_scope::walk_path_internal(pp_path &path, unsigned flags,
                              pp_dirent_const_ptr *out_de,
                              pp_path *out_path) const
 {
@@ -394,6 +395,15 @@ pp_scope::walk_path_internal(pp_path &path,
 		}
 	}
 
+	// if it is an alias, dereference it
+	if (de->is_alias() && (path.size() > 0 || flags & RESOLVE_ALIAS)) {
+		pp_alias_const_ptr a = pp_alias_from_dirent(de);
+		de = lookup_dirent(a->link_path());
+		if (!de) {
+			return -1;
+		}
+	}
+
 	// did we find the dirent?
 	if (path.size() == 0) {
 		if (out_de) {
@@ -405,7 +415,7 @@ pp_scope::walk_path_internal(pp_path &path,
 	// keep looking
 	if (de->is_scope()) {
 		pp_scope_const_ptr s = pp_scope_from_dirent(de);
-		return s->walk_path_internal(path, out_de, out_path);
+		return s->walk_path_internal(path, flags, out_de, out_path);
 	}
 
 	// error
@@ -420,110 +430,6 @@ bool
 pp_scope::dirent_defined(const pp_path &path) const
 {
 	return lookup_dirent(path) ? true : false; 
-}
-
-//
-// Return a pointer to the specified register.
-//
-// Returns:
-// 	NULL if path not found.
-// Throws:
-// 	pp_path::invalid_error		- invalid path element
-// 	pp_dirent::conversion_error	- path element is not a scope
-//
-pp_register_const_ptr
-pp_scope::lookup_register(const pp_path &path) const
-{
-	pp_dirent_const_ptr de = lookup_dirent(path);
-
-	if (!de) {
-		return pp_register_const_ptr();
-	}
-
-	if (!de->is_register()) {
-		throw pp_dirent::conversion_error("path is not a register: "
-		    + to_string(path));
-	}
-
-	return pp_register_from_dirent(de);
-}
-
-//
-// Return a pointer to the specified field.
-//
-// Returns:
-// 	NULL if path not found.
-// Throws:
-// 	pp_path::invalid_error		- invalid path element
-// 	pp_dirent::conversion_error	- path element is not a scope
-//
-pp_field_const_ptr
-pp_scope::lookup_field(const pp_path &path) const
-{
-	pp_dirent_const_ptr de = lookup_dirent(path);
-
-	if (!de) {
-		return pp_field_const_ptr();
-	}
-
-	if (!de->is_field()) {
-		throw pp_dirent::conversion_error("path is not a field: "
-		    + to_string(path));
-	}
-
-	return pp_field_from_dirent(de);
-}
-
-//
-// Return a pointer to the specified scope.
-//
-// Returns:
-// 	NULL if path not found.
-// Throws:
-// 	pp_path::invalid_error		- invalid path element
-// 	pp_dirent::conversion_error	- path element is not a scope
-//
-pp_scope_const_ptr
-pp_scope::lookup_scope(const pp_path &path) const
-{
-	pp_dirent_const_ptr de = lookup_dirent(path);
-
-	if (!de) {
-		return pp_scope_const_ptr();
-	}
-
-	if (!de->is_scope()) {
-		throw pp_dirent::conversion_error("path is not a scope: "
-		    + to_string(path));
-	}
-
-	return pp_scope_from_dirent(de);
-}
-
-//
-// Return a pointer to the specified array.
-//
-// Returns:
-// 	NULL if path not found.
-// Throws:
-// 	pp_path::invalid_error		- invalid path element
-// 	pp_dirent::conversion_error	- path element is not a scope
-//
-pp_array_const_ptr
-pp_scope::lookup_array(const pp_path &path) const
-{
-	pp_dirent_const_ptr de = lookup_dirent(path);
-
-	if (!de) {
-		return pp_array_const_ptr();
-	}
-
-	if (!de->is_array()) {
-		throw pp_dirent::conversion_error("path is not an array: "
-		    + to_string(path));
-	}
-
-	return pp_array_from_dirent(de);
 }
 
 void
