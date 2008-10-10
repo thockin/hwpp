@@ -41,3 +41,9 @@ clean:
 		$(MAKE) -C $$d $@; \
 	done
 	@$(RM) $(DRIVER_LIB) $(OBJS)
+
+.PHONY: depclean
+depclean:
+	@for d in $(DRIVERS); do \
+		$(MAKE) -C $$d $@; \
+	done
