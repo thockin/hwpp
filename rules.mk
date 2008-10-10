@@ -153,6 +153,9 @@ clean: clean_make_flags
 clean_depends:
 	@$(RM) .depend
 
+.PHONY: depclean
+depclean: clean_depends
+
 .PHONY: distclean
 distclean: clean clean_depends
 
