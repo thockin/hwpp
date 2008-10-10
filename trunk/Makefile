@@ -58,6 +58,13 @@ clean:
 	@$(MAKE) -C devices clean
 	@$(MAKE) -C examples clean
 
+.PHONY: depclean
+depclean:
+	@$(MAKE) -C tests depclean
+	@$(MAKE) -C drivers depclean
+	@$(MAKE) -C devices depclean
+	@$(MAKE) -C examples depclean
+
 .PHONY: distclean
 distclean:
 	@$(RM) $(BUILD_CONFIG)
