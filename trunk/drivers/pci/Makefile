@@ -1,4 +1,4 @@
 DRIVER_NAME = pci
-DRIVERDIR = ../
+DRIVERDIR = ..
 include $(DRIVERDIR)/drivers.mk
 

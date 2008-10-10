@@ -1,4 +1,4 @@
 DRIVER_NAME = mem
-DRIVERDIR = ../
+DRIVERDIR = ..
 include $(DRIVERDIR)/drivers.mk
 

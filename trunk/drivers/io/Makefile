@@ -1,4 +1,4 @@
 DRIVER_NAME = io
-DRIVERDIR = ../
+DRIVERDIR = ..
 include $(DRIVERDIR)/drivers.mk
 

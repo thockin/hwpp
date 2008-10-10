@@ -1,3 +1,3 @@
 DRIVER_NAME = cpuid
-DRIVERDIR = ../
+DRIVERDIR = ..
 include $(DRIVERDIR)/drivers.mk

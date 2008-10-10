@@ -1,4 +1,4 @@
 DRIVER_NAME = msr
-DRIVERDIR = ../
+DRIVERDIR = ..
 include $(DRIVERDIR)/drivers.mk
 
