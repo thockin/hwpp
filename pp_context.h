@@ -92,7 +92,7 @@ class pp_context
 		m_scope->add_datatype(name, datatype);
 	}
 
-	const pp_datatype_const_ptr &
+	pp_datatype_const_ptr
 	resolve_datatype(const string &name) const
 	{
 		return m_scope->resolve_datatype(name);

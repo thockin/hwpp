@@ -71,7 +71,10 @@ TEST(test_datatypes)
 	pp_scope_ptr scope = new_pp_scope();
 
 	// nonexistent datatypes
-	if (scope->resolve_datatype("nonexistent-type") != NULL) {
+	if (scope->datatype("nonexistent_type") != NULL) {
+		TEST_FAIL("pp_scope::datatype()");
+	}
+	if (scope->resolve_datatype("nonexistent_type") != NULL) {
 		TEST_FAIL("pp_scope::resolve_datatype()");
 	}
 
