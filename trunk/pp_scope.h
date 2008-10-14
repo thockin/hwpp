@@ -79,7 +79,7 @@ class pp_scope: public pp_dirent,
 	is_bound() const;
 
 	//
-	// Add a named or unnamed datatype to this scope.
+	// Add a named datatype to this scope.
 	//
 	// Throws:
 	// 	pp_parse_error		- invalid name
@@ -97,9 +97,12 @@ class pp_scope: public pp_dirent,
 	//
 	// Provide access to the datatypes vector.
 	//
-	const pp_datatype_const_ptr &
+	// Returns:
+	// 	 NULL if not found, otherwise the desired pp_datatype.
+	//
+	pp_datatype_const_ptr
 	datatype(int index) const;
-	const pp_datatype_const_ptr &
+	pp_datatype_const_ptr
 	datatype(string index) const;
 
 	//
@@ -111,7 +114,7 @@ class pp_scope: public pp_dirent,
 	//
 	// Look up a datatype by name.
 	//
-	const pp_datatype_const_ptr &
+	pp_datatype_const_ptr
 	resolve_datatype(const string &name) const;
 
 	//
