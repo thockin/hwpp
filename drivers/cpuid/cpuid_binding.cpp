@@ -1,7 +1,10 @@
 #include "pp.h"
+#include "printfxx.h"
 
 #include <stdint.h>
 #include <unistd.h>
+#include <string.h>
+#include <errno.h>
 #include <stdexcept>
 #include <vector>
 #include <algorithm>
@@ -37,16 +40,16 @@ cpuid_io::read(const pp_value &address, const pp_bitwidth width) const
 	cpu_set_t new_set, orig_set;
 
 	if (sched_getaffinity(getpid(), sizeof(orig_set), &orig_set) < 0) {
-		do_io_error("cannot get CPU affinity");
+		do_io_error(sprintfxx("can't get CPU affinity: %s",
+		                    strerror(errno)));
 	}
 
 	// set affinity to desired CPU
 	CPU_ZERO(&new_set);
 	CPU_SET(m_address.cpu, &new_set);
 	if (sched_setaffinity(getpid(), sizeof(new_set), &new_set) < 0) {
-		do_io_error(to_string(
-		    boost::format("cannot set affinity to CPU %d")
-		    %m_address.cpu));
+		do_io_error(sprintfxx("can't set CPU affinity to %d: %s",
+		                      m_address.cpu, strerror(errno)));
 	}
 
 	// call CPUID
@@ -66,7 +69,8 @@ cpuid_io::read(const pp_value &address, const pp_bitwidth width) const
 	
 	// set affinity back to original
 	if (sched_setaffinity(getpid(), sizeof(orig_set), &orig_set) < 0) {
-		do_io_error("cannot reset CPU affinity");
+		do_io_error(sprintfxx("can't reset CPU affinity: %s",
+		                      strerror(errno)));
 	}
 
 	bitbuffer bitbuf(width);
@@ -98,8 +102,7 @@ cpuid_io::check_width(pp_bitwidth width) const
 	    case BITS128:
 		break;
 	    default:
-		do_io_error(to_string(
-		    boost::format("unsupported register width %d") %width));
+		do_io_error(sprintfxx("unsupported register width %d", width));
 	}
 }
 
@@ -108,8 +111,7 @@ cpuid_io::check_bounds(const pp_value &offset, unsigned bytes) const
 {
 	/* CPUID has a 64 bit address space */
 	if (offset < 0 || offset > PP_MASK(64)) {
-		do_io_error(to_string(
-		    boost::format("invalid register: %d bytes @ 0x%x")
-		    %bytes %offset));
+		do_io_error(sprintfxx("invalid register: %d bytes @ 0x%x",
+		                      bytes, offset));
 	}
 }

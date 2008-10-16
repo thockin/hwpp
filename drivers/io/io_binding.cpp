@@ -1,7 +1,10 @@
 #include "pp.h"
+#include "printfxx.h"
 
 #include <stdint.h>
 #include <unistd.h>
+#include <string.h>
+#include <errno.h>
 #include <stdexcept>
 
 #include "io_binding.h"
@@ -40,8 +43,8 @@ io_io::read(const pp_value &address, const pp_bitwidth width) const
 	bitbuffer bb(width);
 	if (m_file->read(bb.get(), bb.size_bytes()) != bb.size_bytes()) {
 		// We already did bounds checking, so this must be bad.
-		do_io_error(to_string(
-		    boost::format("error reading register 0x%x") %address));
+		do_io_error(sprintfxx("error reading register 0x%x: %s",
+		                      address, strerror(errno)));
 	}
 
 	return pp_value(bb);
@@ -64,8 +67,8 @@ io_io::write(const pp_value &address, const pp_bitwidth width,
 	bitbuffer bb = value.get_bitbuffer(width);
 	if (m_file->write(bb.get(), bb.size_bytes()) != bb.size_bytes()) {
 		// We already did bounds checking, so this must be bad.
-		do_io_error(to_string(
-		    boost::format("error writing register 0x%x") %address));
+		do_io_error(sprintfxx("error writing register 0x%x: %s",
+		                      address, strerror(errno)));
 	}
 }
 
@@ -95,9 +98,7 @@ io_io::check_width(pp_bitwidth width) const
 	    case BITS64:
 		break;
 	    default:
-		do_io_error(to_string(
-		    boost::format("unsupported register width %d")
-		    %width));
+		do_io_error(sprintfxx("unsupported register width %d", width));
 	}
 }
 
@@ -105,9 +106,8 @@ void
 io_io::check_bounds(const pp_value &offset, unsigned bytes) const
 {
 	if (offset < 0 || (offset+bytes) > m_address.size) {
-		do_io_error(to_string(
-		    boost::format("invalid register: %d bytes @ 0x%x")
-		    %bytes %offset));
+		do_io_error(sprintfxx("invalid register: %d bytes @ 0x%x",
+		                      bytes, offset));
 	}
 }
 

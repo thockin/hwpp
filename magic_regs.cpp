@@ -1,4 +1,5 @@
 #include "pp.h"
+#include "printfxx.h"
 #include "pp_binding.h"
 #include "pp_registers.h"
 
@@ -37,7 +38,7 @@ class magic_binding: public pp_binding
 	virtual string
 	to_string() const
 	{
-		return ::to_string(boost::format("constant<0x%x>")%m_value);
+		return sprintfxx("constant<0x%x>", m_value);
 	}
 
     private:

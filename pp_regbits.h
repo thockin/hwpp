@@ -3,6 +3,7 @@
 #define PP_PP_REGBITS_H__
 
 #include "pp.h"
+#include "printfxx.h"
 #include "pp_register.h"
 
 /*
@@ -218,15 +219,14 @@ class pp_regbits
 			throw range_error("NULL register");
 		}
 		if (hi_bit < lo_bit) {
-			throw range_error("bad bitrange: ["
-			    + to_string(hi_bit) + ":"
-			    + to_string(lo_bit) + "]");
+			throw range_error(sprintfxx("bad bitrange: [%d:%d]",
+			                            hi_bit, lo_bit));
 		}
 		if (hi_bit >= reg->width()) {
-			throw range_error("bad bitrange: ["
-			    + to_string(hi_bit) + ":"
-			    + to_string(lo_bit) + "]: register is only "
-			    + to_string(reg->width()) + " bits");
+			throw range_error(
+			    sprintfxx("bad bitrange: [%d:%d]: "
+			              "register is only %d bits",
+			              hi_bit, lo_bit, reg->width()));
 		}
 
 		// do this only after sanity checks

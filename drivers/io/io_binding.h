@@ -3,6 +3,7 @@
 #define PP_DRIVERS_IO_IO_BINDING_H__
 
 #include "pp.h"
+#include "printfxx.h"
 #include "pp_binding.h"
 #include "pp_driver.h"
 #include "filesystem.h"
@@ -31,7 +32,7 @@ operator<(const io_address &left, const io_address &right)
 inline std::ostream &
 operator<<(std::ostream& out, const io_address &addr)
 {
-	out << boost::format("io<0x%04x,0x%04x>") %addr.base %addr.size;
+	out << sprintfxx("io<0x%04x,0x%04x>", addr.base, addr.size);
 	return out;
 }
 

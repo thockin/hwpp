@@ -1,7 +1,10 @@
 #include "pp.h"
+#include "printfxx.h"
 
 #include <stdint.h>
 #include <unistd.h>
+#include <string.h>
+#include <errno.h>
 #include <stdexcept>
 
 #include "mem_binding.h"
@@ -102,8 +105,7 @@ fs::file_mapping_ptr
 mem_io::map(const pp_value &offset, size_t length) const
 {
 	if (offset.get_uint()+length > m_address.size) {
-		do_io_error(to_string(
-		    boost::format("can't access register 0x%x") %offset));
+		do_io_error(sprintfxx("can't access register 0x%x", offset));
 	}
 
 	return m_file->mmap(m_address.base+offset.get_uint(), length);
@@ -119,9 +121,7 @@ mem_io::check_width(pp_bitwidth width) const
 	    case BITS64:
 		break;
 	    default:
-		do_io_error(to_string(
-		    boost::format("unsupported register width %d")
-		    %width));
+		do_io_error(sprintfxx("unsupported register width %d", width));
 	}
 }
 
@@ -130,9 +130,8 @@ mem_io::check_bounds(const pp_value &offset, size_t bytes) const
 {
 	/* we support 64 bit memory */
 	if (offset < 0 || (offset+bytes) > PP_MASK(64)) {
-		do_io_error(to_string(
-		    boost::format("invalid register: %d bytes @ 0x%x")
-		    %bytes %offset));
+		do_io_error(sprintfxx("invalid register: %d bytes @ 0x%x",
+		                      bytes, offset));
 	}
 }
 

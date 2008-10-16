@@ -1,6 +1,8 @@
 Testing stuff:
  - link against a good memory debugger
  - test field lookup() methods
+ - make a way to do "test parts" which are like inner functions to share setup
+   code and data between sub-tests.
 
 Device stuff:
  - fix and finish PCI subclass and progintf stuff
@@ -9,7 +11,6 @@ Device stuff:
    	EXPORT("%foo", REG32(0x100))
    or
    	NAME("%foo", REG32(0x100))
- - switch to push/pop context
  - when to use yesno vs enabledisable vs truefalse ?  Be consistent
  - make a decision on "for (int addr = 0x40; i < 0x60; i += 4) {" vs
    unrolling via functions.
@@ -24,7 +25,6 @@ Device stuff:
 Driver stuff:
  - remove the length arg of io/mem bindings? else report PCI BAR sizes
  - add do_error() for non-io-errors
- - strerror() in driver read/write errors
 
 Code stuff:
  - create and use namespace pp::
