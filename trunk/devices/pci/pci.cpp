@@ -1,4 +1,5 @@
 #include "pp.h"
+#include "printfxx.h"
 #include <vector>
 #include "device_init.h"
 #include "fake_language.h"
@@ -156,12 +157,7 @@ pci_discovered(const std::vector<pp_value> &args)
 	pp_value dev = args[2];
 	pp_value func = args[3];
 
-	string name = "pci."
-	    + to_string(seg) + "."
-	    + to_string(bus) + "."
-	    + to_string(dev) + "."
-	    + to_string(func);
-
+	string name = sprintfxx("pci.%d.%d.%d.%d", seg, bus, dev, func);
 	PCI_SCOPE(name, seg, bus, dev, func);
 	CLOSE_SCOPE();
 }

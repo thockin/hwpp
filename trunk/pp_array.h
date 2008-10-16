@@ -3,6 +3,7 @@
 #define PP_PP_ARRAY_H__
 
 #include "pp.h"
+#include "printfxx.h"
 #include <vector>
 #include <stdexcept>
 #include "pp_path.h"
@@ -31,9 +32,9 @@ class pp_array: public pp_dirent
 	append(const pp_dirent_ptr &dirent)
 	{
 		if (dirent->dirent_type() != m_type) {
-			throw pp_dirent::conversion_error("can't append "
-			    + to_string(dirent->dirent_type())
-			    + " to " + to_string(m_type) + "[]");
+			throw pp_dirent::conversion_error(
+			    sprintfxx("can't append %s to %s[]",
+			              dirent->dirent_type(), m_type));
 		}
 		m_vector.push_back(dirent);
 	}

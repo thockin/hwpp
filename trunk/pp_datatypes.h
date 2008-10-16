@@ -3,6 +3,7 @@
 #define PP_PP_DATATYPES_H__
 
 #include "pp.h"
+#include "printfxx.h"
 #include "pp_datatype.h"
 #include "keyed_vector.h"
 #include "language.h"
@@ -61,7 +62,7 @@ class pp_multi_datatype: public pp_datatype
 		}
 
 		// Value out of range; return unknown indicator
-		return to_string(boost::format("<!%d!>") %value);
+		return sprintfxx("<!%d!>", value);
 	}
 
 	/*
@@ -126,9 +127,9 @@ class pp_multi_datatype: public pp_datatype
 		  pp_value min, pp_value max)
 	{
 		if (min > max) {
-			throw pp_datatype::invalid_error("Minimum value " +
-					to_string(min) + " cannot be higher "
-					"than maximum value " + to_string(max));
+			throw pp_datatype::invalid_error(sprintfxx(
+			    "Minimum value %d cannot be higher "
+			    "than maximum value %d", min, max));
 		}
 
 		// If the vector is empty, we can add it right away
@@ -207,7 +208,7 @@ class pp_enum_datatype: public pp_datatype
 		if (m_custom_unknown) {
 			return m_unknown;
 		}
-		return to_string(boost::format("<!%d!>") %value);
+		return sprintfxx("<!%d!>", value);
 	}
 
 	/*
@@ -357,7 +358,7 @@ class pp_bitmask_datatype: public pp_datatype
 				if (!ret.empty()) {
 					ret += " ";
 				}
-				ret += boost::format("<!%d!>") %unknown;
+				ret += sprintfxx("<!%d!>", unknown);
 			}
 			myval >>= 1;
 			unknown++;
@@ -572,7 +573,7 @@ class pp_hex_datatype: public pp_int_datatype
 	evaluate(const pp_value &value) const
 	{
 		string fmt = "0x%0" + to_string(m_width/4) + "x";
-		string ret = to_string(boost::format(fmt) %value);
+		string ret = sprintfxx(fmt, value);
 		if (!m_units.empty()) {
 			ret += " ";
 			ret += m_units;
@@ -694,7 +695,7 @@ class pp_fixed_datatype: public pp_datatype
 		while (decimal > 0 && (decimal % 10) == 0) {
 			decimal /= 10;
 		}
-		string ret = integral.to_string() + "." + decimal.to_string();
+		string ret = sprintfxx("%d.%d", integral, decimal);
 		if (!m_units.empty()) {
 			ret += " ";
 			ret += m_units;

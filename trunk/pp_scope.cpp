@@ -1,5 +1,6 @@
 // Copyright (c) Tim Hockin, 2007
 #include "pp.h"
+#include "printfxx.h"
 #include "pp_scope.h"
 #include <stdexcept>
 #include "pp_path.h"
@@ -425,8 +426,8 @@ pp_scope::walk_path_internal(pp_path &path, unsigned flags,
 	}
 
 	// error
-	throw pp_dirent::conversion_error("path element is not a scope: "
-	    + to_string(path) + " (" + to_string(de->dirent_type()) + ")");
+	throw pp_dirent::conversion_error(sprintfxx(
+	    "path element is not a scope: %s (%s)", path, de->dirent_type()));
 }
 
 //

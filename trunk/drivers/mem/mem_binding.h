@@ -3,6 +3,7 @@
 #define PP_DRIVERS_MEM_MEM_BINDING_H__
 
 #include "pp.h"
+#include "printfxx.h"
 #include "pp_binding.h"
 #include "pp_driver.h"
 #include "filesystem.h"
@@ -31,7 +32,7 @@ operator<(const mem_address &left, const mem_address &right)
 inline std::ostream &
 operator<<(std::ostream& out, const mem_address &addr)
 {
-	out << boost::format("mem<0x%016llx,0x%016llx>") %addr.base %addr.size;
+	out << sprintfxx("mem<0x%016llx,0x%016llx>", addr.base, addr.size);
 	return out;
 }
 

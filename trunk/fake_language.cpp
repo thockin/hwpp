@@ -3,6 +3,7 @@
  */
 
 #include "pp.h"
+#include "printfxx.h"
 #include "fake_language.h"
 #include "language.h"
 #include "runtime.h"
@@ -119,9 +120,8 @@ fkl_read(const parse_location &loc, const pp_path &path)
 			                pp_alias_from_dirent(de)->link_path());
 		}
 		throw pp_dirent::conversion_error(
-		    "path is not a register or field: "
-		    + path.to_string()
-		    + " (" + to_string(de->dirent_type()) + ")");
+		    sprintfxx("path is not a register or field: %s (%s)",
+		              path, de->dirent_type()));
 	} catch (pp_path::invalid_error &e) {
 		throw pp_parse_error(e.what(), loc);
 	}
@@ -149,9 +149,9 @@ fkl_write(const parse_location &loc, const pp_path &path, const pp_value &value)
 			          value);
 		} else {
 			throw pp_dirent::conversion_error(
-			    "path is not a register or field: "
-			    + path.to_string()
-			    + " (" + to_string(de->dirent_type()) + ")");
+			    sprintfxx(
+			        "path is not a register or field: %s (%s)",
+			        path, de->dirent_type()));
 		}
 	} catch (pp_path::invalid_error &e) {
 		throw pp_parse_error(e.what(), loc);
@@ -214,7 +214,7 @@ fkl_open_scope(const parse_location &loc,
 
 		// note: this is not a debug-only test
 		if (fkl_defined(loc, pp_path(elem))) {
-			PP_WARN(to_string(loc) + ": '" + name + "' redefined");
+			PP_WARN(sprintfxx("%s: '%s' redefined", loc, name));
 		}
 
 		// make a new scope and link it into the tree
@@ -298,7 +298,7 @@ fkl_reg(const parse_location &loc,
 
 		// note: this is not a debug-only test
 		if (fkl_defined(loc, pp_path(elem))) {
-			PP_WARN(to_string(loc) + ": '" + name + "' redefined");
+			PP_WARN(sprintfxx("%s: '%s' redefined", loc, name));
 		}
 
 		pp_register_ptr reg_ptr = new_pp_bound_register(
@@ -348,7 +348,7 @@ fkl_reg(const parse_location &loc,
 
 		// note: this is not a debug-only test
 		if (fkl_defined(loc, pp_path(elem))) {
-			PP_WARN(to_string(loc) + ": '" + name + "' redefined");
+			PP_WARN(sprintfxx("%s: '%s' redefined", loc, name));
 		}
 
 		pp_register_ptr reg_ptr = new_pp_proc_register(access, width);
@@ -443,7 +443,7 @@ fkl_field(const parse_location &loc,
 
 		// note: this is not a debug-only test
 		if (fkl_defined(loc, pp_path(elem))) {
-			PP_WARN(to_string(loc) + ": '" + name + "' redefined");
+			PP_WARN(sprintfxx("%s: '%s' redefined", loc, name));
 		}
 
 		// create a field and add it to the current scope
@@ -486,7 +486,7 @@ fkl_field(const parse_location &loc,
 
 		// note: this is not a debug-only test
 		if (fkl_defined(loc, pp_path(elem))) {
-			PP_WARN(to_string(loc) + ": '" + name + "' redefined");
+			PP_WARN(sprintfxx("%s: '%s' redefined", loc, name));
 		}
 
 		// create a field and add it to the current scope
@@ -529,7 +529,7 @@ fkl_field(const parse_location &loc,
 
 		// note: this is not a debug-only test
 		if (fkl_defined(loc, pp_path(elem))) {
-			PP_WARN(to_string(loc) + ": '" + name + "' redefined");
+			PP_WARN(sprintfxx("%s: '%s' redefined", loc, name));
 		}
 
 		// create a field and add it to the current scope
@@ -565,7 +565,7 @@ fkl_alias(const parse_location &loc, const string &name, const string &target)
 
 		// note: this is not a debug-only test
 		if (fkl_defined(loc, pp_path(elem))) {
-			PP_WARN(to_string(loc) + ": '" + name + "' redefined");
+			PP_WARN(sprintfxx("%s: '%s' redefined", loc, name));
 		}
 
 		pp_path path = current_context.resolve_path(target);

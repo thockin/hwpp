@@ -1,7 +1,10 @@
 #include "pp.h"
+#include "printfxx.h"
 
 #include <stdint.h>
 #include <unistd.h>
+#include <string.h>
+#include <errno.h>
 #include <stdexcept>
 #include <vector>
 #include <algorithm>
@@ -53,9 +56,8 @@ pci_io::read(const pp_value &address, const pp_bitwidth width) const
 		// a 256 B PCI config space.  That's still valid, since the
 		// 4 KB space conceptually exists, but is all 0xff.
 		if (!m_file->is_eof()) {
-			do_io_error(to_string(
-			    boost::format("error reading register 0x%x")
-			    %address));
+			do_io_error(sprintfxx("error reading register 0x%x: %s",
+			                      address, strerror(errno)));
 		}
 	}
 
@@ -82,9 +84,8 @@ pci_io::write(const pp_value &address, const pp_bitwidth width,
 		// a 256 B PCI config space.  That's still valid, since the
 		// 4 KB space conceptually exists, but is all 0xff.
 		if (!m_file->is_eof()) {
-			do_io_error(to_string(
-			    boost::format("error writing register 0x%x")
-			    %address));
+			do_io_error(sprintfxx("error writing register 0x%x: %s",
+			                      address, strerror(errno)));
 		}
 	}
 }
@@ -119,10 +120,9 @@ pci_io::open_device(string devdir)
 	string filename;
 
 	/* try to open it through /sys */
-	filename = to_string(
-	    boost::format("%s/%04x:%02x:%02x.%d/config")
-	    %devdir %m_address.segment %m_address.bus
-	    %m_address.device %m_address.function);
+	filename = sprintfxx("%s/%04x:%02x:%02x.%d/config", devdir,
+	                     m_address.segment, m_address.bus,
+	                     m_address.device, m_address.function);
 	try {
 		m_file = fs::file::open(filename, O_RDONLY);
 		return;
@@ -135,10 +135,8 @@ pci_io::open_device(string devdir)
 	}
 
 	/* fall back on /proc */
-	filename = to_string(
-	    boost::format("%s/%02x/%02x.%x")
-	    %devdir %m_address.bus %m_address.device
-	    %m_address.function);
+	filename = sprintfxx("%s/%02x/%02x.%x", devdir, m_address.bus,
+	                     m_address.device, m_address.function);
 	m_file = fs::file::open(filename, O_RDONLY);
 	return;
 }
@@ -153,9 +151,7 @@ pci_io::check_width(pp_bitwidth width) const
 	    case BITS64:
 		break;
 	    default:
-		do_io_error(to_string(
-		    boost::format("unsupported register width %d")
-		    %width));
+		do_io_error(sprintfxx("unsupported register width %d", width));
 	}
 }
 
@@ -164,9 +160,8 @@ pci_io::check_bounds(const pp_value &offset, size_t bytes) const
 {
 	/* we support 4 KB config space */
 	if (offset < 0 || (offset+bytes) > 4096) {
-		do_io_error(to_string(
-		    boost::format("invalid register: %d bytes @ 0x%x")
-		    %bytes %offset));
+		do_io_error(sprintfxx("invalid register: %d bytes @ 0x%x",
+		                      bytes, offset));
 	}
 }
 

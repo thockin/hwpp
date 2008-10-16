@@ -1,4 +1,5 @@
 #include "pp.h"
+#include "printfxx.h"
 #include "drivers.h"
 #include "pp_register.h"
 #include "pp_datatypes.h"
@@ -52,7 +53,7 @@ static void
 dump_array(const string &name, const pp_array_const_ptr &array)
 {
 	for (size_t i = 0; i < array->size(); i++) {
-		string subname = name + "[" + to_string(i) + "]";
+		string subname = sprintfxx("%s[%d]", name, i);
 		if (array->array_type() == PP_DIRENT_FIELD) {
 			dump_field(subname,
 			    pp_field_from_dirent(array->at(i)));
@@ -95,7 +96,7 @@ dump_scope(const string &name, const pp_scope_const_ptr &scope)
 	}
 
 	for (size_t i = 0; i < scope->n_dirents(); i++) {
-		string subname = name + "/" + scope->dirent_name(i);
+		string subname = sprintfxx("%s/%s",name,scope->dirent_name(i));
 		if (scope->dirent(i)->is_field()) {
 			dump_field(subname,
 			    pp_field_from_dirent(scope->dirent(i)));

@@ -1,4 +1,5 @@
 #include "pp.h"
+#include "printfxx.h"
 #include "drivers.h"
 #include "pp_register.h"
 #include "pp_datatypes.h"
@@ -48,7 +49,7 @@ dump_array(const string &name, const pp_array_const_ptr &array,
            const string &indent)
 {
 	for (size_t i = 0; i < array->size(); i++) {
-		string subname = name + "[" + to_string(i) + "]";
+		string subname = sprintfxx("%s[%d]", name, i);
 		if (array->array_type() == PP_DIRENT_FIELD) {
 			const pp_field_const_ptr &field =
 			    pp_field_from_dirent(array->at(i));
