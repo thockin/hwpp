@@ -1,7 +1,7 @@
-TOPDIR ?= ..
+TOPDIR ?= $(shell pwd)/..
 include $(TOPDIR)/pp.mk
 
-DRIVERS = io mem pci msr cpuid
+DRIVERS = io mem pci cpu msr cpuid
 DRIVER_LIB = libdrivers.a
 SRCS = all_drivers.cpp
 OBJS = $(SRCS:.cpp=.o)

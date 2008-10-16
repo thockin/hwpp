@@ -4,6 +4,7 @@ include $(TOPDIR)/pp.mk
 SRCS = global.cpp \
 	pci/pci.cpp \
 	pci/generic_device.cpp \
+	cpu/cpu.cpp \
 	cpuid/cpuid.cpp \
 	cpuid/generic_device.cpp \
 	msr/msr.cpp \

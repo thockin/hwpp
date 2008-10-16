@@ -1,0 +1,19 @@
+cpu_driver_test.o: cpu_driver_test.cpp \
+  /home/thockin/svn/pp-dima/pp+cpu_enumerate/pp.h \
+  /home/thockin/svn/pp-dima/pp+cpu_enumerate/printfxx.h \
+  /home/thockin/svn/pp-dima/pp+cpu_enumerate/bignum.h \
+  /home/thockin/svn/pp-dima/pp+cpu_enumerate/bitbuffer.h \
+  /home/thockin/svn/pp-dima/pp+cpu_enumerate/debug.h ../cpu_driver.h \
+  /home/thockin/svn/pp-dima/pp+cpu_enumerate/pp.h \
+  /home/thockin/svn/pp-dima/pp+cpu_enumerate/pp_driver.h \
+  /home/thockin/svn/pp-dima/pp+cpu_enumerate/pp.h \
+  /home/thockin/svn/pp-dima/pp+cpu_enumerate/pp_binding.h \
+  /home/thockin/svn/pp-dima/pp+cpu_enumerate/pp_scope.h \
+  /home/thockin/svn/pp-dima/pp+cpu_enumerate/pp_path.h \
+  /home/thockin/svn/pp-dima/pp+cpu_enumerate/pp_dirent.h \
+  /home/thockin/svn/pp-dima/pp+cpu_enumerate/keyed_vector.h \
+  /home/thockin/svn/pp-dima/pp+cpu_enumerate/pp_datatype.h \
+  /home/thockin/svn/pp-dima/pp+cpu_enumerate/pp_register.h \
+  /home/thockin/svn/pp-dima/pp+cpu_enumerate/pp_field.h \
+  /home/thockin/svn/pp-dima/pp+cpu_enumerate/pp_array.h ../cpu_address.h \
+  /home/thockin/svn/pp-dima/pp+cpu_enumerate/tests/pp_test.h

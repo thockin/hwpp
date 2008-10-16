@@ -8,10 +8,6 @@
 
 #include "cpuid_binding.h"
 #include "pp_driver.h"
-#include "filesystem.h"
-#include "simple_regex.h"
-
-#define CPU_SYSFS_DIR		"/sys/devices/system/cpu"
 
 /* constructor */
 cpuid_io::cpuid_io(const cpuid_address &address)
@@ -87,42 +83,6 @@ cpuid_io::write(const pp_value &address, const pp_bitwidth width,
 	(void)width;
 	(void)value;
 	// do nothing - CPUID is read-only
-}
-
-void
-cpuid_io::enumerate(std::vector<cpuid_address> *addresses)
-{
-	// This does not currently support non sysfs systems, but it could.
-	fs::directory_ptr dir = fs::directory::open(CPU_SYSFS_DIR);
-
-	fs::direntry_ptr de;
-	while ((de = dir->read())) {
-		// each CPU gets a dir
-		if (!de->is_dir())
-			continue;
-		// each dir is named cpuN
-		if (de->name().substr(0,3) != "cpu")
-			continue;
-
-		// parse the file name
-		regex re("^cpu[0-9]+$");
-		if (!re.matches(de->name())) {
-			continue;
-		}
-
-		std::istringstream iss(de->name());
-		char c;
-		int cpu = (unsigned)-1;
-		// name comes in as "cpuN", but all we care about is N
-		iss >> c >> c >> c >> cpu;
-		// just in case
-		if (cpu < 0) {
-			continue;
-		}
-
-		addresses->push_back(cpuid_address(cpu));
-	}
-	std::sort(addresses->begin(), addresses->end());
 }
 
 void

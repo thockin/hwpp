@@ -5,7 +5,6 @@
 #include "pp.h"
 #include "pp_binding.h"
 #include "pp_driver.h"
-#include "filesystem.h"
 #include <iostream>
 
 /*
@@ -52,9 +51,6 @@ class cpuid_io
 
 	const cpuid_address &
 	address() const;
-
-	static void
-	enumerate(std::vector<cpuid_address> *addresses);
 
     private:
 	cpuid_address m_address;

@@ -3,7 +3,6 @@ include $(TOPDIR)/pp.mk
 
 DRIVER_TARGET = $(DRIVER_NAME)_driver_module.o
 
-SRCS = $(DRIVER_NAME)_driver.cpp $(DRIVER_NAME)_binding.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 

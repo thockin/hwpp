@@ -312,26 +312,3 @@ cpuid_datatypes_init()
 		KV("128B_prefetching", 0xF1));
 
 }
-
-static void
-cpuid_discovered(const std::vector<pp_value> &args)
-{
-	pp_value cpu = args[0];
-
-	//FIXME: include standard MSRs?
-	CPUID_SCOPE("cpuid." + to_string(cpu), cpu);
-	CLOSE_SCOPE();
-}
-
-class cpuid_discovery {
-    public:
-	explicit
-	cpuid_discovery()
-	{
-		// register a catch-all discovery rule
-		std::vector<pp_value> args;
-		pp_register_discovery("cpuid", args, cpuid_discovered);
-	}
-};
-
-static cpuid_discovery the_cpuid_discovery;

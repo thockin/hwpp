@@ -54,7 +54,12 @@ class pp_driver
 	// Throws: pp_driver::args_error
 	//
 	virtual pp_binding_ptr
-	new_binding(const std::vector<pp_value> &args) const = 0;
+	new_binding(const std::vector<pp_value> &args) const
+	{
+		(void)args;
+		throw not_supported_error(this->name() + ": " +
+				"binding not supported for this driver");
+	}
 
 	//
 	// pp_driver::discover()
