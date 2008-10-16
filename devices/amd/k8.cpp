@@ -49,7 +49,7 @@ k8_msr(const pp_value &cpu)
 	FIELD("SetDirtyEnE", "enabledisable_t", BITS("%SYSCFG", 8));
 	FIELD("SetDirtyEnS", "enabledisable_t", BITS("%SYSCFG", 9));
 	FIELD("SetDirtyEnO", "enabledisable_t", BITS("%SYSCFG", 10));
-	if (FIELD_EQ("$core/k8_rev", "rev_e")) {
+	if (FIELD_EQ("$cpu/k8_rev", "rev_e")) {
 		FIELD("ClVicBlkEn", "enabledisable_t", BITS("%SYSCFG", 11));
 	}
 	FIELD("ChxToDirtyDis", "disableenable_t", BITS("%SYSCFG", 16));
@@ -58,7 +58,7 @@ k8_msr(const pp_value &cpu)
 	FIELD("MtrrFixDramModEn", "enabledisable_t", BITS("%SYSCFG", 19));
 	FIELD("MtrrVarDramEn", "enabledisable_t", BITS("%SYSCFG", 20));
 	FIELD("MtrrTom2En", "enabledisable_t", BITS("%SYSCFG", 21));
-	if (FIELD_EQ("$core/k8_rev", "rev_f")) {
+	if (FIELD_EQ("$cpu/k8_rev", "rev_f")) {
 		FIELD("Tom2ForceMemTypeWB", "yesno_t", BITS("%SYSCFG", 22));
 	}
 	CLOSE_SCOPE(); // SYSCFG
@@ -84,10 +84,10 @@ k8_msr(const pp_value &cpu)
 
 	OPEN_SCOPE("NB_CFG");
 	REG64("%NB_CFG", 0xc001001f);
-	if (FIELD_EQ("$core/k8_rev", "rev_e")) {
+	if (FIELD_EQ("$cpu/k8_rev", "rev_e")) {
 		FIELD("EnRefUseFreeBuf", "enabledisable_t",
 				BITS("%NB_CFG", 9));
-	} else if (FIELD_EQ("$core/k8_rev", "rev_f")) {
+	} else if (FIELD_EQ("$cpu/k8_rev", "rev_f")) {
 		FIELD("DisRefUseFreeBuf", "disableenable_t",
 				BITS("%NB_CFG", 9));
 	}
@@ -125,7 +125,7 @@ k8_msr(const pp_value &cpu)
 			BITS("%ThermalControl", 2));
 	FIELD("StcApcTmpLoEn", "enabledisable_t",
 			BITS("%ThermalControl", 3));
-	if (FIELD_EQ("$core/k8_rev", "rev_f")) {
+	if (FIELD_EQ("$cpu/k8_rev", "rev_f")) {
 		FIELD("StcHtcEn", "enabledisable_t",
 				BITS("%ThermalControl", 4));
 	}
@@ -537,9 +537,9 @@ k8_msr(const pp_value &cpu)
 
 	REG64("%FIDVID_CTL", 0xc0010041);
 	FIELD("NewFID", "fid_t", BITS("%FIDVID_CTL", 5, 0));
-	if (FIELD_EQ("$core/k8_rev", "rev_e")) {
+	if (FIELD_EQ("$cpu/k8_rev", "rev_e")) {
 		FIELD("NewVID", "vid_t", BITS("%FIDVID_CTL", 12, 8));
-	} else if (FIELD_EQ("$core/k8_rev", "rev_f")) {
+	} else if (FIELD_EQ("$cpu/k8_rev", "rev_f")) {
 		FIELD("NewVID", "vid_t", BITS("%FIDVID_CTL", 13, 8));
 	}
 	FIELD("InitFidVid", "yesno_t", BITS("%FIDVID_CTL", 16));
@@ -551,13 +551,13 @@ k8_msr(const pp_value &cpu)
 	FIELD("StartFID", "fid_t", BITS("%FIDVID_STATUS", 13, 8));
 	FIELD("MaxFID", "fid_t", BITS("%FIDVID_STATUS", 21, 16));
 	FIELD("FidVidPending", "yesno_t", BITS("%FIDVID_STATUS", 31));
-	if (FIELD_EQ("$core/k8_rev", "rev_e")) {
+	if (FIELD_EQ("$cpu/k8_rev", "rev_e")) {
 		FIELD("MaxRampVID", "vid_t", BITS("%FIDVID_STATUS", 28, 24));
 		FIELD("CurrVID", "vid_t", BITS("%FIDVID_STATUS", 36, 32));
 		FIELD("StartVID", "vid_t", BITS("%FIDVID_STATUS", 44, 40));
 		FIELD("MaxVID", "vid_t", BITS("%FIDVID_STATUS", 52, 48));
 		FIELD("MinVID", "vid_t", BITS("%FIDVID_STATUS", 60, 56));
-	} else if (FIELD_EQ("$core/k8_rev", "rev_f")) {
+	} else if (FIELD_EQ("$cpu/k8_rev", "rev_f")) {
 		FIELD("MaxRampVID", "vid_t", BITS("%FIDVID_STATUS", 29, 24));
 		FIELD("CurrVID", "vid_t", BITS("%FIDVID_STATUS", 37, 32));
 		FIELD("StartVID", "vid_t", BITS("%FIDVID_STATUS", 45, 40));
@@ -636,7 +636,7 @@ k8_msr(const pp_value &cpu)
 		FIELD("IOMsgData", "hex8_t",
 				BITS("%InterruptPendingMessage", 23, 16));
 	}
-	if (FIELD_EQ("$core/k8_rev", "rev_f")) {
+	if (FIELD_EQ("$cpu/k8_rev", "rev_f")) {
 		FIELD("SmiOnCmpHalt", "yesno_t",
 				BITS("%InterruptPendingMessage", 27));
 		FIELD("C1eOnCmpHalt", "yesno_t",
@@ -668,7 +668,7 @@ k8_msr(const pp_value &cpu)
 
 	CLOSE_SCOPE(); // smm
 
-	if (FIELD_EQ("$core/k8_rev", "rev_f")) {
+	if (FIELD_EQ("$cpu/k8_rev", "rev_f")) {
 		OPEN_SCOPE("vm");
 
 		REG64("%VM_CR", 0xc0010114);
@@ -1222,55 +1222,7 @@ k8_msr(const pp_value &cpu)
 
 	CLOSE_SCOPE(); // mc
 
-	OPEN_SCOPE("debug");
-
-	REG64("%DebugCtl", 0x1d9);
-	BOOL("pb_t", "breakpoint_info", "performance_monitor_info");
-
-	FIELD("LastBranchFromIP", "addr64_t", REG64(0x1db));
-	FIELD("LastBranchToIP", "addr64_t", REG64(0x1dc));
-	FIELD("LastExceptionFromIP", "addr64_t", REG64(0x1dd));
-	FIELD("LastExceptionToIP", "addr64_t", REG64(0x1de));
-	FIELD("LBR", "yesno_t", BITS("%DebugCtl", 0));
-	FIELD("BTF", "yesno_t", BITS("%DebugCtl", 1));
-	FIELD("PB0", "pb_t", BITS("%DebugCtl", 2));
-	FIELD("PB1", "pb_t", BITS("%DebugCtl", 3));
-	FIELD("PB2", "pb_t", BITS("%DebugCtl", 4));
-	FIELD("PB3", "pb_t", BITS("%DebugCtl", 5));
-
-	CLOSE_SCOPE(); // debug
-
 	CLOSE_SCOPE(); // msr
-}
-
-static void
-k8_cpu(const pp_value &node, const pp_value &ncores, const pp_value &cpu)
-{
-	OPEN_SCOPE("core[]");
-	BOOKMARK("core");
-
-	k8_cpuid(node * ncores + cpu);
-
-	// add a field for k8 revision to each core
-	ENUM("k8_rev_t",
-		KV("rev_e", 'e'),
-		KV("rev_f", 'f'),
-		KV("unknown", 0));
-	if (FIELD_EQ("cpuid/family", 0xf)) {
-		if (FIELD_GE("cpuid/model", 0x40)) {
-			FIELD("k8_rev", "k8_rev_t", 'f');
-		} else if (FIELD_GE("cpuid/model", 0x20)) {
-			FIELD("k8_rev", "k8_rev_t", 'e');
-		} else {
-			FIELD("k8_rev", "k8_rev_t", pp_value(0));
-		}
-	} else {
-		FIELD("k8_rev", "k8_rev_t", pp_value(0));
-	}
-
-	k8_msr(node * ncores + cpu);
-
-	CLOSE_SCOPE(); // core[]
 }
 
 static void
@@ -3157,46 +3109,34 @@ k8_misc_control(const pp_value &seg, const pp_value &bus,
 }
 
 static void
-k8_discovered(const std::vector<pp_value> &args)
+k8_types()
+{
+	// FIXME: this could benefit from a fixed-point type and a table
+	// FIXME: add a GLOBAL_TYPE("fid_t", HEX(8)); or something
+	HEX("fid_t", 8);
+	HEX("vid_t", 8);
+
+}
+
+static void
+k8_pci(const std::vector<pp_value> &args)
 {
 	pp_value seg = args[0];
 	pp_value bus = args[1];
 	pp_value dev = args[2];
 	pp_value func = args[3];
 
-	pp_value node = dev-24;
-	pp_value ncores;
-
 	OPEN_SCOPE("k8[]");
 	BOOKMARK("k8");
 
-	// some k8-global types
-	// FIXME: this could benefit from a fixed-point type
-	HEX("fid_t", 8);
-	HEX("vid_t", 8);
+	// import k8 types
+	k8_types();
 
-	// Figure out how many cores on on each node, and explore CPUID
-	// for each core.
-	//
-	// FIXME: This is kind of fugly.  It might be better to move CPUID
-	// out of the k8 device itself?  We need to know
-	// family/model/stepping for PCI stuff, though.
-	if (node == 0) {
-		k8_cpu(node, 1, 0);
-		ncores = READ("core[0]/cpuid/logical_proc_count");
-	} else {
-		//FIXME: this assumes all k8s are the same
-		//FIXME: uggh.  Maybe allow ALIAS in the node0 case?
-		ncores = READ("/k8[0]/core[0]/cpuid/logical_proc_count");
-		k8_cpu(node, ncores, 0);
-	}
-
-	for (unsigned i = 1; i < ncores; i++) {
-		k8_cpu(node, ncores, i);
-	}
-
+	//FIXME: this would break if PCI discovery runs before CPU.  This
+	//   is not true today, and once we have a more dynamic tree this
+	//   will not be an issue
 	// for simplicity
-	ALIAS("k8_rev", "core[0]/k8_rev");
+	ALIAS("k8_rev", "/cpu[0]/k8_rev");
 
 	// function 0
 	k8_ht_config(seg, bus, dev, func);
@@ -3213,29 +3153,66 @@ k8_discovered(const std::vector<pp_value> &args)
 	CLOSE_SCOPE(); // k8[]
 }
 
+static void
+k8_cpu(const std::vector<pp_value> &args)
+{
+	pp_value cpu = args[0];
+
+	OPEN_SCOPE("cpu." + to_string(cpu));
+	BOOKMARK("cpu");
+
+	// import k8 types
+	k8_types();
+
+	// define CPUID regs
+	k8_cpuid(cpu);
+
+	// add a field for k8 revision to each core
+	ENUM("k8_rev_t",
+		KV("rev_e", 'e'),
+		KV("rev_f", 'f'),
+		KV("unknown", 0));
+	if (FIELD_EQ("cpuid/family", 0xf)) {
+		if (FIELD_GE("cpuid/model", 0x40)) {
+			FIELD("k8_rev", "k8_rev_t", 'f');
+		} else if (FIELD_GE("cpuid/model", 0x20)) {
+			FIELD("k8_rev", "k8_rev_t", 'e');
+		} else {
+			FIELD("k8_rev", "k8_rev_t", pp_value(0));
+		}
+	} else {
+		FIELD("k8_rev", "k8_rev_t", pp_value(0));
+	}
+
+	// define MSR regs
+	k8_msr(cpu);
+
+	CLOSE_SCOPE(); // cpu
+	ALIAS("cpu[]", "cpu." + to_string(cpu));
+}
+
 class k8_discovery {
     public:
 	explicit
 	k8_discovery()
 	{
 		// register our 'keystone' device
-		pp_register_discovery("pci", ARGS(0x1022, 0x1100),
-				k8_discovered);
+		pp_register_discovery("pci", ARGS(0x1022, 0x1100), k8_pci);
 		// ignore other sub-devices in this same device, we'll
 		// handle them in k8_discovered()
 		pp_register_discovery("pci", ARGS(0x1022, 0x1101));
 		pp_register_discovery("pci", ARGS(0x1022, 0x1102));
 		pp_register_discovery("pci", ARGS(0x1022, 0x1103));
-		pp_register_discovery("cpuid",     // rev E
+		pp_register_discovery("cpu",       // rev E
 				ARGS(pp_value("0x444d416369746e6568747541"),
 				     0x0f, 0x0f,   // family range
 				     0x20, 0x39,   // model range
-				     0x00, 0xFF)); // stepping range
-		pp_register_discovery("cpuid",     // rev F
+				     0x00, 0xFF), k8_cpu); // stepping range
+		pp_register_discovery("cpu",       // rev F
 				ARGS(pp_value("0x444d416369746e6568747541"),
 				     0x0f, 0x0f,   // family range
 				     0x40, 0xFF,   // model range
-				     0x00, 0xFF)); // stepping range
+				     0x00, 0xFF), k8_cpu); // stepping range
 		//FIXME: register other devices this owns
 	}
 };
