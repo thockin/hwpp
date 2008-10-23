@@ -157,7 +157,7 @@ clean_depends:
 depclean: clean_depends
 
 .PHONY: distclean
-distclean: clean clean_depends
+distclean: clean depclean
 
 .PHONY: dep depend
 dep depend:
