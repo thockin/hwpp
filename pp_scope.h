@@ -21,12 +21,13 @@
 class pp_scope;
 typedef boost::shared_ptr<pp_scope> pp_scope_ptr;
 typedef boost::shared_ptr<const pp_scope> pp_scope_const_ptr;
+typedef boost::weak_ptr<const pp_scope> pp_scope_weak_ptr;
 
 class pp_scope: public pp_dirent,
                 public boost::enable_shared_from_this<pp_scope>
 {
     private:
-	pp_scope_const_ptr m_parent;
+	pp_scope_weak_ptr m_parent;
 	pp_binding_const_ptr m_binding;
 	keyed_vector<string, pp_dirent_ptr> m_dirents;
 	keyed_vector<string, pp_datatype_const_ptr> m_datatypes;
