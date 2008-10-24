@@ -123,7 +123,7 @@ LDLIBS   += $(PRJ_STATIC) $(PRJ_LDLIBS) $(PRJ_DYNAMIC) $(PRJ_LDLIBS_DYN)
 .PHONY: all
 all: make_flags
 
-SAVED_MAKE_FLAGS=$(TOPDIR)/.make_flags
+# this metadata needs to live in each dir, not just at the # top level
 .PHONY: make_flags
 make_flags:
 	@\
@@ -137,15 +137,15 @@ make_flags:
 	       "CPPFLAGS='$(CPPFLAGS)'\n" \
 	       "LDFLAGS='$(LDFLAGS)'\n" \
 	       "LDLIBS='$(LDLIBS)'\n"); \
-	OLD=$$(cat $(SAVED_MAKE_FLAGS) 2>/dev/null); \
+	OLD=$$(cat .make_flags 2>/dev/null); \
 	if [ "$$NEW" != "$$OLD" ]; then \
 		$(MAKE) clean; \
-		echo "$$NEW" > $(SAVED_MAKE_FLAGS); \
+		echo "$$NEW" > .make_flags; \
 	fi
 
 .PHONY: clean_make_flags
 clean_make_flags:
-	@$(RM) $(SAVED_MAKE_FLAGS)
+	@$(RM) .make_flags
 
 .PHONY: clean
 clean: clean_make_flags
