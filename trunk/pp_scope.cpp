@@ -25,7 +25,7 @@ pp_scope::parent() const
 	if (is_root()) {
 		return shared_from_this();
 	}
-	return m_parent;
+	return m_parent.lock();
 }
 
 //
@@ -46,7 +46,7 @@ pp_scope::set_parent(const pp_scope_const_ptr &parent)
 bool
 pp_scope::is_root() const
 {
-	return (m_parent == NULL);
+	return (m_parent.lock().get() == NULL);
 }
 
 //
@@ -140,7 +140,7 @@ pp_scope::resolve_datatype(const string &name) const
 		DTRACE(TRACE_TYPES && TRACE_SCOPES,
 			"type \"" + name
 			+ "\" not found, climbing scope");
-		return m_parent->resolve_datatype(name);
+		return parent()->resolve_datatype(name);
 	}
 
 	DTRACE(TRACE_TYPES && TRACE_SCOPES,
