@@ -128,6 +128,8 @@ class cpuid_model_procs: public pp_rwprocs
 static void
 cpuid_generic_device()
 {
+	BOOKMARK("cpuid");
+
 	REG128("%function_0", 0x0);
 	FIELD("largest_std_fn", "hex_t", EAX("%function_0", 31, 0));
 	FIELD("vendor", "cpuid_vendor_t",
@@ -923,6 +925,5 @@ void
 CPUID_SCOPE(const string &name, const pp_value &cpu)
 {
 	OPEN_SCOPE(name, BIND("cpuid", ARGS(cpu)));
-	BOOKMARK("cpuid");
 	cpuid_generic_device();
 }

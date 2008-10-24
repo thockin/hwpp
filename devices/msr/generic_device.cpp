@@ -6,6 +6,8 @@
 static void
 msr_generic_device()
 {
+	BOOKMARK("msr");
+
 	/* timestamp counter */
 	FIELD("TSC", "hex64_t", REG64(0x10));
 
@@ -296,6 +298,5 @@ void
 MSR_SCOPE(const string &name, const pp_value &cpu)
 {
 	OPEN_SCOPE(name, BIND("msr", ARGS(cpu)));
-	BOOKMARK("msr");
 	msr_generic_device();
 }

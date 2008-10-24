@@ -1602,6 +1602,8 @@ create_device()
 static void
 pci_generic_device()
 {
+	BOOKMARK("pci");
+
 	// all PCI devices have a 256 Byte config space
 	for (unsigned i = 0; i < 256; i += 4) {
 		REG32(to_string(boost::format("%%PCI.%03x") %i), i);
@@ -1750,6 +1752,5 @@ PCI_SCOPE(const string &name, const pp_value &seg, const pp_value &bus,
 		const pp_value &dev, const pp_value &func)
 {
 	OPEN_SCOPE(name, BIND("pci", ARGS(seg, bus, dev, func)));
-	BOOKMARK("pci");
 	pci_generic_device();
 }
