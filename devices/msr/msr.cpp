@@ -1,7 +1,6 @@
 #include "pp.h"
 #include "device_init.h"
 #include "fake_language.h"
-#include "pp_datatypes.h"
 
 void
 msr_datatypes_init()

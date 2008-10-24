@@ -2,28 +2,8 @@
 #include "generic_device.h"
 #include "fake_language.h"
 
-// create a new MSR-bound scope with generic fields
-void
-MSR_SCOPE(const string &name, const pp_value &cpu)
-{
-	OPEN_SCOPE(name, BIND("msr", ARGS(cpu)));
-	BOOKMARK("msr");
-	msr_generic_device();
-}
-
-// create a scope and simple fields for an "opaque" MSR
-void
-MSR_REGSCOPE(const string &name, const pp_value &address)
-{
-	string regname = "%" + name;
-	REG64(regname, address);
-	OPEN_SCOPE(name);
-	FIELD("addr", "hex32_t", address);
-	FIELD("data", "hex64_t", BITS(regname));
-}
-
 // populate the current scope with generic MSR device fields
-void
+static void
 msr_generic_device()
 {
 	/* timestamp counter */
@@ -309,4 +289,13 @@ msr_generic_device()
 	FIELD("PA7", "pat_type_t", BITS("%PAT", 58, 56));
 
 	//FIXME: more MCG_CAP, MCG_STAT, MCG_CTL, MC*
+}
+
+// create a new MSR-bound scope with generic fields
+void
+MSR_SCOPE(const string &name, const pp_value &cpu)
+{
+	OPEN_SCOPE(name, BIND("msr", ARGS(cpu)));
+	BOOKMARK("msr");
+	msr_generic_device();
 }
