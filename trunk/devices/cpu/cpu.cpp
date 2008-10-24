@@ -1,8 +1,6 @@
 #include "pp.h"
 #include <vector>
-#include "device_init.h"
 #include "fake_language.h"
-#include "drivers.h"
 #include "../cpuid/generic_device.h"
 #include "../msr/generic_device.h"
 

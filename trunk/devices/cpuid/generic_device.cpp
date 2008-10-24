@@ -72,29 +72,6 @@ EDX(const string &name)
 	return BITS(name, 127, 96);
 }
 
-void
-CPUID_SCOPE(const string &name, const pp_value &cpu)
-{
-	OPEN_SCOPE(name, BIND("cpuid", ARGS(cpu)));
-	BOOKMARK("cpuid");
-	cpuid_generic_device();
-}
-
-// create a scope and simple fields for an "opaque" MSR
-void
-CPUID_REGSCOPE(const string &name, const pp_value &address)
-{
-	string regname = "%" + name;
-	REG64(regname, address);
-	OPEN_SCOPE(name);
-	FIELD("addr", "hex64_t", address);
-	FIELD("eax", "hex32_t", BITS(regname, 31, 0));
-	FIELD("ebx", "hex32_t", BITS(regname, 63, 32));
-	FIELD("ecx", "hex32_t", BITS(regname, 95, 64));
-	FIELD("edx", "hex32_t", BITS(regname, 127, 96));
-	CLOSE_SCOPE();
-}
-
 /* populate the current scope with generic CPUID fields */
 class cpuid_family_procs: public pp_rwprocs
 {
@@ -148,7 +125,7 @@ class cpuid_model_procs: public pp_rwprocs
 		// not supported
 	}
 };
-void
+static void
 cpuid_generic_device()
 {
 	REG128("%function_0", 0x0);
@@ -940,4 +917,12 @@ cpuid_generic_device()
 		FIELD("fp128", "yesno_t", EAX("%function_8000001A", 0));
 		CLOSE_SCOPE(); // perf_opt_identifiers
 	} // CPUID Function 0x8000001A
+}
+
+void
+CPUID_SCOPE(const string &name, const pp_value &cpu)
+{
+	OPEN_SCOPE(name, BIND("cpuid", ARGS(cpu)));
+	BOOKMARK("cpuid");
+	cpuid_generic_device();
 }

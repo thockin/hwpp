@@ -1,11 +1,6 @@
 #include "pp.h"
 #include <vector>
-#include "device_init.h"
 #include "fake_language.h"
-#include "drivers.h"
-#include "pp_scope.h"
-#include "pp_driver.h"
-#include "pp_datatypes.h"
 #include "generic_device.h"
 
 void
@@ -310,5 +305,4 @@ cpuid_datatypes_init()
 		KV("data_tlb_4KB_4MB_pages_4way_assoc_8_entries", 0xC0),
 		KV("64B_prefetching", 0xF0),
 		KV("128B_prefetching", 0xF1));
-
 }

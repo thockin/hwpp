@@ -4,15 +4,6 @@
 
 //FIXME unify cap, sts, en, dis, msk, svr names everywhere.  Look at aer
 
-void
-PCI_SCOPE(const string &name, const pp_value &seg, const pp_value &bus,
-		const pp_value &dev, const pp_value &func)
-{
-	OPEN_SCOPE(name, BIND("pci", ARGS(seg, bus, dev, func)));
-	BOOKMARK("pci");
-	pci_generic_device();
-}
-
 // All standard BARs look like this.
 static void
 BAR(const string &name, const pp_value &address)
@@ -1608,7 +1599,7 @@ create_device()
 }
 
 /* populate the current scope with generic PCI device fields */
-void
+static void
 pci_generic_device()
 {
 	// all PCI devices have a 256 Byte config space
@@ -1752,4 +1743,13 @@ pci_generic_device()
 	} else if (FIELD_EQ("hdrtype", "cardbus_bridge")) {
 		//TODO: need a spec
 	}
+}
+
+void
+PCI_SCOPE(const string &name, const pp_value &seg, const pp_value &bus,
+		const pp_value &dev, const pp_value &func)
+{
+	OPEN_SCOPE(name, BIND("pci", ARGS(seg, bus, dev, func)));
+	BOOKMARK("pci");
+	pci_generic_device();
 }
