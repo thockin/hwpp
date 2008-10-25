@@ -70,7 +70,7 @@ pp_scope::is_bound() const
 }
 
 //
-// Add a named or unnamed datatype to this scope.
+// Add a named datatype to this scope.
 //
 void
 pp_scope::add_datatype(const string &name, const pp_datatype_ptr &datatype)
