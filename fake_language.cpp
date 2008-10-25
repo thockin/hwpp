@@ -218,12 +218,12 @@ fkl_open_scope(const parse_location &loc,
 		}
 
 		// make a new scope and link it into the tree
-		pp_scope_ptr tmp_scope = new_pp_scope(binding);
-		pp_context new_ctxt(elem, tmp_scope);
-		tmp_scope->set_parent(current_context.scope());
+		pp_scope_ptr scope_ptr = new_pp_scope(binding);
+		pp_context new_ctxt(elem, scope_ptr);
+		scope_ptr->set_parent(current_context.scope());
 
 		// add the new scope to the parent
-		current_context.add_dirent(elem, tmp_scope);
+		current_context.add_dirent(elem, scope_ptr);
 
 		// save the current scope, and set the new scope
 		pp_context_push(new_ctxt);
