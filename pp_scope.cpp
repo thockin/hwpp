@@ -436,7 +436,7 @@ pp_scope::walk_path_internal(pp_path &path, unsigned flags,
 bool
 pp_scope::dirent_defined(const pp_path &path) const
 {
-	return lookup_dirent(path) ? true : false; 
+	return lookup_dirent(path) ? true : false;
 }
 
 void
