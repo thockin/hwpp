@@ -183,6 +183,7 @@ TEST(test_dirents)
 
 	// create a scope and add it to the root
 	pp_scope_ptr scope0 = new_pp_scope(new_test_binding());
+	scope0->set_parent(root);
 	root->add_dirent("scope0", scope0);
 	TEST_ASSERT(root->n_dirents() == 1,
 	    "pp_scope::n_dirents()");
@@ -208,6 +209,7 @@ TEST(test_dirents)
 
 	// create a scope and add it to scope0
 	pp_scope_ptr scope1 = new_pp_scope();
+	scope1->set_parent(scope0);
 	scope0->add_dirent("scope1", scope1);
 	TEST_ASSERT(scope0->n_dirents() == 3,
 	    "pp_scope::n_dirents()");

@@ -72,7 +72,7 @@ class pp_proc_register: public pp_register
 {
     private:
 	pp_rwprocs_ptr m_access;
-	pp_context m_context;
+	pp_context_ptr m_context;
 
     public:
 	pp_proc_register(const pp_rwprocs_ptr &access, const pp_bitwidth width)

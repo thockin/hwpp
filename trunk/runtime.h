@@ -12,15 +12,16 @@ extern pp_scope_ptr
 pp_init();
 
 // the global current context
-extern pp_context current_context;
+extern pp_context_ptr
+pp_current_context();
 
 // get a read-only copy of the current context
-extern pp_context
+extern pp_context_ptr
 pp_context_snapshot();
 
 // push a new context onto the stack
 extern void
-pp_context_push(const pp_context &new_ctxt);
+pp_context_push(const pp_context_ptr &new_ctxt);
 
 // restore the previous context
 extern void

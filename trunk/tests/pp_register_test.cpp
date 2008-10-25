@@ -102,6 +102,9 @@ TEST(test_pp_proc_register)
 {
 	pp_rwprocs_ptr procs(new test_procs);
 
+	// without this, there is no "current context"
+	pp_scope_ptr root = pp_init();
+
 	/* set up test registers */
 	pp_proc_register r1(procs, BITS8);
 	pp_proc_register r2(procs, BITS16);
