@@ -17,7 +17,7 @@ class pp_context
 {
     private:
 	pp_path::element m_name;
-	pp_scope_ptr m_scope;
+	boost::weak_ptr<pp_scope> m_scope;
 	bool m_readonly;
 
     public:
@@ -42,22 +42,6 @@ class pp_context
 	}
 
 	/*
-	 * Rename the current context
-	 */
-	void
-	rename(const string &name)
-	{
-		rename(pp_path::element(name));
-	}
-	void
-	rename(const pp_path::element &name)
-	{
-		if (!is_readonly()) {
-			m_name = name;
-		}
-	}
-
-	/*
 	 * getter methods
 	 */
 	string
@@ -65,10 +49,10 @@ class pp_context
 	{
 		return m_name.to_string();
 	}
-	const pp_scope_ptr &
-	scope()
+	pp_scope_ptr
+	scope() const
 	{
-		return m_scope;
+		return m_scope.lock();
 	}
 	bool
 	is_readonly() const
@@ -83,54 +67,54 @@ class pp_context
 	const pp_binding_const_ptr &
 	binding() const
 	{
-		return m_scope->binding();
+		return scope()->binding();
 	}
 
 	void
 	add_datatype(const string &name, const pp_datatype_ptr &datatype)
 	{
-		m_scope->add_datatype(name, datatype);
+		scope()->add_datatype(name, datatype);
 	}
 
 	pp_datatype_const_ptr
 	resolve_datatype(const string &name) const
 	{
-		return m_scope->resolve_datatype(name);
+		return scope()->resolve_datatype(name);
 	}
 
 	pp_path
 	resolve_path(const string &path_str) const
 	{
-		return m_scope->resolve_path(path_str);
+		return scope()->resolve_path(path_str);
 	}
 
 	void
 	add_dirent(const string &name, const pp_dirent_ptr &dirent)
 	{
-		m_scope->add_dirent(name, dirent);
+		scope()->add_dirent(name, dirent);
 	}
 	void
 	add_dirent(const pp_path::element &name, const pp_dirent_ptr &dirent)
 	{
-		m_scope->add_dirent(name, dirent);
+		scope()->add_dirent(name, dirent);
 	}
 
 	bool
 	dirent_defined(const pp_path &path) const
 	{
-		return m_scope->dirent_defined(path);
+		return scope()->dirent_defined(path);
 	}
 
 	pp_dirent_const_ptr
 	lookup_dirent(pp_path path, unsigned flags=0) const
 	{
-		return m_scope->lookup_dirent(path, flags);
+		return scope()->lookup_dirent(path, flags);
 	}
 
 	void
 	add_bookmark(const string &name)
 	{
-		return m_scope->add_bookmark(name);
+		return scope()->add_bookmark(name);
 	}
 };
 
