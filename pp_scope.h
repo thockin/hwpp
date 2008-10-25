@@ -34,10 +34,6 @@ class pp_scope: public pp_dirent,
 	std::map<string, int> m_bookmarks;
 
     public:
-	// This flag indicates that lookup_dirent() should resolve aliases
-	// if the final dirent is an alias.
-	static const unsigned RESOLVE_ALIAS = 0x01;
-
 	explicit pp_scope(const pp_binding_ptr &binding = pp_binding_ptr())
 	    : pp_dirent(PP_DIRENT_SCOPE), m_parent(), m_binding(binding)
 	{
@@ -177,6 +173,10 @@ class pp_scope: public pp_dirent,
 	//
 	const string &
 	dirent_name(int index) const;
+
+	// This flag indicates that lookup_dirent() should resolve aliases
+	// if the final dirent is an alias.
+	static const unsigned RESOLVE_ALIAS = 0x01;
 
 	//
 	// Return a pointer to the specified dirent.
