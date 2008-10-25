@@ -52,9 +52,13 @@ class pp_dirent {
 	explicit pp_dirent(pp_dirent_type type): m_type(type)
 	{
 		DASSERT_MSG(type < PP_DIRENT_MAX, "invalid pp_dirent_type");
+		DTRACE(TRACE_DIRENTS && TRACE_LIFETIMES,
+		       sprintfxx("new dirent @ %p", this));
 	}
 	virtual ~pp_dirent()
 	{
+		DTRACE(TRACE_DIRENTS && TRACE_LIFETIMES,
+		       sprintfxx("del dirent @ %p", this));
 	}
 
 	/*
