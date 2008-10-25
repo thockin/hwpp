@@ -13,6 +13,10 @@
 /*
  * This encapsulates a context of the PP tree.
  */
+class pp_context;
+typedef boost::shared_ptr<pp_context> pp_context_ptr;
+#define new_pp_context(...) pp_context_ptr(new pp_context(__VA_ARGS__))
+
 class pp_context
 {
     private:
@@ -33,12 +37,12 @@ class pp_context
 	/*
 	 * Take a read-only snapshot of the current context
 	 */
-	pp_context
+	pp_context_ptr
 	snapshot() const
 	{
-		pp_context tmp(*this);
-		tmp.m_readonly = true;
-		return tmp;
+		pp_context_ptr new_ctxt = new_pp_context(*this);
+		new_ctxt->m_readonly = true;
+		return new_ctxt;
 	}
 
 	/*

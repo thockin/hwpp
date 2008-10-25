@@ -184,6 +184,9 @@ class test_procs: public pp_rwprocs
 
 TEST(test_proc_field)
 {
+	// without this, there is no "current context"
+	pp_scope_ptr root = pp_init();
+
 	pp_datatype_ptr hex = new_pp_hex_datatype();
 	pp_rwprocs_ptr procs(new test_procs);
 	pp_proc_field f(hex, procs);

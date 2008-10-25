@@ -27,7 +27,7 @@ fkl_get_dirent(const parse_location &loc, const pp_path &path)
 {
 	try {
 		const pp_dirent_const_ptr &de =
-		    current_context.lookup_dirent(path,
+		    pp_current_context()->lookup_dirent(path,
 		        pp_scope::RESOLVE_ALIAS);
 		if (de == NULL) {
 			throw pp_path::not_found_error(path.to_string());
@@ -91,7 +91,7 @@ fkl_defined(const parse_location &loc, const string &path_str)
 {
 	try {
 		pp_path path(path_str);
-		return current_context.dirent_defined(path);
+		return pp_current_context()->dirent_defined(path);
 	} catch (pp_path::invalid_error &e) {
 		throw pp_parse_error(e.what(), loc);
 	}
@@ -100,7 +100,7 @@ static bool
 fkl_defined(const parse_location &loc, const pp_path &path)
 {
 	(void)loc;
-	return current_context.dirent_defined(path);
+	return pp_current_context()->dirent_defined(path);
 }
 
 //
@@ -203,7 +203,7 @@ fkl_open_scope(const parse_location &loc,
 {
 	DTRACE(TRACE_SCOPES, "open scope: " + name);
 
-	DASSERT_MSG(!current_context.is_readonly(),
+	DASSERT_MSG(!pp_current_context()->is_readonly(),
 		"current_context is read-only");
 
 	try {
@@ -219,14 +219,13 @@ fkl_open_scope(const parse_location &loc,
 
 		// make a new scope and link it into the tree
 		pp_scope_ptr scope_ptr = new_pp_scope(binding);
-		pp_context new_ctxt(elem, scope_ptr);
-		scope_ptr->set_parent(current_context.scope());
+		scope_ptr->set_parent(pp_current_context()->scope());
 
 		// add the new scope to the parent
-		current_context.add_dirent(elem, scope_ptr);
+		pp_current_context()->add_dirent(elem, scope_ptr);
 
 		// save the current scope, and set the new scope
-		pp_context_push(new_ctxt);
+		pp_context_push(new_pp_context(elem, scope_ptr));
 	} catch (pp_path::invalid_error &e) {
 		throw pp_parse_error(e.what(), loc);
 	}
@@ -239,7 +238,7 @@ void
 fkl_close_scope(const parse_location &loc)
 {
 	(void)loc;
-	DTRACE(TRACE_SCOPES, "close scope: " + current_context.name());
+	DTRACE(TRACE_SCOPES, "close scope: " + pp_current_context()->name());
 
 	// retore the previous context
 	pp_context_pop();
@@ -254,7 +253,7 @@ fkl_bookmark(const parse_location &loc, const string &name)
 	if (!lang_valid_bookmark_name(name)) {
 		throw pp_parse_error("invalid bookmark name: " + name, loc);
 	}
-	current_context.add_bookmark(name);
+	pp_current_context()->add_bookmark(name);
 }
 
 // Validate a register name.
@@ -276,7 +275,7 @@ fkl_reg(const parse_location &loc,
         const string &name, const pp_value &address, pp_bitwidth width)
 {
 	// check that we have a current binding
-	const pp_binding_const_ptr &cur_binding = current_context.binding();
+	pp_binding_const_ptr cur_binding = pp_current_context()->binding();
 	DASSERT_MSG(cur_binding, "no binding for register " + name);
 	return fkl_reg(loc, name, cur_binding, address, width);
 }
@@ -287,7 +286,7 @@ fkl_reg(const parse_location &loc,
 {
 	DTRACE(TRACE_REGS, "reg: " + name);
 
-	DASSERT_MSG(!current_context.is_readonly(),
+	DASSERT_MSG(!pp_current_context()->is_readonly(),
 		"current_context is read-only");
 
 	try {
@@ -303,7 +302,7 @@ fkl_reg(const parse_location &loc,
 
 		pp_register_ptr reg_ptr = new_pp_bound_register(
 				binding, address, width);
-		current_context.add_dirent(elem, reg_ptr);
+		pp_current_context()->add_dirent(elem, reg_ptr);
 		return reg_ptr;
 	} catch (pp_path::invalid_error &e) {
 		throw pp_parse_error(e.what(), loc);
@@ -314,7 +313,7 @@ fkl_reg(const parse_location &loc,
         const pp_value &address, pp_bitwidth width)
 {
 	// check that we have a current binding
-	const pp_binding_const_ptr &cur_binding = current_context.binding();
+	pp_binding_const_ptr cur_binding = pp_current_context()->binding();
 	DASSERT_MSG(cur_binding, "no binding for register");
 	return fkl_reg(loc, cur_binding, address, width);
 }
@@ -337,7 +336,7 @@ fkl_reg(const parse_location &loc,
 {
 	DTRACE(TRACE_REGS, "reg: " + name);
 
-	DASSERT_MSG(!current_context.is_readonly(),
+	DASSERT_MSG(!pp_current_context()->is_readonly(),
 		"current_context is read-only");
 
 	try {
@@ -352,7 +351,7 @@ fkl_reg(const parse_location &loc,
 		}
 
 		pp_register_ptr reg_ptr = new_pp_proc_register(access, width);
-		current_context.add_dirent(elem, reg_ptr);
+		pp_current_context()->add_dirent(elem, reg_ptr);
 		return reg_ptr;
 	} catch (pp_path::invalid_error &e) {
 		throw pp_parse_error(e.what(), loc);
@@ -430,7 +429,7 @@ fkl_field(const parse_location &loc,
 {
 	DTRACE(TRACE_FIELDS, "direct field: " + name);
 
-	DASSERT_MSG(!current_context.is_readonly(),
+	DASSERT_MSG(!pp_current_context()->is_readonly(),
 		"current_context is read-only");
 
 	DASSERT_MSG(type, "found NULL datatype for field " + name);
@@ -448,7 +447,7 @@ fkl_field(const parse_location &loc,
 
 		// create a field and add it to the current scope
 		pp_direct_field_ptr field_ptr = new_pp_direct_field(type, bits);
-		current_context.add_dirent(elem, field_ptr);
+		pp_current_context()->add_dirent(elem, field_ptr);
 		return field_ptr;
 	} catch (pp_path::invalid_error &e) {
 		throw pp_parse_error(e.what(), loc);
@@ -458,8 +457,8 @@ pp_field_ptr
 fkl_field(const parse_location &loc,
           const string &name, const string &type, const pp_regbits &bits)
 {
-	return fkl_field(loc, name, current_context.resolve_datatype(type),
-	                 bits);
+	return fkl_field(loc, name,
+	                 pp_current_context()->resolve_datatype(type), bits);
 }
 
 
@@ -473,7 +472,7 @@ fkl_field(const parse_location &loc,
 {
 	DTRACE(TRACE_FIELDS, "constant field: " + name);
 
-	DASSERT_MSG(!current_context.is_readonly(),
+	DASSERT_MSG(!pp_current_context()->is_readonly(),
 		"current_context is read-only");
 
 	DASSERT_MSG(type, "found NULL datatype for field " + name);
@@ -492,7 +491,7 @@ fkl_field(const parse_location &loc,
 		// create a field and add it to the current scope
 		pp_constant_field_ptr field_ptr =
 				new_pp_constant_field(type, value);
-		current_context.add_dirent(elem, field_ptr);
+		pp_current_context()->add_dirent(elem, field_ptr);
 		return field_ptr;
 	} catch (pp_path::invalid_error &e) {
 		throw pp_parse_error(e.what(), loc);
@@ -502,8 +501,8 @@ pp_field_ptr
 fkl_field(const parse_location &loc,
           const string &name, const string &type, const pp_value &value)
 {
-	return fkl_field(loc, name, current_context.resolve_datatype(type),
-	                 value);
+	return fkl_field(loc, name,
+	                 pp_current_context()->resolve_datatype(type), value);
 }
 //
 // Define a field as a set of procedures.
@@ -515,7 +514,7 @@ fkl_field(const parse_location &loc,
 {
 	DTRACE(TRACE_FIELDS, "proc field: " + name);
 
-	DASSERT_MSG(!current_context.is_readonly(),
+	DASSERT_MSG(!pp_current_context()->is_readonly(),
 		"current_context is read-only");
 
 	DASSERT_MSG(type, "found NULL datatype for field " + name);
@@ -534,7 +533,7 @@ fkl_field(const parse_location &loc,
 
 		// create a field and add it to the current scope
 		pp_proc_field_ptr field_ptr = new_pp_proc_field(type, access);
-		current_context.add_dirent(elem, field_ptr);
+		pp_current_context()->add_dirent(elem, field_ptr);
 		return field_ptr;
 	} catch (pp_path::invalid_error &e) {
 		throw pp_parse_error(e.what(), loc);
@@ -545,8 +544,8 @@ fkl_field(const parse_location &loc,
           const string &name, const string &type,
           const pp_rwprocs_ptr &access)
 {
-	return fkl_field(loc, name, current_context.resolve_datatype(type),
-	                 access);
+	return fkl_field(loc, name,
+	                 pp_current_context()->resolve_datatype(type), access);
 }
 
 //
@@ -557,7 +556,7 @@ fkl_alias(const parse_location &loc, const string &name, const string &target)
 {
 	DTRACE(TRACE_REGS, "alias: " + name + " -> " + target);
 
-	DASSERT_MSG(!current_context.is_readonly(),
+	DASSERT_MSG(!pp_current_context()->is_readonly(),
 		"current_context is read-only");
 
 	try {
@@ -568,12 +567,12 @@ fkl_alias(const parse_location &loc, const string &name, const string &target)
 			PP_WARN(sprintfxx("%s: '%s' redefined", loc, name));
 		}
 
-		pp_path path = current_context.resolve_path(target);
+		pp_path path = pp_current_context()->resolve_path(target);
 		if (!path.is_initialized()) {
 			throw pp_path::not_found_error(target);
 		}
 		pp_alias_ptr alias_ptr = new_pp_alias(path);
-		current_context.add_dirent(elem, alias_ptr);
+		pp_current_context()->add_dirent(elem, alias_ptr);
 		return alias_ptr;
 	} catch (pp_path::invalid_error &e) {
 		throw pp_parse_error(e.what(), loc);
@@ -597,13 +596,13 @@ fkl_int(const parse_location &loc, const string &name, const string &units)
 {
 	DTRACE(TRACE_TYPES, "int: " + name);
 
-	DASSERT_MSG(!current_context.is_readonly(),
+	DASSERT_MSG(!pp_current_context()->is_readonly(),
 		"current_context is read-only");
 
 	pp_int_datatype_ptr int_ptr = new_pp_int_datatype(units);
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
-		current_context.add_datatype(name, int_ptr);
+		pp_current_context()->add_datatype(name, int_ptr);
 	}
 	return int_ptr;
 }
@@ -617,13 +616,13 @@ fkl_hex(const parse_location &loc,
 {
 	DTRACE(TRACE_TYPES, "hex: " + name);
 
-	DASSERT_MSG(!current_context.is_readonly(),
+	DASSERT_MSG(!pp_current_context()->is_readonly(),
 		"current_context is read-only");
 
 	pp_hex_datatype_ptr hex_ptr = new_pp_hex_datatype(width, units);
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
-		current_context.add_datatype(name, hex_ptr);
+		pp_current_context()->add_datatype(name, hex_ptr);
 	}
 	return hex_ptr;
 }
@@ -637,13 +636,13 @@ fkl_bitmask(const parse_location &loc,
 {
 	DTRACE(TRACE_TYPES, "bitmask: " + name);
 
-	DASSERT_MSG(!current_context.is_readonly(),
+	DASSERT_MSG(!pp_current_context()->is_readonly(),
 		"current_context is read-only");
 
 	pp_bitmask_datatype_ptr bitmask_ptr = new_pp_bitmask_datatype(kvlist);
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
-		current_context.add_datatype(name, bitmask_ptr);
+		pp_current_context()->add_datatype(name, bitmask_ptr);
 	}
 	return bitmask_ptr;
 }
@@ -656,13 +655,13 @@ fkl_string(const parse_location &loc, const string &name)
 {
 	DTRACE(TRACE_TYPES, "string: " + name);
 
-	DASSERT_MSG(!current_context.is_readonly(),
+	DASSERT_MSG(!pp_current_context()->is_readonly(),
 		"current_context is read-only");
 
 	pp_string_datatype_ptr string_ptr = new_pp_string_datatype();
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
-		current_context.add_datatype(name, string_ptr);
+		pp_current_context()->add_datatype(name, string_ptr);
 	}
 	return string_ptr;
 }
@@ -676,13 +675,13 @@ fkl_enum(const parse_location &loc,
 {
 	DTRACE(TRACE_TYPES, "enum: " + name);
 
-	DASSERT_MSG(!current_context.is_readonly(),
+	DASSERT_MSG(!pp_current_context()->is_readonly(),
 		"current_context is read-only");
 
 	pp_enum_datatype_ptr enum_ptr = new_pp_enum_datatype(kvlist);
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
-		current_context.add_datatype(name, enum_ptr);
+		pp_current_context()->add_datatype(name, enum_ptr);
 	}
 	return enum_ptr;
 }
@@ -696,7 +695,7 @@ fkl_multi(const parse_location &loc,
 {
 	DTRACE(TRACE_TYPES, "multi: " + name);
 
-	DASSERT_MSG(!current_context.is_readonly(),
+	DASSERT_MSG(!pp_current_context()->is_readonly(),
 		"current_context is read-only");
 
 	pp_multi_datatype_ptr multi_ptr =
@@ -707,7 +706,7 @@ fkl_multi(const parse_location &loc,
 	}
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
-		current_context.add_datatype(name, multi_ptr);
+		pp_current_context()->add_datatype(name, multi_ptr);
 	}
 	return multi_ptr;
 }
@@ -721,14 +720,14 @@ fkl_bool(const parse_location &loc,
 {
 	DTRACE(TRACE_TYPES, "bool: " + name);
 
-	DASSERT_MSG(!current_context.is_readonly(),
+	DASSERT_MSG(!pp_current_context()->is_readonly(),
 		"current_context is read-only");
 
 	pp_bool_datatype_ptr bool_ptr = new_pp_bool_datatype(
 			true_str, false_str);
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
-		current_context.add_datatype(name, bool_ptr);
+		pp_current_context()->add_datatype(name, bool_ptr);
 	}
 	return bool_ptr;
 }
@@ -742,13 +741,13 @@ fkl_fixed(const parse_location &loc,
 {
 	DTRACE(TRACE_TYPES, "fixed: " + name);
 
-	DASSERT_MSG(!current_context.is_readonly(),
+	DASSERT_MSG(!pp_current_context()->is_readonly(),
 		"current_context is read-only");
 
 	pp_fixed_datatype_ptr fixed_ptr = new_pp_fixed_datatype(nbits, units);
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
-		current_context.add_datatype(name, fixed_ptr);
+		pp_current_context()->add_datatype(name, fixed_ptr);
 	}
 	return fixed_ptr;
 }

@@ -23,10 +23,11 @@ class test_procs: public pp_rwprocs
 	}
 };
 
+static pp_scope_ptr pp_tree_root;
 TEST_SETUP()
 {
-	// basic setup
-	global_datatypes_init();
+	// without this, there is no "current context"
+	pp_tree_root = pp_init();
 }
 
 TEST(test_parse_errors)

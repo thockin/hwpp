@@ -125,7 +125,7 @@ class pp_proc_field: public pp_field
 
     private:
 	pp_rwprocs_ptr m_access;
-	pp_context m_context;
+	pp_context_ptr m_context;
 };
 typedef boost::shared_ptr<pp_proc_field> pp_proc_field_ptr;
 
