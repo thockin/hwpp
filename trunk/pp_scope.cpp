@@ -93,22 +93,24 @@ pp_scope::n_datatypes() const
 pp_datatype_const_ptr
 pp_scope::datatype(int index) const
 {
+	pp_datatype_const_ptr dt;
 	keyed_vector<string, pp_datatype_const_ptr>::const_iterator it;
 	it = m_datatypes.find(index);
-	if (it == m_datatypes.end()) {
-		return pp_datatype_const_ptr();
+	if (it != m_datatypes.end()) {
+		dt = *it;
 	}
-	return *it;
+	return dt;
 }
 pp_datatype_const_ptr
 pp_scope::datatype(string index) const
 {
+	pp_datatype_const_ptr dt;
 	keyed_vector<string, pp_datatype_const_ptr>::const_iterator it;
 	it = m_datatypes.find(index);
-	if (it == m_datatypes.end()) {
-		return pp_datatype_const_ptr();
+	if (it != m_datatypes.end()) {
+		dt = *it;
 	}
-	return *it;
+	return dt;
 }
 
 //
@@ -199,12 +201,6 @@ pp_scope::add_dirent(const pp_path::element &elem,
 		// if not, just add the new dirent
 		m_dirents.insert(elem.name(), new_dirent);
 	}
-
-	// if we're adding a scope, we need to link it into the tree
-	if (new_dirent->is_scope()) {
-		const pp_scope_ptr &scope = pp_scope_from_dirent(new_dirent);
-		scope->set_parent(shared_from_this());
-	}
 }
 
 //
@@ -222,42 +218,46 @@ pp_scope::n_dirents() const
 pp_dirent_ptr
 pp_scope::dirent(int index)
 {
+	pp_dirent_ptr de;
 	keyed_vector<string, pp_dirent_ptr>::iterator it;
 	it = m_dirents.find(index);
-	if (it == m_dirents.end()) {
-		return pp_dirent_ptr();
+	if (it != m_dirents.end()) {
+		de = *it;
 	}
-	return *it;
+	return de;
 }
 pp_dirent_ptr
 pp_scope::dirent(string index)
 {
+	pp_dirent_ptr de;
 	keyed_vector<string, pp_dirent_ptr>::iterator it;
 	it = m_dirents.find(index);
-	if (it == m_dirents.end()) {
-		return pp_dirent_ptr();
+	if (it != m_dirents.end()) {
+		de = *it;
 	}
-	return *it;
+	return de;
 }
 pp_dirent_const_ptr
 pp_scope::dirent(int index) const
 {
+	pp_dirent_const_ptr de;
 	keyed_vector<string, pp_dirent_ptr>::const_iterator it =
 	    m_dirents.find(index);
-	if (it == m_dirents.end()) {
-		return pp_dirent_const_ptr();
+	if (it != m_dirents.end()) {
+		de = *it;
 	}
-	return *it;
+	return de;
 }
 pp_dirent_const_ptr
 pp_scope::dirent(string index) const
 {
+	pp_dirent_const_ptr de;
 	keyed_vector<string, pp_dirent_ptr>::const_iterator it =
 	    m_dirents.find(index);
-	if (it == m_dirents.end()) {
-		return pp_dirent_const_ptr();
+	if (it != m_dirents.end()) {
+		de = *it;
 	}
-	return *it;
+	return de;
 }
 
 //
@@ -283,7 +283,7 @@ pp_scope::lookup_dirent(const pp_path &path, unsigned flags) const
 {
 	pp_dirent_const_ptr de;
 	if (walk_path(path, flags, &de, NULL) < 0) {
-		return pp_dirent_ptr();
+		de = pp_dirent_const_ptr();
 	}
 	return de;
 }
