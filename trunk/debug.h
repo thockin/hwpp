@@ -63,6 +63,10 @@
 	} \
 } while (0)
 
+// trace dirents?
+#ifndef TRACE_DIRENTS
+#  define TRACE_DIRENTS 0
+#endif
 // trace register creation?
 #ifndef TRACE_REGS
 #  define TRACE_REGS 0
@@ -89,6 +93,10 @@
 // trace driver utils?
 #ifndef TRACE_DISCOVERY
 #  define TRACE_DISCOVERY 0
+#endif
+// trace object lifetimes?
+#ifndef TRACE_LIFETIMES
+#  define TRACE_LIFETIMES 0
 #endif
 
 #else // !DEBUG
