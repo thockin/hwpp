@@ -101,7 +101,7 @@ class regex
 	{
 		return m_re_string;
 	}
-	const unsigned
+	unsigned
 	flags() const
 	{
 		return m_flags;

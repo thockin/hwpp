@@ -7,6 +7,7 @@
 #include <boost/format.hpp>
 #include <boost/shared_array.hpp>
 #include <stdint.h>
+#include <string.h>
 
 //
 // This is a simple buffer of a fixed bit width.  It is a suitable place
