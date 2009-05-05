@@ -9,98 +9,100 @@
 
 #define BITS_PER_LONG	(sizeof(long)*CHAR_BIT)
 
+namespace bignum {
+
 //
-// All bignums are signed.  GMP will allow you to create a bignum from
+// All BigInts are signed.  GMP will allow you to create a BigInt from
 // either signed or unsigned raw integers, and it will do "the right
-// thing".  Unsigned raw integers will always create a positive bignum.  It
+// thing".  Unsigned raw integers will always create a positive BigInt.  It
 // is not clear exactly what happens if you read an out-of-bounds positive
-// bignum as a signed value (e.g. ULONG_MAX read back as signed long).  It
-// is also not clear what happens if you read a negative bignum as an
+// BigInt as a signed value (e.g. ULONG_MAX read back as signed long).  It
+// is also not clear what happens if you read a negative BigInt as an
 // unsigned value (e.g. -1 read back as unsigned int).  Just don't do those
 // things, and we'll all be happy.
 //
-class bignum: public mpz_class
+class BigInt: public mpz_class
 {
     public:
 	// ctors are mostly pass-thru to GMP
-	bignum() {}
-	bignum(const bignum &that): mpz_class(that) {}
+	BigInt() {}
+	BigInt(const BigInt &that): mpz_class(that) {}
 	template <class T, class U>
-	bignum(const __gmp_expr<T, U> &expr): mpz_class(expr) {}
-	explicit bignum(const char *str, int base=0): mpz_class(str, base) {}
-	explicit bignum(const std::string &str, int base=0)
+	BigInt(const __gmp_expr<T, U> &expr): mpz_class(expr) {}
+	explicit BigInt(const char *str, int base=0): mpz_class(str, base) {}
+	explicit BigInt(const std::string &str, int base=0)
 	    : mpz_class(str, base) {}
-	bignum(signed char value): mpz_class(value) {}
-	bignum(unsigned char value): mpz_class(value) {}
-	bignum(signed short value): mpz_class(value) {}
-	bignum(unsigned short value): mpz_class(value) {}
-	bignum(signed int value): mpz_class(value) {}
-	bignum(unsigned int value): mpz_class(value) {}
-	bignum(signed long value): mpz_class(value) {}
-	bignum(unsigned long value): mpz_class(value) {}
-	bignum(float value): mpz_class(value) {}
-	bignum(double value): mpz_class(value) {}
+	BigInt(signed char value): mpz_class(value) {}
+	BigInt(unsigned char value): mpz_class(value) {}
+	BigInt(signed short value): mpz_class(value) {}
+	BigInt(unsigned short value): mpz_class(value) {}
+	BigInt(signed int value): mpz_class(value) {}
+	BigInt(unsigned int value): mpz_class(value) {}
+	BigInt(signed long value): mpz_class(value) {}
+	BigInt(unsigned long value): mpz_class(value) {}
+	BigInt(float value): mpz_class(value) {}
+	BigInt(double value): mpz_class(value) {}
 	// GMP only supports up to 'long' args for it's ctors.  We can
 	// support 'long long' at a small cost on 32 bit systems, and for
 	// free on 64 bit systems.
-	bignum(signed long long value)
+	BigInt(signed long long value)
 	{
 		*this = value;
 	}
-	bignum(unsigned long long value)
+	BigInt(unsigned long long value)
 	{
 		*this = value;
 	}
-	bignum(const bitbuffer &bitbuf)
+	BigInt(const bitbuffer  &bitbuf)
 	{
 		*this = bitbuf;
 	}
 
 	// assignment operators are mostly pass-thru to GMP
-	bignum &
-	operator=(const bignum &that)
+	BigInt &
+	operator=(const BigInt &that)
 	{ mpz_class::operator=(that); return *this; }
 	template <class T, class U>
-	bignum &
+	BigInt &
 	operator=(const __gmp_expr<T, U> &that)
 	{ mpz_class::operator=(that); return *this; }
-	bignum &
+	BigInt &
 	operator=(const std::string &that)
 	{ mpz_class::operator=(that); return *this; }
-	bignum &
+	BigInt &
 	operator=(const char *that)
 	{ mpz_class::operator=(that); return *this; }
-	bignum &
+	BigInt &
 	operator=(signed char that)
 	{ mpz_class::operator=(that); return *this; }
-	bignum &
+	BigInt &
 	operator=(unsigned char that)
 	{ mpz_class::operator=(that); return *this; }
-	bignum &
+	BigInt &
 	operator=(signed short that)
 	{ mpz_class::operator=(that); return *this; }
-	bignum &
+	BigInt &
 	operator=(unsigned short that)
 	{ mpz_class::operator=(that); return *this; }
-	bignum &
+	BigInt &
 	operator=(signed int that)
 	{ mpz_class::operator=(that); return *this; }
-	bignum &
+	BigInt &
 	operator=(unsigned int that)
 	{ mpz_class::operator=(that); return *this; }
-	bignum &
+	BigInt &
 	operator=(signed long that)
 	{ mpz_class::operator=(that); return *this; }
-	bignum &
+	BigInt &
 	operator=(unsigned long that)
 	{ mpz_class::operator=(that); return *this; }
-	bignum &
+	BigInt &
 	operator=(float that)
 	{ mpz_class::operator=(that); return *this; }
-	bignum &
+	BigInt &
 	operator=(double that)
 	{ mpz_class::operator=(that); return *this; }
-	bignum &
+	BigInt &
 	operator=(signed long long that)
 	{
 		if ((sizeof(long) == sizeof(long long))
@@ -126,7 +128,7 @@ class bignum: public mpz_class
 
 		return *this;
 	}
-	bignum &
+	BigInt &
 	operator=(unsigned long long that)
 	{
 		if ((sizeof(long) == sizeof(long long))
@@ -145,8 +147,8 @@ class bignum: public mpz_class
 
 		return *this;
 	}
-	bignum &
-	operator=(const bitbuffer &bitbuf)
+	BigInt &
+	operator=(const bitbuffer  &bitbuf)
 	{
 		// mpz_import() seems to not work.
 		*this = 0;
@@ -175,7 +177,7 @@ class bignum: public mpz_class
 		}
 
 		// not so simple
-		bignum myval(*this);
+		BigInt myval(*this);
 		int multiplier = 1;
 		if (myval < 0) {
 			multiplier = -1;
@@ -207,7 +209,7 @@ class bignum: public mpz_class
 		}
 
 		// not so simple
-		bignum myval(*this);
+		BigInt myval(*this);
 		unsigned long rlo = myval.mpz_class::get_ui();
 		myval >>= BITS_PER_LONG;
 		unsigned long long rhi = myval.mpz_class::get_ui();
@@ -217,12 +219,12 @@ class bignum: public mpz_class
 		return result;
 	}
 
-	bitbuffer
+	bitbuffer 
 	get_bitbuffer(std::size_t bits=0) const
 	{
 		// mpz_export() seems to not work.
 		std::size_t bytes = 0;
-		bignum tmp(*this);
+		BigInt tmp(*this);
 		while (tmp != 0) {
 			bytes++;
 			tmp >>= CHAR_BIT;
@@ -230,9 +232,9 @@ class bignum: public mpz_class
 		if (bits) {
 			bytes = (bits + (CHAR_BIT-1)) / CHAR_BIT;
 		}
-		bitbuffer bitbuf(bits ? bits : (bytes * CHAR_BIT));
+		bitbuffer  bitbuf(bits ? bits : (bytes * CHAR_BIT));
 
-		bignum myval(*this);
+		BigInt myval(*this);
 		for (std::size_t i = 0; i < bytes; i++) {
 			bitbuf.byte_at(i) = myval.get_uint() & 0xff;
 			myval >>= CHAR_BIT;
@@ -260,26 +262,26 @@ class bignum: public mpz_class
 		return mpz_popcount(get_mpz_t());
 	}
 	static unsigned long
-	popcount(const bignum &val)
+	popcount(const BigInt &val)
 	{
 		return val.popcount();
 	}
 
-	// Exponentiate this bignum and return the result.
-	bignum
+	// Exponentiate this BigInt and return the result.
+	BigInt
 	pow(unsigned long exponent) const
 	{
-		bignum bn(*this);
+		BigInt bn(*this);
 		mpz_pow_ui(bn.get_mpz_t(), get_mpz_t(), exponent);
 		return bn;
 	}
-	static bignum
-	pow(const bignum &val, unsigned long exponent)
+	static BigInt
+	pow(const BigInt &val, unsigned long exponent)
 	{
 		return val.pow(exponent);
 	}
 
-	// Exponentiate this bignum in place.
+	// Exponentiate this BigInt in place.
 	void
 	raise(unsigned long exponent)
 	{
@@ -320,10 +322,10 @@ class bignum: public mpz_class
 		return to_dec_string();
 	}
 
-    // This strangeness allows bignums to safely be treated as bools.
+    // This strangeness allows BigInt to safely be treated as bools.
     // It's commonly known as the "safe bool idiom".
     private:
-	typedef void (bignum::*bool_type)() const;
+	typedef void (BigInt::*bool_type)() const;
 	void convert_to_bool() const {}
     public:
 	operator bool_type() const
@@ -331,13 +333,13 @@ class bignum: public mpz_class
 		if  (*this == 0) {
 			return NULL;
 		}
-		return &bignum::convert_to_bool;
+		return &BigInt::convert_to_bool;
 	}
 };
 
 //
 // Add some operators that the GMP implementation does not define.
-// Note: These are defined on mpz_class, not on bignum.
+// Note: These are defined on mpz_class, not on BigInt.
 //
 
 inline mpz_class
@@ -370,136 +372,138 @@ operator^=(mpz_class &lhs, const mpz_class &rhs)
 }
 
 //
-// Because bignum supports 'long long' types, but GMP doesn't, we need
+// Because BigInt supports 'long long' types, but GMP doesn't, we need
 // explicit operators for comparisons.
-// Note: These are defined on mpz_class, not on bignum.
+// Note: These are defined on mpz_class, not on BigInt.
 //
 
 // ==
 inline bool
 operator==(const mpz_class &lhs, signed long long rhs)
 {
-	return (lhs == bignum(rhs));
+	return (lhs == BigInt(rhs));
 }
 inline bool
 operator==(const mpz_class &lhs, unsigned long long rhs)
 {
-	return (lhs == bignum(rhs));
+	return (lhs == BigInt(rhs));
 }
 inline bool
 operator==(signed long long lhs, const mpz_class &rhs)
 {
-	return (bignum(lhs) == rhs);
+	return (BigInt(lhs) == rhs);
 }
 inline bool
 operator==(unsigned long long lhs, const mpz_class &rhs)
 {
-	return (bignum(lhs) == rhs);
+	return (BigInt(lhs) == rhs);
 }
 // !=
 inline bool
 operator!=(const mpz_class &lhs, signed long long rhs)
 {
-	return (lhs != bignum(rhs));
+	return (lhs != BigInt(rhs));
 }
 inline bool
 operator!=(const mpz_class &lhs, unsigned long long rhs)
 {
-	return (lhs != bignum(rhs));
+	return (lhs != BigInt(rhs));
 }
 inline bool
 operator!=(signed long long lhs, const mpz_class &rhs)
 {
-	return (bignum(lhs) != rhs);
+	return (BigInt(lhs) != rhs);
 }
 inline bool
 operator!=(unsigned long long lhs, const mpz_class &rhs)
 {
-	return (bignum(lhs) != rhs);
+	return (BigInt(lhs) != rhs);
 }
 // <
 inline bool
 operator<(const mpz_class &lhs, signed long long rhs)
 {
-	return (lhs < bignum(rhs));
+	return (lhs < BigInt(rhs));
 }
 inline bool
 operator<(const mpz_class &lhs, unsigned long long rhs)
 {
-	return (lhs < bignum(rhs));
+	return (lhs < BigInt(rhs));
 }
 inline bool
 operator<(signed long long lhs, const mpz_class &rhs)
 {
-	return (bignum(lhs) < rhs);
+	return (BigInt(lhs) < rhs);
 }
 inline bool
 operator<(unsigned long long lhs, const mpz_class &rhs)
 {
-	return (bignum(lhs) < rhs);
+	return (BigInt(lhs) < rhs);
 }
 // >
 inline bool
 operator>(const mpz_class &lhs, signed long long rhs)
 {
-	return (lhs > bignum(rhs));
+	return (lhs > BigInt(rhs));
 }
 inline bool
 operator>(const mpz_class &lhs, unsigned long long rhs)
 {
-	return (lhs > bignum(rhs));
+	return (lhs > BigInt(rhs));
 }
 inline bool
 operator>(signed long long lhs, const mpz_class &rhs)
 {
-	return (bignum(lhs) > rhs);
+	return (BigInt(lhs) > rhs);
 }
 inline bool
 operator>(unsigned long long lhs, const mpz_class &rhs)
 {
-	return (bignum(lhs) > rhs);
+	return (BigInt(lhs) > rhs);
 }
 // <=
 inline bool
 operator<=(const mpz_class &lhs, signed long long rhs)
 {
-	return (lhs <= bignum(rhs));
+	return (lhs <= BigInt(rhs));
 }
 inline bool
 operator<=(const mpz_class &lhs, unsigned long long rhs)
 {
-	return (lhs <= bignum(rhs));
+	return (lhs <= BigInt(rhs));
 }
 inline bool
 operator<=(signed long long lhs, const mpz_class &rhs)
 {
-	return (bignum(lhs) <= rhs);
+	return (BigInt(lhs) <= rhs);
 }
 inline bool
 operator<=(unsigned long long lhs, const mpz_class &rhs)
 {
-	return (bignum(lhs) <= rhs);
+	return (BigInt(lhs) <= rhs);
 }
 // >=
 inline bool
 operator>=(const mpz_class &lhs, signed long long rhs)
 {
-	return (lhs >= bignum(rhs));
+	return (lhs >= BigInt(rhs));
 }
 inline bool
 operator>=(const mpz_class &lhs, unsigned long long rhs)
 {
-	return (lhs >= bignum(rhs));
+	return (lhs >= BigInt(rhs));
 }
 inline bool
 operator>=(signed long long lhs, const mpz_class &rhs)
 {
-	return (bignum(lhs) >= rhs);
+	return (BigInt(lhs) >= rhs);
 }
 inline bool
 operator>=(unsigned long long lhs, const mpz_class &rhs)
 {
-	return (bignum(lhs) >= rhs);
+	return (BigInt(lhs) >= rhs);
 }
+
+} // namespace bignum
 
 #endif // PP_BIGNUM_H__

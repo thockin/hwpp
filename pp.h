@@ -23,7 +23,7 @@ using boost::const_pointer_cast;
 /*
  * pp_value - a numeric value, such as data from a register.
  */
-typedef bignum pp_value;
+typedef bignum::BigInt pp_value;
 
 /*
  * pp_bitwidth - how wide something is, in bits.
