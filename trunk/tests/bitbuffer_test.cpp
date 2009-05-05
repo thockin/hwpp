@@ -1,4 +1,4 @@
-#include "bitbuffer.h"
+#include "bit_buffer.h"
 #include "pp_test.h"
 
 TEST(test_ctors)

@@ -5,7 +5,7 @@
 #include <gmpxx.h>
 #include <ostream>
 #include <sstream>
-#include "bitbuffer.h"
+#include "bit_buffer.h"
 
 #define BITS_PER_LONG	(sizeof(long)*CHAR_BIT)
 
