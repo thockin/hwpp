@@ -1,80 +1,82 @@
 #include "shared_object.h"
 #include "pp_test.h"
 
+namespace util {
+
 TEST(test_ctors)
 {
 	// test ctors
 	{
-		shared_object so;
+		SharedObject so;
 		TEST_ASSERT(so.handle() == NULL,
-			"shared_object::shared_object()");
+			"SharedObject::SharedObject()");
 		TEST_ASSERT(so.path() == "",
-			"shared_object::shared_object()");
+			"SharedObject::SharedObject()");
 	}
 	{
-		shared_object so("libdl.so");
+		SharedObject so("libdl.so");
 		TEST_ASSERT(so.handle() != NULL,
-			"shared_object::shared_object(libdl.so)");
+			"SharedObject::SharedObject(libdl.so)");
 		TEST_ASSERT(so.path() == "libdl.so",
-			"shared_object::shared_object(libdl.so)");
+			"SharedObject::SharedObject(libdl.so)");
 	}
 	{
-		shared_object so("libdl.so", RTLD_NOW | RTLD_GLOBAL);
+		SharedObject so("libdl.so", RTLD_NOW | RTLD_GLOBAL);
 		TEST_ASSERT(so.handle() != NULL,
-			"shared_object::shared_object(libdl.so)");
+			"SharedObject::SharedObject(libdl.so)");
 		TEST_ASSERT(so.path() == "libdl.so",
-			"shared_object::shared_object(libdl.so)");
+			"SharedObject::SharedObject(libdl.so)");
 	}
 	{
 		try {
-			shared_object so("./nonexistant.so");
-			TEST_FAIL("shared_object::shared_object(string)");
-		} catch (shared_object::load_error &e) {
+			SharedObject so("./nonexistant.so");
+			TEST_FAIL("SharedObject::SharedObject(string)");
+		} catch (SharedObject::load_error &e) {
 		}
 	}
 	{
-		shared_object so("libdl.so");
-		shared_object so2(so);
+		SharedObject so("libdl.so");
+		SharedObject so2(so);
 		TEST_ASSERT(so.handle() != NULL,
-			"shared_object::shared_object(string)");
+			"SharedObject::SharedObject(string)");
 		TEST_ASSERT(so.path() == "libdl.so",
-			"shared_object::shared_object(string)");
+			"SharedObject::SharedObject(string)");
 		TEST_ASSERT(so2.handle() == so.handle(),
-			"shared_object::shared_object(shared_object)");
+			"SharedObject::SharedObject(SharedObject)");
 		TEST_ASSERT(so2.path() == "libdl.so",
-			"shared_object::shared_object(lshared_object)");
+			"SharedObject::SharedObject(lSharedObject)");
 	}
 	{
-		shared_object so("libdl.so");
-		shared_object so2;
+		SharedObject so("libdl.so");
+		SharedObject so2;
 		so2 = so;
 		TEST_ASSERT(so.handle() != NULL,
-			"shared_object::shared_object(string)");
+			"SharedObject::SharedObject(string)");
 		TEST_ASSERT(so.path() == "libdl.so",
-			"shared_object::shared_object(string)");
+			"SharedObject::SharedObject(string)");
 		TEST_ASSERT(so2.handle() == so.handle(),
-			"shared_object::operator=(shared_object)");
+			"SharedObject::operator=(SharedObject)");
 		TEST_ASSERT(so2.path() == "libdl.so",
-			"shared_object::operator=(lshared_object)");
+			"SharedObject::operator=(lSharedObject)");
 	}
 }
 
 TEST(test_open_close)
 {
 	{
-		shared_object so;
+		SharedObject so;
 
 		so.open("libdl.so");
 		TEST_ASSERT(so.handle() != NULL,
-			"shared_object::open()");
+			"SharedObject::open()");
 		TEST_ASSERT(so.path() == "libdl.so",
-			"shared_object::open()");
+			"SharedObject::open()");
 
 		so.close();
 		TEST_ASSERT(so.handle() == NULL,
-			"shared_object::close()");
+			"SharedObject::close()");
 		TEST_ASSERT(so.path() == "libdl.so",
-			"shared_object::close()");
+			"SharedObject::close()");
 	}
 }
 
@@ -82,20 +84,20 @@ TEST(test_lookup_symbol)
 {
 	// test lookup_symbol()
 	{
-		shared_object so("libdl.so");
+		SharedObject so("libdl.so");
 		void *p = so.lookup_symbol("dlopen");
 		TEST_ASSERT(p != NULL,
-			"shared_object::lookup_symbol()");
+			"SharedObject::lookup_symbol()");
 		void *p2 = const_cast<void *>(so.handle());
 		TEST_ASSERT(p == dlsym(p2, "dlopen"),
-			"shared_object::lookup_symbol()");
+			"SharedObject::lookup_symbol()");
 	}
 	{
 		try {
-			shared_object so("libdl.so");
+			SharedObject so("libdl.so");
 			so.lookup_symbol("nonexistant");
-			TEST_FAIL("shared_object::lookup_symbol()");
-		} catch (shared_object::symbol_not_found_error &e) {
+			TEST_FAIL("SharedObject::lookup_symbol()");
+		} catch (SharedObject::symbol_not_found_error &e) {
 		}
 	}
 }
@@ -104,49 +106,51 @@ TEST(test_refcount)
 {
 	// test reference-counting
 	{
-		shared_object so("libdl.so");
-		shared_object so2 = so;
+		SharedObject so("libdl.so");
+		SharedObject so2 = so;
 		void *p;
 
 		TEST_ASSERT(so.handle() != NULL,
-			"shared_object::shared_object()");
+			"SharedObject::SharedObject()");
 		TEST_ASSERT(so2.handle() != NULL,
-			"shared_object::shared_object()");
+			"SharedObject::SharedObject()");
 		p = so.lookup_symbol("dlopen");
 		TEST_ASSERT(p != NULL,
-			"shared_object::lookup_symbol()");
+			"SharedObject::lookup_symbol()");
 		p = so2.lookup_symbol("dlopen");
 		TEST_ASSERT(p != NULL,
-			"shared_object::lookup_symbol()");
+			"SharedObject::lookup_symbol()");
 
 		so.close();
 		TEST_ASSERT(so.handle() == NULL,
-			"shared_object::shared_object()");
+			"SharedObject::SharedObject()");
 		TEST_ASSERT(so2.handle() != NULL,
-			"shared_object::shared_object()");
+			"SharedObject::SharedObject()");
 		try {
 			p = so.lookup_symbol("dlopen");
-			TEST_FAIL("shared_object::lookup_symbol()");
-		} catch (shared_object::invalid_handle_error &e) {
+			TEST_FAIL("SharedObject::lookup_symbol()");
+		} catch (SharedObject::invalid_handle_error &e) {
 		}
 		p = so2.lookup_symbol("dlopen");
 		TEST_ASSERT(p != NULL,
-			"shared_object::lookup_symbol()");
+			"SharedObject::lookup_symbol()");
 
 		so2.close();
 		TEST_ASSERT(so.handle() == NULL,
-			"shared_object::shared_object()");
+			"SharedObject::SharedObject()");
 		TEST_ASSERT(so2.handle() == NULL,
-			"shared_object::shared_object()");
+			"SharedObject::SharedObject()");
 		try {
 			p = so.lookup_symbol("dlopen");
-			TEST_FAIL("shared_object::lookup_symbol()");
-		} catch (shared_object::invalid_handle_error &e) {
+			TEST_FAIL("SharedObject::lookup_symbol()");
+		} catch (SharedObject::invalid_handle_error &e) {
 		}
 		try {
 			p = so2.lookup_symbol("dlopen");
-			TEST_FAIL("shared_object::lookup_symbol()");
-		} catch (shared_object::invalid_handle_error &e) {
+			TEST_FAIL("SharedObject::lookup_symbol()");
+		} catch (SharedObject::invalid_handle_error &e) {
 		}
 	}
 }
+
+} // namespace util

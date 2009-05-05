@@ -7,12 +7,14 @@
 #include <dlfcn.h>
 #include <boost/shared_ptr.hpp>
 
-/*
- * This is a simple wrapper for loading and managing shared object files.
- * It does reference counting (via shared_ptr) on the "handle" and will
- * unload it only when the last reference is released.
- */
-class shared_object
+namespace util {
+
+//
+// This is a simple wrapper for loading and managing shared object files.
+// It does reference counting (via shared_ptr) on the "handle" and will
+// unload it only when the last reference is released.
+//
+class SharedObject
 {
     public:
 	// something went wrong loading the object
@@ -46,17 +48,17 @@ class shared_object
 	std::string m_path;
 
     public:
-	// these are the default flags with which to open a shared_object
+	// these are the default flags with which to open a SharedObject
 	static const unsigned DEFAULT_FLAGS = (RTLD_NOW | RTLD_LOCAL);
 
 	// default ctor - does not open anything
-	shared_object()
+	SharedObject()
 	    : m_handle(), m_path("")
 	{
 	}
 	// ctor - open a shared object file
 	explicit
-	shared_object(const std::string &path, unsigned flags=DEFAULT_FLAGS)
+	SharedObject(const std::string &path, unsigned flags=DEFAULT_FLAGS)
 	    : m_handle(), m_path(path)
 	{
 		open(path, flags);
@@ -129,5 +131,7 @@ class shared_object
 		return boost::shared_ptr<void>(ptr, dlclose);
 	}
 };
+
+} // namespace util
 
 #endif // PP_SHARED_OBJECT_H__
