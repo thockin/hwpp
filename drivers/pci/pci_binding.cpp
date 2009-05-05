@@ -13,6 +13,7 @@
 #include "pci_binding.h"
 #include "pp_driver.h"
 #include "filesystem.h"
+#include "bit_buffer.h"
 
 // helpers, local to this file
 static void
@@ -50,7 +51,7 @@ pci_io::read(const pp_value &address, const pp_bitwidth width) const
 	check_bounds(address, BITS_TO_BYTES(width));
 
 	seek(address);
-	bitbuffer bb(width, 0xff);
+	util::BitBuffer bb(width, 0xff);
 	if (m_file->read(bb.get(), bb.size_bytes()) != bb.size_bytes()) {
 		// We already did bounds checking, but we might hit EOF on
 		// a 256 B PCI config space.  That's still valid, since the
@@ -78,7 +79,7 @@ pci_io::write(const pp_value &address, const pp_bitwidth width,
 	}
 
 	seek(address);
-	bitbuffer bb = value.get_bitbuffer(width);
+	util::BitBuffer bb = value.get_bitbuffer(width);
 	if (m_file->write(bb.get(), bb.size_bytes()) != bb.size_bytes()) {
 		// We already did bounds checking, but we might hit EOF on
 		// a 256 B PCI config space.  That's still valid, since the

@@ -53,7 +53,7 @@ class BigInt: public mpz_class
 	{
 		*this = value;
 	}
-	BigInt(const bitbuffer  &bitbuf)
+	BigInt(const util::BitBuffer &bitbuf)
 	{
 		*this = bitbuf;
 	}
@@ -148,7 +148,7 @@ class BigInt: public mpz_class
 		return *this;
 	}
 	BigInt &
-	operator=(const bitbuffer  &bitbuf)
+	operator=(const util::BitBuffer &bitbuf)
 	{
 		// mpz_import() seems to not work.
 		*this = 0;
@@ -219,7 +219,7 @@ class BigInt: public mpz_class
 		return result;
 	}
 
-	bitbuffer 
+	util::BitBuffer 
 	get_bitbuffer(std::size_t bits=0) const
 	{
 		// mpz_export() seems to not work.
@@ -232,7 +232,7 @@ class BigInt: public mpz_class
 		if (bits) {
 			bytes = (bits + (CHAR_BIT-1)) / CHAR_BIT;
 		}
-		bitbuffer  bitbuf(bits ? bits : (bytes * CHAR_BIT));
+		util::BitBuffer bitbuf(bits ? bits : (bytes * CHAR_BIT));
 
 		BigInt myval(*this);
 		for (std::size_t i = 0; i < bytes; i++) {

@@ -10,6 +10,7 @@
 #include "io_binding.h"
 #include "pp_driver.h"
 #include "filesystem.h"
+#include "bit_buffer.h"
 
 #define IO_DEVICE	"/dev/port"
 
@@ -40,7 +41,7 @@ io_io::read(const pp_value &address, const pp_bitwidth width) const
 	check_bounds(address, BITS_TO_BYTES(width));
 
 	seek(address);
-	bitbuffer bb(width);
+	util::BitBuffer bb(width);
 	if (m_file->read(bb.get(), bb.size_bytes()) != bb.size_bytes()) {
 		// We already did bounds checking, so this must be bad.
 		do_io_error(sprintfxx("error reading register 0x%x: %s",
@@ -64,7 +65,7 @@ io_io::write(const pp_value &address, const pp_bitwidth width,
 	}
 
 	seek(address);
-	bitbuffer bb = value.get_bitbuffer(width);
+	util::BitBuffer bb = value.get_bitbuffer(width);
 	if (m_file->write(bb.get(), bb.size_bytes()) != bb.size_bytes()) {
 		// We already did bounds checking, so this must be bad.
 		do_io_error(sprintfxx("error writing register 0x%x: %s",
