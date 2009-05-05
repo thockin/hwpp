@@ -14,7 +14,7 @@ SRCS = fake_language.cpp \
 OBJS = $(SRCS:.cpp=.o)
 
 
-all: libpp.a
+all: libpp.a examples
 
 # add a driver in the DRIVER_LIB to another archive
 define add_driver
@@ -36,7 +36,7 @@ drivers devices:
 	@$(MAKE) -C $@
 
 .PHONY: examples
-examples: all
+examples: libpp.a
 	@$(MAKE) -C $@
 
 # This target is a hack until we have a real language.  It's written this

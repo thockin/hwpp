@@ -15,16 +15,19 @@ namespace boost {
 namespace lambda {
 
 template<class Taction>
-struct plain_return_type_2<arithmetic_action<Taction>, bignum, bignum> {
-	typedef bignum type;
+struct plain_return_type_2<arithmetic_action<Taction>,
+                           bignum::BigInt, bignum::BigInt> {
+	typedef bignum::BigInt type;
 };
 template<typename Taction, typename Tother>
-struct plain_return_type_2<arithmetic_action<Taction>, bignum, Tother> {
-	typedef bignum type;
+struct plain_return_type_2<arithmetic_action<Taction>,
+                           bignum::BigInt, Tother> {
+	typedef bignum::BigInt type;
 };
 template<typename Taction, typename Tother>
-struct plain_return_type_2<arithmetic_action<Taction>, Tother, bignum> {
-	typedef bignum type;
+struct plain_return_type_2<arithmetic_action<Taction>,
+                           Tother, bignum::BigInt> {
+	typedef bignum::BigInt type;
 };
 
 } // namespace lambda
