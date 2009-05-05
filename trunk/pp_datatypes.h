@@ -7,6 +7,7 @@
 #include "pp_datatype.h"
 #include "keyed_vector.h"
 #include "language.h"
+#include "bit_buffer.h"
 
 /*
  * pp_multi_datatype - datatype for combining multiple subtypes based
@@ -454,7 +455,7 @@ class pp_string_datatype: public pp_datatype
 	virtual string
 	evaluate(const pp_value &value) const
 	{
-		bitbuffer bits = value.get_bitbuffer();
+		util::BitBuffer bits = value.get_bitbuffer();
 		return string((char *)bits.get(), bits.size_bytes());
 	}
 
@@ -472,7 +473,7 @@ class pp_string_datatype: public pp_datatype
 	virtual pp_value
 	lookup(const string &str) const
 	{
-		bitbuffer bits(BYTES_TO_BITS(str.size()),
+		util::BitBuffer bits(BYTES_TO_BITS(str.size()),
 			       (uint8_t *)str.data());
 		return pp_value(bits);
 	}

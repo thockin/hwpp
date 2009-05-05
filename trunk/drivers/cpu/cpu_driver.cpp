@@ -11,6 +11,7 @@
 
 #include "filesystem.h"
 #include "simple_regex.h"
+#include "bit_buffer.h"
 
 #define CPU_SYSFS_DIR	"/sys/devices/system/cpu"
 
@@ -193,7 +194,7 @@ cpu_driver::cpuid(const cpu_address &address, unsigned function)
 		do_io_error(address, "cannot reset CPU affinity");
 	}
 
-	bitbuffer bitbuf(128);
+	util::BitBuffer bitbuf(128);
 	memcpy(bitbuf.get(), regs, 128/CHAR_BIT);
 
 	return pp_value(bitbuf);

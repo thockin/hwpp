@@ -11,6 +11,7 @@
 
 #include "cpuid_binding.h"
 #include "pp_driver.h"
+#include "bit_buffer.h"
 
 /* constructor */
 cpuid_io::cpuid_io(const cpuid_address &address)
@@ -73,7 +74,7 @@ cpuid_io::read(const pp_value &address, const pp_bitwidth width) const
 		                      strerror(errno)));
 	}
 
-	bitbuffer bitbuf(width);
+	util::BitBuffer bitbuf(width);
 	memcpy(bitbuf.get(), regs, width/CHAR_BIT);
 
 	return pp_value(bitbuf);

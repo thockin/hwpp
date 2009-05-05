@@ -1,6 +1,6 @@
 // Copyright (c) Tim Hockin, 2008
-#ifndef PP_BITBUFFER_H__
-#define PP_BITBUFFER_H__
+#ifndef PP_BIT_BUFFER_H__
+#define PP_BIT_BUFFER_H__
 
 #include <ostream>
 #include <sstream>
@@ -8,6 +8,8 @@
 #include <boost/shared_array.hpp>
 #include <stdint.h>
 #include <string.h>
+
+namespace util {
 
 //
 // This is a simple buffer of a fixed bit width.  It is a suitable place
@@ -18,7 +20,7 @@
 // 'uint8_t'.  Bits beyond the specified bit width are initialized to 0,
 // but could be changed by the caller.
 //
-class bitbuffer
+class BitBuffer
 {
     private:
 	typedef boost::shared_array<uint8_t> uint8_array;
@@ -27,11 +29,11 @@ class bitbuffer
 	std::size_t m_bytes;
 
     public:
-	bitbuffer(std::size_t bits = 0, uint8_t pattern = 0)
+	BitBuffer(std::size_t bits = 0, uint8_t pattern = 0)
 	{
 		reset(bits, pattern);
 	}
-	bitbuffer(unsigned long bits, uint8_t *data)
+	BitBuffer(unsigned long bits, uint8_t *data)
 	{
 		reset(bits, data);
 	}
@@ -109,7 +111,7 @@ class bitbuffer
 
 // stream output
 inline std::ostream &
-operator<<(std::ostream& o, const bitbuffer &bitbuf)
+operator<<(std::ostream& o, const BitBuffer &bitbuf)
 {
 	o << "0x";
 	// this is signed on purpose
@@ -134,11 +136,13 @@ operator<<(std::ostream& o, const bitbuffer &bitbuf)
 }
 
 inline std::string
-bitbuffer::to_string() const
+BitBuffer::to_string() const
 {
 	std::ostringstream oss;
 	oss << *this;
 	return oss.str();
 }
 
-#endif // PP_BITBUFFER_H__
+} // namespace util
+
+#endif // PP_BIT_BUFFER_H__
