@@ -97,16 +97,16 @@ msr_io::open_device(string devdir, int major, int minor)
 	/* try to open it through /dev */
 	filename = sprintfxx("%s/%d/msr", devdir, m_address.cpu);
 	try {
-		m_file = fs::file::open(filename, O_RDONLY);
+		m_file = filesystem::File::open(filename, O_RDONLY);
 		return;
 	} catch (syserr::not_found &e) {
 		/* do nothing yet */
 	}
 
 	/* fall back on a self-made device node */
-	filename = fs::file::tempname();
-	fs::device::mkdev(filename, 0600, S_IFCHR, major, minor);
-	m_file = fs::device::open(filename, O_RDONLY);
+	filename = filesystem::File::tempname();
+	filesystem::Device::mkdev(filename, 0600, S_IFCHR, major, minor);
+	m_file = filesystem::Device::open(filename, O_RDONLY);
 	return;
 }
 

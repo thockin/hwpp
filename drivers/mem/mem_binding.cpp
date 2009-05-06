@@ -97,11 +97,11 @@ mem_io::open_device(string device)
 	if (device == "")
 		device = MEM_DEVICE;
 
-	m_file = fs::file::open(device, O_RDONLY | O_SYNC);
+	m_file = filesystem::File::open(device, O_RDONLY | O_SYNC);
 	return;
 }
 
-fs::file_mapping_ptr
+filesystem::FileMappingPtr
 mem_io::map(const pp_value &offset, size_t length) const
 {
 	if (offset.get_uint()+length > m_address.size) {
@@ -139,7 +139,7 @@ template<typename Tdata>
 pp_value
 mem_io::do_read(const pp_value &offset) const
 {
-	fs::file_mapping_ptr mapping = map(offset, sizeof(Tdata));
+	filesystem::FileMappingPtr mapping = map(offset, sizeof(Tdata));
 	Tdata *ptr = (Tdata *)mapping->address();
 	Tdata data = *ptr;
 	return pp_value(data);
@@ -154,7 +154,7 @@ mem_io::do_write(const pp_value &offset, const pp_value &value) const
 		m_file->reopen(O_RDWR | O_SYNC);
 	}
 
-	fs::file_mapping_ptr mapping = map(offset, sizeof(Tdata));
+	filesystem::FileMappingPtr mapping = map(offset, sizeof(Tdata));
 	Tdata *ptr = (Tdata *)mapping->address();
 	Tdata data = value.get_uint();
 	*ptr = data;

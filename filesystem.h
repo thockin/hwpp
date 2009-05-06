@@ -26,51 +26,51 @@
 #include "pp.h"
 #include "syserror.h"
 
-namespace fs {
+namespace filesystem {
 
 using std::size_t;
 using ::off_t;
 
 // a file
-class file;
-typedef boost::shared_ptr<file> file_ptr;
-typedef boost::shared_ptr<const file> const_file_ptr;
-typedef boost::weak_ptr<file> weak_file_ptr;
+class File;
+typedef boost::shared_ptr<File> FilePtr;
+typedef boost::shared_ptr<const File> ConstFilePtr;
+typedef boost::weak_ptr<File> WeakFilePtr;
 
 // a memory-mapped area of a file
-class file_mapping;
-typedef boost::shared_ptr<file_mapping> file_mapping_ptr;
+class FileMapping;
+typedef boost::shared_ptr<FileMapping> FileMappingPtr;
 
 // a directory
-class directory;
-typedef boost::shared_ptr<directory> directory_ptr;
+class Directory;
+typedef boost::shared_ptr<Directory> DirectoryPtr;
 
 // a directory entry
-class direntry;
-typedef boost::shared_ptr<direntry> direntry_ptr;
+class Direntry;
+typedef boost::shared_ptr<Direntry> DirentryPtr;
 
 
 //
-// file_mapping
+// FileMapping
 //
 // This class tracks an individual mmap() of a file.  When this class is
 // destructed, the mapping is munmap()ed.
 //
 // Users can not create instances of this class.  To create a mapping call
-// fs::file::mmap(), which returns a smart pointer to one of these.
+// filesystem::File::mmap(), which returns a smart pointer to one of these.
 //
-class file_mapping
+class FileMapping
 {
-	friend class file;
+	friend class File;
 
     private:
 	// constructors - private to prevent abuse, defined later
-	file_mapping(const const_file_ptr &file, off_t offset, size_t length,
+	FileMapping(const ConstFilePtr &file, off_t offset, size_t length,
 			int prot = PROT_READ, int flags = MAP_SHARED);
 
     public:
 	// destructor
-	~file_mapping()
+	~FileMapping()
 	{
 		unmap();
 	}
@@ -87,7 +87,7 @@ class file_mapping
 		int r = munmap(m_real_address, m_real_length);
 		if (r < 0) {
 			syserr::throw_errno_error(errno,
-			    "fs::file_mapping::unmap()");
+			    "filesystem::FileMapping::unmap()");
 		}
 		m_address = m_real_address = NULL;
 		m_length = m_real_length = 0;
@@ -130,7 +130,7 @@ class file_mapping
 	}
 
     private:
-	const_file_ptr m_file;
+	ConstFilePtr m_file;
 	// these are the file offset and map length that were requested
 	off_t m_offset;
 	size_t m_length;
@@ -151,21 +151,21 @@ class file_mapping
 // destructed, the file descriptor is close()d.
 //
 // Users can not create instances of this class.  To open a file call
-// fs::file::open(), which returns a smart pointer to one of these.
+// filesystem::File::open(), which returns a smart pointer to one of these.
 //
-class file
+class File
 {
     private:
 	// constructors - private to prevent abuse
-	file(): m_path(""), m_flags(-1), m_fd(-1)
+	File(): m_path(""), m_flags(-1), m_fd(-1)
 	{
 	}
-	file(const file &that)
+	File(const File &that)
 	    : m_path(that.m_path), m_flags(that.m_flags), m_fd(that.m_fd)
 	{
 	}
-	file &
-	operator=(const file &that)
+	File &
+	operator=(const File &that)
 	{
 		m_path = that.m_path;
 		m_flags = that.m_flags;
@@ -175,17 +175,17 @@ class file
 
     public:
 	// destructor
-	~file()
+	~File()
 	{
 		if (m_fd >= 0) {
 			close();
 		}
 	}
 
-	static file_ptr
+	static FilePtr
 	open(const std::string &path, int flags)
 	{
-		file_ptr f(new file());
+		FilePtr f(new File());
 
 		f->m_this_ptr = f;
 		f->m_path = path;
@@ -193,16 +193,16 @@ class file
 		f->m_fd = ::open(path.c_str(), flags);
 		if (f->m_fd < 0) {
 			syserr::throw_errno_error(errno,
-			    "fs::file::open(" + path + ")");
+			    "filesystem::File::open(" + path + ")");
 		}
 
 		return f;
 	}
 
-	static file_ptr
+	static FilePtr
 	fdopen(int fd, const std::string &path = "", int flags = -1)
 	{
-		file_ptr f(new file());
+		FilePtr f(new File());
 
 		f->m_this_ptr = f;
 		f->m_path = path;
@@ -212,7 +212,7 @@ class file
 		return f;
 	}
 
-	static file_ptr
+	static FilePtr
 	tempfile(std::string path_template = "")
 	{
 		if (path_template == "") {
@@ -228,7 +228,7 @@ class file
 		r = ::mkstemp(buf);
 		if (r < 0) {
 			syserr::throw_errno_error(errno,
-			    "fs::file::tempfile(" + path_template + ")");
+			    "filesystem::File::tempfile("+path_template+")");
 		}
 
 		return fdopen(r, buf, O_RDWR);
@@ -238,7 +238,8 @@ class file
 	static std::string
 	tempname(std::string path_template = "")
 	{
-		fs::file_ptr f = fs::file::tempfile(path_template);
+		filesystem::FilePtr f
+		    = filesystem::File::tempfile(path_template);
 		std::string filename = f->path();
 		f->close();
 		unlink(filename);
@@ -253,7 +254,7 @@ class file
 		new_fd = ::open(m_path.c_str(), new_flags);
 		if (new_fd < 0) {
 			syserr::throw_errno_error(errno,
-			    "fs::file::open(" + m_path + ")");
+			    "filesystem::File::open(" + m_path + ")");
 		}
 
 		int tmp = m_fd;
@@ -261,7 +262,7 @@ class file
 		m_fd = new_fd;
 		if (::close(tmp) < 0) {
 			syserr::throw_errno_error(errno,
-			    "fs::file::close(" + m_path + ")");
+			    "filesystem::File::close(" + m_path + ")");
 		}
 	}
 
@@ -274,7 +275,7 @@ class file
 		//
 		if (::close(m_fd) < 0) {
 			syserr::throw_errno_error(errno,
-			    "fs::file::close(" + m_path + ")");
+			    "filesystem::File::close(" + m_path + ")");
 		}
 		m_fd = -1;
 	}
@@ -287,7 +288,7 @@ class file
 		r = ::unlink(path.c_str());
 		if (r < 0) {
 			syserr::throw_errno_error(errno,
-			    "fs::file::unlink(" + path + ")");
+			    "filesystem::File::unlink(" + path + ")");
 		}
 	}
 
@@ -305,7 +306,7 @@ class file
 		r = ::read(m_fd, buf, size);
 		if (r < 0) {
 			syserr::throw_errno_error(errno,
-			    "fs::file::read(" + m_path + ")");
+			    "filesystem::File::read(" + m_path + ")");
 		}
 
 		return r;
@@ -340,13 +341,13 @@ class file
 		r = ::write(m_fd, buf, size);
 		if (r < 0) {
 			syserr::throw_errno_error(errno,
-			    "fs::file::write(" + m_path + ")");
+			    "filesystem::File::write(" + m_path + ")");
 		}
 
 		return r;
 	}
 
-	file_mapping_ptr
+	FileMappingPtr
 	mmap(off_t offset, size_t length, int prot = -1,
 			int flags = MAP_SHARED) const
 	{
@@ -360,8 +361,8 @@ class file
 			}
 		}
 
-		return file_mapping_ptr(new file_mapping(
-				const_file_ptr(m_this_ptr),
+		return FileMappingPtr(new FileMapping(
+				ConstFilePtr(m_this_ptr),
 				offset, length, prot, flags));
 	}
 
@@ -373,7 +374,7 @@ class file
 		r = ::lseek(m_fd, offset, whence);
 		if (r == (off_t)-1) {
 			syserr::throw_errno_error(errno,
-			    "fs::file::seek(" + m_path + ")");
+			    "filesystem::File::seek(" + m_path + ")");
 		}
 
 		// convert off_t (signed) to size_t (unsigned)
@@ -389,7 +390,7 @@ class file
 		r = ::stat(path.c_str(), &st);
 		if (r < 0) {
 			syserr::throw_errno_error(errno,
-			    "fs::file::size(" + path + ")");
+			    "filesystem::File::size(" + path + ")");
 		}
 
 		// convert off_t (signed) to size_t (unsigned)
@@ -405,7 +406,7 @@ class file
 		r = ::fstat(m_fd, &st);
 		if (r < 0) {
 			syserr::throw_errno_error(errno,
-			    "fs::file::size(" + m_path + ")");
+			    "filesystem::File::size(" + m_path + ")");
 		}
 
 		// convert off_t (signed) to size_t (unsigned)
@@ -455,7 +456,7 @@ class file
 	}
 
     private:
-	weak_file_ptr m_this_ptr;
+	WeakFilePtr m_this_ptr;
 	std::string m_path;
 	int m_flags;
 	int m_fd;
@@ -481,7 +482,7 @@ class file
 };
 
 inline
-file_mapping::file_mapping(const const_file_ptr &file,
+FileMapping::FileMapping(const ConstFilePtr &file,
     off_t offset, size_t length, int prot, int flags)
     : m_file(file),
       m_offset(offset), m_length(length), m_address(NULL),
@@ -503,21 +504,21 @@ file_mapping::file_mapping(const const_file_ptr &file,
 			flags, m_file->fd(), m_real_offset);
 	if (!m_real_address || m_real_address == MAP_FAILED) {
 		syserr::throw_errno_error(errno,
-		    "fs::file_mapping::file_mapping()");
+		    "filesystem::FileMapping::FileMapping()");
 	}
 
 	m_address = m_real_address + ptr_off;
 }
 
 //
-// device
+// Device
 //
 // This class represents a single device node.
 //
 // Users can not create instances of this class.  To open a device call
-// fs::device::open(), which returns a smart pointer to one of these.
+// filesystem::Device::open(), which returns a smart pointer to one of these.
 //
-class device: public file
+class Device: public File
 {
     public:
 	static void
@@ -530,32 +531,33 @@ class device: public file
 				::makedev(major, minor));
 		if (r < 0) {
 			syserr::throw_errno_error(errno,
-			    "fs::device::mkdev(" + path + ")");
+			    "filesystem::Device::mkdev(" + path + ")");
 		}
 	}
 };
 
 //
-// direntry
+// Direntry
 //
 // This class represents a single directory entry.
 //
 // Users can not create instances of this class.  To access a direntry, use
-// fs::directory::read(), which returns a smart pointer to one of these.
+// filesystem::Directory::read(), which returns a smart pointer to one of
+// these.
 //
-class direntry
+class Direntry
 {
-    friend class directory;
+    friend class Directory;
 
     private:
 	// constructor - implicit conversion from ::dirent
-	direntry(struct ::dirent *de): m_dirent(de)
+	Direntry(struct ::dirent *de): m_dirent(de)
 	{
 	}
 
     public:
 	// destructor
-	~direntry()
+	~Direntry()
 	{
 	}
 
@@ -684,27 +686,28 @@ class direntry
 };
 
 //
-// directory
+// Directory
 //
 // This class represents a single directory.  When this class is destructed,
 // the directory is closedir()d.
 //
 // Users can not create instances of this class.  To access a direntry, use
-// fs::directory::open(), which returns a smart pointer to one of these.
+// filesystem::Directory::open(), which returns a smart pointer to one of
+// these.
 //
-class directory
+class Directory
 {
     private:
 	// constructors - private to prevent abuse
-	directory(): m_path(""), m_dir(NULL)
+	Directory(): m_path(""), m_dir(NULL)
 	{
 	}
-	directory(const directory &that)
+	Directory(const Directory &that)
 	    : m_path(that.m_path), m_dir(that.m_dir)
 	{
 	}
-	directory &
-	operator=(const directory &that)
+	Directory &
+	operator=(const Directory &that)
 	{
 		m_path = that.m_path;
 		m_dir = that.m_dir;
@@ -713,22 +716,22 @@ class directory
 
     public:
 	// destructor
-	~directory()
+	~Directory()
 	{
 		if (m_dir) {
 			close();
 		}
 	}
 
-	static directory_ptr
+	static DirectoryPtr
 	open(const std::string &path)
 	{
-		directory_ptr d(new directory());
+		DirectoryPtr d(new Directory());
 
 		d->m_dir = ::opendir(path.c_str());
 		if (!d->m_dir) {
 			syserr::throw_errno_error(errno,
-			    "fs::directory::open(" + path + ")");
+			    "filesystem::Directory::open(" + path + ")");
 		}
 
 		return d;
@@ -745,14 +748,14 @@ class directory
 	//FIXME: remove
 	//FIXME: mkdtemp => tempname() and tempdir()
 
-	direntry_ptr
+	DirentryPtr
 	read() const
 	{
 		struct ::dirent *de = ::readdir(m_dir);
 		if (de) {
-			return direntry_ptr(new direntry(de));
+			return DirentryPtr(new Direntry(de));
 		}
-		return direntry_ptr();
+		return DirentryPtr();
 	}
 
 	void
@@ -794,7 +797,7 @@ getcwd()
 	#ifdef _GNU_SOURCE
 	char *p = ::get_current_dir_name();
 	if (p == NULL) {
-		syserr::throw_errno_error(errno, "fs::getcwd()");
+		syserr::throw_errno_error(errno, "filesystem::getcwd()");
 	}
 	string cwd(p);
 	free(p);
@@ -803,7 +806,7 @@ getcwd()
 	char buf[4096];
 	char *p = ::getcwd(buf, sizeof(buf));
 	if (p == NULL) {
-		syserr::throw_errno_error(errno, "fs::getcwd()");
+		syserr::throw_errno_error(errno, "filesystem::getcwd()");
 	}
 	return p;
 	#endif
