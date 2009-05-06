@@ -2,109 +2,113 @@
 #include "simple_regex.h"
 #include "pp_test.h"
 
-TEST(test_regex)
+namespace util {
+
+TEST(test_simple_regex)
 {
 	// simple
 	{
-		regex re("foo.*");
+		SimpleRegex re("foo.*");
 		TEST_ASSERT(re.matches("foo"),
-			"regex::regex()");
+			"SimpleRegex::SimpleRegex()");
 		TEST_ASSERT(re.matches("foobar"),
-			"regex::regex()");
+			"SimpleRegex::SimpleRegex()");
 		TEST_ASSERT(re.matches(" foo"),
-			"regex::regex()");
+			"SimpleRegex::SimpleRegex()");
 		TEST_ASSERT(!re.matches("bar"),
-			"regex::regex()");
+			"SimpleRegex::SimpleRegex()");
 	}
 	{
-		regex re("^foo.*");
+		SimpleRegex re("^foo.*");
 		TEST_ASSERT(re.matches("foo"),
-			"regex::regex()");
+			"SimpleRegex::SimpleRegex()");
 		TEST_ASSERT(re.matches("foobar"),
-			"regex::regex()");
+			"SimpleRegex::SimpleRegex()");
 		TEST_ASSERT(!re.matches(" foo"),
-			"regex::regex()");
+			"SimpleRegex::SimpleRegex()");
 		TEST_ASSERT(!re.matches("bar"),
-			"regex::regex()");
+			"SimpleRegex::SimpleRegex()");
 	}
 	{
-		regex re(".*foo$");
+		SimpleRegex re(".*foo$");
 		TEST_ASSERT(re.matches("foo"),
-			"regex::regex()");
+			"SimpleRegex::SimpleRegex()");
 		TEST_ASSERT(re.matches("barfoo"),
-			"regex::regex()");
+			"SimpleRegex::SimpleRegex()");
 		TEST_ASSERT(re.matches(" foo"),
-			"regex::regex()");
+			"SimpleRegex::SimpleRegex()");
 		TEST_ASSERT(!re.matches("bar"),
-			"regex::regex()");
+			"SimpleRegex::SimpleRegex()");
 	}
 	{
-		regex re("foo.*bar");
+		SimpleRegex re("foo.*bar");
 		TEST_ASSERT(re.matches("foobar"),
-			"regex::regex()");
+			"SimpleRegex::SimpleRegex()");
 		TEST_ASSERT(re.matches("foo bar"),
-			"regex::regex()");
+			"SimpleRegex::SimpleRegex()");
 		TEST_ASSERT(!re.matches("bar foo"),
-			"regex::regex()");
+			"SimpleRegex::SimpleRegex()");
 	}
 
 	// with a back reference
 	{
-		regex re("^(foo).*\\1");
+		SimpleRegex re("^(foo).*\\1");
 		TEST_ASSERT(re.matches("foofoo"),
-			"regex::regex()");
+			"SimpleRegex::SimpleRegex()");
 		TEST_ASSERT(re.matches("foobarfoo"),
-			"regex::regex()");
+			"SimpleRegex::SimpleRegex()");
 		TEST_ASSERT(!re.matches("foo"),
-			"regex::regex()");
+			"SimpleRegex::SimpleRegex()");
 		TEST_ASSERT(!re.matches("foofo"),
-			"regex::regex()");
+			"SimpleRegex::SimpleRegex()");
 		TEST_ASSERT(!re.matches("foobar"),
-			"regex::regex()");
+			"SimpleRegex::SimpleRegex()");
 	}
 	{
 		try {
-			regex re(".*\\1");
-			TEST_FAIL("regex::regex()");
+			SimpleRegex re(".*\\1");
+			TEST_FAIL("SimpleRegex::SimpleRegex()");
 		} catch (std::invalid_argument &e) {
 		}
 	}
 
 	// copy ctor
 	{
-		regex re("foo.");
-		TEST_ASSERT(re.matches("foob"), "regex::regex()");
-		TEST_ASSERT(!re.matches("foo"), "regex::regex()");
-		regex re2(re);
-		TEST_ASSERT(re2.matches("foob"), "regex::regex()");
-		TEST_ASSERT(!re2.matches("foo"), "regex::regex()");
+		SimpleRegex re("foo.");
+		TEST_ASSERT(re.matches("foob"), "SimpleRegex::SimpleRegex()");
+		TEST_ASSERT(!re.matches("foo"), "SimpleRegex::SimpleRegex()");
+		SimpleRegex re2(re);
+		TEST_ASSERT(re2.matches("foob"), "SimpleRegex::SimpleRegex()");
+		TEST_ASSERT(!re2.matches("foo"), "SimpleRegex::SimpleRegex()");
 		TEST_ASSERT(re2.re_string() == re.re_string(),
-			"regex::regex(regex)");
+			"SimpleRegex::SimpleRegex(SimpleRegex)");
 	}
 
 	// assignment
 	{
-		regex re("foo.");
-		TEST_ASSERT(re.matches("foob"), "regex::regex()");
-		TEST_ASSERT(!re.matches("foo"), "regex::regex()");
-		regex re2("foobar");
+		SimpleRegex re("foo.");
+		TEST_ASSERT(re.matches("foob"), "SimpleRegex::SimpleRegex()");
+		TEST_ASSERT(!re.matches("foo"), "SimpleRegex::SimpleRegex()");
+		SimpleRegex re2("foobar");
 		re2 = re;
-		TEST_ASSERT(re2.matches("foob"), "regex::regex()");
-		TEST_ASSERT(!re2.matches("foo"), "regex::regex()");
+		TEST_ASSERT(re2.matches("foob"), "SimpleRegex::SimpleRegex()");
+		TEST_ASSERT(!re2.matches("foo"), "SimpleRegex::SimpleRegex()");
 		TEST_ASSERT(re2.re_string() == re.re_string(),
-			"regex::regex(regex)");
+			"SimpleRegex::SimpleRegex(SimpleRegex)");
 	}
 
 	// case insensitive
 	{
-		regex re("foo.*");
-		TEST_ASSERT(re.matches("foo"), "regex::regex()");
-		TEST_ASSERT(!re.matches("FOO"), "regex::regex()");
+		SimpleRegex re("foo.*");
+		TEST_ASSERT(re.matches("foo"), "SimpleRegex::SimpleRegex()");
+		TEST_ASSERT(!re.matches("FOO"), "SimpleRegex::SimpleRegex()");
 		re.set_ignore_case(true);
-		TEST_ASSERT(re.matches("foo"), "regex::regex()");
-		TEST_ASSERT(re.matches("FOO"), "regex::regex()");
+		TEST_ASSERT(re.matches("foo"), "SimpleRegex::SimpleRegex()");
+		TEST_ASSERT(re.matches("FOO"), "SimpleRegex::SimpleRegex()");
 		re.set_ignore_case(false);
-		TEST_ASSERT(re.matches("foo"), "regex::regex()");
-		TEST_ASSERT(!re.matches("FOO"), "regex::regex()");
+		TEST_ASSERT(re.matches("foo"), "SimpleRegex::SimpleRegex()");
+		TEST_ASSERT(!re.matches("FOO"), "SimpleRegex::SimpleRegex()");
 	}
 }
+
+} // namespace util

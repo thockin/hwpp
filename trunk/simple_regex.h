@@ -6,13 +6,15 @@
 #include <sys/types.h>
 #include <regex.h>
 
+namespace util {
+
 // This is a simple regex class.  Nothing fancy, and does not require a
 // library, as does boost.regex.
 // Example:
-// 	regex re("^foo.*bar");
+// 	SimpleRegex re("^foo.*bar");
 // 	if (re.matches("foobar"))
 // 		std::cout << "yes!" << std::endl;
-class regex
+class SimpleRegex
 {
     private:
 	string m_re_string;
@@ -25,19 +27,19 @@ class regex
 	static const unsigned DEFAULT_EXEC_FLAGS = 0;
 
 	// ctor from string
-	regex(const string &re_str, unsigned flags = DEFAULT_FLAGS)
+	SimpleRegex(const string &re_str, unsigned flags = DEFAULT_FLAGS)
 	    : m_re_string(re_str), m_flags(flags)
 	{
 		compile();
 	}
 	// copy ctor
-	regex(const regex &that)
+	SimpleRegex(const SimpleRegex &that)
 	{
 		*this = that;
 	}
 	// assignment operator
-	regex &
-	operator=(const regex &that)
+	SimpleRegex &
+	operator=(const SimpleRegex &that)
 	{
 		if (this != &that) {
 			m_re_string = that.m_re_string;
@@ -47,12 +49,12 @@ class regex
 		return *this;
 	}
 	// dtor
-	~regex()
+	~SimpleRegex()
 	{
 		regfree(&m_c_regex);
 	}
 
-	// see if a string matches against this regex
+	// see if a string matches against this SimpleRegex
 	bool
 	matches(const string &test_string,
 			unsigned exec_flags = DEFAULT_EXEC_FLAGS) const
@@ -158,5 +160,7 @@ class regex
 		}
 	}
 };
+
+} // namespace util
 
 #endif // PP_REGEX_H__
