@@ -12,13 +12,13 @@
 namespace syserr {
 
 // a base class for errno-related errors
-class errno_error: public std::runtime_error
+class ErrnoError: public std::runtime_error
 {
     private:
 	int m_error;
 
     protected:
-	errno_error(int error, const std::string &msg)
+	ErrnoError(int error, const std::string &msg)
 	: runtime_error(msg), m_error(error)
 	{
 	}
@@ -31,10 +31,10 @@ class errno_error: public std::runtime_error
 };
 
 #define DEFINE_ERROR(name) \
-	struct name: public errno_error \
+	struct name: public ErrnoError \
 	{ \
 		name(int error, const std::string &str) \
-		: errno_error(error, str) \
+		: ErrnoError(error, str) \
 		{} \
 	};
 
