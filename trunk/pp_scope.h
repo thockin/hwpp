@@ -29,8 +29,8 @@ class pp_scope: public pp_dirent,
     private:
 	pp_scope_weak_ptr m_parent;
 	pp_binding_const_ptr m_binding;
-	keyed_vector<string, pp_dirent_ptr> m_dirents;
-	keyed_vector<string, pp_datatype_const_ptr> m_datatypes;
+	util::KeyedVector<string, pp_dirent_ptr> m_dirents;
+	util::KeyedVector<string, pp_datatype_const_ptr> m_datatypes;
 	std::map<string, int> m_bookmarks;
 
     public:

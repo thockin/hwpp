@@ -403,7 +403,7 @@ struct fkl_kvpair
 	pp_value value;
 };
 #define KV(k,v) fkl_kvpair(k, v)
-typedef keyed_vector<string, pp_value> fkl_kvpair_list;
+typedef util::KeyedVector<string, pp_value> fkl_kvpair_list;
 inline fkl_kvpair_list
 operator,(const fkl_kvpair &lhs, const fkl_kvpair &rhs)
 {

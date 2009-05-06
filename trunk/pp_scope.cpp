@@ -94,7 +94,7 @@ pp_datatype_const_ptr
 pp_scope::datatype(int index) const
 {
 	pp_datatype_const_ptr dt;
-	keyed_vector<string, pp_datatype_const_ptr>::const_iterator it;
+	util::KeyedVector<string, pp_datatype_const_ptr>::const_iterator it;
 	it = m_datatypes.find(index);
 	if (it != m_datatypes.end()) {
 		dt = *it;
@@ -105,7 +105,7 @@ pp_datatype_const_ptr
 pp_scope::datatype(string index) const
 {
 	pp_datatype_const_ptr dt;
-	keyed_vector<string, pp_datatype_const_ptr>::const_iterator it;
+	util::KeyedVector<string, pp_datatype_const_ptr>::const_iterator it;
 	it = m_datatypes.find(index);
 	if (it != m_datatypes.end()) {
 		dt = *it;
@@ -192,8 +192,8 @@ pp_scope::add_dirent(const pp_path::element &elem,
 			ar->append(new_dirent);
 		} else {
 			// if not, add the array and append the new dirent
-			pp_array_ptr ar =
-			    new_pp_array(new_dirent->dirent_type());
+			pp_array_ptr ar
+			    = new_pp_array(new_dirent->dirent_type());
 			m_dirents.insert(elem.name(), ar);
 			ar->append(new_dirent);
 		}
@@ -219,7 +219,7 @@ pp_dirent_ptr
 pp_scope::dirent(int index)
 {
 	pp_dirent_ptr de;
-	keyed_vector<string, pp_dirent_ptr>::iterator it;
+	util::KeyedVector<string, pp_dirent_ptr>::iterator it;
 	it = m_dirents.find(index);
 	if (it != m_dirents.end()) {
 		de = *it;
@@ -230,7 +230,7 @@ pp_dirent_ptr
 pp_scope::dirent(string index)
 {
 	pp_dirent_ptr de;
-	keyed_vector<string, pp_dirent_ptr>::iterator it;
+	util::KeyedVector<string, pp_dirent_ptr>::iterator it;
 	it = m_dirents.find(index);
 	if (it != m_dirents.end()) {
 		de = *it;
@@ -241,8 +241,8 @@ pp_dirent_const_ptr
 pp_scope::dirent(int index) const
 {
 	pp_dirent_const_ptr de;
-	keyed_vector<string, pp_dirent_ptr>::const_iterator it =
-	    m_dirents.find(index);
+	util::KeyedVector<string, pp_dirent_ptr>::const_iterator it
+	    = m_dirents.find(index);
 	if (it != m_dirents.end()) {
 		de = *it;
 	}
@@ -252,8 +252,8 @@ pp_dirent_const_ptr
 pp_scope::dirent(string index) const
 {
 	pp_dirent_const_ptr de;
-	keyed_vector<string, pp_dirent_ptr>::const_iterator it =
-	    m_dirents.find(index);
+	util::KeyedVector<string, pp_dirent_ptr>::const_iterator it
+	    = m_dirents.find(index);
 	if (it != m_dirents.end()) {
 		de = *it;
 	}
