@@ -3,7 +3,7 @@
 #include "language.h"
 #include "simple_regex.h"
 
-static const regex c_token("^[A-Za-z_][A-Za-z0-9_]*$");
+static const util::SimpleRegex c_token("^[A-Za-z_][A-Za-z0-9_]*$");
 
 bool
 lang_valid_datatype_name(const string &name)

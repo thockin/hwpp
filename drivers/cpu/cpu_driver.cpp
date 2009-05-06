@@ -215,7 +215,7 @@ cpu_driver::enumerate(const string &path, std::vector<cpu_address> *addresses)
 			continue;
 
 		// parse the file name
-		regex re("^cpu[0-9]+$");
+		util::SimpleRegex re("^cpu[0-9]+$");
 		if (!re.matches(de->name())) {
 			continue;
 		}
