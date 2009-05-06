@@ -203,9 +203,9 @@ cpu_driver::cpuid(const cpu_address &address, unsigned function)
 void
 cpu_driver::enumerate(const string &path, std::vector<cpu_address> *addresses)
 {
-	fs::directory_ptr dir = fs::directory::open(path);
+	filesystem::DirectoryPtr dir = filesystem::Directory::open(path);
 
-	fs::direntry_ptr de;
+	filesystem::DirentryPtr de;
 	while ((de = dir->read())) {
 		// each CPU gets a dir
 		if (!de->is_dir())

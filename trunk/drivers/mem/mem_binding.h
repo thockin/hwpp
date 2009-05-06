@@ -57,7 +57,7 @@ class mem_io
 
     private:
 	mem_address m_address;
-	fs::file_ptr m_file;
+	filesystem::FilePtr m_file;
 
 	void
 	do_io_error(const string &str) const;
@@ -65,7 +65,7 @@ class mem_io
 	void
 	open_device(string device);
 
-	fs::file_mapping_ptr
+	filesystem::FileMappingPtr
 	map(const pp_value &offset, std::size_t length) const;
 
 	void

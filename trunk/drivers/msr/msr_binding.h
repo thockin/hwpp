@@ -57,7 +57,7 @@ class msr_io
 
     private:
 	msr_address m_address;
-	fs::file_ptr m_file;
+	filesystem::FilePtr m_file;
 
 	void
 	do_io_error(const string &str) const;

@@ -85,7 +85,7 @@ io_io::open_device(string device)
 	if (device == "")
 		device = IO_DEVICE;
 
-	m_file = fs::file::open(device, O_RDONLY);
+	m_file = filesystem::File::open(device, O_RDONLY);
 	return;
 }
 

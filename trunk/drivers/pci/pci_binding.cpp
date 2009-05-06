@@ -94,9 +94,9 @@ pci_io::write(const pp_value &address, const pp_bitwidth width,
 void
 pci_io::enumerate(std::vector<pci_address> *addresses)
 {
-	if (fs::direntry::is_dir(PCI_SYSFS_DIR)) {
+	if (filesystem::Direntry::is_dir(PCI_SYSFS_DIR)) {
 		enumerate_sysfs(addresses);
-	} else if (fs::direntry::is_dir(PCI_PROCFS_DIR)) {
+	} else if (filesystem::Direntry::is_dir(PCI_PROCFS_DIR)) {
 		enumerate_procfs(addresses);
 	}
 	std::sort(addresses->begin(), addresses->end());
@@ -125,7 +125,7 @@ pci_io::open_device(string devdir)
 	                     m_address.segment, m_address.bus,
 	                     m_address.device, m_address.function);
 	try {
-		m_file = fs::file::open(filename, O_RDONLY);
+		m_file = filesystem::File::open(filename, O_RDONLY);
 		return;
 	} catch (std::exception &e) {
 		/* do nothing yet */
@@ -138,7 +138,7 @@ pci_io::open_device(string devdir)
 	/* fall back on /proc */
 	filename = sprintfxx("%s/%02x/%02x.%x", devdir, m_address.bus,
 	                     m_address.device, m_address.function);
-	m_file = fs::file::open(filename, O_RDONLY);
+	m_file = filesystem::File::open(filename, O_RDONLY);
 	return;
 }
 
@@ -175,9 +175,10 @@ pci_io::seek(const pp_value &offset) const
 static void
 enumerate_sysfs(std::vector<pci_address> *addresses)
 {
-	fs::directory_ptr dir = fs::directory::open(PCI_SYSFS_DIR);
+	filesystem::DirectoryPtr dir
+	    = filesystem::Directory::open(PCI_SYSFS_DIR);
 
-	fs::direntry_ptr de;
+	filesystem::DirentryPtr de;
 	while ((de = dir->read())) {
 		/* skip dotfiles */
 		if (de->name()[0] == '.')
@@ -204,9 +205,10 @@ enumerate_sysfs(std::vector<pci_address> *addresses)
 static void
 enumerate_procfs(std::vector<pci_address> *addresses)
 {
-	fs::directory_ptr dir = fs::directory::open(PCI_PROCFS_DIR);
+	filesystem::DirectoryPtr dir
+	    = filesystem::Directory::open(PCI_PROCFS_DIR);
 
-	fs::direntry_ptr de;
+	filesystem::DirentryPtr de;
 	while ((de = dir->read())) {
 		/* skip dotfiles */
 		if (de->name()[0] == '.')
@@ -216,10 +218,10 @@ enumerate_procfs(std::vector<pci_address> *addresses)
 			string name(string(PCI_PROCFS_DIR)
 			    + "/" + de->name());
 
-			fs::directory_ptr subdir
-			    = fs::directory::open(name);
+			filesystem::DirectoryPtr subdir
+			     = filesystem::Directory::open(name);
 
-			fs::direntry_ptr subde;
+			filesystem::DirentryPtr subde;
 			while ((subde = subdir->read())) {
 				/* skip dotfiles */
 				if (subde->name()[0] == '.')

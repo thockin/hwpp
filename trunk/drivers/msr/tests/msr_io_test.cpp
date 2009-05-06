@@ -51,7 +51,8 @@ TEST(test_msr_io)
 			TEST_ASSERT(io2.read(0x0, BITS64) == pp_value(0x0),
 			    "msr_io::msr_io()");
 		} catch (syserr::operation_not_permitted &e) {
-			TEST_WARN("must be root to call fs::device::mkdev()");
+			TEST_WARN("must be root to call "
+                                  "filesystem::device::mkdev()");
 		}
 	} catch (std::exception &e) {
 		system("rm -rf test_data");
