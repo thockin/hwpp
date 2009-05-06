@@ -52,7 +52,7 @@ TEST(test_msr_io)
 			    "msr_io::msr_io()");
 		} catch (syserr::operation_not_permitted &e) {
 			TEST_WARN("must be root to call "
-                                  "filesystem::device::mkdev()");
+                                  "filesystem::Device::mkdev()");
 		}
 	} catch (std::exception &e) {
 		system("rm -rf test_data");
