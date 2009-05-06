@@ -30,8 +30,7 @@ class pp_multi_datatype: public pp_datatype
 	std::vector<pp_multi_range> m_parts;
 
 	static bool
-	val_in_range(const pp_value &value,
-		     const pp_multi_range &range) {
+	val_in_range(const pp_value &value, const pp_multi_range &range) {
 		return ((value >= range.low) && (value <= range.high));
 	}
 
@@ -174,7 +173,7 @@ typedef boost::shared_ptr<pp_multi_datatype> pp_multi_datatype_ptr;
 class pp_enum_datatype: public pp_datatype
 {
     private:
-	keyed_vector<string, pp_value> m_values;
+	util::KeyedVector<string, pp_value> m_values;
 	string m_unknown;
 	bool m_custom_unknown;
 
@@ -183,7 +182,8 @@ class pp_enum_datatype: public pp_datatype
 	    : m_custom_unknown(false)
 	{
 	}
-	explicit pp_enum_datatype(const keyed_vector<string, pp_value> &values)
+	explicit pp_enum_datatype(const util::KeyedVector<string,
+	                          pp_value> &values)
 	    : m_values(values), m_custom_unknown(false)
 	{
 	}
@@ -314,13 +314,14 @@ typedef boost::shared_ptr<pp_bool_datatype> pp_bool_datatype_ptr;
 class pp_bitmask_datatype: public pp_datatype
 {
     private:
-	keyed_vector<string, pp_value> m_bits;
+	util::KeyedVector<string, pp_value> m_bits;
 
     public:
 	pp_bitmask_datatype()
 	{
 	}
-	explicit pp_bitmask_datatype(const keyed_vector<string, pp_value> &bits)
+	explicit pp_bitmask_datatype(
+	    const util::KeyedVector<string, pp_value> &bits)
 	    : m_bits(bits)
 	{
 	}

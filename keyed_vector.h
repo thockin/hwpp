@@ -1,13 +1,10 @@
-// Copyright (c) Tim Hockin, 2007-2008
-#ifndef KEYED_VECTOR_HPP__
-#define KEYED_VECTOR_HPP__
-
-//
 // keyed_vector.cpp
 //
 // Tim Hockin <thockin@hockin.org>
 // 2007
 //
+#ifndef KEYED_VECTOR_HPP__
+#define KEYED_VECTOR_HPP__
 
 #include <vector>
 #include <map>
@@ -16,29 +13,31 @@
 #include "pp.h"
 #include "debug.h"
 
+namespace util {
+
 //
 // This template class is a thin wrapper to make iterators work for
-// keyed_vector objects.  This is largely based on the boost example
+// KeyedVector objects.  This is largely based on the boost example
 // code for boost::iterator_facade.
 //
 template<typename Titer, typename Tval>
-class keyvec_iter
-    : public boost::iterator_facade<keyvec_iter<Titer, Tval>, Tval,
+class KeyedVectorIterator
+    : public boost::iterator_facade<KeyedVectorIterator<Titer, Tval>, Tval,
       typename std::iterator_traits<Titer>::iterator_category>
 {
 	friend class boost::iterator_core_access;
-	template<class,class> friend class keyvec_iter;
+	template<class,class> friend class KeyedVectorIterator;
 
     public:
 	// default constructor
-	keyvec_iter() {}
+	KeyedVectorIterator() {}
 
 	// implicit conversion from the underlying iterator
-	keyvec_iter(Titer it): m_it(it) {}
+	KeyedVectorIterator(Titer it): m_it(it) {}
 
 	// implicit conversion from iterator to const_iterator
 	template<class Tother>
-	keyvec_iter(const keyvec_iter<Titer, Tother> &other)
+	KeyedVectorIterator(const KeyedVectorIterator<Titer, Tother> &other)
 	    : m_it(other.m_it), m_trap(other.m_trap) {}
 
 	// get the underlying iterator
@@ -52,7 +51,7 @@ class keyvec_iter
 	// check for equality
 	template<typename Tthat>
 	bool
-	equal(const keyvec_iter<Titer, Tthat> &that) const
+	equal(const KeyedVectorIterator<Titer, Tthat> &that) const
 	{
 		return (this->m_it == that.m_it);
 	}
@@ -81,7 +80,7 @@ class keyvec_iter
 	// figure out the distance to another iterator
 	template<typename Tthere>
 	std::ptrdiff_t
-	distance_to(const keyvec_iter<Titer, Tthere> &there) const
+	distance_to(const KeyedVectorIterator<Titer, Tthere> &there) const
 	{
 		return there.m_it - this->m_it;
 	}
@@ -102,7 +101,7 @@ class keyvec_iter
 };
 
 //
-// template class keyed_vector<Tkey, Tval>
+// template class KeyedVector<Tkey, Tval>
 //
 // This template class implements a vector in which each stored object
 // (value) has a specific key.  Indexing can be done by integer or by key.
@@ -131,7 +130,7 @@ class keyvec_iter
 //     original value.
 //
 template<typename Tkey, typename Tval>
-class keyed_vector
+class KeyedVector
 {
 	typedef std::vector<Tval> Tval_vector;
 	typedef typename Tval_vector::iterator Tval_iter;
@@ -154,27 +153,27 @@ class keyed_vector
 	typedef const value_type& const_reference;
 	typedef std::size_t size_type;
 	typedef std::ptrdiff_t difference_type;
-	typedef keyvec_iter<Tval_iter, Tval> iterator;
-	typedef keyvec_iter<Tval_iter, const Tval> const_iterator;
+	typedef KeyedVectorIterator<Tval_iter, Tval> iterator;
+	typedef KeyedVectorIterator<Tval_iter, const Tval> const_iterator;
 	typedef std::reverse_iterator<iterator> reverse_iterator;
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 	// default ctor
-	keyed_vector()
+	KeyedVector()
 	{
 	}
 	// copy ctor
-	keyed_vector(const keyed_vector &other)
+	KeyedVector(const KeyedVector &other)
 	{
 		*this = other;
 	}
 	// assignment operator
-	keyed_vector &
-	operator=(const keyed_vector &other)
+	KeyedVector &
+	operator=(const KeyedVector &other)
 	{
 		// We can't just copy each element, because m_keyptrs
 		// holds iterators into m_keys.
-		keyed_vector tmp;
+		KeyedVector tmp;
 		for (size_type i = 0; i < other.size(); i++) {
 			tmp.insert(other.key_at(i), other.at(i));
 		}
@@ -183,7 +182,7 @@ class keyed_vector
 	}
 	// swap data
 	void
-	swap(keyed_vector &other)
+	swap(KeyedVector &other)
 	{
 		m_keys.swap(other.m_keys);
 		m_values.swap(other.m_values);
@@ -212,13 +211,13 @@ class keyed_vector
 	const_iterator
 	begin() const
 	{
-		keyed_vector *p = const_cast<keyed_vector *>(this);
+		KeyedVector *p = const_cast<KeyedVector *>(this);
 		return p->begin();
 	}
 	const_iterator
 	end() const
 	{
-		keyed_vector *p = const_cast<keyed_vector *>(this);
+		KeyedVector *p = const_cast<KeyedVector *>(this);
 		return p->end();
 	}
 	// get a reverse iterator
@@ -235,13 +234,13 @@ class keyed_vector
 	const_reverse_iterator
 	rbegin() const
 	{
-		keyed_vector *p = const_cast<keyed_vector *>(this);
+		KeyedVector *p = const_cast<KeyedVector *>(this);
 		return p->rbegin();
 	}
 	const_reverse_iterator
 	rend() const
 	{
-		keyed_vector *p = const_cast<keyed_vector *>(this);
+		KeyedVector *p = const_cast<KeyedVector *>(this);
 		return p->rend();
 	}
 
@@ -309,7 +308,7 @@ class keyed_vector
 	const_reference
 	at(size_type index) const
 	{
-		keyed_vector *p = const_cast<keyed_vector *>(this);
+		KeyedVector *p = const_cast<KeyedVector *>(this);
 		return p->at(index);
 	}
 	const_reference
@@ -336,7 +335,7 @@ class keyed_vector
 	const_reference
 	at(const Tkey &index) const
 	{
-		keyed_vector *p = const_cast<keyed_vector *>(this);
+		KeyedVector *p = const_cast<KeyedVector *>(this);
 		return p->at(index);
 	}
 	const_reference
@@ -372,7 +371,7 @@ class keyed_vector
 	const_iterator
 	find(size_type index) const
 	{
-		keyed_vector *p = const_cast<keyed_vector *>(this);
+		KeyedVector *p = const_cast<KeyedVector *>(this);
 		return p->find(index);
 	}
 	iterator
@@ -387,7 +386,7 @@ class keyed_vector
 	const_iterator
 	find(const Tkey &key) const
 	{
-		keyed_vector *p = const_cast<keyed_vector *>(this);
+		KeyedVector *p = const_cast<KeyedVector *>(this);
 		return p->find(key);
 	}
 
@@ -506,4 +505,5 @@ class keyed_vector
 	}
 };
 
+} // namespace util
 #endif // KEYED_VECTOR_HPP__

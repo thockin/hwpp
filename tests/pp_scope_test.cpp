@@ -5,7 +5,6 @@
 #include "pp_datatypes.h"
 #include "pp_registers.h"
 #include "pp_fields.h"
-#include "keyed_vector.h"
 #include "pp_test.h"
 
 TEST(test_ctors)

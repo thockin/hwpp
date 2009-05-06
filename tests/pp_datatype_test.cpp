@@ -153,7 +153,7 @@ TEST(test_pp_multi_datatype)
 		m.add_range(new_pp_int_datatype("units"), 5, 10);
 		m.add_range(new_pp_int_datatype(), 11, 12);
 		m.add_range(new_pp_hex_datatype(BITS32), 15, 20);
-		keyed_vector<string, pp_value> enumlist;
+		util::KeyedVector<string, pp_value> enumlist;
 		enumlist.insert("3", 25);
 		enumlist.insert("11", 26);
 		enumlist.insert("test_key", 27);
