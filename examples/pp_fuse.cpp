@@ -172,7 +172,7 @@ printf("%d readdir: path = %s\n", getpid(), path);
 static int
 ppfs_readlink(const char *path, char *buf, size_t bufsize)
 {
-printf("%d readlink: path = %s, size = %d\n", getpid(), path, bufsize);
+printf("%d readlink: path = %s, size = %zd\n", getpid(), path, bufsize);
 	const pp_dirent_const_ptr &de = platform->lookup_dirent(path);
 	if (!de) {
 		return -ENOENT;
