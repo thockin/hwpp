@@ -49,11 +49,10 @@ fi
 FILES=$(awk -v MAGIC="$MAGIC" '
 	{
 		if (go) {
-			print $2;
+			print $NF;
 		}
 	}
 	/^===--- .* ---===/ {
-		echo YES;
 		go = 1;
 	}' $OFILE)
 if [ -z "$FILES" ]; then
