@@ -2,21 +2,23 @@
 #ifndef PP_DRIVERS_PCI_PCI_DRIVER_H__
 #define PP_DRIVERS_PCI_PCI_DRIVER_H__
 
-#include "pp.h"
-#include "pp_driver.h"
+#include "pp/pp.h"
+#include "pp/driver.h"
 #include "pci_binding.h"
 
+namespace pp { 
+
 /*
- * pci_driver - PCI driver plugin.
+ * PciDriver - PCI driver plugin.
  */
-class pci_driver: public pp_driver
+class PciDriver: public Driver
 {
     public:
-	pci_driver();
-	virtual ~pci_driver();
+	PciDriver();
+	virtual ~PciDriver();
 
 	/*
-	 * pci_driver::name()
+	 * PciDriver::name()
 	 *
 	 * Get the name of this driver.
 	 */
@@ -24,17 +26,17 @@ class pci_driver: public pp_driver
 	name() const;
 
 	/*
-	 * pci_driver::new_binding(args)
+	 * PciDriver::new_binding(args)
 	 *
-	 * Create a new pp_binding.
+	 * Create a new Binding.
 	 *
-	 * Throws: pp_driver::args_error
+	 * Throws: Driver::ArgsError
 	 */
-	virtual pp_binding_ptr
-	new_binding(const std::vector<pp_value> &args) const;
+	virtual BindingPtr
+	new_binding(const std::vector<Value> &args) const;
 
 	/*
-	 * pci_driver::discover()
+	 * PciDriver::discover()
 	 *
 	 * Discover devices owned by this driver, and add them to the
 	 * platform.
@@ -43,30 +45,32 @@ class pci_driver: public pp_driver
 	discover() const;
 
 	/*
-	 * pci_driver::register_discovery(args, function)
+	 * PciDriver::register_discovery(args, function)
 	 *
-	 * Register a discovery_callback which will be called when the
+	 * Register a DiscoveryCallback which will be called when the
 	 * driver's discover() routine finds a device that matches args.
 	 * The contents af the args vector depends on the specific driver.
 	 */
 	virtual void
-	register_discovery(const std::vector<pp_value> &args,
-			discovery_callback function);
+	register_discovery(const std::vector<Value> &args,
+			DiscoveryCallback function);
 
     private:
-	struct discovery_request {
+	struct DiscoveryRequest {
 		uint16_t vendor;
 		uint16_t device;
-		discovery_callback function;
+		DiscoveryCallback function;
 	};
 
-	const discovery_request *
-	find_discovery_request(const pci_address &addr) const;
+	const DiscoveryRequest *
+	find_discovery_request(const PciAddress &addr) const;
 
-	std::vector<discovery_request> m_callbacks;
-	discovery_callback m_catchall;
+	std::vector<DiscoveryRequest> m_callbacks;
+	DiscoveryCallback m_catchall;
 };
 
-#define new_pci_driver(...) pp_driver_ptr(new pci_driver(__VA_ARGS__))
+#define new_pci_driver(...) DriverPtr(new PciDriver(__VA_ARGS__))
+
+}  // namespace pp
 
 #endif // PP_DRIVERS_PCI_PCI_DRIVER_H__

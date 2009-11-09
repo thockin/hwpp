@@ -2,23 +2,25 @@
 #ifndef PP_DRIVERS_PCI_PCI_BINDING_H__
 #define PP_DRIVERS_PCI_PCI_BINDING_H__
 
-#include "pp.h"
-#include "pp_binding.h"
-#include "pp_driver.h"
-#include "filesystem.h"
+#include "pp/pp.h"
+#include "pp/binding.h"
+#include "pp/driver.h"
+#include "pp/util/filesystem.h"
 #include <iostream>
 
+namespace pp { 
+
 /*
- * pci_address
+ * PciAddress
  */
-struct pci_address
+struct PciAddress
 {
 	/* constructors */
-	pci_address(unsigned s, unsigned b, unsigned d, unsigned f)
+	PciAddress(unsigned s, unsigned b, unsigned d, unsigned f)
 	    : segment(s), bus(b), device(d), function(f)
 	{
 	}
-	pci_address(unsigned b, unsigned d, unsigned f)
+	PciAddress(unsigned b, unsigned d, unsigned f)
 	    : segment(0), bus(b), device(d), function(f)
 	{
 	}
@@ -29,7 +31,7 @@ struct pci_address
 };
 
 inline bool
-operator<(const pci_address &left, const pci_address &right)
+operator<(const PciAddress &left, const PciAddress &right)
 {
 	if (left.segment != right.segment) {
 		return (left.segment < right.segment);
@@ -44,7 +46,7 @@ operator<(const pci_address &left, const pci_address &right)
 }
 
 inline std::ostream &
-operator<<(std::ostream& out, const pci_address &addr)
+operator<<(std::ostream& out, const PciAddress &addr)
 {
 	out << "pci<"
 	  << addr.segment << ","
@@ -56,29 +58,29 @@ operator<<(std::ostream& out, const pci_address &addr)
 }
 
 /*
- * pci_io - Linux-specific PCI IO
+ * PciIo - Linux-specific PCI IO
  */
-class pci_io
+class PciIo
 {
     public:
-	pci_io(const pci_address &address, const string &devdir = "");
-	~pci_io();
+	PciIo(const PciAddress &address, const string &devdir = "");
+	~PciIo();
 
-	pp_value
-	read(const pp_value &address, const pp_bitwidth width) const;
+	Value
+	read(const Value &address, const BitWidth width) const;
 
 	void
-	write(const pp_value &address, const pp_bitwidth width,
-	    const pp_value &value) const;
+	write(const Value &address, const BitWidth width,
+	    const Value &value) const;
 
-	const pci_address &
+	const PciAddress &
 	address() const;
 
 	static void
-	enumerate(std::vector<pci_address> *addresses);
+	enumerate(std::vector<PciAddress> *addresses);
 
     private:
-	pci_address m_address;
+	PciAddress m_address;
 	filesystem::FilePtr m_file;
 
 	void
@@ -88,20 +90,22 @@ class pci_io
 	open_device(string devdir);
 
 	void
-	check_width(pp_bitwidth width) const;
+	check_width(BitWidth width) const;
 
 	void
-	check_bounds(const pp_value &offset, size_t bytes) const;
+	check_bounds(const Value &offset, size_t bytes) const;
 
 	void
-	seek(const pp_value &offset) const;
+	seek(const Value &offset) const;
 };
 
 /*
- * pci_binding - PCI binding for register spaces
+ * PciBinding - PCI binding for register spaces
  */
-typedef simple_binding<pci_io, pci_address> pci_binding;
+typedef SimpleBinding<PciIo, PciAddress> PciBinding;
 
-#define new_pci_binding(...) pp_binding_ptr(new pci_binding(__VA_ARGS__))
+#define new_pci_binding(...) BindingPtr(new PciBinding(__VA_ARGS__))
+
+}  // namespace pp
 
 #endif // PP_DRIVERS_PCI_PCI_BINDING_H__

@@ -1,4 +1,4 @@
-#include "keyed_vector.h"
+#include "pp/util/keyed_vector.h"
 #include <iostream>
 #include "pp_test.h"
 
@@ -13,21 +13,21 @@ void dump_keyed_vector(const KeyedVector<Tkey, Tval> &kv, std::ostream &out) {
 
 TEST(test_ctors)
 {
-	typedef KeyedVector<string, int> si_keyvec;
+	typedef KeyedVector<string, int> StringIntKeyvec;
 
 	// default ctor
-	si_keyvec keyvec;
+	StringIntKeyvec keyvec;
 	if (keyvec.size() != 0) {
 		TEST_FAIL("KeyedVector::KeyedVector()");
 	}
 
 	// copy ctor
-	si_keyvec *kvp;
+	StringIntKeyvec *kvp;
 	{
-		si_keyvec keyvec;
+		StringIntKeyvec keyvec;
 		keyvec.insert("one", 1);
 		keyvec.insert("two", 2);
-		kvp = new si_keyvec(keyvec);
+		kvp = new StringIntKeyvec(keyvec);
 		if (kvp->size() != 2) {
 			TEST_FAIL("KeyedVector::KeyedVector(KeyedVector)");
 		}
@@ -41,14 +41,14 @@ TEST(test_ctors)
 
 	// assignment
 	{
-		si_keyvec keyvec;
+		StringIntKeyvec keyvec;
 		keyvec.insert("one", 1);
 		keyvec.insert("two", 2);
 		if (keyvec.size() != 2) {
 			TEST_FAIL("KeyedVector::operator=(KeyedVector)");
 		}
 
-		si_keyvec keyvec2;
+		StringIntKeyvec keyvec2;
 		keyvec2.insert("three", 3);
 		if (keyvec2.size() != 1) {
 			TEST_FAIL("KeyedVector::operator=(KeyedVector)");
@@ -63,9 +63,9 @@ TEST(test_ctors)
 
 TEST(test_exceptions)
 {
-	typedef KeyedVector<string, int> si_keyvec;
+	typedef KeyedVector<string, int> StringIntKeyvec;
 
-	si_keyvec keyvec;
+	StringIntKeyvec keyvec;
 	if (keyvec.size() != 0) {
 		TEST_FAIL("KeyedVector::size()");
 	}
@@ -119,10 +119,10 @@ TEST(test_exceptions)
 
 TEST(test_int)
 {
-	typedef KeyedVector<string, int> si_keyvec;
-	si_keyvec keyvec;
-	const si_keyvec &const_keyvec = keyvec;
-	si_keyvec::iterator it;
+	typedef KeyedVector<string, int> StringIntKeyvec;
+	StringIntKeyvec keyvec;
+	const StringIntKeyvec &const_keyvec = keyvec;
+	StringIntKeyvec::iterator it;
 
 	// verify that it has the right size
 	if (keyvec.size() != 0) {
@@ -158,7 +158,7 @@ TEST(test_int)
 	if (const_keyvec.end() != const_keyvec.begin()+3) {
 		TEST_FAIL("KeyedVector::end()");
 	}
-	si_keyvec::const_iterator cit = const_keyvec.begin();
+	StringIntKeyvec::const_iterator cit = const_keyvec.begin();
 	cit = keyvec.begin();
 	//it = const_keyvec.begin(); // must fail
 	//*cit = 1234; // must fail
@@ -291,22 +291,23 @@ TEST(test_int)
 	}
 }
 
-class xypair {
+class XyPair
+{
     public:
-	xypair(int x, int y) {
+	XyPair(int x, int y) {
 		m_x = x;
 		m_y = y;
 	}
 	int m_x;
 	int m_y;
-	bool operator==(const xypair &that) const {
+	bool operator==(const XyPair &that) const {
 		return (this->m_x == that.m_x && this->m_y == that.m_y);
 	}
-	bool operator!=(const xypair &that) const {
+	bool operator!=(const XyPair &that) const {
 		return (this->m_x != that.m_x || this->m_y != that.m_y);
 	}
 };
-std::ostream &operator<<(std::ostream &lhs, const xypair &rhs)
+std::ostream &operator<<(std::ostream &lhs, const XyPair &rhs)
 {
 	lhs << "(" << rhs.m_x << "," << rhs.m_y << ")";
 	return lhs;
@@ -314,15 +315,15 @@ std::ostream &operator<<(std::ostream &lhs, const xypair &rhs)
 
 TEST(test_xypair)
 {
-	typedef KeyedVector<string, xypair> xy_keyvec;
-	xy_keyvec keyvec;
-	const xy_keyvec &const_keyvec = keyvec;
-	xy_keyvec::iterator it;
+	typedef KeyedVector<string, XyPair> StringXyPairKeyvec;
+	StringXyPairKeyvec keyvec;
+	const StringXyPairKeyvec &const_keyvec = keyvec;
+	StringXyPairKeyvec::iterator it;
 
-	xypair zero(0,0);
-	xypair one(1, -1);
-	xypair two(2, 4);
-	xypair four(4, 20);
+	XyPair zero(0,0);
+	XyPair one(1, -1);
+	XyPair two(2, 4);
+	XyPair four(4, 20);
 
 	// verify that it has the right size
 	if (keyvec.size() != 0) {
@@ -358,7 +359,7 @@ TEST(test_xypair)
 	if (const_keyvec.end() != const_keyvec.begin()+3) {
 		TEST_FAIL("KeyedVector::end()");
 	}
-	xy_keyvec::const_iterator cit = const_keyvec.begin();
+	StringXyPairKeyvec::const_iterator cit = const_keyvec.begin();
 	cit = keyvec.begin();
 
 	/* test reverse iterator fetchers */

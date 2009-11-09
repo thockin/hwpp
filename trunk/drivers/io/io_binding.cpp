@@ -1,5 +1,5 @@
-#include "pp.h"
-#include "printfxx.h"
+#include "pp/pp.h"
+#include "pp/util/printfxx.h"
 
 #include <stdint.h>
 #include <unistd.h>
@@ -8,33 +8,35 @@
 #include <stdexcept>
 
 #include "io_binding.h"
-#include "pp_driver.h"
-#include "filesystem.h"
-#include "bit_buffer.h"
+#include "pp/driver.h"
+#include "pp/util/filesystem.h"
+#include "pp/util/bit_buffer.h"
+
+namespace pp { 
 
 #define IO_DEVICE	"/dev/port"
 
 /* constructor */
-io_io::io_io(const io_address &address, const string &device)
+IoIo::IoIo(const IoAddress &address, const string &device)
     : m_address(address)
 {
 	open_device(device);
 }
 
 /* destructor */
-io_io::~io_io()
+IoIo::~IoIo()
 {
 	// m_file will close() when it's last reference goes away
 }
 
-const io_address &
-io_io::address() const
+const IoAddress &
+IoIo::address() const
 {
 	return m_address;
 }
 
-pp_value
-io_io::read(const pp_value &address, const pp_bitwidth width) const
+Value
+IoIo::read(const Value &address, const BitWidth width) const
 {
 	/* make sure this is a valid access */
 	check_width(width);
@@ -48,12 +50,12 @@ io_io::read(const pp_value &address, const pp_bitwidth width) const
 		                      address, strerror(errno)));
 	}
 
-	return pp_value(bb);
+	return Value(bb);
 }
 
 void
-io_io::write(const pp_value &address, const pp_bitwidth width,
-    const pp_value &value) const
+IoIo::write(const Value &address, const BitWidth width,
+    const Value &value) const
 {
 	/* make sure this is a valid access */
 	check_width(width);
@@ -74,13 +76,13 @@ io_io::write(const pp_value &address, const pp_bitwidth width,
 }
 
 void
-io_io::do_io_error(const string &str) const
+IoIo::do_io_error(const string &str) const
 {
-	throw pp_driver::io_error(to_string(m_address) + ": " + str);
+	throw Driver::IoError(to_string(m_address) + ": " + str);
 }
 
 void
-io_io::open_device(string device)
+IoIo::open_device(string device)
 {
 	if (device == "")
 		device = IO_DEVICE;
@@ -90,7 +92,7 @@ io_io::open_device(string device)
 }
 
 void
-io_io::check_width(pp_bitwidth width) const
+IoIo::check_width(BitWidth width) const
 {
 	switch (width) {
 	    case BITS8:
@@ -104,7 +106,7 @@ io_io::check_width(pp_bitwidth width) const
 }
 
 void
-io_io::check_bounds(const pp_value &offset, unsigned bytes) const
+IoIo::check_bounds(const Value &offset, unsigned bytes) const
 {
 	if (offset < 0 || (offset+bytes) > m_address.size) {
 		do_io_error(sprintfxx("invalid register: %d bytes @ 0x%x",
@@ -113,7 +115,9 @@ io_io::check_bounds(const pp_value &offset, unsigned bytes) const
 }
 
 void
-io_io::seek(const pp_value &offset) const
+IoIo::seek(const Value &offset) const
 {
 	m_file->seek(m_address.base+offset.get_uint(), SEEK_SET);
 }
+
+}  // namespace pp

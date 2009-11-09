@@ -1,23 +1,26 @@
-#include "pp.h"
+#include "pp/pp.h"
 #include <vector>
 #include "fake_language.h"
 #include "generic_device.h"
+
+namespace pp {
+namespace device {
 
 void
 cpuid_datatypes_init()
 {
 	/* cpuid_vendor_t */
 	ENUM("cpuid_vendor_t",
-		KV("intel",     pp_value("0x6c65746e49656e69756e6547")),
-		KV("amd",       pp_value("0x444d416369746e6568747541")),
-		KV("umc",       pp_value("0x20434d5520434d5520434d55")),
-		KV("cyrix",     pp_value("0x64616574736e497869727943")),
-		KV("nexgen",    pp_value("0x6e65766972446e654778654e")),
-		KV("centaur",   pp_value("0x736c756148727561746e6543")),
-		KV("rise",      pp_value("0x657369526573695265736952")),
-		KV("sis",       pp_value("0x205369532053695320536953")),
-		KV("transmeta", pp_value("0x3638784d54656e69756e6547")),
-		KV("nsc",       pp_value("0x43534e2079622065646f6547")));
+		KV("intel",     Value("0x6c65746e49656e69756e6547")),
+		KV("amd",       Value("0x444d416369746e6568747541")),
+		KV("umc",       Value("0x20434d5520434d5520434d55")),
+		KV("cyrix",     Value("0x64616574736e497869727943")),
+		KV("nexgen",    Value("0x6e65766972446e654778654e")),
+		KV("centaur",   Value("0x736c756148727561746e6543")),
+		KV("rise",      Value("0x657369526573695265736952")),
+		KV("sis",       Value("0x205369532053695320536953")),
+		KV("transmeta", Value("0x3638784d54656e69756e6547")),
+		KV("nsc",       Value("0x43534e2079622065646f6547")));
 
 	/* cpuid_features_t */
 	BITMASK("cpuid_features_t",
@@ -306,3 +309,6 @@ cpuid_datatypes_init()
 		KV("64B_prefetching", 0xF0),
 		KV("128B_prefetching", 0xF1));
 }
+
+}  // namespace device
+}  // namespace pp

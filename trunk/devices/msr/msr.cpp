@@ -1,6 +1,9 @@
-#include "pp.h"
+#include "pp/pp.h"
 #include "device_init.h"
 #include "fake_language.h"
+
+namespace pp {
+namespace device {
 
 void
 msr_datatypes_init()
@@ -20,3 +23,6 @@ msr_datatypes_init()
 		KV("WB", 6),
 		KV("UC-", 7));
 }
+
+}  // namespace device
+}  // namespace pp

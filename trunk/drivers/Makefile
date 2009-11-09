@@ -20,7 +20,7 @@ DRIVER_INIT_FUNCS = $(foreach dir,$(DRIVERS), \
 	load_$(dir)_driver, \
 )
 DRIVER_INIT_PROTOS = $(foreach dir,$(DRIVERS), \
-	extern pp_driver *load_$(dir)_driver(); \
+	extern Driver *load_$(dir)_driver(); \
 )
 
 $(DRIVER_LIB): $(OBJS) $(DRIVERS_TO_ADD)

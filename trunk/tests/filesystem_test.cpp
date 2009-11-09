@@ -1,4 +1,4 @@
-#include "filesystem.h"
+#include "pp/util/filesystem.h"
 #include <iostream>
 #include <set>
 #include "pp_test.h"
@@ -199,7 +199,7 @@ TEST(test_dev)
 		if (!Direntry::exists(tempname)) {
 			TEST_FAIL("filesystem::File::tempname()");
 		}
-	} catch (syserr::operation_not_permitted &e) {
+	} catch (syserr::OperationNotPermitted &e) {
 		TEST_WARN("must be root to call filesystem::Device::mkdev()");
 	}
 }

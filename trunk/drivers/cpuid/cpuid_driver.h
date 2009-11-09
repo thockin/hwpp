@@ -2,21 +2,23 @@
 #ifndef PP_DRIVERS_CPUID_CPUID_DRIVER_H__
 #define PP_DRIVERS_CPUID_CPUID_DRIVER_H__
 
-#include "pp.h"
-#include "pp_driver.h"
+#include "pp/pp.h"
+#include "pp/driver.h"
 #include "cpuid_binding.h"
 
+namespace pp { 
+
 /*
- * cpuid_driver - CPUID driver plugin.
+ * CpuidDriver - CPUID driver plugin.
  */
-class cpuid_driver: public pp_driver
+class CpuidDriver: public Driver
 {
     public:
-	cpuid_driver();
-	virtual ~cpuid_driver();
+	CpuidDriver();
+	virtual ~CpuidDriver();
 
 	/*
-	 * cpuid_driver::name()
+	 * CpuidDriver::name()
 	 *
 	 * Get the name of this driver.
 	 */
@@ -24,16 +26,18 @@ class cpuid_driver: public pp_driver
 	name() const;
 
 	/*
-	 * cpuid_driver::new_binding(args)
+	 * CpuidDriver::new_binding(args)
 	 *
-	 * Create a new pp_binding.
+	 * Create a new Binding.
 	 *
-	 * Throws: pp_driver::args_error
+	 * Throws: Driver::ArgsError
 	 */
-	virtual pp_binding_ptr
-	new_binding(const std::vector<pp_value> &args) const;
+	virtual BindingPtr
+	new_binding(const std::vector<Value> &args) const;
 };
 
-#define new_cpuid_driver(...) pp_driver_ptr(new cpuid_driver(__VA_ARGS__))
+#define new_cpuid_driver(...) DriverPtr(new CpuidDriver(__VA_ARGS__))
+
+}  // namespace pp
 
 #endif // PP_DRIVERS_CPUID_CPUID_DRIVER_H__

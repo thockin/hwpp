@@ -1,3 +1,15 @@
+tabs vs spaces
+linewraps
+drop 'extern' ?
+move code to .cc files
+figure out how this gets exposed (filenames) as a lib - headers
+  - what do I include?
+  - should all util/headers be in the pp namespace?
+check in the pp/ symlink?  make it at build time?
+
+Get rid of Path::NotFoundError
+
+
 Testing stuff:
  - link against a good memory debugger
  - test field lookup() methods

@@ -1,6 +1,9 @@
 #include "device_init.h"
 #include "fake_language.h"
-#include "pp_datatypes.h"
+#include "pp/datatype_types.h"
+
+namespace pp {
+namespace device {
 
 /*
  * When we get a real language, these things will be defined there.  Until
@@ -103,3 +106,6 @@ global_datatypes_init()
 			KV("bit124", 124), KV("bit125", 125),
 			KV("bit126", 126), KV("bit127", 127));
 }
+
+}  // namespace device
+}  // namespace pp

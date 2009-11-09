@@ -4,27 +4,38 @@
 #ifndef PP_RUNTIME_H__
 #define PP_RUNTIME_H__
 
-#include "pp.h"
-#include "pp_context.h"
+#include "pp/pp.h"
+#include "pp/context.h"
 #include <vector>
 
-extern pp_scope_ptr
-pp_init();
+namespace pp {
+
+// apps should call this to bootstrap themselves
+ScopePtr
+initialize_device_tree();
+
+namespace runtime {
+
+extern ScopePtr
+init();
 
 // the global current context
-extern pp_context_ptr
-pp_current_context();
+extern ContextPtr
+current_context();
 
 // get a read-only copy of the current context
-extern pp_context_ptr
-pp_context_snapshot();
+extern ContextPtr
+context_snapshot();
 
 // push a new context onto the stack
 extern void
-pp_context_push(const pp_context_ptr &new_ctxt);
+context_push(const ContextPtr &new_ctxt);
 
 // restore the previous context
 extern void
-pp_context_pop();
+context_pop();
+
+}  // namespace runtime
+}  // namespace pp
 
 #endif // PP_RUNTIME_H__

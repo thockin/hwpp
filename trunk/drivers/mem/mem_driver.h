@@ -2,21 +2,23 @@
 #ifndef PP_DRIVERS_MEM_MEM_DRIVER_H__
 #define PP_DRIVERS_MEM_MEM_DRIVER_H__
 
-#include "pp.h"
-#include "pp_driver.h"
+#include "pp/pp.h"
+#include "pp/driver.h"
 #include "mem_binding.h"
 
+namespace pp { 
+
 /*
- * mem_driver - IO driver plugin.
+ * MemDriver - IO driver plugin.
  */
-class mem_driver: public pp_driver
+class MemDriver: public Driver
 {
     public:
-	mem_driver();
-	virtual ~mem_driver();
+	MemDriver();
+	virtual ~MemDriver();
 
 	/*
-	 * mem_driver::name()
+	 * MemDriver::name()
 	 *
 	 * Get the name of this driver.
 	 */
@@ -24,16 +26,18 @@ class mem_driver: public pp_driver
 	name() const;
 
 	/*
-	 * mem_driver::new_binding(args)
+	 * MemDriver::new_binding(args)
 	 *
-	 * Create a new pp_binding.
+	 * Create a new Binding.
 	 *
-	 * Throws: pp_driver::args_error
+	 * Throws: Driver::ArgsError
 	 */
-	virtual pp_binding_ptr
-	new_binding(const std::vector<pp_value> &args) const;
+	virtual BindingPtr
+	new_binding(const std::vector<Value> &args) const;
 };
 
-#define new_mem_driver(...) pp_driver_ptr(new mem_driver(__VA_ARGS__))
+#define new_mem_driver(...) DriverPtr(new MemDriver(__VA_ARGS__))
+
+}  // namespace pp
 
 #endif // PP_DRIVERS_MEM_MEM_DRIVER_H__

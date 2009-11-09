@@ -2,16 +2,18 @@
 #ifndef PP_DRIVERS_CPU_CPU_BINDING_H__
 #define PP_DRIVERS_CPU_CPU_BINDING_H__
 
-#include "pp.h"
+#include "pp/pp.h"
 #include <iostream>
 
+namespace pp { 
+
 /*
- * cpuid_address
+ * CpuAddress
  */
-struct cpu_address
+struct CpuAddress
 {
 	/* constructors */
-	cpu_address(int c)
+	CpuAddress(int c)
 	    : cpu(c)
 	{
 	}
@@ -19,16 +21,18 @@ struct cpu_address
 };
 
 inline bool
-operator<(const cpu_address &left, const cpu_address &right)
+operator<(const CpuAddress &left, const CpuAddress &right)
 {
 	return (left.cpu < right.cpu);
 }
 
 inline std::ostream &
-operator<<(std::ostream& out, const cpu_address &addr)
+operator<<(std::ostream& out, const CpuAddress &addr)
 {
 	out << "cpu<" << addr.cpu << ">";
 	return out;
 }
+
+}  // namespace pp
 
 #endif // PP_DRIVERS_CPU_CPU_BINDING_H__

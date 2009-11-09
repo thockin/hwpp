@@ -1,4 +1,4 @@
-#include "sockets.h"
+#include "pp/util/sockets.h"
 #include "pp_test.h"
 
 #define UNIX_SOCKET_NAME		"socket.exists"
@@ -8,41 +8,41 @@ TEST(test_ctors)
 {
 	// test server constructor
 	try {
-		unix_socket::server svr(UNIX_SOCKET_PATH);
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
 	} catch (std::exception &e) { //FIXME: catch specific exceptions
-		TEST_FAIL("unix_socket::server()");
+		TEST_FAIL("unix_socket::Server()");
 	}
 	// test again for proper unlinking
 	try {
-		unix_socket::server svr(UNIX_SOCKET_PATH);
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
 	} catch (std::exception &e) {
-		TEST_FAIL("unix_socket::server()");
+		TEST_FAIL("unix_socket::Server()");
 	}
-	// test socket constructor
+	// test Socket constructor
 	try {
-		unix_socket::socket c(UNIX_SOCKET_PATH);
-		TEST_FAIL("unix_socket::socket()");
-	} catch (std::exception &e) {
-	}
-	try {
-		unix_socket::socket c(UNIX_SOCKET_PATH ".not");
-		TEST_FAIL("unix_socket::socket()");
+		unix_socket::Socket c(UNIX_SOCKET_PATH);
+		TEST_FAIL("unix_socket::Socket()");
 	} catch (std::exception &e) {
 	}
 	try {
-		unix_socket::server svr(UNIX_SOCKET_PATH);
-		unix_socket::socket c(UNIX_SOCKET_PATH);
+		unix_socket::Socket c(UNIX_SOCKET_PATH ".not");
+		TEST_FAIL("unix_socket::Socket()");
 	} catch (std::exception &e) {
-		TEST_FAIL("unix_socket::server() and unix_socket::socket()");
+	}
+	try {
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
+		unix_socket::Socket c(UNIX_SOCKET_PATH);
+	} catch (std::exception &e) {
+		TEST_FAIL("unix_socket::Server() and unix_socket::Socket()");
 	}
 	{
 		{
-			unix_socket::server svr(UNIX_SOCKET_PATH);
-			unix_socket::socket c(UNIX_SOCKET_PATH);
+			unix_socket::Server svr(UNIX_SOCKET_PATH);
+			unix_socket::Socket c(UNIX_SOCKET_PATH);
 		}
 		try {
-			unix_socket::socket c2(UNIX_SOCKET_PATH);
-			TEST_FAIL("unix_socket::server()");
+			unix_socket::Socket c2(UNIX_SOCKET_PATH);
+			TEST_FAIL("unix_socket::Server()");
 		} catch (std::exception &e) {
 		}
 	}
@@ -51,18 +51,18 @@ TEST(test_ctors)
 TEST(test_connection)
 {
 	{
-		unix_socket::server svr(UNIX_SOCKET_PATH);
-		unix_socket::socket c(UNIX_SOCKET_PATH);
-		unix_socket::socket s = svr.accept();
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
+		unix_socket::Socket c(UNIX_SOCKET_PATH);
+		unix_socket::Socket s = svr.accept();
 		TEST_ASSERT(s.is_connected(),
 				"unix_socket::is_connected()");
 		TEST_ASSERT(c.is_connected(),
 				"unix_socket::is_connected()");
 	}
 	{
-		unix_socket::server svr(UNIX_SOCKET_PATH);
-		unix_socket::socket c(UNIX_SOCKET_PATH);
-		unix_socket::socket s = svr.accept();
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
+		unix_socket::Socket c(UNIX_SOCKET_PATH);
+		unix_socket::Socket s = svr.accept();
 		s.close();
 		TEST_ASSERT(!s.is_connected(),
 				"unix_socket::is_connected()");
@@ -70,9 +70,9 @@ TEST(test_connection)
 				"unix_socket::is_connected()");
 	}
 	{
-		unix_socket::server svr(UNIX_SOCKET_PATH);
-		unix_socket::socket c(UNIX_SOCKET_PATH);
-		unix_socket::socket s = svr.accept();
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
+		unix_socket::Socket c(UNIX_SOCKET_PATH);
+		unix_socket::Socket s = svr.accept();
 		c.close();
 		TEST_ASSERT(s.is_connected(),
 				"unix_socket::is_connected()");
@@ -80,9 +80,9 @@ TEST(test_connection)
 				"unix_socket::is_connected()");
 	}
 	{
-		unix_socket::server svr(UNIX_SOCKET_PATH);
-		unix_socket::socket c(UNIX_SOCKET_PATH);
-		unix_socket::socket s = svr.accept();
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
+		unix_socket::Socket c(UNIX_SOCKET_PATH);
+		unix_socket::Socket s = svr.accept();
 		c.close();
 		TEST_ASSERT(s.is_connected(),
 				"unix_socket::is_connected()");
@@ -90,9 +90,9 @@ TEST(test_connection)
 				"unix_socket::is_connected()");
 	}
 	{
-		unix_socket::server svr(UNIX_SOCKET_PATH);
-		unix_socket::socket c(UNIX_SOCKET_PATH);
-		unix_socket::socket s = svr.accept();
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
+		unix_socket::Socket c(UNIX_SOCKET_PATH);
+		unix_socket::Socket s = svr.accept();
 		s.close();
 		c.close();
 		TEST_ASSERT(!s.is_connected(),
@@ -101,9 +101,9 @@ TEST(test_connection)
 				"unix_socket::is_connected()");
 	}
 	{
-		unix_socket::server svr(UNIX_SOCKET_PATH);
-		unix_socket::socket c(UNIX_SOCKET_PATH);
-		unix_socket::socket s = svr.accept();
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
+		unix_socket::Socket c(UNIX_SOCKET_PATH);
+		unix_socket::Socket s = svr.accept();
 		s.close();
 		c.recv_line();
 		TEST_ASSERT(!s.is_connected(),
@@ -112,9 +112,9 @@ TEST(test_connection)
 				"unix_socket::is_connected()");
 	}
 	{
-		unix_socket::server svr(UNIX_SOCKET_PATH);
-		unix_socket::socket c(UNIX_SOCKET_PATH);
-		unix_socket::socket s = svr.accept();
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
+		unix_socket::Socket c(UNIX_SOCKET_PATH);
+		unix_socket::Socket s = svr.accept();
 		c.close();
 		s.recv_line();
 		TEST_ASSERT(!s.is_connected(),
@@ -132,9 +132,9 @@ TEST(test_send_recv)
 	
 	// Test recv_line()
 	{
-		unix_socket::server svr(UNIX_SOCKET_PATH);
-		unix_socket::socket c(UNIX_SOCKET_PATH);
-		unix_socket::socket s = svr.accept();
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
+		unix_socket::Socket c(UNIX_SOCKET_PATH);
+		unix_socket::Socket s = svr.accept();
 		c.send("This is a test message\n");
 		std::string str = s.recv_line();
 		if (str != "This is a test message") {
@@ -144,9 +144,9 @@ TEST(test_send_recv)
 		}
 	}
 	{
-		unix_socket::server svr(UNIX_SOCKET_PATH);
-		unix_socket::socket c(UNIX_SOCKET_PATH);
-		unix_socket::socket s = svr.accept();
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
+		unix_socket::Socket c(UNIX_SOCKET_PATH);
+		unix_socket::Socket s = svr.accept();
 		s.send("This is a test message\n");
 		std::string str = c.recv_line();
 		if (str != "This is a test message") {
@@ -156,9 +156,9 @@ TEST(test_send_recv)
 		}
 	}
 	{
-		unix_socket::server svr(UNIX_SOCKET_PATH);
-		unix_socket::socket c(UNIX_SOCKET_PATH);
-		unix_socket::socket s = svr.accept();
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
+		unix_socket::Socket c(UNIX_SOCKET_PATH);
+		unix_socket::Socket s = svr.accept();
 		c.send("Testing recv_line return on connection close");
 		c.close();
 		std::string str = s.recv_line();
@@ -169,9 +169,9 @@ TEST(test_send_recv)
 		}
 	}
 	{
-		unix_socket::server svr(UNIX_SOCKET_PATH);
-		unix_socket::socket c(UNIX_SOCKET_PATH);
-		unix_socket::socket s = svr.accept();
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
+		unix_socket::Socket c(UNIX_SOCKET_PATH);
+		unix_socket::Socket s = svr.accept();
 		s.send("Testing recv_line return on connection close");
 		s.close();
 		std::string str = c.recv_line();
@@ -185,9 +185,9 @@ TEST(test_send_recv)
 
 	// Test recv_all()
 	{
-		unix_socket::server svr(UNIX_SOCKET_PATH);
-		unix_socket::socket c(UNIX_SOCKET_PATH);
-		unix_socket::socket s = svr.accept();
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
+		unix_socket::Socket c(UNIX_SOCKET_PATH);
+		unix_socket::Socket s = svr.accept();
 		c.send("12345678901234567890");
 		char buf[3];
 		s.recv_all(buf, 3);
@@ -199,9 +199,9 @@ TEST(test_send_recv)
 		}
 	}
 	{
-		unix_socket::server svr(UNIX_SOCKET_PATH);
-		unix_socket::socket c(UNIX_SOCKET_PATH);
-		unix_socket::socket s = svr.accept();
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
+		unix_socket::Socket c(UNIX_SOCKET_PATH);
+		unix_socket::Socket s = svr.accept();
 		s.send("12345678901234567890");
 		char buf[3];
 		c.recv_all(buf, 3);
@@ -213,9 +213,9 @@ TEST(test_send_recv)
 		}
 	}
 	{
-		unix_socket::server svr(UNIX_SOCKET_PATH);
-		unix_socket::socket c(UNIX_SOCKET_PATH);
-		unix_socket::socket s = svr.accept();
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
+		unix_socket::Socket c(UNIX_SOCKET_PATH);
+		unix_socket::Socket s = svr.accept();
 		c.send("12345678901234567890");
 		c.close();
 		char buf[25];
@@ -228,9 +228,9 @@ TEST(test_send_recv)
 		}
 	}
 	{
-		unix_socket::server svr(UNIX_SOCKET_PATH);
-		unix_socket::socket c(UNIX_SOCKET_PATH);
-		unix_socket::socket s = svr.accept();
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
+		unix_socket::Socket c(UNIX_SOCKET_PATH);
+		unix_socket::Socket s = svr.accept();
 		s.send("12345678901234567890");
 		s.close();
 		char buf[25];
@@ -243,9 +243,9 @@ TEST(test_send_recv)
 		}
 	}
 	{
-		unix_socket::server svr(UNIX_SOCKET_PATH);
-		unix_socket::socket c(UNIX_SOCKET_PATH);
-		unix_socket::socket s = svr.accept();
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
+		unix_socket::Socket c(UNIX_SOCKET_PATH);
+		unix_socket::Socket s = svr.accept();
 		c.send("1234567890");
 		char buf[3];
 		int i = s.recv_all(buf, 3);
@@ -257,9 +257,9 @@ TEST(test_send_recv)
 		}
 	}
 	{
-		unix_socket::server svr(UNIX_SOCKET_PATH);
-		unix_socket::socket c(UNIX_SOCKET_PATH);
-		unix_socket::socket s = svr.accept();
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
+		unix_socket::Socket c(UNIX_SOCKET_PATH);
+		unix_socket::Socket s = svr.accept();
 		s.send("1234567890");
 		char buf[3];
 		int i = c.recv_all(buf, 3);
@@ -273,9 +273,9 @@ TEST(test_send_recv)
 	// Test receives after remote connection is closed
 	// with incoming data still buffered
 	{
-		unix_socket::server svr(UNIX_SOCKET_PATH);
-		unix_socket::socket c(UNIX_SOCKET_PATH);
-		unix_socket::socket s = svr.accept();
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
+		unix_socket::Socket c(UNIX_SOCKET_PATH);
+		unix_socket::Socket s = svr.accept();
 		c.send("1234567890");
 		c.close();
 		char buf[3];
@@ -289,9 +289,9 @@ TEST(test_send_recv)
 		}
 	}
 	{
-		unix_socket::server svr(UNIX_SOCKET_PATH);
-		unix_socket::socket c(UNIX_SOCKET_PATH);
-		unix_socket::socket s = svr.accept();
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
+		unix_socket::Socket c(UNIX_SOCKET_PATH);
+		unix_socket::Socket s = svr.accept();
 		s.send("1234567890");
 		s.close();
 		char buf[3];
@@ -306,9 +306,9 @@ TEST(test_send_recv)
 	}
 	// Test receiving 0 bytes; connection should still stay open
 	{
-		unix_socket::server svr(UNIX_SOCKET_PATH);
-		unix_socket::socket c(UNIX_SOCKET_PATH);
-		unix_socket::socket s = svr.accept();
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
+		unix_socket::Socket c(UNIX_SOCKET_PATH);
+		unix_socket::Socket s = svr.accept();
 		c.send("1234567890");
 		char buf[1];
 		s.recv_all(buf, 0);
@@ -320,9 +320,9 @@ TEST(test_send_recv)
 		}
 	}
 	{
-		unix_socket::server svr(UNIX_SOCKET_PATH);
-		unix_socket::socket c(UNIX_SOCKET_PATH);
-		unix_socket::socket s = svr.accept();
+		unix_socket::Server svr(UNIX_SOCKET_PATH);
+		unix_socket::Socket c(UNIX_SOCKET_PATH);
+		unix_socket::Socket s = svr.accept();
 		s.send("1234567890");
 		char buf[1];
 		c.recv_all(buf, 0);
