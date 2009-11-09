@@ -1,5 +1,5 @@
-#include "pp.h"
-#include "printfxx.h"
+#include "pp/pp.h"
+#include "pp/util/printfxx.h"
 
 #include <stdint.h>
 #include <unistd.h>
@@ -11,40 +11,42 @@
 #include <sstream>
 
 #include "pci_binding.h"
-#include "pp_driver.h"
-#include "filesystem.h"
-#include "bit_buffer.h"
+#include "pp/driver.h"
+#include "pp/util/filesystem.h"
+#include "pp/util/bit_buffer.h"
+
+namespace pp { 
 
 // helpers, local to this file
 static void
-enumerate_sysfs(std::vector<pci_address> *addresses);
+enumerate_sysfs(std::vector<PciAddress> *addresses);
 static void
-enumerate_procfs(std::vector<pci_address> *addresses);
+enumerate_procfs(std::vector<PciAddress> *addresses);
 
 #define PCI_SYSFS_DIR	"/sys/bus/pci/devices"
 #define PCI_PROCFS_DIR	"/proc/bus/pci"
 
 /* constructor */
-pci_io::pci_io(const pci_address &address, const string &devdir)
+PciIo::PciIo(const PciAddress &address, const string &devdir)
     : m_address(address)
 {
 	open_device(devdir);
 }
 
 /* destructor */
-pci_io::~pci_io()
+PciIo::~PciIo()
 {
 	// m_file will close() when it's last reference goes away
 }
 
-const pci_address &
-pci_io::address() const
+const PciAddress &
+PciIo::address() const
 {
 	return m_address;
 }
 
-pp_value
-pci_io::read(const pp_value &address, const pp_bitwidth width) const
+Value
+PciIo::read(const Value &address, const BitWidth width) const
 {
 	/* make sure this is a valid access */
 	check_width(width);
@@ -62,12 +64,12 @@ pci_io::read(const pp_value &address, const pp_bitwidth width) const
 		}
 	}
 
-	return pp_value(bb);
+	return Value(bb);
 }
 
 void
-pci_io::write(const pp_value &address, const pp_bitwidth width,
-    const pp_value &value) const
+PciIo::write(const Value &address, const BitWidth width,
+    const Value &value) const
 {
 	/* make sure this is a valid access */
 	check_width(width);
@@ -92,7 +94,7 @@ pci_io::write(const pp_value &address, const pp_bitwidth width,
 }
 
 void
-pci_io::enumerate(std::vector<pci_address> *addresses)
+PciIo::enumerate(std::vector<PciAddress> *addresses)
 {
 	if (filesystem::Direntry::is_dir(PCI_SYSFS_DIR)) {
 		enumerate_sysfs(addresses);
@@ -103,13 +105,13 @@ pci_io::enumerate(std::vector<pci_address> *addresses)
 }
 
 void
-pci_io::do_io_error(const string &str) const
+PciIo::do_io_error(const string &str) const
 {
-	throw pp_driver::io_error(to_string(m_address) + ": " + str);
+	throw Driver::IoError(to_string(m_address) + ": " + str);
 }
 
 void
-pci_io::open_device(string devdir)
+PciIo::open_device(string devdir)
 {
 	bool use_standard_devdirs = 0;
 
@@ -143,7 +145,7 @@ pci_io::open_device(string devdir)
 }
 
 void
-pci_io::check_width(pp_bitwidth width) const
+PciIo::check_width(BitWidth width) const
 {
 	switch (width) {
 	    case BITS8:
@@ -157,7 +159,7 @@ pci_io::check_width(pp_bitwidth width) const
 }
 
 void
-pci_io::check_bounds(const pp_value &offset, size_t bytes) const
+PciIo::check_bounds(const Value &offset, size_t bytes) const
 {
 	/* we support 4 KB config space */
 	if (offset < 0 || (offset+bytes) > 4096) {
@@ -167,13 +169,13 @@ pci_io::check_bounds(const pp_value &offset, size_t bytes) const
 }
 
 void
-pci_io::seek(const pp_value &offset) const
+PciIo::seek(const Value &offset) const
 {
 	m_file->seek(offset.get_uint(), SEEK_SET);
 }
 
 static void
-enumerate_sysfs(std::vector<pci_address> *addresses)
+enumerate_sysfs(std::vector<PciAddress> *addresses)
 {
 	filesystem::DirectoryPtr dir
 	    = filesystem::Directory::open(PCI_SYSFS_DIR);
@@ -198,12 +200,12 @@ enumerate_sysfs(std::vector<pci_address> *addresses)
 		    >> c
 		    >> func;
 
-		addresses->push_back(pci_address(seg, bus, dev, func));
+		addresses->push_back(PciAddress(seg, bus, dev, func));
 	}
 }
 
 static void
-enumerate_procfs(std::vector<pci_address> *addresses)
+enumerate_procfs(std::vector<PciAddress> *addresses)
 {
 	filesystem::DirectoryPtr dir
 	    = filesystem::Directory::open(PCI_PROCFS_DIR);
@@ -241,8 +243,10 @@ enumerate_procfs(std::vector<pci_address> *addresses)
 				    >> func;
 
 				addresses->push_back(
-					pci_address(bus, dev, func));
+					PciAddress(bus, dev, func));
 			}
 		}
 	}
 }
+
+}  // namespace pp

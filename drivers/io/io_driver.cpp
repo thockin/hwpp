@@ -1,50 +1,54 @@
-#include "pp.h"
-#include "pp_datatypes.h"
+#include "pp/pp.h"
+#include "pp/datatype_types.h"
 #include "io_driver.h"
 #include "io_binding.h"
+
+namespace pp { 
 
 #define IO_SPACE_SIZE	0x10000
 
 // this forces linkage and avoids the static initialization order fiasco
-pp_driver *
+Driver *
 load_io_driver()
 {
-	static io_driver the_driver;
+	static IoDriver the_driver;
 	return &the_driver;
 }
 
-io_driver::io_driver()
+IoDriver::IoDriver()
 {
 }
 
-io_driver::~io_driver()
+IoDriver::~IoDriver()
 {
 }
 
 string
-io_driver::name() const
+IoDriver::name() const
 {
 	return "io";
 }
 
-pp_binding_ptr
-io_driver::new_binding(const std::vector<pp_value> &args) const
+BindingPtr
+IoDriver::new_binding(const std::vector<Value> &args) const
 {
-	pp_value base, size;
+	Value base, size;
 
 	if (args.size() != 2) {
-		throw pp_driver::args_error("io<>: <base, size>");
+		throw Driver::ArgsError("io<>: <base, size>");
 	}
 
 	base = args[0];
 	size = args[1];
 
 	if (base < 0 || base >= IO_SPACE_SIZE) {
-		throw pp_driver::args_error("io<>: invalid base");
+		throw Driver::ArgsError("io<>: invalid base");
 	}
 	if (size < 0 || base + size > IO_SPACE_SIZE) {
-		throw pp_driver::args_error("io<>: invalid size");
+		throw Driver::ArgsError("io<>: invalid size");
 	}
 
-	return new_io_binding(io_address(base.get_uint(), size.get_uint()));
+	return new_io_binding(IoAddress(base.get_uint(), size.get_uint()));
 }
+
+}  // namespace pp

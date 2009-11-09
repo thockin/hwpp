@@ -2,20 +2,22 @@
 #ifndef PP_DRIVERS_IO_IO_BINDING_H__
 #define PP_DRIVERS_IO_IO_BINDING_H__
 
-#include "pp.h"
-#include "printfxx.h"
-#include "pp_binding.h"
-#include "pp_driver.h"
-#include "filesystem.h"
+#include "pp/pp.h"
+#include "pp/util/printfxx.h"
+#include "pp/binding.h"
+#include "pp/driver.h"
+#include "pp/util/filesystem.h"
 #include <iostream>
 
+namespace pp { 
+
 /*
- * io_address
+ * IoAddress
  */
-struct io_address
+struct IoAddress
 {
 	/* constructors */
-	io_address(uint16_t b, uint16_t s)
+	IoAddress(uint16_t b, uint16_t s)
 	    : base(b), size(s)
 	{
 	}
@@ -24,39 +26,39 @@ struct io_address
 };
 
 inline bool
-operator<(const io_address &left, const io_address &right)
+operator<(const IoAddress &left, const IoAddress &right)
 {
 	return (left.base < right.base);
 }
 
 inline std::ostream &
-operator<<(std::ostream& out, const io_address &addr)
+operator<<(std::ostream& out, const IoAddress &addr)
 {
 	out << sprintfxx("io<0x%04x,0x%04x>", addr.base, addr.size);
 	return out;
 }
 
 /*
- * io_io - Linux-specific port IO
+ * IoIo - Linux-specific port IO
  */
-class io_io
+class IoIo
 {
     public:
-	io_io(const io_address &address, const string &device = "");
-	~io_io();
+	IoIo(const IoAddress &address, const string &device = "");
+	~IoIo();
 
-	const io_address &
+	const IoAddress &
 	address() const;
 
-	pp_value
-	read(const pp_value &address, const pp_bitwidth width) const;
+	Value
+	read(const Value &address, const BitWidth width) const;
 
 	void
-	write(const pp_value &address, const pp_bitwidth width,
-	    const pp_value &value) const;
+	write(const Value &address, const BitWidth width,
+	    const Value &value) const;
 
     private:
-	io_address m_address;
+	IoAddress m_address;
 	filesystem::FilePtr m_file;
 
 	void
@@ -66,20 +68,22 @@ class io_io
 	open_device(string device);
 
 	void
-	check_width(pp_bitwidth width) const;
+	check_width(BitWidth width) const;
 
 	void
-	check_bounds(const pp_value &offset, unsigned bytes) const;
+	check_bounds(const Value &offset, unsigned bytes) const;
 
 	void
-	seek(const pp_value &offset) const;
+	seek(const Value &offset) const;
 };
 
 /*
- * io_binding - IO binding for register spaces
+ * IoBinding - IO binding for register spaces
  */
-typedef simple_binding<io_io, io_address> io_binding;
+typedef SimpleBinding<IoIo, IoAddress> IoBinding;
 
-#define new_io_binding(...) pp_binding_ptr(new io_binding(__VA_ARGS__))
+#define new_io_binding(...) BindingPtr(new IoBinding(__VA_ARGS__))
+
+}  // namespace pp
 
 #endif // PP_DRIVERS_IO_IO_BINDING_H__

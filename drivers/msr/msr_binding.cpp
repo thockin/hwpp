@@ -1,5 +1,5 @@
-#include "pp.h"
-#include "printfxx.h"
+#include "pp/pp.h"
+#include "pp/util/printfxx.h"
 
 #include <stdint.h>
 #include <unistd.h>
@@ -8,16 +8,18 @@
 #include <stdexcept>
 
 #include "msr_binding.h"
-#include "pp_driver.h"
-#include "filesystem.h"
-#include "syserror.h"
-#include "bit_buffer.h"
+#include "pp/driver.h"
+#include "pp/util/filesystem.h"
+#include "pp/util/syserror.h"
+#include "pp/util/bit_buffer.h"
+
+namespace pp { 
 
 #define MSR_DEVICE_DIR	"/dev/cpu"
 #define MSR_DEV_MAJOR	202
 
 /* constructor */
-msr_io::msr_io(const msr_address &address,
+MsrIo::MsrIo(const MsrAddress &address,
     const string &devdir, int major, int minor)
     : m_address(address)
 {
@@ -25,19 +27,19 @@ msr_io::msr_io(const msr_address &address,
 }
 
 /* destructor */
-msr_io::~msr_io()
+MsrIo::~MsrIo()
 {
 	// m_file will close() when it's last reference goes away
 }
 
-const msr_address &
-msr_io::address() const
+const MsrAddress &
+MsrIo::address() const
 {
 	return m_address;
 }
 
-pp_value
-msr_io::read(const pp_value &address, const pp_bitwidth width) const
+Value
+MsrIo::read(const Value &address, const BitWidth width) const
 {
 	/* make sure this is a valid access */
 	check_width(width);
@@ -51,12 +53,12 @@ msr_io::read(const pp_value &address, const pp_bitwidth width) const
 		                      address, strerror(errno)));
 	}
 
-	return pp_value(bb);
+	return Value(bb);
 }
 
 void
-msr_io::write(const pp_value &address, const pp_bitwidth width,
-    const pp_value &value) const
+MsrIo::write(const Value &address, const BitWidth width,
+    const Value &value) const
 {
 	/* make sure this is a valid access */
 	check_width(width);
@@ -77,13 +79,13 @@ msr_io::write(const pp_value &address, const pp_bitwidth width,
 }
 
 void
-msr_io::do_io_error(const string &str) const
+MsrIo::do_io_error(const string &str) const
 {
-	throw pp_driver::io_error(to_string(m_address) + ": " + str);
+	throw Driver::IoError(to_string(m_address) + ": " + str);
 }
 
 void
-msr_io::open_device(string devdir, int major, int minor)
+MsrIo::open_device(string devdir, int major, int minor)
 {
 	string filename;
 
@@ -99,7 +101,7 @@ msr_io::open_device(string devdir, int major, int minor)
 	try {
 		m_file = filesystem::File::open(filename, O_RDONLY);
 		return;
-	} catch (syserr::not_found &e) {
+	} catch (syserr::NotFound &e) {
 		/* do nothing yet */
 	}
 
@@ -111,7 +113,7 @@ msr_io::open_device(string devdir, int major, int minor)
 }
 
 void
-msr_io::check_width(pp_bitwidth width) const
+MsrIo::check_width(BitWidth width) const
 {
 	/* we only support 64 bit accesses */
 	switch (width) {
@@ -123,10 +125,10 @@ msr_io::check_width(pp_bitwidth width) const
 }
 
 void
-msr_io::check_bounds(const pp_value &offset, unsigned bytes) const
+MsrIo::check_bounds(const Value &offset, unsigned bytes) const
 {
 	/* MSRs have 32 bit addresses */
-	if (offset < 0 || (offset+bytes) > PP_MASK(32)) {
+	if (offset < 0 || (offset+bytes) > MASK(32)) {
 		do_io_error(sprintfxx("invalid register: %d bytes @ 0x%x",
 		                      bytes, offset));
 	}
@@ -134,7 +136,9 @@ msr_io::check_bounds(const pp_value &offset, unsigned bytes) const
 
 
 void
-msr_io::seek(const pp_value &offset) const
+MsrIo::seek(const Value &offset) const
 {
 	m_file->seek(offset.get_uint(), SEEK_SET);
 }
+
+}  // namespace pp

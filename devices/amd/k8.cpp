@@ -1,4 +1,3 @@
-//
 // This file includes support for AMD K8 family processors.  The following
 // revisions are supported:
 // 	- Rev E
@@ -9,16 +8,18 @@
 //
 // Tim Hockin
 // May, 2008
-//
-#include "pp.h"
+
+#include "pp/pp.h"
 #include "fake_language.h"
 #include "devices/pci/generic_device.h"
 #include "devices/cpuid/generic_device.h"
 #include "devices/msr/generic_device.h"
 
+namespace pp {
+namespace device {
 
 static void
-k8_cpuid(const pp_value &cpu)
+k8_cpuid(const Value &cpu)
 {
 	CPUID_SCOPE("cpuid", cpu);
 
@@ -28,7 +29,7 @@ k8_cpuid(const pp_value &cpu)
 }
 
 static void
-k8_msr(const pp_value &cpu)
+k8_msr(const Value &cpu)
 {
 	MSR_SCOPE("msr", cpu);
 
@@ -511,7 +512,7 @@ k8_msr(const pp_value &cpu)
 		FIELD("INT", "enabledisable_t", BITS("%PerfEvtSel", 20));
 		FIELD("EN", "enabledisable_t", BITS("%PerfEvtSel", 22));
 		FIELD("INV", "yesno_t", BITS("%PerfEvtSel", 23));
-		if (FIELD_EQ("INV", pp_value(0))) {
+		if (FIELD_EQ("INV", Value(0))) {
 			FIELD("CNT_MASK",
 				ANON_ENUM(KV("incr_always", 0),
 					  KV("incr_if_ge_1", 1),
@@ -1226,8 +1227,8 @@ k8_msr(const pp_value &cpu)
 }
 
 static void
-k8_ht_config(const pp_value &seg, const pp_value &bus,
-             const pp_value &dev, const pp_value &func)
+k8_ht_config(const Value &seg, const Value &bus,
+             const Value &dev, const Value &func)
 {
 	PCI_SCOPE("ht_config", seg, bus, dev, func);
 
@@ -1396,8 +1397,8 @@ k8_ht_config(const pp_value &seg, const pp_value &bus,
 }
 
 static void
-k8_address_map(const pp_value &seg, const pp_value &bus,
-               const pp_value &dev, const pp_value &func)
+k8_address_map(const Value &seg, const Value &bus,
+               const Value &dev, const Value &func)
 {
 	PCI_SCOPE("address_map", seg, bus, dev, func+1);
 
@@ -1524,19 +1525,19 @@ k8_address_map(const pp_value &seg, const pp_value &bus,
 	CLOSE_SCOPE(); // address_map
 }
 
-class dram_addtional_data_procs: public pp_rwprocs
+class DramAdditionalDataProcs: public RwProcs
 {
     private:
-	pp_value m_index;
+	Value m_index;
 	static const uint32_t DctAccessWrite = (1<<30);
 
     public:
-	explicit dram_addtional_data_procs(pp_value index)
-	    : m_index(index & pp_value(0x3fffffff))
+	explicit DramAdditionalDataProcs(Value index)
+	    : m_index(index & Value(0x3fffffff))
 	{
 	}
 
-	pp_value
+	Value
 	read(void) const
 	{
 		WRITE("../%dram_additional_data_offset", m_index);
@@ -1546,18 +1547,18 @@ class dram_addtional_data_procs: public pp_rwprocs
 	}
 
 	void
-	write(const pp_value &value) const
+	write(const Value &value) const
 	{
 		WRITE("../%dram_additional_data_port", value);
 		WRITE("../%dram_additional_data_offset",
-		      m_index | pp_value(DctAccessWrite));
+		      m_index | Value(DctAccessWrite));
 		while (READ(BITS("../%dram_additional_data_offset", 31)) == 0)
 			; // do nothing
 	}
 };
 
 static void
-dram_additional_data(const string &name, const pp_value &address)
+dram_additional_data(const string &name, const Value &address)
 {
 	OPEN_SCOPE(name);
 
@@ -1566,7 +1567,7 @@ dram_additional_data(const string &name, const pp_value &address)
 	//
 
 	REG32("%output_driver_compensation_ctrl",
-	      PROCS(dram_addtional_data_procs(address + 0x00)));
+	      PROCS(DramAdditionalDataProcs(address + 0x00)));
 	FIELD("CkeDreStren", ANON_ENUM(
 				KV("1.0x", 0),
 				KV("1.25x", 1),
@@ -1614,9 +1615,9 @@ dram_additional_data(const string &name, const pp_value &address)
 	//
 
 	REG32("%write_data_timing_lo_ctrl",
-	      PROCS(dram_addtional_data_procs(address + 0x01)));
+	      PROCS(DramAdditionalDataProcs(address + 0x01)));
 	REG32("%write_data_timing_hi_ctrl",
-	      PROCS(dram_addtional_data_procs(address + 0x02)));
+	      PROCS(DramAdditionalDataProcs(address + 0x02)));
 
 	FIELD("WrDatTimeByte0", ANON_INT("/96 MEMCLK"),
 	      BITS("%write_data_timing_lo_ctrl", 5, 0));
@@ -1636,7 +1637,7 @@ dram_additional_data(const string &name, const pp_value &address)
 	      BITS("%write_data_timing_hi_ctrl", 29, 24));
 
 	REG32("%write_data_ecc_timing_ctrl",
-	      PROCS(dram_addtional_data_procs(address + 0x03)));
+	      PROCS(DramAdditionalDataProcs(address + 0x03)));
 	FIELD("WrChkTime", ANON_INT("/96 MEMCLK"),
 	      BITS("%write_data_ecc_timing_ctrl", 5, 0));
 
@@ -1645,7 +1646,7 @@ dram_additional_data(const string &name, const pp_value &address)
 	//
 
 	REG32("%address_timing_ctrl",
-	      PROCS(dram_addtional_data_procs(address + 0x04)));
+	      PROCS(DramAdditionalDataProcs(address + 0x04)));
 	FIELD("CkeFineDelay", ANON_INT("/64 MEMCLK"),
 	      BITS("%address_timing_ctrl", 4, 0));
 	FIELD("CkeSetup", ANON_BOOL("1 MEMCLK", "1/2 MEMCLK"),
@@ -1666,9 +1667,9 @@ dram_additional_data(const string &name, const pp_value &address)
 	//
 
 	REG32("%read_dqs_timing_lo_ctrl",
-	      PROCS(dram_addtional_data_procs(address + 0x05)));
+	      PROCS(DramAdditionalDataProcs(address + 0x05)));
 	REG32("%read_dqs_timing_hi_ctrl",
-	      PROCS(dram_addtional_data_procs(address + 0x06)));
+	      PROCS(DramAdditionalDataProcs(address + 0x06)));
 
 	FIELD("RdDqsTimeByte0", ANON_INT("/96 MEMCLK"),
 	      BITS("%read_dqs_timing_lo_ctrl", 5, 0));
@@ -1688,7 +1689,7 @@ dram_additional_data(const string &name, const pp_value &address)
 	      BITS("%read_dqs_timing_hi_ctrl", 29, 24));
 
 	REG32("%read_dqs_ecc_timing_ctrl",
-	      PROCS(dram_addtional_data_procs(address + 0x07)));
+	      PROCS(DramAdditionalDataProcs(address + 0x07)));
 	FIELD("RdDqsTimeCheck", ANON_INT("/96 MEMCLK"),
 	      BITS("%write_data_ecc_timing_ctrl", 5, 0));
 
@@ -1697,22 +1698,22 @@ dram_additional_data(const string &name, const pp_value &address)
 	//
 
 	REG32("%dqs_receiver_enable_timing_ctrl[]",
-	      PROCS(dram_addtional_data_procs(address + 0x10)));
+	      PROCS(DramAdditionalDataProcs(address + 0x10)));
 	FIELD("DqsRcvEnDelay[]", ANON_XFORM(ANON_INT("ps"),
 				LAMBDA(_1 * 50), LAMBDA(_1)),
 			BITS("%dqs_receiver_enable_timing_ctrl[-1]", 7, 0));
 	REG32("%dqs_receiver_enable_timing_ctrl[]",
-	      PROCS(dram_addtional_data_procs(address + 0x13)));
+	      PROCS(DramAdditionalDataProcs(address + 0x13)));
 	FIELD("DqsRcvEnDelay[]", ANON_XFORM(ANON_INT("ps"),
 				LAMBDA(_1 * 50), LAMBDA(_1)),
 			BITS("%dqs_receiver_enable_timing_ctrl[-1]", 7, 0));
 	REG32("%dqs_receiver_enable_timing_ctrl[]",
-	      PROCS(dram_addtional_data_procs(address + 0x16)));
+	      PROCS(DramAdditionalDataProcs(address + 0x16)));
 	FIELD("DqsRcvEnDelay[]", ANON_XFORM(ANON_INT("ps"),
 				LAMBDA(_1 * 50), LAMBDA(_1)),
 			BITS("%dqs_receiver_enable_timing_ctrl[-1]", 7, 0));
 	REG32("%dqs_receiver_enable_timing_ctrl[]",
-	      PROCS(dram_addtional_data_procs(address + 0x19)));
+	      PROCS(DramAdditionalDataProcs(address + 0x19)));
 	FIELD("DqsRcvEnDelay[]", ANON_XFORM(ANON_INT("ps"),
 				LAMBDA(_1 * 50), LAMBDA(_1)),
 			BITS("%dqs_receiver_enable_timing_ctrl[-1]", 7, 0));
@@ -1721,8 +1722,8 @@ dram_additional_data(const string &name, const pp_value &address)
 }
 
 static void
-k8_dram_controller(const pp_value &seg, const pp_value &bus,
-                   const pp_value &dev, const pp_value &func)
+k8_dram_controller(const Value &seg, const Value &bus,
+                   const Value &dev, const Value &func)
 {
 	PCI_SCOPE("dram_ctrl", seg, bus, dev, func+2);
 
@@ -2046,9 +2047,9 @@ k8_dram_controller(const pp_value &seg, const pp_value &bus,
 					      KV("same_DIMM_clock", 2),
 					      KV("independent_DIMM_clock", 3)),
 				BITS("../%dram_config_low", 31, 30));
-		if (FIELD_EQ("Burst2Opt", pp_value(1)) &&
-				FIELD_EQ("UnBuffDimm", pp_value(1)) &&
-				FIELD_EQ("En2T", pp_value(0))) {
+		if (FIELD_EQ("Burst2Opt", Value(1)) &&
+				FIELD_EQ("UnBuffDimm", Value(1)) &&
+				FIELD_EQ("En2T", Value(0))) {
 			FIELD("Bytes32En", ANON_ENUM(KV("8beat_64byte", 0),
 						     KV("4beat_64byte", 1),
 						     KV("4beat_32byte", 2),
@@ -2344,8 +2345,8 @@ k8_dram_controller(const pp_value &seg, const pp_value &bus,
 }
 
 static void
-k8_misc_control(const pp_value &seg, const pp_value &bus,
-                const pp_value &dev, const pp_value &func)
+k8_misc_control(const Value &seg, const Value &bus,
+                const Value &dev, const Value &func)
 {
 	PCI_SCOPE("misc_ctrl", seg, bus, dev, func+3);
 
@@ -3119,12 +3120,12 @@ k8_types()
 }
 
 static void
-k8_pci(const std::vector<pp_value> &args)
+k8_pci(const std::vector<Value> &args)
 {
-	pp_value seg = args[0];
-	pp_value bus = args[1];
-	pp_value dev = args[2];
-	pp_value func = args[3];
+	Value seg = args[0];
+	Value bus = args[1];
+	Value dev = args[2];
+	Value func = args[3];
 
 	OPEN_SCOPE("k8[]");
 	BOOKMARK("k8");
@@ -3154,9 +3155,9 @@ k8_pci(const std::vector<pp_value> &args)
 }
 
 static void
-k8_cpu(const std::vector<pp_value> &args)
+k8_cpu(const std::vector<Value> &args)
 {
-	pp_value cpu = args[0];
+	Value cpu = args[0];
 
 	OPEN_SCOPE("cpu." + to_string(cpu));
 	BOOKMARK("cpu");
@@ -3178,10 +3179,10 @@ k8_cpu(const std::vector<pp_value> &args)
 		} else if (FIELD_GE("cpuid/model", 0x20)) {
 			FIELD("k8_rev", "k8_rev_t", 'e');
 		} else {
-			FIELD("k8_rev", "k8_rev_t", pp_value(0));
+			FIELD("k8_rev", "k8_rev_t", Value(0));
 		}
 	} else {
-		FIELD("k8_rev", "k8_rev_t", pp_value(0));
+		FIELD("k8_rev", "k8_rev_t", Value(0));
 	}
 
 	// define MSR regs
@@ -3191,30 +3192,33 @@ k8_cpu(const std::vector<pp_value> &args)
 	ALIAS("cpu[]", "cpu." + to_string(cpu));
 }
 
-class k8_discovery {
+class K8Discovery
+{
     public:
-	explicit
-	k8_discovery()
+	K8Discovery()
 	{
 		// register our 'keystone' device
-		pp_register_discovery("pci", ARGS(0x1022, 0x1100), k8_pci);
+		register_discovery("pci", ARGS(0x1022, 0x1100), k8_pci);
 		// ignore other sub-devices in this same device, we'll
 		// handle them in k8_discovered()
-		pp_register_discovery("pci", ARGS(0x1022, 0x1101));
-		pp_register_discovery("pci", ARGS(0x1022, 0x1102));
-		pp_register_discovery("pci", ARGS(0x1022, 0x1103));
-		pp_register_discovery("cpu",       // rev E
-				ARGS(pp_value("0x444d416369746e6568747541"),
-				     0x0f, 0x0f,   // family range
-				     0x20, 0x39,   // model range
-				     0x00, 0xFF), k8_cpu); // stepping range
-		pp_register_discovery("cpu",       // rev F
-				ARGS(pp_value("0x444d416369746e6568747541"),
-				     0x0f, 0x0f,   // family range
-				     0x40, 0xFF,   // model range
-				     0x00, 0xFF), k8_cpu); // stepping range
+		register_discovery("pci", ARGS(0x1022, 0x1101));
+		register_discovery("pci", ARGS(0x1022, 0x1102));
+		register_discovery("pci", ARGS(0x1022, 0x1103));
+		register_discovery("cpu",       // rev E
+		                   ARGS(Value("0x444d416369746e6568747541"),
+		                        0x0f, 0x0f,   // family range
+		                        0x20, 0x39,   // model range
+		                        0x00, 0xFF), k8_cpu); // stepping range
+		register_discovery("cpu",       // rev F
+		                   ARGS(Value("0x444d416369746e6568747541"),
+		                        0x0f, 0x0f,   // family range
+		                        0x40, 0xFF,   // model range
+		                        0x00, 0xFF), k8_cpu); // stepping range
 		//FIXME: register other devices this owns
 	}
 };
 
-static k8_discovery the_k8_discovery;
+static K8Discovery the_k8_discovery;
+
+}  // namespace device
+}  // namespace pp

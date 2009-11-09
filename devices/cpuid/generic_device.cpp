@@ -6,84 +6,87 @@
 // http://www.sandpile.org/ia32/cpuid.htm
 //
 
-#include "pp.h"
+#include "pp/pp.h"
 #include "generic_device.h"
 #include "fake_language.h"
 
+namespace pp {
+namespace device {
+
 // Functions for easy access to individual registers returned by cpuid
-inline pp_regbits
-EAX(const string &name, const pp_bitwidth &hi, const pp_bitwidth &lo)
+inline RegBits
+EAX(const string &name, const BitWidth &hi, const BitWidth &lo)
 {
 	return BITS(name, hi, lo);
 }
-inline pp_regbits
-EAX(const string &name, const pp_bitwidth &bit)
+inline RegBits
+EAX(const string &name, const BitWidth &bit)
 {
 	return BITS(name, bit);
 }
-inline pp_regbits
+inline RegBits
 EAX(const string &name)
 {
 	return BITS(name, 31, 0);
 }
-inline pp_regbits
-EBX(const string &name, const pp_bitwidth &hi, const pp_bitwidth &lo)
+inline RegBits
+EBX(const string &name, const BitWidth &hi, const BitWidth &lo)
 {
 	return BITS(name, hi + 32, lo + 32);
 }
-inline pp_regbits
-EBX(const string &name, const pp_bitwidth &bit)
+inline RegBits
+EBX(const string &name, const BitWidth &bit)
 {
 	return BITS(name, bit + 32);
 }
-inline pp_regbits
+inline RegBits
 EBX(const string &name)
 {
 	return BITS(name, 63, 32);
 }
-inline pp_regbits
-ECX(const string &name, const pp_bitwidth &hi, const pp_bitwidth &lo)
+inline RegBits
+ECX(const string &name, const BitWidth &hi, const BitWidth &lo)
 {
 	return BITS(name, hi + 64, lo + 64);
 }
-inline pp_regbits
-ECX(const string &name, const pp_bitwidth &bit)
+inline RegBits
+ECX(const string &name, const BitWidth &bit)
 {
 	return BITS(name, bit + 64);
 }
-inline pp_regbits
+inline RegBits
 ECX(const string &name)
 {
 	return BITS(name, 95, 64);
 }
-inline pp_regbits
-EDX(const string &name, const pp_bitwidth &hi, const pp_bitwidth &lo)
+inline RegBits
+EDX(const string &name, const BitWidth &hi, const BitWidth &lo)
 {
 	return BITS(name, hi + 96, lo + 96);
 }
-inline pp_regbits
-EDX(const string &name, const pp_bitwidth &bit)
+inline RegBits
+EDX(const string &name, const BitWidth &bit)
 {
 	return BITS(name, bit + 96);
 }
-inline pp_regbits
+inline RegBits
 EDX(const string &name)
 {
 	return BITS(name, 127, 96);
 }
 
 /* populate the current scope with generic CPUID fields */
-class cpuid_family_procs: public pp_rwprocs
+class CpuidFamilyProcs: public RwProcs
 {
-	pp_value
+	Value
 	read() const
 	{
 		if (FIELD_EQ("vendor", "intel")) {
-			pp_value family = READ(EAX("%function_1", 11, 8))
+			Value family = READ(EAX("%function_1", 11, 8))
 			                + READ(EAX("%function_1", 27, 20));
 			return family;
 		} else if (FIELD_EQ("vendor", "amd")) {
-			pp_value base_family = READ(EAX("%function_1", 11, 8));
+			Value base_family = READ(EAX("%function_1", 11, 8));
 			if (base_family == 0xf) {
 				return READ(EAX("%function_1", 27, 20)) + 0xf;
 			}
@@ -93,22 +96,22 @@ class cpuid_family_procs: public pp_rwprocs
 		return READ(EAX("%function_1", 11, 8));
 	}
 	void
-	write(const pp_value &value) const
+	write(const Value &value) const
 	{
 		(void)value;
 		// not supported
 	}
 };
-class cpuid_model_procs: public pp_rwprocs
+class CpuidModelProcs: public RwProcs
 {
-	pp_value
+	Value
 	read() const
 	{
 		if (FIELD_EQ("vendor", "intel")) {
 			return READ(EAX("%function_1", 19, 16)
 				    + EAX("%function_1", 7, 4));
 		} else if (FIELD_EQ("vendor", "amd")) {
-			pp_value base_family = READ(EAX("%function_1", 11, 8));
+			Value base_family = READ(EAX("%function_1", 11, 8));
 			if (base_family == 0xf) {
 				return READ(EAX("%function_1", 19, 16)
 					    + EAX("%function_1", 7, 4));
@@ -119,7 +122,7 @@ class cpuid_model_procs: public pp_rwprocs
 		return READ(EAX("%function_1", 7, 4));
 	}
 	void
-	write(const pp_value &value) const
+	write(const Value &value) const
 	{
 		(void)value;
 		// not supported
@@ -145,8 +148,8 @@ cpuid_generic_device()
 	// CPUID Function 0x1
 	if (FIELD_GE("largest_std_fn", 1)) {
 		REG128("%function_1", 0x1);
-		FIELD("family", "int_t", PROCS(cpuid_family_procs));
-		FIELD("model", "int_t", PROCS(cpuid_model_procs));
+		FIELD("family", "int_t", PROCS(CpuidFamilyProcs));
+		FIELD("model", "int_t", PROCS(CpuidModelProcs));
 		FIELD("stepping", "int_t", EAX("%function_1", 3, 0));
 
 		FIELD("type", ANON_ENUM(
@@ -199,7 +202,7 @@ cpuid_generic_device()
 					READ("queries_needed").get_uint();
 			}
 
-			if (READ(EAX("%function_2[-1]", 31)) == pp_value(0)) {
+			if (READ(EAX("%function_2[-1]", 31)) == Value(0)) {
 				for (int i = 31; i > 7; i -= 8) {
 					if (READ(EAX("%function_2[-1]",
 					    i, i-7)) != 0) {
@@ -210,7 +213,7 @@ cpuid_generic_device()
 					}
 				}
 			}
-			if (READ(EBX("%function_2[-1]", 31)) == pp_value(0)) {
+			if (READ(EBX("%function_2[-1]", 31)) == Value(0)) {
 				for (int i = 31; i > 0; i -= 8) {
 					if (READ(EBX("%function_2[-1]",
 					    i, i-7)) != 0) {
@@ -221,7 +224,7 @@ cpuid_generic_device()
 					}
 				}
 			}
-			if (READ(ECX("%function_2[-1]", 31)) == pp_value(0)) {
+			if (READ(ECX("%function_2[-1]", 31)) == Value(0)) {
 				for (int i = 31; i > 0; i -= 8) {
 					if (READ(ECX("%function_2[-1]",
 					    i, i-7)) != 0) {
@@ -232,7 +235,7 @@ cpuid_generic_device()
 					}
 				}
 			}
-			if (READ(EDX("%function_2[-1]", 31)) == pp_value(0)) {
+			if (READ(EDX("%function_2[-1]", 31)) == Value(0)) {
 				for (int i = 31; i > 0; i -= 8) {
 					if (READ(EDX("%function_2[-1]",
 					    i, i-7)) != 0) {
@@ -255,7 +258,7 @@ cpuid_generic_device()
 	// CPUID Function 0x4
 	if (FIELD_GE("largest_std_fn", 0x4)) {
 		for (int i = 0; true; i++) {
-			pp_value addr = (pp_value(i) << 32) | pp_value(0x4);
+			Value addr = (Value(i) << 32) | Value(0x4);
 			// read the next 'type' field to see if it is valid
 			if (READ(BITS(REG128(addr), 4, 0)) == 0) {
 				break;
@@ -389,7 +392,7 @@ cpuid_generic_device()
 	// CPUID Function 0xB
 	if (FIELD_GE("largest_std_fn", 0xB)) {
 		for (int i = 0; true; i++) {
-			pp_value addr = (pp_value(i) << 32) | pp_value(0xB);
+			Value addr = (Value(i) << 32) | Value(0xB);
 			// check if we have run out of levels
 			if (READ(BITS(REG128(addr), 63, 0)) == 0) {
 				break;
@@ -837,7 +840,7 @@ cpuid_generic_device()
 					EAX("%function_80000008", 15, 12));
 			FIELD("nc", "int_t",
 					EAX("%function_80000008", 7, 0));
-			if (FIELD_EQ("apic_id_core_id_size", pp_value(0))) {
+			if (FIELD_EQ("apic_id_core_id_size", Value(0))) {
 				FIELD("mnc", "int_t",
 					READ("nc") + 1);
 			} else {
@@ -922,8 +925,11 @@ cpuid_generic_device()
 }
 
 void
-CPUID_SCOPE(const string &name, const pp_value &cpu)
+CPUID_SCOPE(const string &name, const Value &cpu)
 {
 	OPEN_SCOPE(name, BIND("cpuid", ARGS(cpu)));
 	cpuid_generic_device();
 }
+
+}  // namespace device
+}  // namespace pp

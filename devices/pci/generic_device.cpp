@@ -1,12 +1,15 @@
-#include "pp.h"
+#include "pp/pp.h"
 #include "generic_device.h"
 #include "fake_language.h"
+
+namespace pp {
+namespace device {
 
 //FIXME unify cap, sts, en, dis, msk, svr names everywhere.  Look at aer
 
 // All standard BARs look like this.
 static void
-BAR(const string &name, const pp_value &address)
+BAR(const string &name, const Value &address)
 {
 	OPEN_SCOPE(name);
 
@@ -45,7 +48,7 @@ BAR(const string &name, const pp_value &address)
 }
 
 static void
-ht_link_control(const pp_value &address)
+ht_link_control(const Value &address)
 {
 	REG16("%control", address);
 	OPEN_SCOPE("control");
@@ -68,7 +71,7 @@ ht_link_control(const pp_value &address)
 }
 
 static void
-ht_link_config(const pp_value &address)
+ht_link_config(const Value &address)
 {
 	ENUM("ht_link_width_t",
 			KV("bits8", 0),
@@ -95,7 +98,7 @@ ht_link_config(const pp_value &address)
 }
 
 static void
-ht_link_freq_err(const pp_value &address)
+ht_link_freq_err(const Value &address)
 {
 	ENUM("ht_link_freq_t",
 			KV("mhz200", 0),
@@ -124,7 +127,7 @@ ht_link_freq_err(const pp_value &address)
 }
 
 static void
-ht_link_freq_cap(const pp_value &address)
+ht_link_freq_cap(const Value &address)
 {
 	BITMASK("ht_link_freq_cap_t",
 			KV("mhz200", 0),
@@ -148,7 +151,7 @@ ht_link_freq_cap(const pp_value &address)
 }
 
 static void
-ht_error_handling(const pp_value &address)
+ht_error_handling(const Value &address)
 {
 	REG16("%error", address);
 	OPEN_SCOPE("error");
@@ -173,7 +176,7 @@ ht_error_handling(const pp_value &address)
 }
 
 static void
-ht_slave_link(const string &name, const pp_value &address)
+ht_slave_link(const string &name, const Value &address)
 {
 	OPEN_SCOPE(name);
 	ht_link_control(address);
@@ -185,7 +188,7 @@ ht_slave_link(const string &name, const pp_value &address)
 
 // HyperTransport primary/slave
 static void
-ht_slave_capability(const pp_value &address)
+ht_slave_capability(const Value &address)
 {
 	REG16("%command", address + 2);
 	FIELD("base_unit_id", "int_t", BITS("%command", 4, 0));
@@ -223,7 +226,7 @@ ht_slave_capability(const pp_value &address)
 }
 
 static void
-ht_host_link(const string &name, const pp_value &address)
+ht_host_link(const string &name, const Value &address)
 {
 	OPEN_SCOPE(name);
 	ht_link_control(address);
@@ -234,7 +237,7 @@ ht_host_link(const string &name, const pp_value &address)
 }
 
 static void
-ht_host_capability(const pp_value &address)
+ht_host_capability(const Value &address)
 {
 	REG16("%command", address + 2);
 	FIELD("warm_reset", "yesno_t", BITS("%command", 0));
@@ -275,7 +278,7 @@ ht_host_capability(const pp_value &address)
 }
 
 static void
-ht_revision_capability(const pp_value &address)
+ht_revision_capability(const Value &address)
 {
 	REG8("%rev", address+2);
 	FIELD("major_rev", "int_t", BITS("%rev", 7, 5));
@@ -283,7 +286,7 @@ ht_revision_capability(const pp_value &address)
 }
 
 static void
-ht_extended_config_capability(const pp_value &address)
+ht_extended_config_capability(const Value &address)
 {
 	REG32("%address", address+4);
 	FIELD("type", ANON_ENUM(
@@ -300,7 +303,7 @@ ht_extended_config_capability(const pp_value &address)
 }
 
 static void
-ht_address_mapping_capability(const pp_value &address)
+ht_address_mapping_capability(const Value &address)
 {
 	REG16("%command", address + 0x02);
 	FIELD("num_dma", "int_t", BITS("%command", 3, 0));
@@ -334,7 +337,7 @@ ht_address_mapping_capability(const pp_value &address)
 				BITS("%0", 19, 0));
 		CLOSE_SCOPE();
 
-		pp_value value = READ("num_dma");
+		Value value = READ("num_dma");
 		for (unsigned i = 0; i < value; i++) {
 			OPEN_SCOPE("dma[]");
 			REG32("%lower", address + 0x0c + (8*i));
@@ -361,7 +364,7 @@ ht_address_mapping_capability(const pp_value &address)
 }
 
 static void
-ht_msi_mapping_capability(const pp_value &address)
+ht_msi_mapping_capability(const Value &address)
 {
 	REG8("%flags", address+2);
 	FIELD("en", "yesno_t", BITS("%flags", 0));
@@ -377,7 +380,7 @@ ht_msi_mapping_capability(const pp_value &address)
 }
 
 static void
-power_mgmt_capability(const pp_value &address)
+power_mgmt_capability(const Value &address)
 {
 	REG16("%pmc", address+2);
 	FIELD("version", ANON_ENUM(
@@ -432,7 +435,7 @@ power_mgmt_capability(const pp_value &address)
 }
 
 static void
-slot_id_capability(const pp_value &address)
+slot_id_capability(const Value &address)
 {
 	REG8("%slot", address+2);
 	FIELD("nslots", "int_t", BITS("%slot", 4, 0));
@@ -441,7 +444,7 @@ slot_id_capability(const pp_value &address)
 }
 
 static void
-msi_capability(const pp_value &address)
+msi_capability(const Value &address)
 {
 	// message control
 	REG16("%msg_ctrl", address + 2);
@@ -498,7 +501,7 @@ msi_capability(const pp_value &address)
 	}
 
 	if (FIELD_BOOL("mask_per_vec")) {
-		pp_value vecs = 1 << READ("multi_msg_cap");
+		Value vecs = 1 << READ("multi_msg_cap");
 		for (unsigned i = 0; i < vecs; i++) {
 			FIELD("mask[]", "yesno_t", BITS("%mask", i));
 			FIELD("pend[]", "yesno_t", BITS("%pending", i));
@@ -507,7 +510,7 @@ msi_capability(const pp_value &address)
 }
 
 static void
-msix_capability(const pp_value &address)
+msix_capability(const Value &address)
 {
 	REG16("%msg_ctrl", address + 2);
 	FIELD("msix_enable", "yesno_t", BITS("%msg_ctrl", 15));
@@ -522,11 +525,11 @@ msix_capability(const pp_value &address)
 			BITS("%table_ptr", 31, 3) +
 			BITS("%0", 2, 0));
 
-	pp_value table_size = READ("table_size") + 1;
+	Value table_size = READ("table_size") + 1;
 
 	//FIXME: a better way to do this?
 	string bar;
-	pp_value base, size;
+	Value base, size;
 
 	//FIXME: EVAL("table_bir")?
 	bar = "$pci/" + GET_FIELD("table_bir")->evaluate() + "/address";
@@ -561,7 +564,7 @@ msix_capability(const pp_value &address)
 	base = READ(bar) + READ("table_offset");
 	size = (table_size+63) / 64;
 	OPEN_SCOPE("pba", BIND("mem", ARGS(base, size * 8))); {
-		pp_value tmp_size = table_size;
+		Value tmp_size = table_size;
 		// loop for each PBA QWORD
 		for (unsigned i = 0; i < size; i++) {
 			REG64("%pending[]", i);
@@ -577,7 +580,7 @@ msix_capability(const pp_value &address)
 }
 
 static void
-ht_capability(const pp_value &address)
+ht_capability(const Value &address)
 {
 	REG8("%subcap", address + 3);
 	// Check the upper two bits - if they are zero, then we have
@@ -652,14 +655,14 @@ ht_capability(const pp_value &address)
 }
 
 static void
-ssid_capability(const pp_value &address)
+ssid_capability(const Value &address)
 {
 	FIELD("ssvid", "pci_vendor_t", REG16(address + 0x04));
 	FIELD("ssid", "hex16_t", REG16(address + 0x06));
 }
 
 static void
-pcie_capability(const pp_value &address)
+pcie_capability(const Value &address)
 {
 	// all PCI-E devices implement this block
 	REG16("%pcie_caps", address + 0x02);
@@ -1069,7 +1072,7 @@ pcie_capability(const pp_value &address)
 }
 
 static void
-aer_ecapability(const pp_value &address)
+aer_ecapability(const Value &address)
 {
 	BOOL("fatal_t", "fatal", "nonfatal");
 
@@ -1266,7 +1269,7 @@ explore_capabilities()
 	if (FIELD_BOOL("status/caps")) {
 		FIELD("capptr", "hex8_t", REG8(0x34));
 
-		pp_value ptr = READ("capptr");
+		Value ptr = READ("capptr");
 		while (ptr != 0 && ptr != 0xff) {
 			OPEN_SCOPE("capability[]");
 
@@ -1323,7 +1326,7 @@ explore_capabilities()
 				//FIXME: not implemented yet, what spec??
 			} else if (FIELD_EQ("id", "af")) {
 				//FIXME: not implemented yet, ECN
-			} else if (FIELD_EQ("id", pp_value(0))) {
+			} else if (FIELD_EQ("id", Value(0))) {
 				// This should not be needed, except that
 				// some hardware vendors make the
 				// capability pointer link to a
@@ -1350,7 +1353,7 @@ explore_capabilities()
 	// FIXME: need RCRB support
 	if ((DEFINED("$pci/capability.pcie") || DEFINED("$pci/capability.pcix"))
 	 && DEFINED("$pci/%PCI.100") && (READ("$pci/%PCI.100") != 0)) {
-		pp_value ptr = 0x100;
+		Value ptr = 0x100;
 		while (ptr != 0 && ptr != 0xfff) {
 			OPEN_SCOPE("ecapability[]");
 
@@ -1386,7 +1389,7 @@ explore_capabilities()
 				//FIXME: not implemented yet
 			} else if (FIELD_EQ("id", "acs")) {
 				//FIXME: not implemented yet
-			} else if (FIELD_EQ("id", pp_value(0))) {
+			} else if (FIELD_EQ("id", Value(0))) {
 				// This should not be needed, except that
 				// some hardware vendors make the
 				// capability pointer link to a
@@ -1748,9 +1751,12 @@ pci_generic_device()
 }
 
 void
-PCI_SCOPE(const string &name, const pp_value &seg, const pp_value &bus,
-		const pp_value &dev, const pp_value &func)
+PCI_SCOPE(const string &name, const Value &seg, const Value &bus,
+		const Value &dev, const Value &func)
 {
 	OPEN_SCOPE(name, BIND("pci", ARGS(seg, bus, dev, func)));
 	pci_generic_device();
 }
+
+}  // namespace device
+}  // namespace pp

@@ -1,8 +1,11 @@
-#include "pp.h"
-#include "printfxx.h"
+#include "pp/pp.h"
+#include "pp/util/printfxx.h"
 #include <vector>
 #include "fake_language.h"
 #include "generic_device.h"
+
+namespace pp {
+namespace device {
 
 void
 pci_datatypes_init()
@@ -145,27 +148,30 @@ pci_datatypes_init()
 }
 
 static void
-pci_discovered(const std::vector<pp_value> &args)
+pci_discovered(const std::vector<Value> &args)
 {
-	pp_value seg = args[0];
-	pp_value bus = args[1];
-	pp_value dev = args[2];
-	pp_value func = args[3];
+	Value seg = args[0];
+	Value bus = args[1];
+	Value dev = args[2];
+	Value func = args[3];
 
 	string name = sprintfxx("pci.%d.%d.%d.%d", seg, bus, dev, func);
 	PCI_SCOPE(name, seg, bus, dev, func);
 	CLOSE_SCOPE();
 }
 
-class pci_discovery {
+class PciDiscovery
+{
     public:
-	explicit
-	pci_discovery()
+	PciDiscovery()
 	{
 		// register a catch-all discovery rule
-		std::vector<pp_value> args;
-		pp_register_discovery("pci", args, pci_discovered);
+		std::vector<Value> args;
+		register_discovery("pci", args, pci_discovered);
 	}
 };
 
-static pci_discovery the_pci_discovery;
+static PciDiscovery the_pci_discovery;
+
+}  // namespace device
+}  // namespace pp

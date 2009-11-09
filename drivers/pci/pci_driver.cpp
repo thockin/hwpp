@@ -1,85 +1,87 @@
-#include "pp.h"
-#include "printfxx.h"
-#include "pp_datatypes.h"
+#include "pp/pp.h"
+#include "pp/util/printfxx.h"
+#include "pp/datatype_types.h"
 #include "pci_driver.h"
 #include "pci_binding.h"
 
+namespace pp { 
+
 // this forces linkage and avoids the static initialization order fiasco
-pp_driver *
+Driver *
 load_pci_driver()
 {
-	static pci_driver the_driver;
+	static PciDriver the_driver;
 	return &the_driver;
 }
 
-pci_driver::pci_driver()
+PciDriver::PciDriver()
 {
 }
 
-pci_driver::~pci_driver()
+PciDriver::~PciDriver()
 {
 }
 
 string
-pci_driver::name() const
+PciDriver::name() const
 {
 	return "pci";
 }
 
-pp_binding_ptr
-pci_driver::new_binding(const std::vector<pp_value> &args) const
+BindingPtr
+PciDriver::new_binding(const std::vector<Value> &args) const
 {
 	if (args.size() < 3 || args.size() > 4) {
-		throw pp_driver::args_error(
+		throw Driver::ArgsError(
 		    "pci<>: <seg=0, bus, dev, func>");
 	}
 
-	pp_value seg;
+	Value seg;
 	int i = 0;
 	if (args.size() == 3) {
 		seg = 0;
 	} else {
 		seg = args[i++];
 	}
-	pp_value bus = args[i++];
-	pp_value dev = args[i++];
-	pp_value func = args[i++];
+	Value bus = args[i++];
+	Value dev = args[i++];
+	Value func = args[i++];
 
 	if (seg < 0 || seg > UINT32_MAX) {
-		throw pp_driver::args_error("pci<>: invalid segment");
+		throw Driver::ArgsError("pci<>: invalid segment");
 	}
 	if (bus < 0 || bus >= 256) {
-		throw pp_driver::args_error("pci<>: invalid bus");
+		throw Driver::ArgsError("pci<>: invalid bus");
 	}
 	if (dev < 0 || dev >= 32) {
-		throw pp_driver::args_error("pci<>: invalid device");
+		throw Driver::ArgsError("pci<>: invalid device");
 	}
 	if (func < 0 || func >= 8) {
-		throw pp_driver::args_error("pci<>: invalid function");
+		throw Driver::ArgsError("pci<>: invalid function");
 	}
-	return new_pci_binding(pci_address(seg.get_uint(), bus.get_uint(),
+	return new_pci_binding(PciAddress(seg.get_uint(), bus.get_uint(),
 		dev.get_uint(), func.get_uint()));
 }
 
 void
-pci_driver::discover() const
+PciDriver::discover() const
 {
-	std::vector<pci_address> addresses;
+	std::vector<PciAddress> addresses;
 
 	/* find all PCI addresses */
-	pci_io::enumerate(&addresses);
+	PciIo::enumerate(&addresses);
 
 	/* for each PCI device in the system */
-	std::vector<pci_address>::iterator it;
+	std::vector<PciAddress>::iterator it;
 	for (it = addresses.begin(); it != addresses.end(); it++) {
 		/* check if anyone registered for this vendor/device */
-		const discovery_request *dr = find_discovery_request(*it);
+		const DiscoveryRequest *dr = find_discovery_request(*it);
 		if (dr && dr->function == NULL) {
 			continue;
 		}
 
 		/* call the callback */
-		std::vector<pp_value> args;
+		std::vector<Value> args;
 		args.push_back(it->segment);
 		args.push_back(it->bus);
 		args.push_back(it->device);
@@ -95,12 +97,12 @@ pci_driver::discover() const
 }
 
 void
-pci_driver::register_discovery(const std::vector<pp_value> &args,
-    discovery_callback function)
+PciDriver::register_discovery(const std::vector<Value> &args,
+    DiscoveryCallback function)
 {
 	if (args.size() == 0) {
 		if (m_catchall) {
-			throw pp_driver::args_error(
+			throw Driver::ArgsError(
 			    "pci discovery: catchall already defined");
 		}
 		m_catchall = function;
@@ -108,21 +110,20 @@ pci_driver::register_discovery(const std::vector<pp_value> &args,
 	}
 
 	if (args.size() != 2) {
-		throw pp_driver::args_error(
-		    "pci discovery: <vendor, device>");
+		throw Driver::ArgsError("pci discovery: <vendor, device>");
 	}
 
-	discovery_request dr;
+	DiscoveryRequest dr;
 	dr.vendor = args[0].get_uint();
 	dr.device = args[1].get_uint();
 	dr.function = function;
 	m_callbacks.push_back(dr);
 }
 
-const pci_driver::discovery_request *
-pci_driver::find_discovery_request(const pci_address &addr) const
+const PciDriver::DiscoveryRequest *
+PciDriver::find_discovery_request(const PciAddress &addr) const
 {
-	pci_io dev(addr);
+	PciIo dev(addr);
 	uint16_t vid = dev.read(0, BITS16).get_uint();
 	uint16_t did = dev.read(2, BITS16).get_uint();
 
@@ -143,3 +144,5 @@ pci_driver::find_discovery_request(const pci_address &addr) const
 	                                  addr));
 	return NULL;
 }
+
+}  // namespace pp

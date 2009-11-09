@@ -1,28 +1,32 @@
 #ifndef PP_DRIVERS_H__
 #define PP_DRIVERS_H__
 
-#include "pp.h"
-#include "pp_driver.h"
+#include "pp/pp.h"
+#include "pp/driver.h"
 #include "runtime.h"
 
-extern void
-pp_register_driver(pp_driver *driver);
-
-extern pp_driver *
-pp_find_driver(const string &name);
+namespace pp {
 
 extern void
-pp_register_discovery(const string &driver_name,
-		const std::vector<pp_value> &args,
-		pp_driver::discovery_callback function = NULL);
+register_driver(Driver *driver);
+
+extern Driver *
+find_driver(const string &name);
 
 extern void
-pp_do_discovery(const string &driver_name);
+register_discovery(const string &driver_name,
+                   const std::vector<Value> &args,
+                   Driver::DiscoveryCallback function = NULL);
+
+extern void
+do_discovery(const string &driver_name);
 
 inline void
-pp_do_discovery()
+do_discovery()
 {
-	pp_do_discovery("");
+	do_discovery("");
 }
+
+}  // namespace pp
 
 #endif // PP_DRIVERS_H__

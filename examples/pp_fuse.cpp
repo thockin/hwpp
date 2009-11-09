@@ -26,17 +26,17 @@
 #include <errno.h>
 #include <sys/time.h>
 
-#include "pp.h"
+#include "pp/pp.h"
 #include "drivers.h"
-#include "pp_register.h"
-#include "pp_datatypes.h"
-#include "pp_fields.h"
-#include "pp_array.h"
-#include "pp_alias.h"
+#include "pp/register.h"
+#include "pp/datatype_types.h"
+#include "pp/field_types.h"
+#include "pp/array.h"
+#include "pp/alias.h"
 
 using namespace std;
 
-static pp_scope_ptr platform;
+static pp::ScopePtr platform;
 static time_t startup_time;
 
 static void
@@ -72,7 +72,7 @@ fill_link_stat(struct stat *st)
 	st->st_nlink = 1;
 }
 static int
-fill_stat(const pp_dirent_const_ptr &de, struct stat *st)
+fill_stat(const pp::ConstDirentPtr &de, struct stat *st)
 {
 	if (de->is_register() || de->is_field()) {
 		fill_file_stat(st);
@@ -93,20 +93,20 @@ ppfs_getattr(const char *path, struct stat *st)
 {
 printf("%d getattr: path = %s\n", getpid(), path);
 	try {
-		const pp_dirent_const_ptr &de = platform->lookup_dirent(path);
+		const pp::ConstDirentPtr &de = platform->lookup_dirent(path);
 		if (!de) {
 			return -ENOENT;
 		}
 		return fill_stat(de, st);
 	} catch (std::out_of_range &e) {
 		return -ENOENT;
-	} catch (pp_path::invalid_error &e) {
+	} catch (pp::Path::InvalidError &e) {
 		return -ENOENT;
 	}
 }
 
 static int
-fill_dirent(void *buf, fuse_fill_dir_t filler, const pp_dirent_const_ptr &de,
+fill_dirent(void *buf, fuse_fill_dir_t filler, const pp::ConstDirentPtr &de,
             const std::string &name)
 {
 	struct stat st;
@@ -114,7 +114,7 @@ fill_dirent(void *buf, fuse_fill_dir_t filler, const pp_dirent_const_ptr &de,
 
 	if (de->is_array()) {
 		// array dirents get flattened
-		const pp_array_const_ptr &array = pp_array_from_dirent(de);
+		const pp::ConstArrayPtr &array = pp::array_from_dirent(de);
 		for (size_t i = 0; i < array->size(); i++) {
 			string s = to_string(boost::format("%s[%d]") %name %i);
 			ret = fill_dirent(buf, filler, array->at(i), s);
@@ -142,7 +142,7 @@ ppfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 	(void)fi;
 
 printf("%d readdir: path = %s\n", getpid(), path);
-	const pp_dirent_const_ptr &de = platform->lookup_dirent(path);
+	const pp::ConstDirentPtr &de = platform->lookup_dirent(path);
 	if (!de) {
 		return -ENOENT;
 	}
@@ -154,7 +154,7 @@ printf("%d readdir: path = %s\n", getpid(), path);
 		filler(buf, ".", &st, 0);
 		filler(buf, "..", &st, 0);
 
-		const pp_scope_const_ptr &scope = pp_scope_from_dirent(de);
+		const pp::ConstScopePtr &scope = pp::scope_from_dirent(de);
 		for (size_t i = 0; i < scope->n_dirents(); i++) {
 			ret = fill_dirent(buf, filler, scope->dirent(i),
 			                  scope->dirent_name(i));
@@ -173,12 +173,12 @@ static int
 ppfs_readlink(const char *path, char *buf, size_t bufsize)
 {
 printf("%d readlink: path = %s, size = %zd\n", getpid(), path, bufsize);
-	const pp_dirent_const_ptr &de = platform->lookup_dirent(path);
+	const pp::ConstDirentPtr &de = platform->lookup_dirent(path);
 	if (!de) {
 		return -ENOENT;
 	}
 	if (de->is_alias()) {
-		const pp_alias_const_ptr &alias = pp_alias_from_dirent(de);
+		const pp::ConstAliasPtr &alias = pp::alias_from_dirent(de);
 		std::string pointee = to_string(alias->link_path());
 		if (bufsize > pointee.size()) {
 			bufsize = pointee.size();
@@ -218,17 +218,17 @@ ppfs_read(const char *path, char *data, size_t size, off_t offset,
 
 printf("%d read: path = %s\n", getpid(), path);
 	try {
-		const pp_dirent_const_ptr &de = platform->lookup_dirent(path);
+		const pp::ConstDirentPtr &de = platform->lookup_dirent(path);
 		if (!de) {
 			return -ENOENT;
 		}
-		pp_value val;
+		pp::Value val;
 		string str;
 		if (de->is_register()) {
-			val = pp_register_from_dirent(de)->read();
+			val = pp::register_from_dirent(de)->read();
 			str = val.get_str(16);
 		} else if (de->is_field()) {
-			str = pp_field_from_dirent(de)->evaluate();
+			str = pp::field_from_dirent(de)->evaluate();
 		} else {
 			return -EISDIR;
 		}
@@ -290,30 +290,30 @@ printf("%d write: path = %s\n", getpid(), path);
 
 		char *clean_data = chomp(&my_data[0], size);
 
-		const pp_dirent_const_ptr &de = platform->lookup_dirent(path);
+		const pp::ConstDirentPtr &de = platform->lookup_dirent(path);
 		if (!de) {
 			return -ENOENT;
 		}
 		if (de->is_register()) {
-			const pp_register_const_ptr &reg =
-			   pp_register_from_dirent(de);
-			pp_value val;
+			const pp::ConstRegisterPtr &reg =
+			   pp::register_from_dirent(de);
+			pp::Value val;
 			if (isdigit(clean_data[0])) {
-				val = pp_value(clean_data);
+				val = pp::Value(clean_data);
 			} else {
 				return -EINVAL;
 			}
 			reg->write(val);
 		} else if (de->is_field()) {
-			const pp_field_const_ptr &field =
-			   pp_field_from_dirent(de);
-			pp_value val;
+			const pp::ConstFieldPtr &field =
+			   pp::field_from_dirent(de);
+			pp::Value val;
 			if (isdigit(clean_data[0])) {
-				val = pp_value(clean_data);
+				val = pp::Value(clean_data);
 			} else {
 				try {
 					val = field->lookup(clean_data);
-				} catch (pp_datatype::invalid_error &e) {
+				} catch (pp::Datatype::InvalidError &e) {
 					return -EINVAL;
 				}
 			}
@@ -357,8 +357,8 @@ int main(int argc, char *argv[])
 	ppfs_ops.write		= ppfs_write;
 	ppfs_ops.release	= ppfs_release;
 
-	platform = pp_init();
-	pp_do_discovery();
+	platform = pp::initialize_device_tree();
+	pp::do_discovery();
 
 	return fuse_main(argc, argv, &ppfs_ops);
 }

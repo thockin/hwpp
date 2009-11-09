@@ -1,5 +1,5 @@
-#include "pp.h"
-#include "pp_datatypes.h"
+#include "pp/pp.h"
+#include "pp/datatype_types.h"
 #include "cpu_driver.h"
 #include "cpu_address.h"
 
@@ -9,55 +9,56 @@
 #include <vector>
 #include <algorithm>
 
-#include "filesystem.h"
-#include "simple_regex.h"
-#include "bit_buffer.h"
+#include "pp/util/filesystem.h"
+#include "pp/util/simple_regex.h"
+#include "pp/util/bit_buffer.h"
+
+namespace pp {
 
 #define CPU_SYSFS_DIR	"/sys/devices/system/cpu"
 
-
 // this forces linkage and avoids the static initialization order fiasco
-pp_driver *
+Driver *
 load_cpu_driver()
 {
-	static cpu_driver the_driver;
+	static CpuDriver the_driver;
 	return &the_driver;
 }
 
-cpu_driver::cpu_driver()
+CpuDriver::CpuDriver()
 {
 	system("modprobe cpuid >/dev/null 2>&1");
 }
 
-cpu_driver::~cpu_driver()
+CpuDriver::~CpuDriver()
 {
 }
 
 string
-cpu_driver::name() const
+CpuDriver::name() const
 {
 	return "cpu";
 }
 
 void
-cpu_driver::discover() const
+CpuDriver::discover() const
 {
-	std::vector<cpu_address> addresses;
+	std::vector<CpuAddress> addresses;
 
 	// find all CPU addresses
 	enumerate(CPU_SYSFS_DIR, &addresses);
 
 	// for each CPU device in the system
-	std::vector<cpu_address>::iterator it;
+	std::vector<CpuAddress>::iterator it;
 	for (it = addresses.begin(); it != addresses.end(); it++) {
 		// check if anyone registered for this device
-		const discovery_request *dr = find_discovery_request(*it);
+		const DiscoveryRequest *dr = find_discovery_request(*it);
 		if (dr && dr->function == NULL) {
 			continue;
 		}
 
 		// call the callback
-		std::vector<pp_value> args;
+		std::vector<Value> args;
 		args.push_back(it->cpu);
 		if (dr) {
 			// call the callback
@@ -70,12 +71,12 @@ cpu_driver::discover() const
 }
 
 void
-cpu_driver::register_discovery(const std::vector<pp_value> &args,
-    discovery_callback function)
+CpuDriver::register_discovery(const std::vector<Value> &args,
+    DiscoveryCallback function)
 {
 	if (args.size() == 0) {
 		if (m_catchall) {
-			throw pp_driver::args_error(
+			throw Driver::ArgsError(
 			    "cpu discovery: catchall already defined");
 		}
 		m_catchall = function;
@@ -83,13 +84,13 @@ cpu_driver::register_discovery(const std::vector<pp_value> &args,
 	}
 
 	if (args.size() != 7) {
-		throw pp_driver::args_error(
+		throw Driver::ArgsError(
 		    "cpu discovery: <vendor, family_min, family_max, "
 		    "model_min, model_max, stepping_min, stepping_max>");
 	}
 
-	discovery_request dr;
-	dr.vendor = args[0] & PP_MASK(12*8);
+	DiscoveryRequest dr;
+	dr.vendor = args[0] & MASK(12*8);
 	dr.family_min = args[1].get_uint();
 	dr.family_max = args[2].get_uint();
 	dr.model_min = args[3].get_uint();
@@ -100,36 +101,36 @@ cpu_driver::register_discovery(const std::vector<pp_value> &args,
 	m_callbacks.push_back(dr);
 }
 
-const cpu_driver::discovery_request *
-cpu_driver::find_discovery_request(const cpu_address &addr) const
+const CpuDriver::DiscoveryRequest *
+CpuDriver::find_discovery_request(const CpuAddress &addr) const
 {
-	pp_value vendor;
-	pp_value family;
-	pp_value model;
-	pp_value stepping;
-	pp_value tmp;
+	Value vendor;
+	Value family;
+	Value model;
+	Value stepping;
+	Value tmp;
 
 	// This is the ordering the CPU vendors use.  I don't know why.
 	tmp = cpuid(addr, 0);
-	vendor = ((((tmp >> 32*1) & PP_MASK(32)) << 0)
-		| (((tmp >> 32*3) & PP_MASK(32)) << 32)
-		| (((tmp >> 32*2) & PP_MASK(32)) << 64));
+	vendor = ((((tmp >> 32*1) & MASK(32)) << 0)
+		| (((tmp >> 32*3) & MASK(32)) << 32)
+		| (((tmp >> 32*2) & MASK(32)) << 64));
 
 	tmp = cpuid(addr, 1);
-	family = (tmp & pp_value(0xf00)) >> 8;
-	model = (tmp & pp_value(0xf0)) >> 4;
-	stepping = tmp & pp_value(0xf);
+	family = (tmp & Value(0xf00)) >> 8;
+	model = (tmp & Value(0xf0)) >> 4;
+	stepping = tmp & Value(0xf);
 
 	// handle slight differences in AMD and Intel specs
-	if (vendor == pp_value("0x6c65746e49656e69756e6547")) {
+	if (vendor == Value("0x6c65746e49656e69756e6547")) {
 		// intel
-		family += (tmp & pp_value(0xff00000)) >> 20;
-		model |= (tmp & pp_value(0xf0000)) >> 12;
-	} else if (vendor == pp_value("0x444d416369746e6568747541")) {
+		family += (tmp & Value(0xff00000)) >> 20;
+		model |= (tmp & Value(0xf0000)) >> 12;
+	} else if (vendor == Value("0x444d416369746e6568747541")) {
 		// amd
 		if (family == 0xf) {
-			family += (tmp & pp_value(0xff00000)) >> 20;
-			model |= (tmp & pp_value(0xf0000)) >> 12;
+			family += (tmp & Value(0xff00000)) >> 20;
+			model |= (tmp & Value(0xf0000)) >> 12;
 		}
 	}
 
@@ -159,8 +160,8 @@ cpu_driver::find_discovery_request(const cpu_address &addr) const
 	return NULL;
 }
 
-pp_value
-cpu_driver::cpuid(const cpu_address &address, unsigned function)
+Value
+CpuDriver::cpuid(const CpuAddress &address, unsigned function)
 {
 	// save original affinity
 	cpu_set_t new_set, orig_set;
@@ -197,11 +198,11 @@ cpu_driver::cpuid(const cpu_address &address, unsigned function)
 	util::BitBuffer bitbuf(128);
 	memcpy(bitbuf.get(), regs, 128/CHAR_BIT);
 
-	return pp_value(bitbuf);
+	return Value(bitbuf);
 }
 
 void
-cpu_driver::enumerate(const string &path, std::vector<cpu_address> *addresses)
+CpuDriver::enumerate(const string &path, std::vector<CpuAddress> *addresses)
 {
 	filesystem::DirectoryPtr dir = filesystem::Directory::open(path);
 
@@ -230,13 +231,15 @@ cpu_driver::enumerate(const string &path, std::vector<cpu_address> *addresses)
 			continue;
 		}
 
-		addresses->push_back(cpu_address(cpu));
+		addresses->push_back(CpuAddress(cpu));
 	}
 	std::sort(addresses->begin(), addresses->end());
 }
 
 void
-cpu_driver::do_io_error(const cpu_address &address, const string &str)
+CpuDriver::do_io_error(const CpuAddress &address, const string &str)
 {
-	throw pp_driver::io_error(to_string(address) + ": " + str);
+	throw Driver::IoError(to_string(address) + ": " + str);
 }
+
+}  // namespace pp

@@ -5,13 +5,22 @@
 #ifndef PP_DEVICE_INIT_H__
 #define PP_DEVICE_INIT_H__
 
-extern void
+namespace pp {
+namespace device {
+
+void
 global_datatypes_init();
-extern void
+
+void
 pci_datatypes_init();
-extern void
+
+void
 cpuid_datatypes_init();
-extern void
+
+void
 msr_datatypes_init();
+
+}  // namespace device
+}  // namespace pp
 
 #endif // PP_DEVICE_INIT_H__

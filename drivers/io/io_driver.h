@@ -2,21 +2,23 @@
 #ifndef PP_DRIVERS_IO_IO_DRIVER_H__
 #define PP_DRIVERS_IO_IO_DRIVER_H__
 
-#include "pp.h"
-#include "pp_driver.h"
+#include "pp/pp.h"
+#include "pp/driver.h"
 #include "io_binding.h"
 
+namespace pp { 
+
 /*
- * io_driver - IO driver plugin.
+ * IoDriver - IO driver plugin.
  */
-class io_driver: public pp_driver
+class IoDriver: public Driver
 {
     public:
-	io_driver();
-	virtual ~io_driver();
+	IoDriver();
+	virtual ~IoDriver();
 
 	/*
-	 * io_driver::name()
+	 * IoDriver::name()
 	 *
 	 * Get the name of this driver.
 	 */
@@ -24,16 +26,18 @@ class io_driver: public pp_driver
 	name() const;
 
 	/*
-	 * io_driver::new_binding(args)
+	 * IoDriver::new_binding(args)
 	 *
-	 * Create a new pp_binding.
+	 * Create a new Binding.
 	 *
-	 * Throws: pp_driver::args_error
+	 * Throws: Driver::ArgsError
 	 */
-	virtual pp_binding_ptr
-	new_binding(const std::vector<pp_value> &args) const;
+	virtual BindingPtr
+	new_binding(const std::vector<Value> &args) const;
 };
 
-#define new_io_driver(...) pp_driver_ptr(new io_driver(__VA_ARGS__))
+#define new_io_driver(...) DriverPtr(new IoDriver(__VA_ARGS__))
+
+}  // namespace pp
 
 #endif // PP_DRIVERS_IO_IO_DRIVER_H__

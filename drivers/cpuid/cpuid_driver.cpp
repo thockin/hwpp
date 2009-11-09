@@ -1,43 +1,47 @@
-#include "pp.h"
-#include "pp_datatypes.h"
+#include "pp/pp.h"
+#include "pp/datatype_types.h"
 #include "cpuid_driver.h"
 #include "cpuid_binding.h"
 
+namespace pp { 
+
 // this forces linkage and avoids the static initialization order fiasco
-pp_driver *
+Driver *
 load_cpuid_driver()
 {
-	static cpuid_driver the_driver;
+	static CpuidDriver the_driver;
 	return &the_driver;
 }
 
-cpuid_driver::cpuid_driver()
+CpuidDriver::CpuidDriver()
 {
 	system("modprobe cpuid >/dev/null 2>&1");
 }
 
-cpuid_driver::~cpuid_driver()
+CpuidDriver::~CpuidDriver()
 {
 }
 
 string
-cpuid_driver::name() const
+CpuidDriver::name() const
 {
 	return "cpuid";
 }
 
-pp_binding_ptr
-cpuid_driver::new_binding(const std::vector<pp_value> &args) const
+BindingPtr
+CpuidDriver::new_binding(const std::vector<Value> &args) const
 {
 	if (args.size() != 1) {
-		throw pp_driver::args_error("cpuid<>: <cpu>");
+		throw Driver::ArgsError("cpuid<>: <cpu>");
 	}
 
-	pp_value cpu = args[0];
+	Value cpu = args[0];
 
 	if (cpu < 0) {
-		throw pp_driver::args_error("cpuid<>: invalid cpu");
+		throw Driver::ArgsError("cpuid<>: invalid cpu");
 	}
 
-	return new_cpuid_binding(cpuid_address(cpu.get_uint()));
+	return new_cpuid_binding(CpuidAddress(cpu.get_uint()));
 }
+
+}  // namespace pp

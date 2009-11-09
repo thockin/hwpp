@@ -1,14 +1,14 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-#include "sockets.h"
+#include "pp/util/sockets.h"
 
 using namespace std;
 
 void
 usage(ostream &out, const char *progname)
 {
-	out << "usage: " << progname << " socketpath [pp_paths]" << endl;
+	out << "usage: " << progname << " socketpath [paths]" << endl;
 }
 
 int
@@ -21,7 +21,7 @@ main(int argc, const char *argv[])
 	}
 
 	string socketpath(argv[1]);
-	unix_socket::socket s(socketpath);
+	unix_socket::Socket s(socketpath);
 
 	if (argc == 2) {
 		string str;

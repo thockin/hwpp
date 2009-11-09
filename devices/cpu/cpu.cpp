@@ -1,14 +1,16 @@
-#include "pp.h"
+#include "pp/pp.h"
 #include <vector>
 #include "fake_language.h"
 #include "../cpuid/generic_device.h"
 #include "../msr/generic_device.h"
 
+namespace pp {
+namespace device {
 
 static void
-cpu_discovered(const std::vector<pp_value> &args)
+cpu_discovered(const std::vector<Value> &args)
 {
-	pp_value cpu = args[0];
+	Value cpu = args[0];
 
 	OPEN_SCOPE("cpu." + to_string(cpu));
 	BOOKMARK("cpu");
@@ -23,15 +25,18 @@ cpu_discovered(const std::vector<pp_value> &args)
 	ALIAS("cpu[]", "cpu." + to_string(cpu));
 }
 
-class cpu_discovery {
+class CpuDiscovery
+{
     public:
-	explicit
-	cpu_discovery()
+	CpuDiscovery()
 	{
 		// register a catch-all discovery rule
-		std::vector<pp_value> args;
-		pp_register_discovery("cpu", args, cpu_discovered);
+		std::vector<Value> args;
+		register_discovery("cpu", args, cpu_discovered);
 	}
 };
 
-static cpu_discovery the_cpu_discovery;
+static CpuDiscovery the_cpu_discovery;
+
+}  // namespace device
+}  // namespace pp

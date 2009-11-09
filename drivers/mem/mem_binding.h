@@ -2,20 +2,22 @@
 #ifndef PP_DRIVERS_MEM_MEM_BINDING_H__
 #define PP_DRIVERS_MEM_MEM_BINDING_H__
 
-#include "pp.h"
-#include "printfxx.h"
-#include "pp_binding.h"
-#include "pp_driver.h"
-#include "filesystem.h"
+#include "pp/pp.h"
+#include "pp/util/printfxx.h"
+#include "pp/binding.h"
+#include "pp/driver.h"
+#include "pp/util/filesystem.h"
 #include <iostream>
 
+namespace pp { 
+
 /*
- * mem_address
+ * MemAddress
  */
-struct mem_address
+struct MemAddress
 {
 	/* constructors */
-	mem_address(uint64_t b, uint64_t s)
+	MemAddress(uint64_t b, uint64_t s)
 	    : base(b), size(s)
 	{
 	}
@@ -24,39 +26,39 @@ struct mem_address
 };
 
 inline bool
-operator<(const mem_address &left, const mem_address &right)
+operator<(const MemAddress &left, const MemAddress &right)
 {
 	return (left.base < right.base);
 }
 
 inline std::ostream &
-operator<<(std::ostream& out, const mem_address &addr)
+operator<<(std::ostream& out, const MemAddress &addr)
 {
 	out << sprintfxx("mem<0x%016llx,0x%016llx>", addr.base, addr.size);
 	return out;
 }
 
 /*
- * mem_io - Linux-specific mem IO
+ * MemIo - Linux-specific mem IO
  */
-class mem_io
+class MemIo
 {
     public:
-	mem_io(const mem_address &address, const string &device = "");
-	~mem_io();
+	MemIo(const MemAddress &address, const string &device = "");
+	~MemIo();
 
-	const mem_address &
+	const MemAddress &
 	address() const;
 
-	pp_value
-	read(const pp_value &address, const pp_bitwidth width) const;
+	Value
+	read(const Value &address, const BitWidth width) const;
 
 	void
-	write(const pp_value &address, const pp_bitwidth width,
-	    const pp_value &value) const;
+	write(const Value &address, const BitWidth width,
+	    const Value &value) const;
 
     private:
-	mem_address m_address;
+	MemAddress m_address;
 	filesystem::FilePtr m_file;
 
 	void
@@ -66,28 +68,30 @@ class mem_io
 	open_device(string device);
 
 	filesystem::FileMappingPtr
-	map(const pp_value &offset, std::size_t length) const;
+	map(const Value &offset, std::size_t length) const;
 
 	void
-	check_width(pp_bitwidth width) const;
+	check_width(BitWidth width) const;
 
 	void
-	check_bounds(const pp_value &offset, size_t bytes) const;
+	check_bounds(const Value &offset, size_t bytes) const;
 
 	template<typename Tdata>
-	pp_value
-	do_read(const pp_value &offset) const;
+	Value
+	do_read(const Value &offset) const;
 
 	template<typename Tdata>
 	void
-	do_write(const pp_value &offset, const pp_value &value) const;
+	do_write(const Value &offset, const Value &value) const;
 };
 
 /*
- * mem_binding - IO binding for register spaces
+ * MemBinding - Memory binding for register spaces
  */
-typedef simple_binding<mem_io, mem_address> mem_binding;
+typedef SimpleBinding<MemIo, MemAddress> MemBinding;
 
-#define new_mem_binding(...) pp_binding_ptr(new mem_binding(__VA_ARGS__))
+#define new_mem_binding(...) BindingPtr(new MemBinding(__VA_ARGS__))
+
+}  // namespace pp
 
 #endif // PP_DRIVERS_MEM_MEM_BINDING_H__

@@ -1,9 +1,9 @@
-#include "pp.h"
-#include "pp_register.h"
-#include "pp_fields.h"
-#include "pp_datatypes.h"
-#include "pp_scope.h"
-#include "pp_dirent.h"
+#include "pp/pp.h"
+#include "pp/register.h"
+#include "pp/field_types.h"
+#include "pp/datatype_types.h"
+#include "pp/scope.h"
+#include "pp/dirent.h"
 #include "test_helpers.h"
 #include "test_binding.h"
 #include <iostream>
@@ -11,7 +11,7 @@
 using namespace std;
 
 /*
- * Display pp_* objects.
+ * Display pp objects.
  */
 
 /*
@@ -28,21 +28,21 @@ indent(int tab_count)
 }
 
 static void
-display_field(const pp_field_const_ptr &field, int depth)
+display_field(const pp::ConstFieldPtr &field, int depth)
 {
 	(void)field;
 	(void)depth;
 }
 
 static void
-display_reg(const pp_register_const_ptr &reg, int depth)
+display_reg(const pp::ConstRegisterPtr &reg, int depth)
 {
 	(void)reg;
 	(void)depth;
 }
 
 static void
-display_tree(const pp_scope_const_ptr &scope, int depth)
+display_tree(const pp::ConstScopePtr &scope, int depth)
 {
 	depth++;
 
@@ -54,7 +54,7 @@ display_tree(const pp_scope_const_ptr &scope, int depth)
 	}
 
 	for (size_t i = 0; i < scope->n_dirents(); i++) {
-		const pp_dirent_const_ptr &dirent = scope->dirent(i);
+		const pp::ConstDirentPtr &dirent = scope->dirent(i);
 
 		indent(depth);
 
@@ -62,24 +62,24 @@ display_tree(const pp_scope_const_ptr &scope, int depth)
 			cout << "scope: "
 			     << scope->dirent_name(i)
 			     << endl;
-			display_tree(pp_scope_from_dirent(dirent), depth);
+			display_tree(pp::scope_from_dirent(dirent), depth);
 		} else if (dirent->is_field()) {
 			cout << "field: "
 			     << scope->dirent_name(i)
 			     << endl;
-			display_field(pp_field_from_dirent(dirent), depth);
+			display_field(pp::field_from_dirent(dirent), depth);
 		} else if (dirent->is_register()) {
 			cout << "register: "
 			     << scope->dirent_name(i)
 			     << endl;
-			display_reg(pp_register_from_dirent(dirent), depth);
+			display_reg(pp::register_from_dirent(dirent), depth);
 		}
 	}
 }
 
 /* this is the externally visible interface */
 void
-display_tree(pp_scope_const_ptr &scope)
+display_tree(pp::ConstScopePtr &scope)
 {
 	cout << "root" << endl;
 	display_tree(scope, 0);

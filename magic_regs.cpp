@@ -1,24 +1,26 @@
-#include "pp.h"
-#include "printfxx.h"
-#include "pp_binding.h"
-#include "pp_registers.h"
+#include "pp/pp.h"
+#include "pp/util/printfxx.h"
+#include "pp/binding.h"
+#include "pp/register_types.h"
+
+namespace pp {
 
 /*
  * A magic binding which always reads a certain value.
  */
-class magic_binding: public pp_binding
+class ConstantValueBinding: public Binding
 {
     public:
-	explicit magic_binding(const pp_value &value): m_value(value)
+	explicit ConstantValueBinding(const Value &value): m_value(value)
 	{
 	}
 
-	virtual ~magic_binding()
+	virtual ~ConstantValueBinding()
 	{
 	}
 
-	virtual pp_value
-	read(const pp_value &address, const pp_bitwidth width) const
+	virtual Value
+	read(const Value &address, const BitWidth width) const
 	{
 		(void)address;
 		(void)width;
@@ -26,8 +28,8 @@ class magic_binding: public pp_binding
 	}
 
 	virtual void
-	write(const pp_value &address, const pp_bitwidth width,
-		const pp_value &value) const
+	write(const Value &address, const BitWidth width,
+		const Value &value) const
 	{
 		(void)address;
 		(void)width;
@@ -42,12 +44,14 @@ class magic_binding: public pp_binding
 	}
 
     private:
-	pp_value m_value;
+	Value m_value;
 };
 
-pp_register_const_ptr magic_zeros(new pp_bound_register(
-		pp_binding_ptr(new magic_binding(0)),
-		0x0, PP_BITWIDTH_MAX));
-pp_register_const_ptr magic_ones(new pp_bound_register(
-		pp_binding_ptr(new magic_binding(PP_MASK(PP_BITWIDTH_MAX))),
-		0x0, PP_BITWIDTH_MAX));
+ConstRegisterPtr magic_zeros(new BoundRegister(
+		BindingPtr(new ConstantValueBinding(0)),
+		0x0, BIT_WIDTH_MAX));
+ConstRegisterPtr magic_ones(new BoundRegister(
+		BindingPtr(new ConstantValueBinding(MASK(BIT_WIDTH_MAX))),
+		0x0, BIT_WIDTH_MAX));
+
+}  // namespace pp

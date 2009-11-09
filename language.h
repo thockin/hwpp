@@ -1,23 +1,25 @@
 /* Copyright (c) Tim Hockin, 2008 */
-#ifndef PP_PP_LANGUAGE_H__
-#define PP_PP_LANGUAGE_H__
+#ifndef PP_LANGUAGE_H__
+#define PP_LANGUAGE_H__
 
-#include "pp.h"
+#include "pp/pp.h"
 #include <exception>
 #include <ostream>
 
-class parse_location
+namespace pp {
+
+class ParseLocation
 {
     private:
 	const char *m_file;
 	int m_line;
 
     public:
-	parse_location()
+	ParseLocation()
 	    : m_file(NULL), m_line(-1)
 	{
 	}
-	parse_location(const char *file, int line)
+	ParseLocation(const char *file, int line)
 	    : m_file(file), m_line(line)
 	{
 	}
@@ -34,37 +36,37 @@ class parse_location
 };
 // Stream out a parse_location
 inline std::ostream &
-operator<<(std::ostream& o, const parse_location &loc)
+operator<<(std::ostream& o, const ParseLocation &loc)
 {
 	return o << loc.file() << ":" << loc.line();
 }
-#define THIS_LOCATION	parse_location(__FILE__, __LINE__)
+#define THIS_LOCATION  ::pp::ParseLocation(__FILE__, __LINE__)
 
-class pp_parse_error: public std::exception
+class ParseError: public std::exception
 {
     private:
 	string m_error;
-	parse_location m_location;
+	ParseLocation m_location;
 	bool m_location_valid;
 	mutable string m_what;
 
     public:
 	// NOTE: taking a string here is a calculated risk.  It could
 	// throw during construction, assignment, or what().
-	explicit pp_parse_error(const string &error)
+	explicit ParseError(const string &error)
 	    : m_error(error), m_location_valid(false)
 	{
 	}
-	explicit pp_parse_error(const string &error, const parse_location &loc)
+	explicit ParseError(const string &error, const ParseLocation &loc)
 	    : m_error(error), m_location(loc), m_location_valid(true)
 	{
 	}
-	~pp_parse_error() throw()
+	~ParseError() throw()
 	{
 	}
 
 	void
-	set_location(const parse_location &loc)
+	set_location(const ParseLocation &loc)
 	{
 		m_location = loc;
 		m_location_valid = true;
@@ -94,4 +96,6 @@ lang_valid_datatype_name(const string &name);
 extern bool
 lang_valid_bookmark_name(const string &name);
 
-#endif // PP_PP_LANGUAGE_H__
+}  // namespace pp
+
+#endif // PP_LANGUAGE_H__

@@ -6,8 +6,8 @@
  * Functions to help writing tests.
  */
 
-#include "pp.h"
-#include "pp_scope.h"
+#include "pp/pp.h"
+#include "pp/scope.h"
 #include "pp_test.h"
 
 /*
@@ -16,6 +16,6 @@
  * Given an input tree, display it neatly on the screen using tabs as
  * a means of indicating ownership/tree structure.
  */
-void display_tree(pp_scope_const_ptr &container);
+void display_tree(pp::ConstScopePtr &container);
 
 #endif /* PP_TESTS_TEST_HELPERS_H__ */

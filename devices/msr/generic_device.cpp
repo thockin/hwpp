@@ -1,6 +1,9 @@
-#include "pp.h"
+#include "pp/pp.h"
 #include "generic_device.h"
 #include "fake_language.h"
+
+namespace pp {
+namespace device {
 
 // populate the current scope with generic MSR device fields
 static void
@@ -295,8 +298,11 @@ msr_generic_device()
 
 // create a new MSR-bound scope with generic fields
 void
-MSR_SCOPE(const string &name, const pp_value &cpu)
+MSR_SCOPE(const string &name, const Value &cpu)
 {
 	OPEN_SCOPE(name, BIND("msr", ARGS(cpu)));
 	msr_generic_device();
 }
+
+}  // namespace device
+}  // namespace pp

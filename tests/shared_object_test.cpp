@@ -97,7 +97,7 @@ TEST(test_lookup_symbol)
 			SharedObject so("libdl.so");
 			so.lookup_symbol("nonexistant");
 			TEST_FAIL("SharedObject::lookup_symbol()");
-		} catch (SharedObject::symbol_not_found_error &e) {
+		} catch (SharedObject::symbol_NotFoundError &e) {
 		}
 	}
 }

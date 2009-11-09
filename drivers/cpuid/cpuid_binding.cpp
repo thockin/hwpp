@@ -1,5 +1,5 @@
-#include "pp.h"
-#include "printfxx.h"
+#include "pp/pp.h"
+#include "pp/util/printfxx.h"
 
 #include <stdint.h>
 #include <unistd.h>
@@ -10,28 +10,30 @@
 #include <algorithm>
 
 #include "cpuid_binding.h"
-#include "pp_driver.h"
-#include "bit_buffer.h"
+#include "pp/driver.h"
+#include "pp/util/bit_buffer.h"
+
+namespace pp { 
 
 /* constructor */
-cpuid_io::cpuid_io(const cpuid_address &address)
+CpuidIo::CpuidIo(const CpuidAddress &address)
     : m_address(address)
 {
 }
 
 /* destructor */
-cpuid_io::~cpuid_io()
+CpuidIo::~CpuidIo()
 {
 }
 
-const cpuid_address &
-cpuid_io::address() const
+const CpuidAddress &
+CpuidIo::address() const
 {
 	return m_address;
 }
 
-pp_value
-cpuid_io::read(const pp_value &address, const pp_bitwidth width) const
+Value
+CpuidIo::read(const Value &address, const BitWidth width) const
 {
 	// make sure this is a valid access
 	check_width(width);
@@ -55,9 +57,9 @@ cpuid_io::read(const pp_value &address, const pp_bitwidth width) const
 
 	// call CPUID
 	uint32_t regs[4];
-	unsigned int function = pp_value(address & PP_MASK(32)).get_uint();
+	unsigned int function = Value(address & MASK(32)).get_uint();
 	unsigned int argument = 
-		pp_value((address >> 32) & PP_MASK(32)).get_uint();
+		Value((address >> 32) & MASK(32)).get_uint();
 	asm volatile(
 		"cpuid"
 		: "=a" (regs[0]),
@@ -77,12 +79,12 @@ cpuid_io::read(const pp_value &address, const pp_bitwidth width) const
 	util::BitBuffer bitbuf(width);
 	memcpy(bitbuf.get(), regs, width/CHAR_BIT);
 
-	return pp_value(bitbuf);
+	return Value(bitbuf);
 }
 
 void
-cpuid_io::write(const pp_value &address, const pp_bitwidth width,
-    const pp_value &value) const
+CpuidIo::write(const Value &address, const BitWidth width,
+    const Value &value) const
 {
 	(void)address;
 	(void)width;
@@ -91,13 +93,13 @@ cpuid_io::write(const pp_value &address, const pp_bitwidth width,
 }
 
 void
-cpuid_io::do_io_error(const string &str) const
+CpuidIo::do_io_error(const string &str) const
 {
-	throw pp_driver::io_error(to_string(m_address) + ": " + str);
+	throw Driver::IoError(to_string(m_address) + ": " + str);
 }
 
 void
-cpuid_io::check_width(pp_bitwidth width) const
+CpuidIo::check_width(BitWidth width) const
 {
 	switch (width) {
 	    case BITS128:
@@ -108,11 +110,13 @@ cpuid_io::check_width(pp_bitwidth width) const
 }
 
 void
-cpuid_io::check_bounds(const pp_value &offset, unsigned bytes) const
+CpuidIo::check_bounds(const Value &offset, unsigned bytes) const
 {
 	/* CPUID has a 64 bit address space */
-	if (offset < 0 || offset > PP_MASK(64)) {
+	if (offset < 0 || offset > MASK(64)) {
 		do_io_error(sprintfxx("invalid register: %d bytes @ 0x%x",
 		                      bytes, offset));
 	}
 }
+
+}  // namespace pp

@@ -2,19 +2,21 @@
 #ifndef PP_DRIVERS_MSR_MSR_BINDING_H__
 #define PP_DRIVERS_MSR_MSR_BINDING_H__
 
-#include "pp.h"
-#include "pp_binding.h"
-#include "pp_driver.h"
-#include "filesystem.h"
+#include "pp/pp.h"
+#include "pp/binding.h"
+#include "pp/driver.h"
+#include "pp/util/filesystem.h"
 #include <iostream>
 
+namespace pp { 
+
 /*
- * msr_address
+ * MsrAddress
  */
-struct msr_address
+struct MsrAddress
 {
 	explicit
-	msr_address(int c)
+	MsrAddress(int c)
 	    : cpu(c)
 	{
 	}
@@ -22,41 +24,41 @@ struct msr_address
 };
 
 inline bool
-operator<(const msr_address &left, const msr_address &right)
+operator<(const MsrAddress &left, const MsrAddress &right)
 {
 	return (left.cpu < right.cpu);
 }
 
 inline std::ostream &
-operator<<(std::ostream& out, const msr_address &addr)
+operator<<(std::ostream& out, const MsrAddress &addr)
 {
 	out << "msr<" << addr.cpu << ">";
 	return out;
 }
 
 /*
- * msr_io - Linux-specific MSR access
+ * MsrIo - Linux-specific MSR access
  */
 
-class msr_io
+class MsrIo
 {
     public:
-	msr_io(const msr_address &address,
+	MsrIo(const MsrAddress &address,
 	    const string &devdir = "", int major = -1, int minor = -1);
-	~msr_io();
+	~MsrIo();
 
-	const msr_address &
+	const MsrAddress &
 	address() const;
 
-	pp_value
-	read(const pp_value &address, const pp_bitwidth width) const;
+	Value
+	read(const Value &address, const BitWidth width) const;
 
 	void
-	write(const pp_value &address, const pp_bitwidth width,
-	    const pp_value &value) const;
+	write(const Value &address, const BitWidth width,
+	    const Value &value) const;
 
     private:
-	msr_address m_address;
+	MsrAddress m_address;
 	filesystem::FilePtr m_file;
 
 	void
@@ -66,20 +68,22 @@ class msr_io
 	open_device(string devdir, int major, int minor);
 
 	void
-	check_width(pp_bitwidth width) const;
+	check_width(BitWidth width) const;
 
 	void
-	check_bounds(const pp_value &offset, unsigned bytes) const;
+	check_bounds(const Value &offset, unsigned bytes) const;
 
 	void
-	seek(const pp_value &offset) const;
+	seek(const Value &offset) const;
 };
 
 /*
- * msr_binding - MSR binding for register spaces
+ * MsrBinding - MSR binding for register spaces
  */
-typedef simple_binding<msr_io, msr_address> msr_binding;
+typedef SimpleBinding<MsrIo, MsrAddress> MsrBinding;
 
-#define new_msr_binding(...) pp_binding_ptr(new msr_binding(__VA_ARGS__))
+#define new_msr_binding(...) BindingPtr(new MsrBinding(__VA_ARGS__))
+
+}  // namespace pp
 
 #endif // PP_DRIVERS_MSR_MSR_BINDING_H__

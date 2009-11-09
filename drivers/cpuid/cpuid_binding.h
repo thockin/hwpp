@@ -2,18 +2,20 @@
 #ifndef PP_DRIVERS_CPUID_CPUID_BINDING_H__
 #define PP_DRIVERS_CPUID_CPUID_BINDING_H__
 
-#include "pp.h"
-#include "pp_binding.h"
-#include "pp_driver.h"
+#include "pp/pp.h"
+#include "pp/binding.h"
+#include "pp/driver.h"
 #include <iostream>
 
+namespace pp { 
+
 /*
- * cpuid_address
+ * CpuidAddress
  */
-struct cpuid_address
+struct CpuidAddress
 {
 	/* constructors */
-	cpuid_address(int c)
+	CpuidAddress(int c)
 	    : cpu(c)
 	{
 	}
@@ -21,55 +23,57 @@ struct cpuid_address
 };
 
 inline bool
-operator<(const cpuid_address &left, const cpuid_address &right)
+operator<(const CpuidAddress &left, const CpuidAddress &right)
 {
 	return (left.cpu < right.cpu);
 }
 
 inline std::ostream &
-operator<<(std::ostream& out, const cpuid_address &addr)
+operator<<(std::ostream& out, const CpuidAddress &addr)
 {
 	out << "cpuid<" << addr.cpu << ">";
 	return out;
 }
 
 /*
- * cpuid_io - Linux-specific CPUID IO
+ * CpuidIo - Linux-specific CPUID IO
  */
-class cpuid_io
+class CpuidIo
 {
     public:
-	cpuid_io(const cpuid_address &address);
-	~cpuid_io();
+	CpuidIo(const CpuidAddress &address);
+	~CpuidIo();
 
-	pp_value
-	read(const pp_value &address, const pp_bitwidth width) const;
+	Value
+	read(const Value &address, const BitWidth width) const;
 
 	void
-	write(const pp_value &address, const pp_bitwidth width,
-	    const pp_value &value) const;
+	write(const Value &address, const BitWidth width,
+	    const Value &value) const;
 
-	const cpuid_address &
+	const CpuidAddress &
 	address() const;
 
     private:
-	cpuid_address m_address;
+	CpuidAddress m_address;
 
 	void
 	do_io_error(const string &str) const;
 
 	void
-	check_width(pp_bitwidth width) const;
+	check_width(BitWidth width) const;
 
 	void
-	check_bounds(const pp_value &offset, unsigned bytes) const;
+	check_bounds(const Value &offset, unsigned bytes) const;
 };
 
 /*
- * cpuid_binding - CPUID binding for register spaces
+ * CpuidBinding - CPUID binding for register spaces
  */
-typedef simple_binding<cpuid_io, cpuid_address> cpuid_binding;
+typedef SimpleBinding<CpuidIo, CpuidAddress> CpuidBinding;
 
-#define new_cpuid_binding(...) pp_binding_ptr(new cpuid_binding(__VA_ARGS__))
+#define new_cpuid_binding(...) BindingPtr(new CpuidBinding(__VA_ARGS__))
+
+}  // namespace pp
 
 #endif // PP_DRIVERS_CPUID_CPUID_BINDING_H__

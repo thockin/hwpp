@@ -1,5 +1,5 @@
-#include "pp.h"
-#include "printfxx.h"
+#include "pp/pp.h"
+#include "pp/util/printfxx.h"
 
 #include <stdint.h>
 #include <unistd.h>
@@ -8,26 +8,28 @@
 #include <stdexcept>
 
 #include "mem_binding.h"
-#include "pp_driver.h"
-#include "filesystem.h"
+#include "pp/driver.h"
+#include "pp/util/filesystem.h"
+
+namespace pp { 
 
 #define MEM_DEVICE	"/dev/mem"
 
 /* constructor */
-mem_io::mem_io(const mem_address &address, const string &device)
+MemIo::MemIo(const MemAddress &address, const string &device)
     : m_address(address)
 {
 	open_device(device);
 }
 
 /* destructor */
-mem_io::~mem_io()
+MemIo::~MemIo()
 {
 	// m_file will close() when it's last reference goes away
 }
 
-const mem_address &
-mem_io::address() const
+const MemAddress &
+MemIo::address() const
 {
 	return m_address;
 }
@@ -35,8 +37,8 @@ mem_io::address() const
 // We do this differently than most other drivers because we are using
 // mmap() under the covers, and we want to use single exact-width memory
 // accesses.
-pp_value
-mem_io::read(const pp_value &address, const pp_bitwidth width) const
+Value
+MemIo::read(const Value &address, const BitWidth width) const
 {
 	/* make sure this is a valid access */
 	check_width(width);
@@ -63,8 +65,8 @@ mem_io::read(const pp_value &address, const pp_bitwidth width) const
 // mmap() under the covers, and we want to use single exact-width memory
 // accesses.
 void
-mem_io::write(const pp_value &address, const pp_bitwidth width,
-    const pp_value &value) const
+MemIo::write(const Value &address, const BitWidth width,
+    const Value &value) const
 {
 	/* make sure this is a valid access */
 	check_width(width);
@@ -86,13 +88,13 @@ mem_io::write(const pp_value &address, const pp_bitwidth width,
 }
 
 void
-mem_io::do_io_error(const string &str) const
+MemIo::do_io_error(const string &str) const
 {
-	throw pp_driver::io_error(to_string(m_address) + ": " + str);
+	throw Driver::IoError(to_string(m_address) + ": " + str);
 }
 
 void
-mem_io::open_device(string device)
+MemIo::open_device(string device)
 {
 	if (device == "")
 		device = MEM_DEVICE;
@@ -102,7 +104,7 @@ mem_io::open_device(string device)
 }
 
 filesystem::FileMappingPtr
-mem_io::map(const pp_value &offset, size_t length) const
+MemIo::map(const Value &offset, size_t length) const
 {
 	if (offset.get_uint()+length > m_address.size) {
 		do_io_error(sprintfxx("can't access register 0x%x", offset));
@@ -112,7 +114,7 @@ mem_io::map(const pp_value &offset, size_t length) const
 }
 
 void
-mem_io::check_width(pp_bitwidth width) const
+MemIo::check_width(BitWidth width) const
 {
 	switch (width) {
 	    case BITS8:
@@ -126,28 +128,28 @@ mem_io::check_width(pp_bitwidth width) const
 }
 
 void
-mem_io::check_bounds(const pp_value &offset, size_t bytes) const
+MemIo::check_bounds(const Value &offset, size_t bytes) const
 {
 	/* we support 64 bit memory */
-	if (offset < 0 || (offset+bytes) > PP_MASK(64)) {
+	if (offset < 0 || (offset+bytes) > MASK(64)) {
 		do_io_error(sprintfxx("invalid register: %d bytes @ 0x%x",
 		                      bytes, offset));
 	}
 }
 
 template<typename Tdata>
-pp_value
-mem_io::do_read(const pp_value &offset) const
+Value
+MemIo::do_read(const Value &offset) const
 {
 	filesystem::FileMappingPtr mapping = map(offset, sizeof(Tdata));
 	Tdata *ptr = (Tdata *)mapping->address();
 	Tdata data = *ptr;
-	return pp_value(data);
+	return Value(data);
 }
 
 template<typename Tdata>
 void
-mem_io::do_write(const pp_value &offset, const pp_value &value) const
+MemIo::do_write(const Value &offset, const Value &value) const
 {
 	/* see if we are already open RW or can change to RW */
 	if (m_file->mode() == O_RDONLY) {
@@ -159,3 +161,5 @@ mem_io::do_write(const pp_value &offset, const pp_value &value) const
 	Tdata data = value.get_uint();
 	*ptr = data;
 }
+
+}  // namespace pp

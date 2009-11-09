@@ -2,21 +2,23 @@
 #ifndef PP_DRIVERS_MSR_MSR_DRIVER_H__
 #define PP_DRIVERS_MSR_MSR_DRIVER_H__
 
-#include "pp.h"
-#include "pp_driver.h"
+#include "pp/pp.h"
+#include "pp/driver.h"
 #include "msr_binding.h"
 
+namespace pp { 
+
 /*
- * msr_driver - MSR driver plugin.
+ * MsrDriver - MSR driver plugin.
  */
-class msr_driver: public pp_driver
+class MsrDriver: public Driver
 {
     public:
-	msr_driver();
-	virtual ~msr_driver();
+	MsrDriver();
+	virtual ~MsrDriver();
 
 	/*
-	 * msr_driver::name()
+	 * MsrDriver::name()
 	 *
 	 * Get the name of this driver.
 	 */
@@ -24,16 +26,18 @@ class msr_driver: public pp_driver
 	name() const;
 
 	/*
-	 * msr_driver::new_binding(args)
+	 * MsrDriver::new_binding(args)
 	 *
-	 * Create a new pp_binding.
+	 * Create a new Binding.
 	 *
-	 * Throws: pp_driver::args_error
+	 * Throws: Driver::ArgsError
 	 */
-	virtual pp_binding_ptr
-	new_binding(const std::vector<pp_value> &args) const;
+	virtual BindingPtr
+	new_binding(const std::vector<Value> &args) const;
 };
 
-#define new_msr_driver(...) pp_driver_ptr(new msr_driver(__VA_ARGS__))
+#define new_msr_driver(...) DriverPtr(new MsrDriver(__VA_ARGS__))
+
+}  // namespace pp
 
 #endif // PP_DRIVERS_MSR_MSR_DRIVER_H__

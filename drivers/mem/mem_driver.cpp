@@ -1,48 +1,52 @@
-#include "pp.h"
-#include "pp_datatypes.h"
+#include "pp/pp.h"
+#include "pp/datatype_types.h"
 #include "mem_driver.h"
 #include "mem_binding.h"
 
+namespace pp { 
+
 // this forces linkage and avoids the static initialization order fiasco
-pp_driver *
+Driver *
 load_mem_driver()
 {
-	static mem_driver the_driver;
+	static MemDriver the_driver;
 	return &the_driver;
 }
 
-mem_driver::mem_driver()
+MemDriver::MemDriver()
 {
 }
 
-mem_driver::~mem_driver()
+MemDriver::~MemDriver()
 {
 }
 
 string
-mem_driver::name() const
+MemDriver::name() const
 {
 	return "mem";
 }
 
-pp_binding_ptr
-mem_driver::new_binding(const std::vector<pp_value> &args) const
+BindingPtr
+MemDriver::new_binding(const std::vector<Value> &args) const
 {
-	pp_value base, size;
+	Value base, size;
 
 	if (args.size() != 2) {
-		throw pp_driver::args_error("mem<>: <base, size>");
+		throw Driver::ArgsError("mem<>: <base, size>");
 	}
 
 	base = args[0];
 	size = args[1];
 
 	if (base < 0) {
-		throw pp_driver::args_error("mem<>: invalid base");
+		throw Driver::ArgsError("mem<>: invalid base");
 	}
 	if (size < 0) {
-		throw pp_driver::args_error("mem<>: invalid size");
+		throw Driver::ArgsError("mem<>: invalid size");
 	}
 
-	return new_mem_binding(mem_address(base.get_uint(), size.get_uint()));
+	return new_mem_binding(MemAddress(base.get_uint(), size.get_uint()));
 }
+
+}  // namespace pp

@@ -1,11 +1,11 @@
-#include "pp.h"
-#include "printfxx.h"
+#include "pp/pp.h"
+#include "pp/util/printfxx.h"
 #include "drivers.h"
-#include "pp_register.h"
-#include "pp_datatypes.h"
-#include "pp_fields.h"
-#include "pp_array.h"
-#include "pp_alias.h"
+#include "pp/register.h"
+#include "pp/datatype_types.h"
+#include "pp/field_types.h"
+#include "pp/array.h"
+#include "pp/alias.h"
 #include "cmdline.h"
 
 using namespace std;
@@ -16,18 +16,18 @@ cmdline_bool skip_scopes = false;
 cmdline_bool skip_aliases = false;
 
 static void
-dump_field(const string &name, const pp_field_const_ptr &field);
+dump_field(const string &name, const pp::ConstFieldPtr &field);
 static void
-dump_register(const string &name, const pp_register_const_ptr &reg);
+dump_register(const string &name, const pp::ConstRegisterPtr &reg);
 static void
-dump_scope(const string &name, const pp_scope_const_ptr &scope);
+dump_scope(const string &name, const pp::ConstScopePtr &scope);
 static void
-dump_array(const string &name, const pp_array_const_ptr &array);
+dump_array(const string &name, const pp::ConstArrayPtr &array);
 static void
-dump_alias(const string &name, const pp_alias_const_ptr &alias);
+dump_alias(const string &name, const pp::ConstAliasPtr &alias);
 
 static void
-dump_field(const string &name, const pp_field_const_ptr &field)
+dump_field(const string &name, const pp::ConstFieldPtr &field)
 {
 	if (!skip_fields) {
 		cout << name << ": "
@@ -39,7 +39,7 @@ dump_field(const string &name, const pp_field_const_ptr &field)
 }
 
 static void
-dump_register(const string &name, const pp_register_const_ptr &reg)
+dump_register(const string &name, const pp::ConstRegisterPtr &reg)
 {
 	if (!skip_regs) {
 		cout << name << ": "
@@ -50,31 +50,31 @@ dump_register(const string &name, const pp_register_const_ptr &reg)
 }
 
 static void
-dump_array(const string &name, const pp_array_const_ptr &array)
+dump_array(const string &name, const pp::ConstArrayPtr &array)
 {
 	for (size_t i = 0; i < array->size(); i++) {
 		string subname = sprintfxx("%s[%d]", name, i);
-		if (array->array_type() == PP_DIRENT_FIELD) {
+		if (array->array_type() == pp::DIRENT_TYPE_FIELD) {
 			dump_field(subname,
-			    pp_field_from_dirent(array->at(i)));
-		} else if (array->array_type() == PP_DIRENT_REGISTER) {
+			    pp::field_from_dirent(array->at(i)));
+		} else if (array->array_type() == pp::DIRENT_TYPE_REGISTER) {
 			dump_register(subname,
-			    pp_register_from_dirent(array->at(i)));
-		} else if (array->array_type() == PP_DIRENT_SCOPE) {
+			    pp::register_from_dirent(array->at(i)));
+		} else if (array->array_type() == pp::DIRENT_TYPE_SCOPE) {
 			dump_scope(subname,
-			    pp_scope_from_dirent(array->at(i)));
-		} else if (array->array_type() == PP_DIRENT_ARRAY) {
+			    pp::scope_from_dirent(array->at(i)));
+		} else if (array->array_type() == pp::DIRENT_TYPE_ARRAY) {
 			dump_array(subname,
-			    pp_array_from_dirent(array->at(i)));
-		} else if (array->array_type() == PP_DIRENT_ALIAS) {
+			    pp::array_from_dirent(array->at(i)));
+		} else if (array->array_type() == pp::DIRENT_TYPE_ALIAS) {
 			dump_alias(subname,
-			    pp_alias_from_dirent(array->at(i)));
+			    pp::alias_from_dirent(array->at(i)));
 		}
 	}
 }
 
 static void
-dump_alias(const string &name, const pp_alias_const_ptr &alias)
+dump_alias(const string &name, const pp::ConstAliasPtr &alias)
 {
 	if (!skip_aliases) {
 		cout << name << ": ->"
@@ -85,7 +85,7 @@ dump_alias(const string &name, const pp_alias_const_ptr &alias)
 }
  
 static void
-dump_scope(const string &name, const pp_scope_const_ptr &scope)
+dump_scope(const string &name, const pp::ConstScopePtr &scope)
 {
 	if (!skip_scopes) {
 		cout << name << "/";
@@ -99,19 +99,19 @@ dump_scope(const string &name, const pp_scope_const_ptr &scope)
 		string subname = sprintfxx("%s/%s",name,scope->dirent_name(i));
 		if (scope->dirent(i)->is_field()) {
 			dump_field(subname,
-			    pp_field_from_dirent(scope->dirent(i)));
+			    pp::field_from_dirent(scope->dirent(i)));
 		} else if (scope->dirent(i)->is_register()) {
 			dump_register(subname,
-			    pp_register_from_dirent(scope->dirent(i)));
+			    pp::register_from_dirent(scope->dirent(i)));
 		} else if (scope->dirent(i)->is_scope()) {
 			dump_scope(subname,
-			    pp_scope_from_dirent(scope->dirent(i)));
+			    pp::scope_from_dirent(scope->dirent(i)));
 		} else if (scope->dirent(i)->is_array()) {
 			dump_array(subname,
-			    pp_array_from_dirent(scope->dirent(i)));
+			    pp::array_from_dirent(scope->dirent(i)));
 		} else if (scope->dirent(i)->is_alias()) {
 			dump_alias(subname,
-			    pp_alias_from_dirent(scope->dirent(i)));
+			    pp::alias_from_dirent(scope->dirent(i)));
 		}
 	}
 }
@@ -183,8 +183,8 @@ main(int argc, const char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	pp_scope_ptr root = pp_init();
-	pp_do_discovery();
+	pp::ScopePtr root = pp::initialize_device_tree();
+	pp::do_discovery();
 	dump_scope("", root);
 
 	return 0;

@@ -1,7 +1,9 @@
 /* Copyright (c) Tim Hockin, 2008 */
-#include "pp.h"
+#include "pp/pp.h"
 #include "language.h"
-#include "simple_regex.h"
+#include "pp/util/simple_regex.h"
+
+namespace pp {
 
 static const util::SimpleRegex c_token("^[A-Za-z_][A-Za-z0-9_]*$");
 
@@ -16,3 +18,5 @@ lang_valid_bookmark_name(const string &name)
 {
 	return c_token.matches(name);
 }
+
+}  // namespace pp

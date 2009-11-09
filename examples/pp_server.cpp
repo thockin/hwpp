@@ -1,26 +1,26 @@
-#include "pp.h"
-#include "printfxx.h"
+#include "pp/pp.h"
+#include "pp/util/printfxx.h"
 #include <signal.h>
 #include "drivers.h"
-#include "pp_field.h"
-#include "pp_register.h"
-#include "pp_scope.h"
-#include "pp_array.h"
-#include "sockets.h"
+#include "pp/field.h"
+#include "pp/register.h"
+#include "pp/scope.h"
+#include "pp/array.h"
+#include "pp/util/sockets.h"
 
 using namespace std;
 
 string
-dump_field(const string &name, const pp_field_const_ptr &field);
+dump_field(const string &name, const pp::ConstFieldPtr &field);
 string
-dump_register(const string &name, const pp_register_const_ptr &reg);
+dump_register(const string &name, const pp::ConstRegisterPtr &reg);
 string
-dump_scope(const string &name, const pp_scope_const_ptr &scope);
+dump_scope(const string &name, const pp::ConstScopePtr &scope);
 string
-dump_array(const string &name, const pp_array_const_ptr &array);
+dump_array(const string &name, const pp::ConstArrayPtr &array);
 
 string
-dump_field(const string &name, const pp_field_const_ptr &field)
+dump_field(const string &name, const pp::ConstFieldPtr &field)
 {
 	stringstream s;
 	s << name << ": "
@@ -32,7 +32,7 @@ dump_field(const string &name, const pp_field_const_ptr &field)
 }
 
 string
-dump_register(const string &name, const pp_register_const_ptr &reg)
+dump_register(const string &name, const pp::ConstRegisterPtr &reg)
 {
 	stringstream s;
 	s << name << ": "
@@ -43,7 +43,7 @@ dump_register(const string &name, const pp_register_const_ptr &reg)
 }
 
 string
-dump_scope(const string &name, const pp_scope_const_ptr &scope)
+dump_scope(const string &name, const pp::ConstScopePtr &scope)
 {
 	stringstream s;
 	s << name << "/";
@@ -56,16 +56,16 @@ dump_scope(const string &name, const pp_scope_const_ptr &scope)
 		string subname = sprintfxx("%s/%s",name,scope->dirent_name(i));
 		if (scope->dirent(i)->is_field()) {
 			s << dump_field(subname,
-			    pp_field_from_dirent(scope->dirent(i)));
+			    pp::field_from_dirent(scope->dirent(i)));
 		} else if (scope->dirent(i)->is_register()) {
 			s << dump_register(subname,
-			    pp_register_from_dirent(scope->dirent(i)));
+			    pp::register_from_dirent(scope->dirent(i)));
 		} else if (scope->dirent(i)->is_scope()) {
 			s << dump_scope(subname,
-			    pp_scope_from_dirent(scope->dirent(i)));
+			    pp::scope_from_dirent(scope->dirent(i)));
 		} else if (scope->dirent(i)->is_array()) {
 			s << dump_array(subname,
-			    pp_array_from_dirent(scope->dirent(i)));
+			    pp::array_from_dirent(scope->dirent(i)));
 		} else {
 			s << subname << "unknown dirent type: "
 			  << scope->dirent(i)->dirent_type() << endl;
@@ -76,23 +76,23 @@ dump_scope(const string &name, const pp_scope_const_ptr &scope)
 }
 
 string
-dump_array(const string &name, const pp_array_const_ptr &array)
+dump_array(const string &name, const pp::ConstArrayPtr &array)
 {
 	stringstream s;
 	for (size_t i = 0; i < array->size(); i++) {
 		string subname = sprintfxx("%s[%d]", name, i);
-		if (array->array_type() == PP_DIRENT_FIELD) {
+		if (array->array_type() == pp::DIRENT_TYPE_FIELD) {
 			s << dump_field(subname,
-			    pp_field_from_dirent(array->at(i)));
-		} else if (array->array_type() == PP_DIRENT_REGISTER) {
+			    pp::field_from_dirent(array->at(i)));
+		} else if (array->array_type() == pp::DIRENT_TYPE_REGISTER) {
 			s << dump_register(subname,
-			    pp_register_from_dirent(array->at(i)));
-		} else if (array->array_type() == PP_DIRENT_SCOPE) {
+			    pp::register_from_dirent(array->at(i)));
+		} else if (array->array_type() == pp::DIRENT_TYPE_SCOPE) {
 			s << dump_scope(subname,
-			    pp_scope_from_dirent(array->at(i)));
-		} else if (array->array_type() == PP_DIRENT_ARRAY) {
+			    pp::scope_from_dirent(array->at(i)));
+		} else if (array->array_type() == pp::DIRENT_TYPE_ARRAY) {
 			s << dump_array(subname,
-			    pp_array_from_dirent(array->at(i)));
+			    pp::array_from_dirent(array->at(i)));
 		} else {
 			s << name << ": unknown array type: "
 			  << array->array_type() << endl;
@@ -104,20 +104,20 @@ dump_array(const string &name, const pp_array_const_ptr &array)
 }
 
 string
-dump_dirent(pp_scope_ptr &root, const string &path)
+dump_dirent(pp::ScopePtr &root, const string &path)
 {
 	stringstream s;
-	const pp_dirent_const_ptr &de = root->lookup_dirent(path);
+	const pp::ConstDirentPtr &de = root->lookup_dirent(path);
 	if (de == NULL) {
 		s << path << ": path not found" << endl;
 	} else if (de->is_field()) {
-		s << dump_field(path, pp_field_from_dirent(de));
+		s << dump_field(path, pp::field_from_dirent(de));
 	} else if (de->is_register()) {
-		s << dump_register(path, pp_register_from_dirent(de));
+		s << dump_register(path, pp::register_from_dirent(de));
 	} else if (de->is_scope()) {
-		s << dump_scope(path, pp_scope_from_dirent(de));
+		s << dump_scope(path, pp::scope_from_dirent(de));
 	} else if (de->is_array()) {
-		s << dump_array(path, pp_array_from_dirent(de));
+		s << dump_array(path, pp::array_from_dirent(de));
 	} else {
 		s << path << ": unknown dirent type: "
 		  << de->dirent_type() << endl;
@@ -149,15 +149,15 @@ main(int argc, const char *argv[])
 	signal(SIGTERM, exit_handler);
 	signal(SIGQUIT, exit_handler);
 
-	pp_scope_ptr root = pp_init();
-	pp_do_discovery();
+	pp::ScopePtr root = pp::initialize_device_tree();
+	pp::do_discovery();
 
 	if (argc == 2) {
 		string socketpath(argv[1]);
-		static unix_socket::server svr(socketpath);
+		static unix_socket::Server svr(socketpath);
 		while (true) {
 			// Handle new connections forever
-			unix_socket::socket s = svr.accept();
+			unix_socket::Socket s = svr.accept();
 			while (true) {
 				string path = s.recv_line();
 				if (!s.is_connected()) {

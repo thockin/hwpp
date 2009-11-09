@@ -1,7 +1,9 @@
-#include "pp.h"
+#include "pp/pp.h"
 #include "mem_driver.h"
 #include "mem_binding.h"
 #include "pp_test.h"
+
+namespace pp {
 
 TEST(test_mem_io)
 {
@@ -10,23 +12,23 @@ TEST(test_mem_io)
 
 	try {
 		/* test ctors (for a dev file that exists) and address() */
-		mem_io io1(mem_address(0, 20), "test_data/dev_mem");
+		MemIo io1(MemAddress(0, 20), "test_data/dev_mem");
 		if (io1.address().base != 0 || io1.address().size != 20) {
-			TEST_FAIL("mem_io::mem_io(mem_address)");
+			TEST_FAIL("MemIo::MemIo(MemAddress)");
 		}
 
 		/* test the read() method */
 		if (io1.read(0, BITS8) != 0x30) {
-			TEST_FAIL("mem_io::read(BITS8)");
+			TEST_FAIL("MemIo::read(BITS8)");
 		}
 		if (io1.read(0, BITS16) != 0x3130) {
-			TEST_FAIL("mem_io::read(BITS16)");
+			TEST_FAIL("MemIo::read(BITS16)");
 		}
 		if (io1.read(0, BITS32) != 0x33323130) {
-			TEST_FAIL("mem_io::read(BITS32)");
+			TEST_FAIL("MemIo::read(BITS32)");
 		}
-		if (io1.read(0, BITS64) != pp_value("0x3736353433323130")) {
-			TEST_FAIL("mem_io::read(BITS64)");
+		if (io1.read(0, BITS64) != Value("0x3736353433323130")) {
+			TEST_FAIL("MemIo::read(BITS64)");
 		}
 		/* test read() around the bounds */
 		try {
@@ -46,15 +48,15 @@ TEST(test_mem_io)
 		}
 
 		/* test the write() method */
-		io1.write(0, BITS64, pp_value("0xffeeddccbbaa9988"));
-		if (io1.read(0, BITS64) != pp_value("0xffeeddccbbaa9988")) {
-			TEST_FAIL("mem_io::write()");
+		io1.write(0, BITS64, Value("0xffeeddccbbaa9988"));
+		if (io1.read(0, BITS64) != Value("0xffeeddccbbaa9988")) {
+			TEST_FAIL("MemIo::write()");
 		}
 
 		/* test ctors (for a dev file that does not exist) */
 		try {
-			mem_io io2(mem_address(0, 20), "test_data/bad_mem");
-			TEST_FAIL("mem_io::mem_io()");
+			MemIo io2(MemAddress(0, 20), "test_data/bad_mem");
+			TEST_FAIL("MemIo::MemIo()");
 		} catch (std::exception &e) {
 		}
 	} catch (std::exception &e) {
@@ -64,3 +66,5 @@ TEST(test_mem_io)
 
 	system("rm -rf test_data");
 }
+
+}  // namespace pp
