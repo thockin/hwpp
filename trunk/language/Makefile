@@ -3,6 +3,7 @@ include $(TOPDIR)/pp.mk
 
 
 SRCS = language.cpp \
+       variable.cpp \
        auto.lex.cpp \
        auto.yacc.cpp
 OBJS = $(SRCS:.cpp=.o)

@@ -192,18 +192,18 @@ primary_expression
 	| TOK_BOOL_LITERAL {
 		SYNTRACE("primary_expression", "BOOL_LITERAL");
 		$$ = new ValueExpression(
-		    new Variable(new Type(Type::BOOL), $1));
+		    new Variable::Datum(new Type(Type::BOOL), $1));
 	}
 	| TOK_INT_LITERAL {
 		SYNTRACE("primary_expression", "INT_LITERAL");
 		$$ = new ValueExpression(
-		    new Variable(new Type(Type::INT), *$1));
+		    new Variable::Datum(new Type(Type::INT), *$1));
 		delete $1;
 	}
 	| string_literal {
 		SYNTRACE("primary_expression", "string_literal");
 		$$ = new ValueExpression(
-		    new Variable(new Type(Type::STRING), *$1));
+		    new Variable::Datum(new Type(Type::STRING), *$1));
 		delete $1;
 	}
 	| list_literal {
@@ -533,10 +533,10 @@ and_and_expression
 		Expression *cond = new BinaryExpression(
 		    BinaryExpression::OP_EQ, $1,
 		    new ValueExpression(
-		        new Variable(new Type(Type::BOOL), true)));
+		        new Variable::Datum(new Type(Type::BOOL), true)));
 		$$ = new ConditionalExpression(cond, $3,
 		    new ValueExpression(
-		        new Variable(new Type(Type::BOOL), false)));
+		        new Variable::Datum(new Type(Type::BOOL), false)));
 	}
 	;
 
@@ -552,10 +552,10 @@ or_or_expression
 		Expression *cond = new BinaryExpression(
 		    BinaryExpression::OP_EQ, $1,
 		    new ValueExpression(
-		        new Variable(new Type(Type::BOOL), true)));
+		        new Variable::Datum(new Type(Type::BOOL), true)));
 		$$ = new ConditionalExpression(cond,
 		    new ValueExpression(
-		        new Variable(new Type(Type::BOOL), true)), $3);
+		        new Variable::Datum(new Type(Type::BOOL), true)), $3);
 	}
 	;
 

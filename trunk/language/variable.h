@@ -38,90 +38,35 @@ class Type {
 	};
 
 	// Implicit conversion is OK.
-	Type(Primitive prim) : m_primitive(prim), m_const(false)
+	Type(Primitive prim)
+	    : m_primitive(prim), m_is_const(false), m_arguments()
 	{
 	}
+	// Make a deep-copy.
+	Type(const Type &other);
+	// Non-virtual dtor.
 	~Type()
 	{
 		reinit(VAR);
 	}
 	// Default copy ctor is OK.
 
+	// Re-initialize this Type for re-use.
 	void
-	reinit(Primitive prim)
-	{
-		// Clean up arguments.
-		for (size_t i = 0; i < m_arguments.size(); i++) {
-			delete m_arguments[i];
-		}
-		m_arguments.clear();
-		m_primitive = prim;
-		m_const = false;
-	}
+	reinit(Primitive prim);
 
-	// This takes ownership of the argument type object.
+	// This takes ownership of the 'arg' argument.
 	void
-	add_argument(const Type *arg)
-	{
-		switch (m_primitive) {
-			case LIST:
-				if (m_arguments.size() > 0) {
-					throw ArgumentError(sprintfxx(
-					    "type %s takes only one argument",
-					    primitive_to_string(m_primitive)));
-				}
-				// ...else fall through
-			case TUPLE:
-				m_arguments.push_back(arg);
-				break;
-			default:
-				throw ArgumentError(sprintfxx(
-				    "type %s takes no arguments",
-				    primitive_to_string(m_primitive)));
-				break;
-		}
-	}
+	add_argument(const Type *arg);
 
 	static string
-	primitive_to_string(Primitive prim)
-	{
-		check_known_primitive(prim);
-		switch (prim) {
-		  case BOOL:   return "bool";
-		  case FUNC:   return "func";
-		  case INT:    return "int";
-		  case LIST:   return "list";
-		  case STRING: return "string";
-		  case TUPLE:  return "tuple";
-		  case VAR:    return "var";
-		}
-		return "(this can not happen)";
-	}
+	primitive_to_string(Primitive prim);
 
 	string
-	to_string() const
-	{
-		return primitive_to_string(m_primitive);
-	}
+	to_string() const;
 
 	bool
-	is_equal_to(const Type *other) const
-	{
-		if (m_primitive != other->m_primitive) {
-			return false;
-		}
-		if (m_arguments.size() != other->m_arguments.size()) {
-			return false;
-		}
-		for (size_t i = 0; i < m_arguments.size(); i++) {
-			const Type *a = m_arguments[i];
-			const Type *b = other->m_arguments[i];
-			if (!a->is_equal_to(b)) {
-				return false;
-			}
-		}
-		return true;
-	}
+	is_equal_to(const Type *other) const;
 
 	// Type assignability is strict.  There is no conversion between types
 	// at all.  The only soft spot is variables with spec-type var, which
@@ -134,28 +79,7 @@ class Type {
 	//   list<var> = list<$type>		OK
 	//   list<$type> = list<var>		NOT OK
 	bool
-	is_assignable_from(const Type *other) const
-	{
-		// VAR is assignable from anything.
-		if (m_primitive == VAR) {
-			return true;
-		}
-		// If the primitives don't match or the number of arguments
-		// don't match, it can't possibly be assignable.
-		if (m_primitive != other->m_primitive
-		 || m_arguments.size() != other->m_arguments.size()) {
-			return false;
-		}
-		// All arguments must also be assignable.
-		for (size_t i = 0; i < m_arguments.size(); i++) {
-			const Type *lhs = m_arguments[i];
-			const Type *rhs = other->m_arguments[i];
-			if (!lhs->is_assignable_from(rhs)) {
-				return false;
-			}
-		}
-		return true;
-	}
+	is_assignable_from(const Type *other) const;
 
 	Primitive
 	primitive() const
@@ -163,43 +87,34 @@ class Type {
 		return m_primitive;
 	}
 
+	bool
+	is_const() const
+	{
+		return m_is_const;
+	}
+
+	void
+	set_const()
+	{
+		m_is_const = true;
+	}
+
 	const std::vector<const Type*> &
 	arguments() const {
 		return m_arguments;
 	}
 
-	bool
-	is_const() const
-	{
-		return m_const;
-	}
-	void
-	set_const()
-	{
-		m_const = true;
-	}
-
     private:
 	// Paranoia.
 	static void
-	check_known_primitive(Primitive prim)
-	{
-		switch (prim) {
-		  case BOOL:
-		  case FUNC:
-		  case INT:
-		  case LIST:
-		  case STRING:
-		  case TUPLE:
-		  case VAR:
-		  	return;
-		}
-		throw UnknownError(sprintfxx("unknown type (%d)", prim));
-	}
+	check_known_primitive(Primitive prim);
 
 	Primitive m_primitive;
+	// In general, constness applies to a Variable, not a Type.  In order
+	// to make Type arguments easier, we keep a notion of constness here,
+	// which we copy into Variables as they are created.
+	bool m_is_const;
 	std::vector<const Type*> m_arguments;
-	bool m_const;
 };
 inline bool
 operator==(const Type &lhs, const Type &rhs)
@@ -212,10 +127,10 @@ operator!=(const Type &lhs, const Type &rhs)
 	return !(lhs.is_equal_to(&rhs));
 }
 
-//FIXME: need a Variable::Value (data) and Variable (inode).  Variable is
-//  what is really const (consider passing as reference a non-const and
-//  accepting it as const.
-// This represents an instance of a specific datatype with value.
+// This represents a reference to an instance of a specific datatype.  All
+// Variables are passed by reference, so this is the primary construct.  The
+// relationship between Variable and Variable::Datum is like that of inodes
+// and data blocks.
 class Variable {
     public:
 	// Throw this when there is a type mismatch or const violation.
@@ -236,316 +151,344 @@ class Variable {
 		//FIXME: need args;
 		virtual Variable *call() = 0;
 	};
-	typedef std::vector<Variable*> List;
-	typedef std::vector<Variable*> Tuple;
+	class Container {
+	    public:
+		typedef std::vector<Variable*> Contents;
+		Container() : m_contents()
+		{
+		}
+		Container(const Container &other) : m_contents()
+		{
+			// Do a deep-copy.
+			const Contents &old = other.contents();
+			for (size_t i = 0; i < old.size(); i++) {
+				m_contents.push_back(new Variable(*(old[i])));
+			}
+		}
+		~Container()
+		{
+			for (size_t i = 0; i < m_contents.size(); i++) {
+				delete m_contents[i];
+			}
+		}
+
+		void
+		append(Variable *variable)
+		{
+			m_contents.push_back(variable);
+		}
+
+		const Contents &
+		contents() const
+		{
+			return m_contents;
+		}
+
+	    private:
+		Contents m_contents;
+	};
+	class List : public Container
+	{
+	    public:
+		List() : Container() {}
+		List(const List &other) : Container(other) {}
+	};
+	class Tuple : public Container
+	{
+	    public:
+		Tuple() : Container() {}
+		Tuple(const Tuple &other) : Container(other) {}
+	};
+
+	// This represents the actual contents of a Variable.  This has no
+	// concept of type qualifiers like 'const'.
+	class Datum {
+	    public:
+		// Initialize to the default value for a given type.  This
+		// takes ownership of the 'type' argument.
+		explicit
+		Datum(Type *type);
+		// Make a deep-copy of another Datum.
+		Datum(const Datum &other);
+		// Initialize a specific type with a given value.
+		Datum(Type *type, bool value);
+		Datum(Type *type, const Value &value);
+		Datum(Type *type, const Func *value);
+		Datum(Type *type, const List *value);
+		Datum(Type *type, const string &value);
+		Datum(Type *type, const Tuple *value);
+
+		const Type *
+		type() const
+		{
+			return m_type.get();
+		}
+
+		bool
+		is_assignable_from(const Datum *other) const
+		{
+			return type()->is_assignable_from(other->type());
+		}
+
+		// Access this value as a bool.  Throws Variable::TypeError if
+		// this Datum is a different type.
+		bool
+		bool_value() const
+		{
+			check_type_primitive(Type::BOOL);
+			return m_bool_value;
+		}
+
+		// Access this value as a function.  Throws
+		// Variable::TypeError if this Datum is a different type.
+		const Func *
+		func_value() const
+		{
+			check_type_primitive(Type::FUNC);
+			return m_func_value.get();
+		}
+
+		// Access this value as an int.  Throws Variable::TypeError if
+		// this Datum is a different type.
+		const Value &
+		int_value() const
+		{
+			check_type_primitive(Type::INT);
+			return m_int_value;
+		}
+
+		// Access this value as a list.  Throws Variable::TypeError if
+		// this Datum is a different type.
+		const List &
+		list_value() const
+		{
+			check_type_primitive(Type::LIST);
+			return *m_list_value;
+		}
+
+		// Access this value as a string.  Throws Variable::TypeError
+		// if this Datum is a different type.
+		const string &
+		string_value() const
+		{
+			check_type_primitive(Type::STRING);
+			return m_string_value;
+		}
+
+		// Access this value as a tuple.  Throws Variable::TypeError
+		// if this Datum is a different type.
+		const Tuple &
+		tuple_value() const
+		{
+			check_type_primitive(Type::TUPLE);
+			return *m_tuple_value;
+		}
+
+		// Test if this value is undefined.
+		bool
+		is_undef() const
+		{
+			// Once the value gets written, the type will no
+			// longer be var.
+			return (m_type->primitive() == Type::VAR);
+		}
+
+	    private:
+		void operator=(const Datum &)
+		{
+			// Not implemented.
+		}
+
+		class UndefFunc : public Func {
+		    public:
+			virtual Variable *
+			call() {
+				return new Variable(new Type(Type::VAR));
+			}
+		};
+
+		// Throw Variable::TypeError if this Datum is not of the
+		// specified primtive type.
+		void
+		check_type_primitive(Type::Primitive primitive) const;
+
+		boost::scoped_ptr<Type> m_type;
+		bool m_type_locked;
+
+		// These are essentially a union.  Only one is ever valid at a
+		// time.
+		bool m_bool_value;
+		boost::shared_ptr<const Func> m_func_value;
+		Value m_int_value;
+		boost::scoped_ptr<const List> m_list_value;
+		boost::scoped_ptr<const Tuple> m_tuple_value;
+		string m_string_value;
+	};
+
+	// Used for clearer constness management when creating const Variables.
+	// You can add CONST as an argument to most of the ctors because it is
+	// always safe to add constness to a reference.  You can not add
+	// NON_CONST as a qualifier because it is a logical flub.  If the
+	// Variable or Type is already non-const it is a no-op.  If the
+	// Variable or Type is const it is an error.
+	enum Constness {
+		CONST = 1
+	};
 
 	// Initialize to the default value for a given type.
 	explicit
-	Variable(Type *type) : m_type(type), m_type_locked(true)
+	Variable(Type *type)
+	    : m_value(new Datum(type)), m_is_const(type->is_const())
 	{
-		switch (m_type->primitive()) {
-		  case Type::BOOL:
-		  	m_bool_value = false;
-		  	break;
-		  case Type::FUNC:
-		  	m_func_value.reset(new UndefFunc());
-		  	break;
-		  case Type::INT:
-		  	m_int_value = 0;
-		  	break;
-		  case Type::LIST:
-		  	if (type->arguments().size() != 1) {
-		  		throw Type::ArgumentError(sprintfxx(
-		  		    "type %s requires exactly one argument",
-		  		    Type::primitive_to_string(Type::LIST)));
-		  	}
-		  	m_vector_value.reset(new List());
-		  	break;
-		  case Type::STRING:
-		  	m_string_value = "";
-		  	break;
-		  case Type::TUPLE:
-		  	if (type->arguments().size() < 1) {
-		  		throw Type::ArgumentError(sprintfxx(
-		  		    "type %s requires at least one argument",
-		  		    Type::primitive_to_string(Type::TUPLE)));
-		  	}
-		  	m_vector_value.reset(new Tuple());
-		  	break;
-		  case Type::VAR:
-		  	// You can create a 'var' Variable, but once you
-			// assign to it, its actual type changes.  In the mean
-			// time its value is undefined.
-		  	m_type_locked = false;
-		  	break;
-		}
 	}
-	// Initialize a specific type with a given value.
+	// Initialize from another Variable.  NOTE: These make a reference,
+	// not a copy.  If you need a copy, use assign_from().
+	Variable(Variable &other)
+	    : m_value(other.m_value), m_is_const(other.is_const())
+	{
+	}
+	Variable(Variable &other, Constness constness)
+	    : m_value(other.m_value), m_is_const(constness)
+	{
+	}
+	// Init as bool.
 	Variable(Type *type, bool value)
-	    : m_type(type), m_type_locked(true)
+	    : m_value(new Datum(type, value)), m_is_const(type->is_const())
 	{
-		if (m_type->primitive() == Type::VAR) {
-			m_type_locked = false;
-			bool is_const = m_type->is_const();
-			m_type->reinit(Type::BOOL);
-			if (is_const) {
-				m_type->set_const();
-			}
-		}
-		if (m_type->primitive() != Type::BOOL) {
-			throw TypeError(sprintfxx(
-			    "can't init variable of type %s as bool",
-			    m_type->to_string()));
-		}
-		m_bool_value = value;
 	}
-	Variable(Type *type, const Value &value)
-	    : m_type(type), m_type_locked(true)
+	Variable(Type *type, Constness constness, bool value)
+	    : m_value(new Datum(type, value)), m_is_const(constness)
 	{
-		if (m_type->primitive() == Type::VAR) {
-			m_type_locked = false;
-			bool is_const = m_type->is_const();
-			m_type->reinit(Type::INT);
-			if (is_const) {
-				m_type->set_const();
-			}
-		}
-		if (m_type->primitive() != Type::INT) {
-			throw TypeError(sprintfxx(
-			    "can't init variable of type %s as int",
-			    m_type->to_string()));
-		}
-		m_int_value = value;
 	}
+	// Init as func.
 	Variable(Type *type, const Func *value)
-	    : m_type(type), m_type_locked(true)
+	    : m_value(new Datum(type, value)), m_is_const(type->is_const())
 	{
-		if (m_type->primitive() == Type::VAR) {
-			m_type_locked = false;
-			bool is_const = m_type->is_const();
-			m_type->reinit(Type::FUNC);
-			if (is_const) {
-				m_type->set_const();
-			}
-		}
-		if (m_type->primitive() != Type::FUNC) {
-			throw TypeError(sprintfxx(
-			    "can't init variable of type %s as func",
-			    m_type->to_string()));
-		}
-		m_func_value.reset(value);
 	}
+	Variable(Type *type, Constness constness, const Func *value)
+	    : m_value(new Datum(type, value)), m_is_const(constness)
+	{
+	}
+	// Init as int.
+	Variable(Type *type, const Value &value)
+	    : m_value(new Datum(type, value)), m_is_const(type->is_const())
+	{
+	}
+	Variable(Type *type, Constness constness, const Value &value)
+	    : m_value(new Datum(type, value)), m_is_const(constness)
+	{
+	}
+	// Init as list.
 	Variable(Type *type, const List *value)
-	    : m_type(type), m_type_locked(true)
+	    : m_value(new Datum(type, value)), m_is_const(type->is_const())
 	{
-		if (m_type->primitive() == Type::VAR) {
-			m_type_locked = false;
-			bool is_const = m_type->is_const();
-			m_type->reinit(Type::LIST);
-			if (is_const) {
-				m_type->set_const();
-			}
-		}
-		if (m_type->primitive() != Type::LIST) {
-			throw TypeError(sprintfxx(
-			    "can't init variable of type %s as list",
-			    m_type->to_string()));
-		}
-		// Validate that the new actual-types are OK for this list.
-		const Type *spec_type = m_type->arguments()[0];
-		for (size_t i = 0; i < value->size(); i++) {
-			const Type *actual_type = value->at(i)->type();
-			if (!spec_type->is_assignable_from(actual_type)) {
-				throw TypeError(sprintfxx(
-				    "can't init variable of type %s as %s",
-				    spec_type->to_string(),
-				    actual_type->to_string()));
-			}
-		}
-		m_vector_value.reset(value);
 	}
-	Variable(Type *type, const string &value)
-	    : m_type(type), m_type_locked(true)
+	Variable(Type *type, Constness constness, const List *value)
+	    : m_value(new Datum(type, value)), m_is_const(constness)
 	{
-		if (m_type->primitive() == Type::VAR) {
-			m_type_locked = false;
-			bool is_const = m_type->is_const();
-			m_type->reinit(Type::STRING);
-			if (is_const) {
-				m_type->set_const();
-			}
-		}
-		if (m_type->primitive() != Type::STRING) {
-			throw TypeError(sprintfxx(
-			    "can't init variable of type %s as string",
-			    m_type->to_string()));
-		}
-		m_string_value = value;
+	}
+	// Init as string.
+	Variable(Type *type, const string &value)
+	    : m_value(new Datum(type, value)), m_is_const(type->is_const())
+	{
+	}
+	Variable(Type *type, Constness constness, const string &value)
+	    : m_value(new Datum(type, value)), m_is_const(constness)
+	{
+	}
+	// Init as tuple.
+	Variable(Type *type, const Tuple *value)
+	    : m_value(new Datum(type, value)), m_is_const(type->is_const())
+	{
+	}
+	Variable(Type *type, Constness constness, const Tuple *value)
+	    : m_value(new Datum(type, value)), m_is_const(constness)
+	{
+	}
+
+	const Datum *
+	value() const
+	{
+		return m_value.get();
 	}
 
 	bool
 	is_const() const
 	{
-		return m_type->is_const();
+		return m_is_const;
 	}
 
 	const Type *
 	type() const
 	{
-		return m_type.get();
+		return m_value->type();
 	}
 
-#if 0
-	// Access this variable as a bool.
 	bool
-	bool_value() const
+	is_assignable_from(const Variable *other) const
 	{
-		check_type_primitive(Type::BOOL);
-		return m_bool_value;
-	}
-	void
-	set_bool_value(bool new_value)
-	{
-		if (m_type_locked) {
-			check_type_primitive(Type::BOOL);
+		if (is_const()) {
+			return false;
 		}
-		check_not_const();
-		//FIXME: wasteful to reallocate if not needed
-		m_type->reinit(Type::BOOL);
-		m_bool_value = new_value;
-	}
-
-	// Access this variable as a function.
-	const Func *
-	func_value() const
-	{
-		check_type_primitive(Type::FUNC);
-		return m_func_value.get();
-	}
-	void
-	set_func_value(const Func *new_value)
-	{
-		if (m_type_locked) {
-			check_type_primitive(Type::FUNC);
-		}
-		check_not_const();
-		m_type->reinit(Type::FUNC);
-		m_func_value.reset(new_value);
-	}
-
-	// Access this variable as an int.
-	const Value &
-	int_value() const
-	{
-		check_type_primitive(Type::INT);
-		return m_int_value;
-	}
-	void
-	set_int_value(const Value &new_value)
-	{
-		if (m_type_locked) {
-			check_type_primitive(Type::INT);
-		}
-		check_not_const();
-		m_type->reinit(Type::INT);
-		m_int_value = new_value;
-	}
-
-	// Access this variable as a string.
-	const string &
-	string_value() const
-	{
-		check_type_primitive(Type::STRING);
-		return m_string_value;
-	}
-	void
-	set_string_value(const string &new_value)
-	{
-		if (m_type_locked) {
-			check_type_primitive(Type::STRING);
-		}
-		check_not_const();
-		m_type->reinit(Type::STRING);
-		m_string_value = new_value;
-	}
-
-	// Access this variable as a list.
-	const List *
-	list_value() const
-	{
-		check_type_primitive(Type::LIST);
-		return m_vector_value.get();
-	}
-	void
-	set_list_value(List *new_value)
-	{
-		if (m_type_locked) {
-			//FIXME: dup comment
-			// Careful here:
-			//   list<int> = list<int> is always OK
-			//   list<int> = list<string> is never OK
-			//   list<var> = list<var> is always OK
-			//   list<var> = list<int> is always OK
-			//   list<int> = list<var> is OK iff all values are int
-			check_type_primitive(Type::LIST);
-			const Type *contained_type = m_type->arguments()[0];
-			// We don't have the new list's spec'ed type, so we
-			// have to iterate the contents and compare actual
-			// types.
-			for (size_t i = 0; i < new_value->size(); i++) {
-				const Type *t = new_value->at(i)->type();
-				if (!contained_type->is_assignable_from(t)) {
-					//FIXME: left off here
-					//throw TypeError(sprintfxx(
-					//    "can't init variable of type %s as bool",
-					//    m_type->to_string()));
-				}
-			}
-		}
-		check_not_const();
-		//FIXME: handle var
-		//m_type->reinit(Type::LIST);
-		m_vector_value.reset(new_value);
-	}
-#endif
-
-    private:
-	class UndefFunc : public Func {
-	    public:
-		virtual Variable *
-		call() {
-			//FIXME: make undef be a value rather than a type?
-			return new Variable(new Type(Type::VAR));
-		}
-	};
-
-	void
-	check_type_primitive(Type::Primitive primitive) const
-	{
-		if (m_type->primitive() != primitive) {
-			throw TypeError(
-			    sprintfxx("can't access variable of type %s as %s",
-			        Type::primitive_to_string(m_type->primitive()),
-			        Type::primitive_to_string(primitive)));
-		}
+		return m_value->is_assignable_from(other->value());
 	}
 
 	void
-	check_not_const() const
+	assign_from(const Variable &other)
 	{
 		if (is_const()) {
 			throw TypeError(
 			    sprintfxx("can't write to const variable"));
 		}
+		m_value.reset(new Datum(*other.value()));
 	}
 
-	boost::scoped_ptr<Type> m_type;
-	bool m_type_locked;
-	bool m_bool_value;
-	boost::scoped_ptr<const Func> m_func_value;
-	Value m_int_value;
-	boost::scoped_ptr<const List> m_vector_value;
-	string m_string_value;
+	// Access as bool.
+	bool
+	bool_value() const
+	{
+		return m_value->bool_value();
+	}
+
+	// Access as func.
+	const Func *
+	func_value() const
+	{
+		return m_value->func_value();
+	}
+
+	// Access as int.
+	const Value &
+	int_value() const
+	{
+		return m_value->int_value();
+	}
+
+	// Access as list.
+	const List &
+	list_value() const
+	{
+		return m_value->list_value();
+	}
+
+	// Access as string.
+	const string &
+	string_value() const
+	{
+		return m_value->string_value();
+	}
+
+	// Access as tuple.
+	const Tuple &
+	tuple_value() const
+	{
+		return m_value->tuple_value();
+	}
+
+    private:
+	// This is shared_ptr rather than scoped_ptr for reference semantics.
+	boost::shared_ptr<Datum> m_value;
+	bool m_is_const;
 };
 
 }  // namespace language
