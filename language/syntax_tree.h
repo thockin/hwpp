@@ -754,11 +754,11 @@ typedef std::vector<ParameterDeclaration*> ParameterDeclarationList;
 
 class ValueExpression : public Expression {
     public:
-	ValueExpression(const Variable *value) : m_value(value)
+	ValueExpression(const Variable::Datum *value) : m_value(value)
 	{
 	}
 
-	const Variable *value() const
+	const Variable::Datum *value() const
 	{
 		return m_value.get();
 	}
@@ -771,7 +771,7 @@ class ValueExpression : public Expression {
 	}
 
     private:
-	boost::scoped_ptr<const Variable> m_value;
+	boost::scoped_ptr<const Variable::Datum> m_value;
 };
 
 class FunctionLiteralExpression : public Expression {

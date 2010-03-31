@@ -8,13 +8,14 @@ TESTS = variable_test \
         syntax_tree_test
 TESTS_SRCS = $(TESTS:=.cpp)
 
+all: $(TOPDIR)/tests/libpptest.a $(TESTS)
 
-all: libpptest.a $(TESTS)
+variable_test: ../variable.o
 
-../tests/libpptest.a:
-	$(MAKE) -C ../tests libpptest.a
+$(TOPDIR)/tests/libpptest.a:
+	$(MAKE) -C $(TOPDIR)/tests libpptest.a
 
-$(TESTS): %: %.o libpptest.a
+$(TESTS): %: %.o $(TOPDIR)/tests/libpptest.a
 
 .PHONY: test
 test: all
