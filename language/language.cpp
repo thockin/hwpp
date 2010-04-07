@@ -9,7 +9,8 @@
 
 // For some reason auto.yacc.h does not export this.
 extern int pp__language__internal__parse(yyscan_t scanner,
-    pp::language::Parser *parser, pp::language::syntax::ParsedFile *parsed_file);
+    pp::language::Parser *parser,
+    pp::language::syntax::StatementList *parsed_file);
 
 // These are exposed from the lexer to the parser and for testing.
 extern void pp__language__internal__push_lexer_state(int new_state,
@@ -117,7 +118,7 @@ class ParserImpl {
 	{
 	}
 
-	int parse_file(FILE *file, syntax::ParsedFile *parsed_file)
+	int parse_file(FILE *file, syntax::StatementList *parsed_file)
 	{
 		m_lexer.restart(file);
 		yyscan_t scanner = m_lexer.internal_impl()->scanner();
@@ -140,7 +141,7 @@ Parser::~Parser()
 	delete m_impl;
 }
 
-int Parser::parse_file(FILE *file, syntax::ParsedFile *parsed_file)
+int Parser::parse_file(FILE *file, syntax::StatementList *parsed_file)
 {
 	return m_impl->parse_file(file, parsed_file);
 }

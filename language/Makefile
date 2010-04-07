@@ -3,17 +3,21 @@ include $(TOPDIR)/pp.mk
 
 
 SRCS = language.cpp \
+       syntax_tree.cpp \
        variable.cpp \
        auto.lex.cpp \
        auto.yacc.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 
-all: language.a
+all: language.a parse_stdin
 
 language.a: $(OBJS)
 	$(AR) rcs $@ $(OBJS)
 	$(RANLIB) $@
+
+parse_stdin: parse_stdin.cpp language.a
+	$(CXX) -o $@ $^ -g -I.. -lgmpxx -lgmp
 
 auto.lex.cpp auto.lex.h: grammar.l
 	$(LEX) -o auto.lex.cpp --header-file=auto.lex.h $<
@@ -25,7 +29,6 @@ auto_yacc_o_CXXWARNS = -Wno-write-strings
 
 .PHONY: test
 test: all
-	$(CXX) -o main_parse main_parse.cpp *.o -g -I.. -lgmpxx -lgmp
 	@$(MAKE) -C tests test
 
 .PHONY: clean

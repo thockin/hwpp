@@ -104,7 +104,7 @@ string			{ dump(yyscanner); return TOK_STRING; }
 <INITIAL,ST_TYPE_ARGS>
 tuple			{ dump(yyscanner); return TOK_TUPLE; }
 <INITIAL,ST_TYPE_ARGS>
-type			{ dump(yyscanner); return TOK_TYPE; }
+fldfmt			{ dump(yyscanner); return TOK_FLDFMT; }
 <INITIAL,ST_TYPE_ARGS>
 var			{ dump(yyscanner); return TOK_VAR; }
 

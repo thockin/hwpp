@@ -179,7 +179,7 @@ class Parser {
 	~Parser();
 
 	// Equivalent of yyparse.
-	int parse_file(FILE *file, syntax::ParsedFile *parsed_file);
+	int parse_file(FILE *file, syntax::StatementList *parsed_file);
 	//FIXME: parse string,etc
 
     private:
