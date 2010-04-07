@@ -14,6 +14,7 @@ class Type {
     public:
 	enum Primitive {
 		BOOL,
+		FLDFMT,
 		FUNC,
 		INT,
 		LIST,
@@ -238,6 +239,8 @@ class Variable {
 			check_type_primitive(Type::BOOL);
 			return m_bool_value;
 		}
+
+		//FIXME: need fldfmt support
 
 		// Access this value as a function.  Throws
 		// Variable::TypeError if this Datum is a different type.

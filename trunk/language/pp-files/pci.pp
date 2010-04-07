@@ -102,7 +102,7 @@ discover("pci", [], ${
 //    int y = x; // <- error
 //    int z = int(x) // <- conversion, but may fail?
 
-public type pci_vendor_t = ENUM(
+public fldfmt pci_vendor_t = ENUM(
 	[0, "unknown"],
 	[0x8086, "intel"],
 	[0x1022, "amd"],
@@ -114,7 +114,7 @@ public type pci_vendor_t = ENUM(
 	[0x10b5, "plx"]);
 	//FIXME: default?
 
-public type pci_class_t = ENUM(
+public fldfmt pci_class_t = ENUM(
 	//TODO: incomplete list
 	[0x00, "pre_classcode"],
 	[0x01, "mass_storage"],
@@ -138,10 +138,10 @@ public type pci_class_t = ENUM(
 	//FIXME: default?
 
 //FIXME: use pci_subclass_t[$class] notation?  What about unknown classes?
-public type pci_subclass_pre_classcode_t = ENUM(
+public fldfmt pci_subclass_pre_classcode_t = ENUM(
 		[0x00, "non_vga_dev"],
 		[0x01, "vga_dev"]);
-public type pci_subclass_mass_storage_t = ENUM(
+public fldfmt pci_subclass_mass_storage_t = ENUM(
 		[0x00, "scsi_ctrlr"],
 		[0x01, "ide_ctrlr"],
 		[0x02, "floppy_ctrlr"],
@@ -151,28 +151,28 @@ public type pci_subclass_mass_storage_t = ENUM(
 		[0x06, "sata_ctrlr"],
 		[0x06, "sas_ctrlr"],
 		[0x80, "other"]);
-public type pci_subclass_network_t = ENUM(
+public fldfmt pci_subclass_network_t = ENUM(
 		[0x00, "ethernet_ctrlr"],
 		[0x01, "token_ring_ctrlr"],
 		[0x02, "fddi_ctrlr"],
 		[0x03, "atm_ctrlr"],
 		[0x04, "isdn_ctrlr"],
 		[0x80, "other"]);
-public type pci_subclass_display_t = ENUM(
+public fldfmt pci_subclass_display_t = ENUM(
 		[0x00, "vga_ctrlr"],
 		[0x01, "xga_ctrlr"],
 		[0x02, "three_d_ctrlr"],
 		[0x80, "other"]);
-public type pci_subclass_multimedia_t = ENUM(
+public fldfmt pci_subclass_multimedia_t = ENUM(
 		[0x00, "video_dev"],
 		[0x01, "audio_dev"],
 		[0x02, "computer_telephony_dev"],
 		[0x80, "other"]);
-public type pci_subclass_memory_t = ENUM(
+public fldfmt pci_subclass_memory_t = ENUM(
 		[0x00, "ram"],
 		[0x01, "flash"],
 		[0x80, "other"]);
-public type pci_subclass_bridge_t = ENUM(
+public fldfmt pci_subclass_bridge_t = ENUM(
 		[0x00, "host_bridge"],
 		[0x01, "isa_bridge"],
 		[0x02, "eisa_bridge"],
@@ -185,7 +185,7 @@ public type pci_subclass_bridge_t = ENUM(
 		[0x80, "other"]);
 //FIXME: classes 0x07-0x11
 
-public type pci_bar_t = ENUM(
+public fldfmt pci_bar_t = ENUM(
 		[0, "bar0"],
 		[1, "bar1"],
 		[2, "bar2"],
@@ -193,7 +193,7 @@ public type pci_bar_t = ENUM(
 		[4, "bar4"],
 		[5, "bar5"]);
 
-public type pci_capability_t = ENUM(
+public fldfmt pci_capability_t = ENUM(
 		[0, "unknown"],
 		[0x01, "power_mgmt"],
 		[0x02, "agp"],
@@ -215,7 +215,7 @@ public type pci_capability_t = ENUM(
 		[0x12, "sata"],
 		[0X13, "af"]);
 
-public type pcie_capability_t = ENUM(
+public fldfmt pcie_capability_t = ENUM(
 		[0, "unknown"],
 		[0x01, "aer"],
 		[0x02, "vchannel"],
@@ -300,7 +300,7 @@ ht_link_control(int address)
 
 ht_link_config(int address)
 {
-	type ht_link_width_t = ENUM( [0, "bits8"],
+	fldfmt ht_link_width_t = ENUM( [0, "bits8"],
 	                             [1, "bits16"],
 	                             [3, "bits32"],
 	                             [4, "bits2"],
@@ -331,7 +331,7 @@ ht_link_config(int address)
 
 ht_link_freq_err(int address)
 {
-	type ht_link_freq_t = ENUM(
+	fldfmt ht_link_freq_t = ENUM(
 			[0, "mhz200"],
 			[1, "mhz300"],
 			[2, "mhz400"],
@@ -359,7 +359,7 @@ ht_link_freq_err(int address)
 
 ht_link_freq_cap(int address)
 {
-	type ht_link_freq_cap_t = BITMASK(
+	fldfmt ht_link_freq_cap_t = BITMASK(
 			[0, "mhz200"],
 			[1, "mhz300"],
 			[2, "mhz400"],
@@ -919,7 +919,7 @@ pcie_capability(int address)
 	FIELD("tcs", "yesno_t", BITS("%pcie_caps", 14));
 
 	// common datatypes
-	type pcie_l0s_latency_t = ENUM(
+	fldfmt pcie_l0s_latency_t = ENUM(
 			[0, "ns_64"],
 			[1, "ns_128"],
 			[2, "ns_256"],
@@ -928,7 +928,7 @@ pcie_capability(int address)
 			[5, "us_2"],
 			[6, "us_4"],
 			[7, "us_4_plus"]);
-	type pcie_l1_latency_t = ENUM(
+	fldfmt pcie_l1_latency_t = ENUM(
 			[0, "us_1"],
 			[1, "us_2"],
 			[2, "us_4"],
@@ -937,7 +937,7 @@ pcie_capability(int address)
 			[5, "us_32"],
 			[6, "us_64"],
 			[7, "us_64_plus"]);
-	type pcie_width_t = ENUM(
+	fldfmt pcie_width_t = ENUM(
 			[0, "x0"],
 			[1, "x1"],
 			[2, "x2"],
@@ -946,7 +946,7 @@ pcie_capability(int address)
 			[12, "x12"],
 			[16, "x16"],
 			[32, "x32"]);
-	type pcie_link_speed_t = ENUM(
+	fldfmt pcie_link_speed_t = ENUM(
 			[0, "GTs_25_only"],
 			[1, "GTs_25"],
 			[2, "GTs_50"]);
@@ -958,7 +958,7 @@ pcie_capability(int address)
 	REG16("%dev_control", address + 0x08);
 	REG16("%dev_status", address + 0x0a);
 
-	type pcie_payload_size_t = ENUM(
+	fldfmt pcie_payload_size_t = ENUM(
 			[0, "bytes128"],
 			[1, "bytes256"],
 			[2, "bytes512"],
@@ -1030,7 +1030,7 @@ pcie_capability(int address)
 		REG16("%dev_control2", address + 0x28);
 		REG16("%dev_status2", address + 0x2a);
 
-		type pcie_completion_timeout_t = ENUM(
+		fldfmt pcie_completion_timeout_t = ENUM(
 				[0, "us_50_ms_50"],
 				[1, "us_50_ms_10"],
 				[2, "ms_10_ms_250"],

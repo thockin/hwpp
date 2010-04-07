@@ -59,6 +59,7 @@ Type::primitive_to_string(Primitive prim)
 	check_known_primitive(prim);
 	switch (prim) {
 	  case BOOL:   return "bool";
+	  case FLDFMT: return "fldfmt";
 	  case FUNC:   return "func";
 	  case INT:    return "int";
 	  case LIST:   return "list";
@@ -132,6 +133,7 @@ Type::check_known_primitive(Primitive prim)
 {
 	switch (prim) {
 	  case BOOL:
+	  case FLDFMT:
 	  case FUNC:
 	  case INT:
 	  case LIST:
@@ -152,6 +154,9 @@ Variable::Datum::Datum(Type *type) : m_type(type), m_type_locked(true)
 	switch (m_type->primitive()) {
 	  case Type::BOOL:
 		m_bool_value = false;
+		break;
+	  case Type::FLDFMT:
+		//FIXME: fldfmt
 		break;
 	  case Type::FUNC:
 		m_func_value.reset(new UndefFunc());
@@ -194,6 +199,9 @@ Variable::Datum::Datum(const Datum &other)
 	switch (m_type->primitive()) {
 	  case Type::BOOL:
 		m_bool_value = other.bool_value();
+		break;
+	  case Type::FLDFMT:
+		//FIXME: fldfmt
 		break;
 	  case Type::FUNC:
 		// func is a shared_ptr, since funcs are immutable

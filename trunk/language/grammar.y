@@ -21,7 +21,7 @@
 %parse-param {yyscan_t scanner}
 /* The Parser object gets passed into yyparse and can be user therein. */
 %parse-param {pp::language::Parser *parser}
-%parse-param {pp::language::syntax::ParsedFile *parsed_file}
+%parse-param {pp::language::syntax::StatementList *parsed_file}
 
 /* We use GLR parsing because we need more look-ahead to resolve some rules. */
 %glr-parser
@@ -72,7 +72,7 @@ using namespace pp::language::syntax;
 // This is called on a parse error.
 static void
 pp__language__internal__error(yyscan_t scanner, Parser *parser,
-                              ParsedFile *parsed_file, const char *str);
+                              StatementList *parsed_file, const char *str);
 
 // These are exposed from the lexer to the parser.
 extern void
@@ -141,7 +141,8 @@ pp__language__internal__pop_lexer_state(yyscan_t scanner);
 
 %token TOK_DISCOVER TOK_IMPORT TOK_MODULE TOK_PUBLIC
 %token TOK_CONST
-%token TOK_BOOL TOK_FUNC TOK_INT TOK_LIST TOK_STRING TOK_TUPLE TOK_TYPE TOK_VAR
+%token TOK_BOOL TOK_FUNC TOK_INT TOK_LIST TOK_STRING TOK_TUPLE
+       TOK_FLDFMT TOK_VAR
 
 %token TOK_SWITCH TOK_CASE TOK_DEFAULT
 %token TOK_IF TOK_ELSE
@@ -705,9 +706,9 @@ type_primitive
 		SYNTRACE("type_primitive", "TUPLE");
 		$$ = new Type(Type::TUPLE);
 	}
-	| TOK_TYPE {
-		SYNTRACE("type_primitive", "TYPE");
-		//FIXME: need a better name than "type"
+	| TOK_FLDFMT {
+		SYNTRACE("type_primitive", "FLDFMT");
+		$$ = new Type(Type::FLDFMT);
 	}
 	| TOK_VAR {
 		SYNTRACE("type_primitive", "VAR");
@@ -1096,7 +1097,7 @@ initialized_identifier_list
 initialized_identifier
 	: simple_identifier {
 		SYNTRACE("initialized_identifier", "simple_identifier");
-		$$ = new InitializedIdentifier($1, NULL);
+		$$ = new InitializedIdentifier($1);
 	}
 	| simple_identifier '=' constant_expression {
 		//TODO: this allows function calls, which is bad at file-scope
@@ -1186,7 +1187,7 @@ discover_statement
 
 static void
 pp__language__internal__error(yyscan_t scanner, Parser *parser,
-                              ParsedFile *parsed_file, const char *str)
+                              StatementList *parsed_file, const char *str)
 {
 	(void)parser;
 	(void)parsed_file;

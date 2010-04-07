@@ -17,9 +17,6 @@ namespace pp {
 namespace language {
 namespace syntax {
 
-class SyntaxNode;
-typedef std::vector<SyntaxNode*> ParsedFile;
-
 // Base class for all nodes in our syntax tree.
 class SyntaxNode {
     public:
@@ -61,18 +58,25 @@ class Expression : public SyntaxNode {
 
 	// Evaluate this expression, producing a result.
 	virtual void evaluate(Variable *out_result) = 0;
+
+	virtual string to_string() const = 0;
 };
 typedef std::vector<Expression*> ExpressionList;
 
 class Identifier : public SyntaxNode {
     public:
+	Identifier(const string &symbol)
+	    : SyntaxNode(TYPE_IDENTIFIER), m_module(""), m_symbol(symbol)
+	{
+	}
 	Identifier(const string &module, const string &symbol)
 	    : SyntaxNode(TYPE_IDENTIFIER), m_module(module), m_symbol(symbol)
 	{
 	}
-	Identifier(const string &symbol)
-	    : SyntaxNode(TYPE_IDENTIFIER), m_module(), m_symbol(symbol)
+
+	string to_string() const
 	{
+		return m_module + (m_module == "" ? "" : ".") + m_symbol;
 	}
 
 	const string &module() const
@@ -92,9 +96,16 @@ class Identifier : public SyntaxNode {
 
 class InitializedIdentifier : public SyntaxNode {
     public:
+	InitializedIdentifier(Identifier *ident)
+	    : SyntaxNode(TYPE_IDENTIFIER), m_ident(ident), m_init(NULL)
+	{
+		DASSERT(ident);
+	}
 	InitializedIdentifier(Identifier *ident, Expression *init)
 	    : SyntaxNode(TYPE_IDENTIFIER), m_ident(ident), m_init(init)
 	{
+		DASSERT(ident);
+		DASSERT(init);
 	}
 
 	Identifier *identifier()
@@ -107,6 +118,15 @@ class InitializedIdentifier : public SyntaxNode {
 		return m_init.get();
 	}
 
+	string to_string() const
+	{
+		string ret = m_ident->to_string();
+		if (m_init) {
+			ret += " = " + m_init->to_string() + "\n";
+		}
+		return ret;
+	}
+
     private:
 	boost::scoped_ptr<Identifier> m_ident;
 	boost::scoped_ptr<Expression> m_init;
@@ -116,7 +136,7 @@ typedef std::vector<InitializedIdentifier*> InitializedIdentifierList;
 // Abstract base class for statements.
 class Statement : public SyntaxNode {
     public:
-	Statement() : SyntaxNode(TYPE_STATEMENT), m_labels()
+	Statement() : SyntaxNode(TYPE_STATEMENT), m_labels(NULL)
 	{
 	}
 	virtual ~Statement()
@@ -125,7 +145,19 @@ class Statement : public SyntaxNode {
 			delete m_labels[i];
 		}
 	}
+
+	// Execute this statement.
 	virtual bool execute() = 0;
+
+	// Get a string representation of this statement.
+	virtual string to_string() const
+	{
+		string ret;
+		for (size_t i = 0; i < m_labels.size(); i++) {
+			ret += m_labels[i]->to_string() + ":\n";
+		}
+		return ret;
+	}
 
 	std::vector<Identifier*> &labels()
 	{
@@ -146,10 +178,13 @@ class Argument : public SyntaxNode {
 	Argument(Expression *expr)
 	    : SyntaxNode(TYPE_ARGUMENT), m_name(NULL), m_expr(expr)
 	{
+		DASSERT(expr);
 	}
 	Argument(Identifier *name, Expression *expr)
 	    : SyntaxNode(TYPE_ARGUMENT), m_name(name), m_expr(expr)
 	{
+		DASSERT(name);
+		DASSERT(expr);
 	}
 
 	Identifier *name()
@@ -160,6 +195,12 @@ class Argument : public SyntaxNode {
 	Expression *expression()
 	{
 		return m_expr.get();
+	}
+
+	string to_string() const
+	{
+		return (m_name ? m_name->to_string() + ":" : "")
+		     + m_expr->to_string();
 	}
 
     private:
@@ -176,19 +217,23 @@ class NullStatement : public Statement {
 	{
 	}
 
-	virtual bool execute()
+	virtual bool execute();
+
+	virtual string to_string() const
 	{
-		return true;
+		string ret = Statement::to_string();
+		return ret + "(undef);";
 	}
 };
 
 class CompoundStatement : public Statement {
     public:
-	CompoundStatement() : m_body()
+	CompoundStatement() : m_body(NULL)
 	{
 	}
 	CompoundStatement(StatementList *body) : m_body(body)
 	{
+		DASSERT(body);
 	}
 
 	StatementList *body()
@@ -196,10 +241,19 @@ class CompoundStatement : public Statement {
 		return m_body.get();
 	}
 
-	virtual bool execute()
+	virtual bool execute();
+
+	virtual string to_string() const
 	{
-		//FIXME:
-		return true;
+		string ret = Statement::to_string();
+		ret += "{\n";
+		if (m_body) {
+			for (size_t i = 0; i < m_body->size(); i++) {
+				ret += m_body->at(i)->to_string();
+			}
+		}
+		ret += "}\n";
+		return ret;
 	}
 
     private:
@@ -209,11 +263,12 @@ class CompoundStatement : public Statement {
 // Both and expression and a statement.
 class ExpressionStatement : public Expression, public Statement {
     public:
-	ExpressionStatement() : m_expr()
+	ExpressionStatement() : m_expr(NULL)
 	{
 	}
 	ExpressionStatement(Expression *expr) : m_expr(expr)
 	{
+		DASSERT(expr);
 	}
 
 	Expression *expression()
@@ -226,14 +281,12 @@ class ExpressionStatement : public Expression, public Statement {
 		m_expr->evaluate(out_result);
 	}
 
-	virtual bool execute()
+	virtual bool execute();
+
+	virtual string to_string() const
 	{
-		if (expression()) {
-			// NULL statement.
-			return true;
-		}
-		//FIXME:
-		return true;
+		string ret = Statement::to_string();
+		return m_expr->to_string();
 	}
 
     private:
@@ -243,13 +296,18 @@ class ExpressionStatement : public Expression, public Statement {
 class ConditionalStatement : public Statement {
     public:
 	ConditionalStatement(Expression *condition, Statement *true_case)
-	    : m_condition(condition), m_true(true_case), m_false()
+	    : m_condition(condition), m_true(true_case), m_false(NULL)
 	{
+		DASSERT(condition);
+		DASSERT(true_case);
 	}
 	ConditionalStatement(Expression *condition, Statement *true_case,
 	                     Statement *false_case)
 	    : m_condition(condition), m_true(true_case), m_false(false_case)
 	{
+		DASSERT(condition);
+		DASSERT(true_case);
+		DASSERT(false_case);
 	}
 
 	Expression *condition()
@@ -267,10 +325,19 @@ class ConditionalStatement : public Statement {
 		return m_false.get();
 	}
 
-	virtual bool execute()
+	virtual bool execute();
+
+	virtual string to_string() const
 	{
-		//FIXME:
-		return false;
+		string ret = Statement::to_string();
+		ret += "if (" + m_condition->to_string() + ") {\n";
+		ret += m_true->to_string();
+		if (m_false) {
+			ret += "} else {\n";
+			ret += m_false->to_string();
+		}
+		ret += "}\n";
+		return ret;
 	}
 
     private:
@@ -284,6 +351,8 @@ class SwitchStatement : public Statement {
 	SwitchStatement(Expression *condition, Statement *body)
 	    : m_condition(condition), m_body(body)
 	{
+		DASSERT(condition);
+		DASSERT(body);
 	}
 
 	Expression *condition()
@@ -296,10 +365,15 @@ class SwitchStatement : public Statement {
 		return m_body.get();
 	}
 
-	virtual bool execute()
+	virtual bool execute();
+
+	virtual string to_string() const
 	{
-		//FIXME:
-		return false;
+		string ret = Statement::to_string();
+		ret += "switch (" + m_condition->to_string() + ") {\n";
+		ret += m_body->to_string();
+		ret += "}\n";
+		return ret;
 	}
 
     private:
@@ -317,28 +391,26 @@ class LoopStatement : public Statement {
 	                  Statement *body)
 	    : m_loop_type(loop_type), m_expr(expr), m_body(body)
 	{
+		DASSERT(expr);
+		DASSERT(body);
 	}
 
-	LoopType loop_type()
+	LoopType loop_type() const
 	{
 		return m_loop_type;
 	}
 
-	Expression *expression()
+	Expression *expression() const
 	{
 		return m_expr.get();
 	}
 
-	Statement *body()
+	Statement *body() const
 	{
 		return m_body.get();
 	}
 
-	virtual bool execute()
-	{
-		//FIXME:
-		return false;
-	}
+	virtual bool execute();
 
     private:
 	LoopType m_loop_type;
@@ -351,6 +423,17 @@ class WhileLoopStatement : public LoopStatement {
 	WhileLoopStatement(Expression *expr, Statement *body)
 	    : LoopStatement(LOOP_WHILE, expr, body)
 	{
+		DASSERT(body);
+		DASSERT(expr);
+	}
+
+	virtual string to_string() const
+	{
+		string ret = Statement::to_string();
+		ret += "while (" + expression()->to_string() + ") {\n";
+		ret += body()->to_string();
+		ret += "}\n";
+		return ret;
 	}
 };
 
@@ -359,6 +442,17 @@ class DoWhileLoopStatement : public LoopStatement {
 	DoWhileLoopStatement(Statement *body, Expression *expr)
 	    : LoopStatement(LOOP_DO_WHILE, expr, body)
 	{
+		DASSERT(body);
+		DASSERT(expr);
+	}
+
+	virtual string to_string() const
+	{
+		string ret = Statement::to_string();
+		ret += "do {\n";
+		ret += body()->to_string();
+		ret += " } while (" + expression()->to_string() + ")\n";
+		return ret;
 	}
 };
 
@@ -366,6 +460,7 @@ class GotoStatement : public Statement {
     public:
 	GotoStatement(Identifier *target) : m_target(target)
 	{
+		DASSERT(target);
 	}
 
 	Identifier *target()
@@ -373,10 +468,13 @@ class GotoStatement : public Statement {
 		return m_target.get();
 	}
 
-	virtual bool execute()
+	virtual bool execute();
+
+	virtual string to_string() const
 	{
-		//FIXME:
-		return false;
+		string ret = Statement::to_string();
+		ret += "goto " + m_target->to_string() + ";\n";
+		return ret;
 	}
 
     private:
@@ -388,6 +486,8 @@ class CaseStatement : public Statement {
 	CaseStatement(Expression *expr, Statement *statement)
 	    : m_expr(expr), m_statement(statement)
 	{
+		DASSERT(expr);
+		DASSERT(statement);
 	}
 
 	Expression *expression()
@@ -400,10 +500,13 @@ class CaseStatement : public Statement {
 		return m_statement.get();
 	}
 
-	virtual bool execute()
+	virtual bool execute();
+
+	virtual string to_string() const
 	{
-		//FIXME:
-		return false;
+		string ret = Statement::to_string();
+		ret += "case (" + m_expr->to_string() + "):\n";
+		return ret;
 	}
 
     private:
@@ -418,6 +521,7 @@ class ReturnStatement : public Statement {
 	}
 	ReturnStatement(Expression *expr) : m_expr(expr)
 	{
+		DASSERT(expr);
 	}
 
 	Expression *expression()
@@ -425,10 +529,13 @@ class ReturnStatement : public Statement {
 		return m_expr.get();
 	}
 
-	virtual bool execute()
+	virtual bool execute();
+
+	virtual string to_string() const
 	{
-		//FIXME:
-		return false;
+		string ret = Statement::to_string();
+		ret += "return (" + m_expr->to_string() + ");\n";
+		return ret;
 	}
 
     private:
@@ -441,6 +548,8 @@ class DefinitionStatement : public Statement {
 	                    const InitializedIdentifierList *vars)
 	    : m_public(false), m_type(type), m_vars(vars)
 	{
+		DASSERT(type);
+		DASSERT(vars);
 	}
 
 	void set_public()
@@ -448,10 +557,20 @@ class DefinitionStatement : public Statement {
 		m_public = true;
 	}
 
-	virtual bool execute()
+	virtual bool execute();
+
+	virtual string to_string() const
 	{
-		//FIXME:
-		return true;
+		string ret = Statement::to_string();
+		ret += m_type->to_string() + " ";
+		for (size_t i = 0; i < m_vars->size(); i++) {
+			if (i > 0) {
+				ret += ", ";
+			}
+			ret += m_vars->at(i)->to_string();
+		}
+		ret += "\n";
+		return ret;
 	}
 
     private:
@@ -471,10 +590,13 @@ class ImportStatement : public Statement {
 		return m_argument;
 	}
 
-	virtual bool execute()
+	virtual bool execute();
+
+	virtual string to_string() const
 	{
-		//FIXME:
-		return true;
+		string ret = Statement::to_string();
+		ret += "import \"" + m_argument + "\";\n";
+		return ret;
 	}
 
     private:
@@ -492,10 +614,13 @@ class ModuleStatement : public Statement {
 		return m_argument;
 	}
 
-	virtual bool execute()
+	virtual bool execute();
+
+	virtual string to_string() const
 	{
-		//FIXME:
-		return true;
+		string ret = Statement::to_string();
+		ret += "module " + m_argument + ";\n";
+		return ret;
 	}
 
     private:
@@ -506,6 +631,7 @@ class DiscoverStatement : public Statement {
     public:
 	DiscoverStatement(ArgumentList *args) : m_args(args)
 	{
+		DASSERT(args);
 	}
 
 	ArgumentList *args() const
@@ -513,10 +639,20 @@ class DiscoverStatement : public Statement {
 		return m_args.get();
 	}
 
-	virtual bool execute()
+	virtual bool execute();
+
+	virtual string to_string() const
 	{
-		//FIXME:
-		return true;
+		string ret = Statement::to_string();
+		ret += "discover(";
+		for (size_t i = 0; i < m_args->size(); i++) {
+			if (i > 0) {
+				ret += ", ";
+			}
+			ret += m_args->at(i)->to_string();
+		}
+		ret += ");";
+		return ret;
 	}
 
     private:
@@ -527,6 +663,7 @@ class IdentifierExpression : public Expression {
     public:
 	IdentifierExpression(Identifier *ident) : m_ident(ident)
 	{
+		DASSERT(ident);
 	}
 
 	Identifier *identifier()
@@ -534,9 +671,11 @@ class IdentifierExpression : public Expression {
 		return m_ident.get();
 	}
 
-	virtual void evaluate(Variable *out_result)
+	virtual void evaluate(Variable *out_result);
+
+	virtual string to_string() const
 	{
-		(void)out_result;//FIXME:
+		return m_ident->to_string();
 	}
 
     private:
@@ -548,6 +687,8 @@ class SubscriptExpression : public Expression {
 	SubscriptExpression(Expression *expr, Expression *index)
 	    : m_expr(expr), m_index(index)
 	{
+		DASSERT(expr);
+		DASSERT(index);
 	}
 
 	Expression *expression()
@@ -560,9 +701,12 @@ class SubscriptExpression : public Expression {
 		return m_index.get();
 	}
 
-	virtual void evaluate(Variable *out_result)
+	virtual void evaluate(Variable *out_result);
+
+	virtual string to_string() const
 	{
-		(void)out_result;//FIXME:
+		return "(" + m_expr->to_string() + ")"
+		     + "[" + m_index->to_string() + "]";
 	}
 
     private:
@@ -575,10 +719,13 @@ class FunctionCallExpression : public Expression {
 	FunctionCallExpression(Expression *expr)
 	    : m_expr(expr), m_args(NULL)
 	{
+		DASSERT(expr);
 	}
 	FunctionCallExpression(Expression *expr, ArgumentList *args)
 	    : m_expr(expr), m_args(args)
 	{
+		DASSERT(expr);
+		DASSERT(args);
 	}
 
 	Expression *expression()
@@ -591,9 +738,21 @@ class FunctionCallExpression : public Expression {
 		return m_args.get();
 	}
 
-	virtual void evaluate(Variable *out_result)
+	virtual void evaluate(Variable *out_result);
+
+	virtual string to_string() const
 	{
-		(void)out_result;//FIXME:
+		string ret = "(" + m_expr->to_string() + ")" + "(";
+		if (m_args) {
+			for (size_t i = 0; i < m_args->size(); i++) {
+				if (i > 0) {
+					ret += ", ";
+				}
+				ret += m_args->at(i)->to_string();
+			}
+		}
+		ret += ")";
+		return ret;
 	}
 
     private:
@@ -617,6 +776,7 @@ class UnaryExpression : public Expression {
 	UnaryExpression(Operator op, Expression *expr)
 	    : m_op(op), m_expr(expr)
 	{
+		DASSERT(expr);
 	}
 
 	Operator op() const
@@ -629,9 +789,27 @@ class UnaryExpression : public Expression {
 		return m_expr.get();
 	}
 
-	virtual void evaluate(Variable *out_result)
+	virtual void evaluate(Variable *out_result);
+
+	virtual string to_string() const
 	{
-		(void)out_result;//FIXME:
+		string ret;
+		switch (m_op) {
+		 case OP_POS: ret += "+"; break;
+		 case OP_NEG: ret += "-"; break;
+		 case OP_NOT: ret += "!"; break;
+		 case OP_BITNOT: ret += "~"; break;
+		 case OP_PREINC: ret += "++"; break;
+		 case OP_PREDEC: ret += "--"; break;
+		 default: break;
+		}
+		ret += "(" + m_expr->to_string() + ")";
+		switch (m_op) {
+		 case OP_POSTINC: ret += "++"; break;
+		 case OP_POSTDEC: ret += "--"; break;
+		 default: break;
+		}
+		return ret;
 	}
 
     private:
@@ -676,6 +854,8 @@ class BinaryExpression : public Expression {
 	                     Expression *rhs)
 	    : m_op(op), m_lhs(lhs), m_rhs(rhs)
 	{
+		DASSERT(lhs);
+		DASSERT(rhs);
 	}
 
 	Operator op() const
@@ -693,9 +873,43 @@ class BinaryExpression : public Expression {
 		return m_rhs.get();
 	}
 
-	virtual void evaluate(Variable *out_result)
+	virtual void evaluate(Variable *out_result);
+
+	virtual string to_string() const
 	{
-		(void)out_result;//FIXME:
+		string ret = m_lhs->to_string() + " ";
+		switch (m_op) {
+		 case OP_EQ: ret += "=="; break;
+		 case OP_NEQ: ret += "!="; break;
+		 case OP_LT: ret += "<"; break;
+		 case OP_GT: ret += ">"; break;
+		 case OP_LE: ret += "<="; break;
+		 case OP_GE: ret += ">="; break;
+		 case OP_MUL: ret += "*"; break;
+		 case OP_DIV: ret += "/"; break;
+		 case OP_MOD: ret += "%"; break;
+		 case OP_ADD: ret += "+"; break;
+		 case OP_SUB: ret += "-"; break;
+		 case OP_SHL: ret += "<<"; break;
+		 case OP_SHR: ret += ">>"; break;
+		 case OP_AND: ret += "&"; break;
+		 case OP_OR: ret += "|"; break;
+		 case OP_XOR: ret += "^"; break;
+		 case OP_COMMA: ret += ","; break;
+		 case OP_ASSIGN: ret += "="; break;
+		 case OP_MUL_ASSIGN: ret += "*="; break;
+		 case OP_DIV_ASSIGN: ret += "/="; break;
+		 case OP_MOD_ASSIGN: ret += "%="; break;
+		 case OP_ADD_ASSIGN: ret += "+="; break;
+		 case OP_SUB_ASSIGN: ret += "-="; break;
+		 case OP_SHL_ASSIGN: ret += "<<="; break;
+		 case OP_SHR_ASSIGN: ret += ">>="; break;
+		 case OP_AND_ASSIGN: ret += "&="; break;
+		 case OP_OR_ASSIGN: ret += "|="; break;
+		 case OP_XOR_ASSIGN: ret += "^="; break;
+		}
+		ret += " " + m_rhs->to_string();
+		return ret;
 	}
 
     private:
@@ -711,6 +925,9 @@ class ConditionalExpression : public Expression {
 	                      Expression *false_case)
 	    : m_condition(condition), m_true(true_case), m_false(false_case)
 	{
+		DASSERT(condition);
+		DASSERT(true_case);
+		DASSERT(false_case);
 	}
 
 	Expression *condition()
@@ -728,9 +945,13 @@ class ConditionalExpression : public Expression {
 		return m_false.get();
 	}
 
-	virtual void evaluate(Variable *out_result)
+	virtual void evaluate(Variable *out_result);
+
+	virtual string to_string() const
 	{
-		(void)out_result;//FIXME:
+		return "(" + m_condition->to_string() + ") ? "
+		     + "(" + m_true->to_string() + ")" + " : "
+		     + "(" + m_false->to_string() + ")";
 	}
 
     private:
@@ -744,6 +965,13 @@ class ParameterDeclaration {
 	ParameterDeclaration(const Type *type, const Identifier *ident)
 	    : m_type(type), m_ident(ident)
 	{
+		DASSERT(type);
+		DASSERT(ident);
+	}
+
+	string to_string() const
+	{
+		return m_type->to_string() + " " + m_ident->to_string();
 	}
 
     private:
@@ -756,6 +984,7 @@ class ValueExpression : public Expression {
     public:
 	ValueExpression(const Variable::Datum *value) : m_value(value)
 	{
+		DASSERT(value);
 	}
 
 	const Variable::Datum *value() const
@@ -763,11 +992,63 @@ class ValueExpression : public Expression {
 		return m_value.get();
 	}
 
-	virtual void evaluate(Variable *out_result)
+	virtual void evaluate(Variable *out_result);
+
+	//FIXME: move to Datum class
+	static string datum_to_string(const Variable::Datum *datum)
 	{
-		//FIXME:
-		(void)out_result;
-		//*out_result = m_value;
+		string ret;
+		switch (datum->type()->primitive()) {
+		 case Type::BOOL:
+			ret += sprintfxx("%s",
+			    datum->bool_value() ? "true" : "false");
+			break;
+		 case Type::FLDFMT:
+			//FIXME: fldfmt
+			break;
+		 case Type::FUNC: {
+			const Variable::Func *f = datum->func_value();
+			(void)f;//FIXME: print functions
+			break;
+		 }
+		 case Type::INT:
+			ret += sprintfxx("%d", datum->int_value());
+			break;
+		 case Type::LIST: {
+			ret += "[ ";
+			const Variable::List &l = datum->list_value();
+			const std::vector<Variable*> &v = l.contents();
+			for (size_t i = 0; i < v.size(); i++) {
+				const Variable::Datum *d = v[i]->value();
+				ret += datum_to_string(d);
+			}
+			ret += " ]";
+			break;
+		 }
+		 case Type::STRING:
+			ret += sprintfxx("\"%s\"", datum->string_value());
+			break;
+		 case Type::TUPLE: {
+			ret += "[ ";
+			const Variable::Tuple &t = datum->tuple_value();
+			const std::vector<Variable*> &v = t.contents();
+			for (size_t i = 0; i < v.size(); i++) {
+				const Variable::Datum *d = v[i]->value();
+				ret += datum_to_string(d);
+			}
+			ret += " ]";
+			break;
+		 }
+		 case Type::VAR:
+			ret += "undef";
+			break;
+		}
+		return ret;
+	}
+
+	virtual string to_string() const
+	{
+		return datum_to_string(m_value.get());
 	}
 
     private:
@@ -781,11 +1062,14 @@ class FunctionLiteralExpression : public Expression {
 	}
 	FunctionLiteralExpression(StatementList *body) : m_body(body)
 	{
+		DASSERT(body);
 	}
 	FunctionLiteralExpression(ParameterDeclarationList *params,
 	                          StatementList *body)
 	    : m_params(params), m_body(body)
 	{
+		DASSERT(params);
+		DASSERT(body);
 	}
 
 	StatementList *body()
@@ -793,9 +1077,34 @@ class FunctionLiteralExpression : public Expression {
 		return m_body.get();
 	}
 
-	virtual void evaluate(Variable *out_result)
+	virtual void evaluate(Variable *out_result);
+
+	//FIXME: grammar: take ()${} or $(){} as args-spec to a func literal?
+	virtual string to_string() const
 	{
-		(void)out_result;//FIXME:
+		string ret;
+		if (m_params) {
+			ret += "(";
+			for (size_t i = 0; i < m_params->size(); i++) {
+				if (i > 0) {
+					ret += ", ";
+				}
+				ret += m_params->at(i)->to_string();
+			}
+			ret += ")";
+		}
+		ret += "${";
+		if (m_body) {
+			ret += "\n";
+			for (size_t i = 0; i < m_body->size(); i++) {
+				if (i > 0) {
+					ret += ";\n";
+				}
+				ret += m_body->at(i)->to_string();
+			}
+		}
+		ret += "}\n";
+		return ret;
 	}
 
     private:
@@ -811,6 +1120,7 @@ class ListLiteralExpression : public Expression {
 	ListLiteralExpression(ArgumentList *contents)
 	    : m_contents(contents)
 	{
+		DASSERT(contents);
 	}
 
 	ArgumentList *contents()
@@ -818,9 +1128,21 @@ class ListLiteralExpression : public Expression {
 		return m_contents.get();
 	}
 
-	virtual void evaluate(Variable *out_result)
+	virtual void evaluate(Variable *out_result);
+
+	virtual string to_string() const
 	{
-		(void)out_result;//FIXME:
+		string ret = "[";
+		if (m_contents) {
+			for (size_t i = 0; i < m_contents->size(); i++) {
+				if (i > 0) {
+					ret += ", ";
+				}
+				ret += m_contents->at(i)->to_string();
+			}
+		}
+		ret += "]";
+		return ret;
 	}
 
     private:
