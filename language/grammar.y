@@ -245,10 +245,22 @@ list_literal
 	;
 
 function_literal
-	: TOK_FUNC_LITERAL statement_list '}' {
+	: TOK_FUNC_LITERAL '{' statement_list '}' {
 		SYNTRACE("function_literal",
-		         "FUNC_LITERAL statement_list '}'");
-		$$ = new FunctionLiteralExpression($2);
+		         "FUNC_LITERAL '{' statement_list '}'");
+		$$ = new FunctionLiteralExpression($3);
+	}
+	| TOK_FUNC_LITERAL '(' ')' '{' statement_list '}' {
+		SYNTRACE("function_literal",
+		         "FUNC_LITERAL '(' ')' '{' statement_list '}'");
+		$$ = new FunctionLiteralExpression($5);
+	}
+	| TOK_FUNC_LITERAL '(' parameter_declaration_list ')'
+	  '{' statement_list '}' {
+		SYNTRACE("function_literal",
+		         "FUNC_LITERAL '(' " "parameter_declaration_list ')' "
+		         "'{' statement_list '}'");
+		$$ = new FunctionLiteralExpression($3, $6);
 	}
 	;
 
