@@ -147,7 +147,7 @@ default			{ dump(yyscanner); return TOK_DEFAULT; }
 {ALPHA}({ALPHA}|{DEC})* { dump(yyscanner); return identifier(yyscanner); }
 
 <INITIAL>
-"${"			{ dump(yyscanner); return TOK_FUNC_LITERAL; }
+"$"			{ dump(yyscanner); return TOK_FUNC_LITERAL; }
 <INITIAL>
 ">>="			{ dump(yyscanner); return TOK_SHR_ASSIGN; }
 <INITIAL>
