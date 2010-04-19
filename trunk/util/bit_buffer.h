@@ -6,6 +6,7 @@
 #include <sstream>
 #include <boost/format.hpp>
 #include <boost/shared_array.hpp>
+#include <limits.h>
 #include <stdint.h>
 #include <string.h>
 

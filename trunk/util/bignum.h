@@ -5,6 +5,7 @@
 #include <gmpxx.h>
 #include <ostream>
 #include <sstream>
+#include "pp/util/assert.h"
 #include "pp/util/bit_buffer.h"
 
 #define BITS_PER_LONG	(sizeof(long)*CHAR_BIT)
@@ -219,9 +220,13 @@ class BigInt: public mpz_class
 		return result;
 	}
 
+	// Don't call this for negative numbers, which effectively have an
+	// infinite number of bits.
 	util::BitBuffer 
 	get_bitbuffer(std::size_t bits=0) const
 	{
+		ASSERT(*this >= 0);
+
 		// mpz_export() seems to not work.
 		std::size_t bytes = 0;
 		BigInt tmp(*this);
