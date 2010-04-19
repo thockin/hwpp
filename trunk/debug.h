@@ -2,44 +2,11 @@
 #ifndef PP_DEBUG_H__
 #define PP_DEBUG_H__
 
+#include "pp/util/assert.h"
+
 #if DEBUG
 
 #include <iostream>
-
-#define DASSERT_PRINT_ERR__(predicate) std::cerr \
-		<< "ERROR: assertion failed at " \
-		<< __FILE__ \
-		<< ":" \
-		<< __LINE__ \
-		<< " " \
-		<< __func__ \
-		<< "():" \
-		<< std::endl \
-		<< "    assert(" \
-		<< #predicate \
-		<< ")"
-
-#define DASSERT_ABORT__() abort()
-
-#define DASSERT(predicate) do { \
-	if (!(predicate)) { \
-		DASSERT_PRINT_ERR__(predicate) \
-			<< std::endl; \
-		DASSERT_ABORT__(); \
-	} \
-} while (0)
-
-#define DASSERT_MSG(predicate, message) do { \
-	if (!(predicate)) { \
-		DASSERT_PRINT_ERR__(predicate) \
-			<< ":" \
-			<< std::endl \
-			<< "        " \
-			<< message \
-			<< std::endl; \
-		DASSERT_ABORT__(); \
-	} \
-} while (0)
 
 #define DWARN(message) do { \
 	std::cerr \
@@ -101,8 +68,6 @@
 
 #else // !DEBUG
 
-#define DASSERT(predicate)
-#define DASSERT_MSG(predicate, message)
 #define DWARN(message)
 #define DTRACE(condition, message)
 
