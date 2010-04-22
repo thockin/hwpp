@@ -11,72 +11,60 @@ namespace pp {
 
 ScopePtr
 initialize_device_tree() {
-	return runtime::init();
+	return global_runtime()->current_context()->scope();
 }
-	
-namespace runtime {
 
-//
-// These comprise the current context within the PP tree.  The name
-// of the root doesn't matter, it just has to be *something* valid.
-//
-static std::vector<ContextPtr> context_stack;
+Runtime *
+global_runtime()
+{
+	static Runtime the_runtime;
+	return &the_runtime;
+}
 
 // Initialize the PP runtime.
-ScopePtr
-init()
+Runtime::Runtime()
 {
-	// platform is the top level, cur_scope must not exist
-	DASSERT_MSG(context_stack.empty(),
-			"context_stack must be empty");
-
-	ScopePtr root = new_pp_scope();
-	context_push(new_pp_context("pp", root));
+	// The name of the root scope doesn't matter.
+	context_push(new_pp_context("pp", new_pp_scope()));
 
 	// FIXME: take these out when we have a real language
 	pp::device::global_datatypes_init();
 	pp::device::pci_datatypes_init();
 	pp::device::cpuid_datatypes_init();
 	pp::device::msr_datatypes_init();
-
-	return root;
 }
 
 ContextPtr
-current_context()
+Runtime::current_context()
 {
-	if (context_stack.empty()) {
-		return ContextPtr();
-	}
-	return context_stack.back();
+	DASSERT(m_context_stack.size() > 0);
+	return m_context_stack.back();
  }
 
 // get a read-only copy of the current context
 ContextPtr
-context_snapshot()
+Runtime::context_snapshot()
 {
 	return current_context()->snapshot();
 }
 
 // push a new context onto the stack
 void
-context_push(const ContextPtr &new_ctxt)
+Runtime::context_push(const ContextPtr &new_ctxt)
 {
+	DASSERT(new_ctxt);
 	DTRACE(TRACE_SCOPES, "setting context: " + new_ctxt->name());
-	context_stack.push_back(new_ctxt);
+	m_context_stack.push_back(new_ctxt);
 }
 
 // restore the previous context
 void
-context_pop()
+Runtime::context_pop()
 {
-	// there had better be a parent context
-	DASSERT_MSG(!context_stack.empty(), "invalid parent context");
-
+	DASSERT(m_context_stack.size() > 1);
 	DTRACE(TRACE_SCOPES,
-	       "restoring context: " + context_stack.back()->name());
-	context_stack.pop_back();
+	       "restoring context: " + m_context_stack.back()->name());
+	m_context_stack.pop_back();
 }
 
-}  // namespace runtime
 }  // namespace pp

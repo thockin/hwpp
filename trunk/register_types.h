@@ -78,7 +78,7 @@ class ProcRegister: public Register
     public:
 	ProcRegister(const RwProcsPtr &access, const BitWidth width)
 	    : Register(width), m_access(access),
-	      m_context(pp::runtime::context_snapshot())
+	      m_context(global_runtime()->context_snapshot())
 	{
 	}
 
@@ -100,9 +100,9 @@ class ProcRegister: public Register
 	virtual Value
 	read() const
 	{
-		pp::runtime::context_push(m_context);
+		global_runtime()->context_push(m_context);
 		Value ret = m_access->read() & MASK(width());
-		pp::runtime::context_pop();
+		global_runtime()->context_pop();
 		return ret;
 	}
 
@@ -114,9 +114,9 @@ class ProcRegister: public Register
 	virtual void
 	write(const Value &value) const
 	{
-		pp::runtime::context_push(m_context);
+		global_runtime()->context_push(m_context);
 		m_access->write(value & MASK(width()));
-		pp::runtime::context_pop();
+		global_runtime()->context_pop();
 	}
 };
 

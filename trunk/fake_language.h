@@ -494,7 +494,7 @@ struct fkl_range
 	fkl_range(const string &datatype, Value min, Value max)
 	    : low(min), high(max)
 	{
-		type = runtime::current_context()->resolve_datatype(datatype);
+		type = global_runtime()->current_context()->resolve_datatype(datatype);
 	}
 	ConstDatatypePtr type;
 	Value low;
@@ -565,7 +565,7 @@ fkl_xform(const ParseLocation &loc,
 {
 	DTRACE(TRACE_TYPES, "xform: " + name);
 
-	DASSERT_MSG(!runtime::current_context()->is_readonly(),
+	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 	    "current_context is read-only");
 
 	DASSERT_MSG(real_type, "found NULL real_type for xform " + name);
@@ -574,7 +574,7 @@ fkl_xform(const ParseLocation &loc,
 	    real_type, decode_func, encode_func);
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
-		runtime::current_context()->add_datatype(name, xform_ptr);
+		global_runtime()->current_context()->add_datatype(name, xform_ptr);
 	}
 	return xform_ptr;
 }
@@ -585,7 +585,7 @@ fkl_xform(const ParseLocation &loc,
           const Tdefunc &decode_func, const Tenfunc &encode_func)
 {
 	return fkl_xform(loc, name,
-	    runtime::current_context()->resolve_datatype(real_type),
+	    global_runtime()->current_context()->resolve_datatype(real_type),
 	    decode_func, encode_func);
 }
 #define XFORM(...)       ::pp::fkl_xform(THIS_LOCATION, ##__VA_ARGS__)

@@ -29,7 +29,7 @@ fkl_get_dirent(const ParseLocation &loc, const Path &path)
 {
 	try {
 		const ConstDirentPtr &de =
-		    runtime::current_context()->lookup_dirent(path,
+		    global_runtime()->current_context()->lookup_dirent(path,
 		        Scope::RESOLVE_ALIAS);
 		if (de == NULL) {
 			throw Path::NotFoundError(path.to_string());
@@ -93,7 +93,7 @@ fkl_defined(const ParseLocation &loc, const string &path_str)
 {
 	try {
 		Path path(path_str);
-		return runtime::current_context()->dirent_defined(path);
+		return global_runtime()->current_context()->dirent_defined(path);
 	} catch (Path::InvalidError &e) {
 		throw ParseError(e.what(), loc);
 	}
@@ -102,7 +102,7 @@ static bool
 fkl_defined(const ParseLocation &loc, const Path &path)
 {
 	(void)loc;
-	return runtime::current_context()->dirent_defined(path);
+	return global_runtime()->current_context()->dirent_defined(path);
 }
 
 //
@@ -205,7 +205,7 @@ fkl_open_scope(const ParseLocation &loc,
 {
 	DTRACE(TRACE_SCOPES, "open scope: " + name);
 
-	DASSERT_MSG(!runtime::current_context()->is_readonly(),
+	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 		"current_context is read-only");
 
 	try {
@@ -221,13 +221,13 @@ fkl_open_scope(const ParseLocation &loc,
 
 		// make a new scope and link it into the tree
 		ScopePtr scope_ptr = new_pp_scope(binding);
-		scope_ptr->set_parent(runtime::current_context()->scope());
+		scope_ptr->set_parent(global_runtime()->current_context()->scope());
 
 		// add the new scope to the parent
-		runtime::current_context()->add_dirent(elem, scope_ptr);
+		global_runtime()->current_context()->add_dirent(elem, scope_ptr);
 
 		// save the current scope, and set the new scope
-		runtime::context_push(new_pp_context(elem, scope_ptr));
+		global_runtime()->context_push(new_pp_context(elem, scope_ptr));
 	} catch (Path::InvalidError &e) {
 		throw ParseError(e.what(), loc);
 	}
@@ -241,10 +241,10 @@ fkl_close_scope(const ParseLocation &loc)
 {
 	(void)loc;
 	DTRACE(TRACE_SCOPES, "close scope: "
-	                     + runtime::current_context()->name());
+	                     + global_runtime()->current_context()->name());
 
 	// retore the previous context
-	runtime::context_pop();
+	global_runtime()->context_pop();
 }
 
 //
@@ -256,7 +256,7 @@ fkl_bookmark(const ParseLocation &loc, const string &name)
 	if (!lang_valid_bookmark_name(name)) {
 		throw ParseError("invalid bookmark name: " + name, loc);
 	}
-	runtime::current_context()->add_bookmark(name);
+	global_runtime()->current_context()->add_bookmark(name);
 }
 
 // Validate a register name.
@@ -279,7 +279,7 @@ fkl_reg(const ParseLocation &loc,
 {
 	// check that we have a current binding
 	ConstBindingPtr cur_binding
-	    = runtime::current_context()->binding();
+	    = global_runtime()->current_context()->binding();
 	DASSERT_MSG(cur_binding, "no binding for register " + name);
 	return fkl_reg(loc, name, cur_binding, address, width);
 }
@@ -290,7 +290,7 @@ fkl_reg(const ParseLocation &loc,
 {
 	DTRACE(TRACE_REGS, "reg: " + name);
 
-	DASSERT_MSG(!runtime::current_context()->is_readonly(),
+	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 		"current_context is read-only");
 
 	try {
@@ -306,7 +306,7 @@ fkl_reg(const ParseLocation &loc,
 
 		RegisterPtr reg_ptr = new_pp_bound_register(
 				binding, address, width);
-		runtime::current_context()->add_dirent(elem, reg_ptr);
+		global_runtime()->current_context()->add_dirent(elem, reg_ptr);
 		return reg_ptr;
 	} catch (Path::InvalidError &e) {
 		throw ParseError(e.what(), loc);
@@ -318,7 +318,7 @@ fkl_reg(const ParseLocation &loc,
 {
 	// check that we have a current binding
 	ConstBindingPtr cur_binding
-	    = runtime::current_context()->binding();
+	    = global_runtime()->current_context()->binding();
 	DASSERT_MSG(cur_binding, "no binding for register");
 	return fkl_reg(loc, cur_binding, address, width);
 }
@@ -341,7 +341,7 @@ fkl_reg(const ParseLocation &loc,
 {
 	DTRACE(TRACE_REGS, "reg: " + name);
 
-	DASSERT_MSG(!runtime::current_context()->is_readonly(),
+	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 		"current_context is read-only");
 
 	try {
@@ -356,7 +356,7 @@ fkl_reg(const ParseLocation &loc,
 		}
 
 		RegisterPtr reg_ptr = new_pp_proc_register(access, width);
-		runtime::current_context()->add_dirent(elem, reg_ptr);
+		global_runtime()->current_context()->add_dirent(elem, reg_ptr);
 		return reg_ptr;
 	} catch (Path::InvalidError &e) {
 		throw ParseError(e.what(), loc);
@@ -432,7 +432,7 @@ fkl_field(const ParseLocation &loc,
 {
 	DTRACE(TRACE_FIELDS, "direct field: " + name);
 
-	DASSERT_MSG(!runtime::current_context()->is_readonly(),
+	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 		"current_context is read-only");
 
 	DASSERT_MSG(type, "found NULL datatype for field " + name);
@@ -450,7 +450,7 @@ fkl_field(const ParseLocation &loc,
 
 		// create a field and add it to the current scope
 		DirectFieldPtr field_ptr = new_pp_direct_field(type, bits);
-		runtime::current_context()->add_dirent(elem, field_ptr);
+		global_runtime()->current_context()->add_dirent(elem, field_ptr);
 		return field_ptr;
 	} catch (Path::InvalidError &e) {
 		throw ParseError(e.what(), loc);
@@ -461,7 +461,7 @@ fkl_field(const ParseLocation &loc,
           const string &name, const string &type, const RegBits &bits)
 {
 	return fkl_field(loc, name,
-	                 runtime::current_context()->resolve_datatype(type),
+	                 global_runtime()->current_context()->resolve_datatype(type),
 	                 bits);
 }
 
@@ -476,7 +476,7 @@ fkl_field(const ParseLocation &loc,
 {
 	DTRACE(TRACE_FIELDS, "constant field: " + name);
 
-	DASSERT_MSG(!runtime::current_context()->is_readonly(),
+	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 		"current_context is read-only");
 
 	DASSERT_MSG(type, "found NULL datatype for field " + name);
@@ -494,7 +494,7 @@ fkl_field(const ParseLocation &loc,
 
 		// create a field and add it to the current scope
 		ConstantFieldPtr field_ptr = new_pp_constant_field(type, value);
-		runtime::current_context()->add_dirent(elem, field_ptr);
+		global_runtime()->current_context()->add_dirent(elem, field_ptr);
 		return field_ptr;
 	} catch (Path::InvalidError &e) {
 		throw ParseError(e.what(), loc);
@@ -505,7 +505,7 @@ fkl_field(const ParseLocation &loc,
           const string &name, const string &type, const Value &value)
 {
 	return fkl_field(loc, name,
-	                 runtime::current_context()->resolve_datatype(type),
+	                 global_runtime()->current_context()->resolve_datatype(type),
 	                 value);
 }
 //
@@ -518,7 +518,7 @@ fkl_field(const ParseLocation &loc,
 {
 	DTRACE(TRACE_FIELDS, "proc field: " + name);
 
-	DASSERT_MSG(!runtime::current_context()->is_readonly(),
+	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 		"current_context is read-only");
 
 	DASSERT_MSG(type, "found NULL datatype for field " + name);
@@ -537,7 +537,7 @@ fkl_field(const ParseLocation &loc,
 
 		// create a field and add it to the current scope
 		ProcFieldPtr field_ptr = new_pp_proc_field(type, access);
-		runtime::current_context()->add_dirent(elem, field_ptr);
+		global_runtime()->current_context()->add_dirent(elem, field_ptr);
 		return field_ptr;
 	} catch (Path::InvalidError &e) {
 		throw ParseError(e.what(), loc);
@@ -549,7 +549,7 @@ fkl_field(const ParseLocation &loc,
           const RwProcsPtr &access)
 {
 	return fkl_field(loc, name,
-	                 runtime::current_context()->resolve_datatype(type),
+	                 global_runtime()->current_context()->resolve_datatype(type),
 	                 access);
 }
 
@@ -561,7 +561,7 @@ fkl_alias(const ParseLocation &loc, const string &name, const string &target)
 {
 	DTRACE(TRACE_REGS, "alias: " + name + " -> " + target);
 
-	DASSERT_MSG(!runtime::current_context()->is_readonly(),
+	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 		"current_context is read-only");
 
 	try {
@@ -572,12 +572,12 @@ fkl_alias(const ParseLocation &loc, const string &name, const string &target)
 			WARN(sprintfxx("%s: '%s' redefined", loc, name));
 		}
 
-		Path path = runtime::current_context()->resolve_path(target);
+		Path path = global_runtime()->current_context()->resolve_path(target);
 		if (!path.is_initialized()) {
 			throw Path::NotFoundError(target);
 		}
 		AliasPtr alias_ptr = new_pp_alias(path);
-		runtime::current_context()->add_dirent(elem, alias_ptr);
+		global_runtime()->current_context()->add_dirent(elem, alias_ptr);
 		return alias_ptr;
 	} catch (Path::InvalidError &e) {
 		throw ParseError(e.what(), loc);
@@ -601,13 +601,13 @@ fkl_int(const ParseLocation &loc, const string &name, const string &units)
 {
 	DTRACE(TRACE_TYPES, "int: " + name);
 
-	DASSERT_MSG(!runtime::current_context()->is_readonly(),
+	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 		"current_context is read-only");
 
 	IntDatatypePtr int_ptr = new_pp_int_datatype(units);
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
-		runtime::current_context()->add_datatype(name, int_ptr);
+		global_runtime()->current_context()->add_datatype(name, int_ptr);
 	}
 	return int_ptr;
 }
@@ -621,13 +621,13 @@ fkl_hex(const ParseLocation &loc,
 {
 	DTRACE(TRACE_TYPES, "hex: " + name);
 
-	DASSERT_MSG(!runtime::current_context()->is_readonly(),
+	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 		"current_context is read-only");
 
 	HexDatatypePtr hex_ptr = new_pp_hex_datatype(width, units);
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
-		runtime::current_context()->add_datatype(name, hex_ptr);
+		global_runtime()->current_context()->add_datatype(name, hex_ptr);
 	}
 	return hex_ptr;
 }
@@ -641,13 +641,13 @@ fkl_bitmask(const ParseLocation &loc,
 {
 	DTRACE(TRACE_TYPES, "bitmask: " + name);
 
-	DASSERT_MSG(!runtime::current_context()->is_readonly(),
+	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 		"current_context is read-only");
 
 	BitmaskDatatypePtr bitmask_ptr = new_pp_bitmask_datatype(kvlist);
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
-		runtime::current_context()->add_datatype(name, bitmask_ptr);
+		global_runtime()->current_context()->add_datatype(name, bitmask_ptr);
 	}
 	return bitmask_ptr;
 }
@@ -660,13 +660,13 @@ fkl_string(const ParseLocation &loc, const string &name)
 {
 	DTRACE(TRACE_TYPES, "string: " + name);
 
-	DASSERT_MSG(!runtime::current_context()->is_readonly(),
+	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 		"current_context is read-only");
 
 	StringDatatypePtr string_ptr = new_pp_string_datatype();
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
-		runtime::current_context()->add_datatype(name, string_ptr);
+		global_runtime()->current_context()->add_datatype(name, string_ptr);
 	}
 	return string_ptr;
 }
@@ -680,13 +680,13 @@ fkl_enum(const ParseLocation &loc,
 {
 	DTRACE(TRACE_TYPES, "enum: " + name);
 
-	DASSERT_MSG(!runtime::current_context()->is_readonly(),
+	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 		"current_context is read-only");
 
 	EnumDatatypePtr enum_ptr = new_pp_enum_datatype(kvlist);
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
-		runtime::current_context()->add_datatype(name, enum_ptr);
+		global_runtime()->current_context()->add_datatype(name, enum_ptr);
 	}
 	return enum_ptr;
 }
@@ -700,7 +700,7 @@ fkl_multi(const ParseLocation &loc,
 {
 	DTRACE(TRACE_TYPES, "multi: " + name);
 
-	DASSERT_MSG(!runtime::current_context()->is_readonly(),
+	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 		"current_context is read-only");
 
 	MultiDatatypePtr multi_ptr = new_pp_multi_datatype();
@@ -710,7 +710,7 @@ fkl_multi(const ParseLocation &loc,
 	}
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
-		runtime::current_context()->add_datatype(name, multi_ptr);
+		global_runtime()->current_context()->add_datatype(name, multi_ptr);
 	}
 	return multi_ptr;
 }
@@ -724,14 +724,14 @@ fkl_bool(const ParseLocation &loc,
 {
 	DTRACE(TRACE_TYPES, "bool: " + name);
 
-	DASSERT_MSG(!runtime::current_context()->is_readonly(),
+	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 		"current_context is read-only");
 
 	BoolDatatypePtr bool_ptr = new_pp_bool_datatype(
 			true_str, false_str);
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
-		runtime::current_context()->add_datatype(name, bool_ptr);
+		global_runtime()->current_context()->add_datatype(name, bool_ptr);
 	}
 	return bool_ptr;
 }
@@ -745,13 +745,13 @@ fkl_fixed(const ParseLocation &loc,
 {
 	DTRACE(TRACE_TYPES, "fixed: " + name);
 
-	DASSERT_MSG(!runtime::current_context()->is_readonly(),
+	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 		"current_context is read-only");
 
 	FixedDatatypePtr fixed_ptr = new_pp_fixed_datatype(nbits, units);
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
-		runtime::current_context()->add_datatype(name, fixed_ptr);
+		global_runtime()->current_context()->add_datatype(name, fixed_ptr);
 	}
 	return fixed_ptr;
 }
