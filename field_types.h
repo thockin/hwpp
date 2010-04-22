@@ -81,7 +81,7 @@ class ProcField: public Field
 	ProcField(const ConstDatatypePtr &datatype,
 	    const RwProcsPtr &access)
 	    : Field(datatype), m_access(access),
-	      m_context(pp::runtime::context_snapshot())
+	      m_context(global_runtime()->context_snapshot())
 	{
 	}
 	virtual ~ProcField()
@@ -107,9 +107,9 @@ class ProcField: public Field
 	virtual Value
 	read() const
 	{
-		pp::runtime::context_push(m_context);
+		global_runtime()->context_push(m_context);
 		Value ret = m_access->read();
-		pp::runtime::context_pop();
+		global_runtime()->context_pop();
 		return ret;
 	}
 
@@ -123,9 +123,9 @@ class ProcField: public Field
 	virtual void
 	write(const Value &value) const
 	{
-		pp::runtime::context_push(m_context);
+		global_runtime()->context_push(m_context);
 		m_access->write(value);
-		pp::runtime::context_pop();
+		global_runtime()->context_pop();
 	}
 
     private:

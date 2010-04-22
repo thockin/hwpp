@@ -14,28 +14,37 @@ namespace pp {
 ScopePtr
 initialize_device_tree();
 
-namespace runtime {
+class Runtime {
+ public:
+	Runtime();
+	virtual ~Runtime()
+	{
+	}
 
-extern ScopePtr
-init();
+	// the global current context
+	virtual ContextPtr
+	current_context();
 
-// the global current context
-extern ContextPtr
-current_context();
+	// get a read-only copy of the current context
+	virtual ContextPtr
+	context_snapshot();
 
-// get a read-only copy of the current context
-extern ContextPtr
-context_snapshot();
+	// push a new context onto the stack
+	virtual void
+	context_push(const ContextPtr &new_ctxt);
 
-// push a new context onto the stack
-extern void
-context_push(const ContextPtr &new_ctxt);
+	// restore the previous context
+	virtual void
+	context_pop();
 
-// restore the previous context
-extern void
-context_pop();
+ private:
+	std::vector<ContextPtr> m_context_stack;
+};
 
-}  // namespace runtime
+// FIXME: One of these should be passed around from very early.
+Runtime *
+global_runtime();
+
 }  // namespace pp
 
 #endif // PP_RUNTIME_H__
