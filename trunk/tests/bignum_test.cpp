@@ -232,11 +232,6 @@ TEST(test_ctors)
 		TEST_ASSERT(bb3.to_string() == "0x1234",
 			"BigInt::get_bitbuffer(int)");
 	}
-	{
-		util::BitBuffer bb = BigInt(-1).get_bitbuffer();
-		TEST_ASSERT(bb.to_string() == "0x1",
-			"BigInt::get_bitbuffer()");
-	}
 }
 
 TEST(test_assignments)

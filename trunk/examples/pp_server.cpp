@@ -1,7 +1,8 @@
 #include "pp/pp.h"
 #include "pp/util/printfxx.h"
 #include <signal.h>
-#include "drivers.h"
+#include "pp/drivers.h"
+#include "pp/device_init.h"
 #include "pp/field.h"
 #include "pp/register.h"
 #include "pp/scope.h"

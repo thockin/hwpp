@@ -5,6 +5,9 @@
 #ifndef PP_DEVICE_INIT_H__
 #define PP_DEVICE_INIT_H__
 
+#include "pp/runtime.h"
+#include "pp/scope.h"
+
 namespace pp {
 namespace device {
 
@@ -21,6 +24,19 @@ void
 msr_datatypes_init();
 
 }  // namespace device
+
+
+// apps should call this to bootstrap themselves
+static inline ScopePtr
+initialize_device_tree() {
+	ScopePtr root = global_runtime()->current_context()->scope();
+	device::global_datatypes_init();
+	device::pci_datatypes_init();
+	device::cpuid_datatypes_init();
+	device::msr_datatypes_init();
+	return root;
+}
+
 }  // namespace pp
 
 #endif // PP_DEVICE_INIT_H__

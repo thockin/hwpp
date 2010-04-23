@@ -1,4 +1,5 @@
 #include "pp/pp.h"
+#include "pp/device_init.h"
 #include "pp/field_types.h"
 #include "pp/datatype_types.h"
 #include "pp/register_types.h"

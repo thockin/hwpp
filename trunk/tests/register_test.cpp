@@ -1,5 +1,6 @@
 #include "pp/pp.h"
 #include "pp/register_types.h"
+#include "pp/runtime.h"
 #include "pp/rwprocs.h"
 #include "test_binding.h"
 #include "pp_test.h"
@@ -102,15 +103,12 @@ TEST(test_pp_proc_register)
 {
 	pp::RwProcsPtr procs(new TestProcs);
 
-	// without this, there is no "current context"
-	pp::ScopePtr root = pp::initialize_device_tree();
-
 	/* set up test registers */
-	pp::ProcRegister r1(procs, pp::BITS8);
-	pp::ProcRegister r2(procs, pp::BITS16);
-	pp::ProcRegister r3(procs, pp::BITS32);
-	pp::ProcRegister r4(procs, pp::BITS64);
-	pp::ProcRegister r5(procs, pp::BITS128);
+	pp::ProcRegister r1(procs, pp::BITS8, pp::global_runtime());
+	pp::ProcRegister r2(procs, pp::BITS16, pp::global_runtime());
+	pp::ProcRegister r3(procs, pp::BITS32, pp::global_runtime());
+	pp::ProcRegister r4(procs, pp::BITS64, pp::global_runtime());
+	pp::ProcRegister r5(procs, pp::BITS128, pp::global_runtime());
 
 	/* test the read() method */
 	if (r1.read() != pp::MASK(pp::BITS8)) {

@@ -10,34 +10,31 @@
 
 namespace pp {
 
-// apps should call this to bootstrap themselves
-ScopePtr
-initialize_device_tree();
-
 class Runtime {
  public:
 	Runtime();
-	virtual ~Runtime()
+	~Runtime()
 	{
 	}
 
 	// the global current context
-	virtual ContextPtr
-	current_context();
+	ContextPtr
+	current_context() const;
 
 	// get a read-only copy of the current context
-	virtual ContextPtr
-	context_snapshot();
+	ContextPtr
+	context_snapshot() const;
 
 	// push a new context onto the stack
-	virtual void
+	void
 	context_push(const ContextPtr &new_ctxt);
 
 	// restore the previous context
-	virtual void
+	void
 	context_pop();
 
  private:
+	ScopePtr m_root_scope;
 	std::vector<ContextPtr> m_context_stack;
 };
 
