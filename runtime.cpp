@@ -3,16 +3,10 @@
  */
 
 #include "pp/pp.h"
-#include "runtime.h"
+#include "pp/runtime.h"
 #include "pp/context.h"
-#include "device_init.h"
 
 namespace pp {
-
-ScopePtr
-initialize_device_tree() {
-	return global_runtime()->current_context()->scope();
-}
 
 Runtime *
 global_runtime()
@@ -24,18 +18,14 @@ global_runtime()
 // Initialize the PP runtime.
 Runtime::Runtime()
 {
-	// The name of the root scope doesn't matter.
-	context_push(new_pp_context("pp", new_pp_scope()));
-
-	// FIXME: take these out when we have a real language
-	pp::device::global_datatypes_init();
-	pp::device::pci_datatypes_init();
-	pp::device::cpuid_datatypes_init();
-	pp::device::msr_datatypes_init();
+	// The name of the root scope doesn't matter, we just need to retain
+	// a pointer to it.
+	m_root_scope = new_pp_scope();
+	context_push(new_pp_context("pp", m_root_scope));
 }
 
 ContextPtr
-Runtime::current_context()
+Runtime::current_context() const
 {
 	DASSERT(m_context_stack.size() > 0);
 	return m_context_stack.back();
@@ -43,7 +33,7 @@ Runtime::current_context()
 
 // get a read-only copy of the current context
 ContextPtr
-Runtime::context_snapshot()
+Runtime::context_snapshot() const
 {
 	return current_context()->snapshot();
 }

@@ -7,7 +7,7 @@
 #include "pp/binding.h"
 #include "pp/rwprocs.h"
 #include "pp/context.h"
-#include "runtime.h"
+#include "pp/runtime.h"
 
 namespace pp {
 
@@ -73,12 +73,14 @@ class ProcRegister: public Register
 {
     private:
 	RwProcsPtr m_access;
+	Runtime *m_runtime;
 	ContextPtr m_context;
 
     public:
-	ProcRegister(const RwProcsPtr &access, const BitWidth width)
-	    : Register(width), m_access(access),
-	      m_context(global_runtime()->context_snapshot())
+	ProcRegister(const RwProcsPtr &access, const BitWidth width,
+	             Runtime *runtime)
+	    : Register(width), m_access(access), m_runtime(runtime),
+	      m_context(runtime->context_snapshot())
 	{
 	}
 
@@ -100,9 +102,9 @@ class ProcRegister: public Register
 	virtual Value
 	read() const
 	{
-		global_runtime()->context_push(m_context);
+		m_runtime->context_push(m_context);
 		Value ret = m_access->read() & MASK(width());
-		global_runtime()->context_pop();
+		m_runtime->context_pop();
 		return ret;
 	}
 
@@ -114,9 +116,9 @@ class ProcRegister: public Register
 	virtual void
 	write(const Value &value) const
 	{
-		global_runtime()->context_push(m_context);
+		m_runtime->context_push(m_context);
 		m_access->write(value & MASK(width()));
-		global_runtime()->context_pop();
+		m_runtime->context_pop();
 	}
 };
 

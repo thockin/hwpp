@@ -2,7 +2,8 @@
 // reads them.  If a path is a scope or array, it will recurse.
 #include "pp/pp.h"
 #include "pp/util/printfxx.h"
-#include "drivers.h"
+#include "pp/drivers.h"
+#include "pp/device_init.h"
 #include "pp/field.h"
 #include "pp/register.h"
 #include "pp/scope.h"

@@ -355,7 +355,8 @@ fkl_reg(const ParseLocation &loc,
 			WARN(sprintfxx("%s: '%s' redefined", loc, name));
 		}
 
-		RegisterPtr reg_ptr = new_pp_proc_register(access, width);
+		RegisterPtr reg_ptr
+		    = new_pp_proc_register(access, width, global_runtime());
 		global_runtime()->current_context()->add_dirent(elem, reg_ptr);
 		return reg_ptr;
 	} catch (Path::InvalidError &e) {
@@ -366,7 +367,7 @@ RegisterPtr
 fkl_reg(const ParseLocation &loc, const RwProcsPtr &access, BitWidth width)
 {
 	(void)loc;
-	return new_pp_proc_register(access, width);
+	return new_pp_proc_register(access, width, global_runtime());
 }
 
 //
