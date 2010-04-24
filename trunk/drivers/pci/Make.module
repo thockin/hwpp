@@ -1,0 +1,6 @@
+SRCS += drivers/pci/pci_driver.cpp \
+	drivers/pci/pci_binding.cpp
+
+TESTS += drivers/pci/tests/pci_io_test
+
+drivers/pci/tests/pci_io_test: drivers/pci/pci_binding.o

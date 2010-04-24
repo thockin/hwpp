@@ -4,7 +4,7 @@
 
 #include "pp/pp.h"
 #include "pp/register.h"
-#include "pp_test.h"
+#include "pp/util/test.h"
 
 namespace pp {
 extern RegisterPtr magic_zeros;

@@ -4,7 +4,7 @@
 #include "pp/register.h"
 #include "pp/scope.h"
 #include "pp/datatype_types.h"
-#include "pp_test.h"
+#include "pp/util/test.h"
 
 class TestDirent: public pp::Dirent
 {

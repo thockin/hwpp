@@ -1,6 +1,6 @@
 #include "pp/language/syntax_tree.h"
 #include "pp/pp.h"
-#include "pp/tests/pp_test.h"
+#include "pp/util/test.h"
 
 TEST(test_syntax_node) {
 	using pp::language::syntax::SyntaxNode;

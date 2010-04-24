@@ -1,7 +1,7 @@
 #include "pp/pp.h"
-#include "msr_driver.h"
-#include "msr_binding.h"
-#include "pp_test.h"
+#include "pp/drivers/msr/msr_driver.h"
+#include "pp/drivers/msr/msr_binding.h"
+#include "pp/util/test.h"
 
 #define NULL_MAJOR	1
 #define NULL_MINOR	3

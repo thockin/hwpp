@@ -1,0 +1,28 @@
+SRCS += drivers/all_drivers.cpp
+
+# This is a private helper for IMPORT_DRIVER.
+ALL_DRIVERS :=
+define _IMPORT_DRIVER
+  $$(call IMPORT_MODULE, drivers/$(1))
+  ALL_DRIVERS += $(1)
+endef
+# Import a driver's make targets.
+IMPORT_DRIVER = $(eval $(call _IMPORT_DRIVER,$(strip $(1))))
+
+# Import all of the drivers.
+$(call IMPORT_DRIVER, cpu)
+$(call IMPORT_DRIVER, cpuid)
+$(call IMPORT_DRIVER, io)
+$(call IMPORT_DRIVER, mem)
+$(call IMPORT_DRIVER, msr)
+$(call IMPORT_DRIVER, pci)
+
+DRIVER_INIT_PROTOS = $(foreach d,$(ALL_DRIVERS), \
+        extern Driver *load_$(d)_driver(); \
+)
+DRIVER_INIT_FUNCS = $(foreach d,$(ALL_DRIVERS), \
+        load_$(d)_driver, \
+)
+drivers/all_drivers.o: DEFS += \
+	-DDRIVER_INIT_FUNCS="$(DRIVER_INIT_FUNCS)" \
+	-DDRIVER_INIT_PROTOS="$(DRIVER_INIT_PROTOS)"

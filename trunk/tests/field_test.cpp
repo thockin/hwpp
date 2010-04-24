@@ -5,7 +5,7 @@
 #include "pp/register_types.h"
 #include "pp/regbits.h"
 #include "test_binding.h"
-#include "pp_test.h"
+#include "pp/util/test.h"
 
 //FIXME: test lookup()
 //FIXME: test compare()
@@ -185,9 +185,6 @@ class TestProcs: public pp::RwProcs
 
 TEST(test_proc_field)
 {
-	// without this, there is no "current context"
-	pp::ScopePtr root = pp::initialize_device_tree();
-
 	pp::DatatypePtr hex = new_pp_hex_datatype();
 	pp::RwProcsPtr procs(new TestProcs);
 	pp::ProcField f(hex, procs);

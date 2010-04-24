@@ -2,7 +2,7 @@
 #include "pp/register_types.h"
 #include "pp/regbits.h"
 #include "test_binding.h"
-#include "pp_test.h"
+#include "pp/util/test.h"
 
 TEST(test_simple_regbits)
 {

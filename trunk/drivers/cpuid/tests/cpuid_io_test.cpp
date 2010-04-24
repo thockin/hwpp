@@ -1,7 +1,7 @@
 #include "pp/pp.h"
-#include "cpuid_driver.h"
-#include "cpuid_binding.h"
-#include "pp_test.h"
+#include "pp/drivers/cpuid/cpuid_driver.h"
+#include "pp/drivers/cpuid/cpuid_binding.h"
+#include "pp/util/test.h"
 
 namespace pp {
 

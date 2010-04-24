@@ -2,7 +2,7 @@
 #include "symbol_table.h"
 #include "variable.h"
 #include "pp/pp.h"
-#include "pp/tests/pp_test.h"
+#include "pp/util/test.h"
 
 TEST(test_ctor) {
 	pp::language::SymbolTable s;

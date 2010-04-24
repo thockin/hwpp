@@ -8,7 +8,7 @@ using std::string;
 #include "pp/language/auto.lex.h"  // for states
 #include "pp/language/string_file.h"
 using pp::language::StringFile;
-#include "tests/pp_test.h"
+#include "pp/util/test.h"
 
 // These are used throughout the test.  Wrapped to make them simpler to use.
 static pp::language::Lexer *lexer;

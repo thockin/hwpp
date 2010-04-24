@@ -1,8 +1,7 @@
 #include "pp/pp.h"
 #include "pp/alias.h"
 #include "pp/dirent.h"
-#include "test_helpers.h"
-#include "pp_test.h"
+#include "pp/util/test.h"
 
 TEST(test_ctors)
 {
