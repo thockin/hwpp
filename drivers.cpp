@@ -1,14 +1,15 @@
 //
 // Routines for managing drivers.
 //
-#include "pp/pp.h"
+#include "pp/drivers.h"
 
 #include <map>
 #include <vector>
 #include <exception>
 
-#include "pp/util/filesystem.h"
+#include "pp/pp.h"
 #include "pp/driver.h"
+#include "pp/util/filesystem.h"
 
 namespace pp {
 

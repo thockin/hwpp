@@ -1,7 +1,7 @@
 #include "pp/pp.h"
-#include "pci_driver.h"
-#include "pci_binding.h"
-#include "pp_test.h"
+#include "pp/drivers/pci/pci_driver.h"
+#include "pp/drivers/pci/pci_binding.h"
+#include "pp/util/test.h"
 
 namespace pp {
 

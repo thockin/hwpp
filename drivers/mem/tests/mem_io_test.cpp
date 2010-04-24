@@ -1,7 +1,7 @@
 #include "pp/pp.h"
-#include "mem_driver.h"
-#include "mem_binding.h"
-#include "pp_test.h"
+#include "pp/drivers/mem/mem_driver.h"
+#include "pp/drivers/mem/mem_binding.h"
+#include "pp/util/test.h"
 
 namespace pp {
 

@@ -288,8 +288,8 @@
 //   temporary directory under the TEST_PATH_PREFIX.  This directory will
 //   be destroyed and created anew for each test function.
 
-#ifndef PP_TEST_H__
-#define PP_TEST_H__
+#ifndef PP_UTIL_TEST_H__
+#define PP_UTIL_TEST_H__
 
 #include <iostream>
 #include <fstream>
@@ -646,4 +646,4 @@ main(void)
 	TEST_EXIT();
 }
 
-#endif // PP_TEST_H__
+#endif // PP_UTIL_TEST_H__

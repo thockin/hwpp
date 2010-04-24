@@ -6,7 +6,7 @@
 #include "fake_language.h"
 #include "device_init.h"
 #include "test_binding.h"
-#include "pp_test.h"
+#include "pp/util/test.h"
 
 // used later, must be out-of-line
 class TestProcs: public pp::RwProcs

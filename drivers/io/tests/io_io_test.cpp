@@ -1,7 +1,7 @@
 #include "pp/pp.h"
-#include "io_driver.h"
-#include "io_binding.h"
-#include "pp_test.h"
+#include "pp/drivers/io/io_driver.h"
+#include "pp/drivers/io/io_binding.h"
+#include "pp/util/test.h"
 
 namespace pp {
 

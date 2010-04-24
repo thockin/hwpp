@@ -1,0 +1,11 @@
+TESTS += \
+	util/tests/bignum_test \
+	util/tests/bit_buffer_test \
+	util/tests/filesystem_test \
+	util/tests/keyed_vector_test \
+	util/tests/printfxx_test \
+	util/tests/regex_test \
+	util/tests/sockets_test \
+	util/tests/syserror_test
+
+	#util/tests/shared_object_test

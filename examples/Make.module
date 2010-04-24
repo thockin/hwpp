@@ -1,0 +1,16 @@
+MODULE_BINS := \
+	examples/pp_discover \
+	examples/pp_pci \
+	examples/pp_read \
+	examples/pp_fuse \
+	examples/pp_server \
+	examples/pp_client
+
+BINS += $(MODULE_BINS)
+CLEANS += examples/cmdline.o
+
+$(MODULE_BINS): examples/cmdline.o
+
+examples/pp_fuse: LDLIBS += -lfuse
+examples/pp_fuse: LDLIBS_DYN += -lpthread -ldl -lrt
+

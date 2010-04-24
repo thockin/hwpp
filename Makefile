@@ -1,76 +1,50 @@
-TOPDIR = $(shell pwd)
+TOPDIR := $(shell pwd)
 include pp.mk
 
-DRIVER_LIB = drivers/libdrivers.a
+# These variables get added to by modules.
+SRCS :=
+OBJS = $(SRCS:.cpp=.o)  # This is intentionally not a := variable.
+BINS :=
+TESTS :=
+CLEANS := libpp.a
+DISTCLEANS :=
 
-SRCS = fake_language.cpp \
-	runtime.cpp \
-	language.cpp \
-	magic_regs.cpp \
-	drivers.cpp \
-	path.cpp \
-	scope.cpp \
-	version.cpp
-OBJS = $(SRCS:.cpp=.o)
-
-
-all: libpp.a examples
-
-# add a driver in the DRIVER_LIB to another archive
-define add_driver
-	ar -x $(DRIVER_LIB) $(1);
-	ar rcs $(2) $(1);
-	$(RM) $(1);
+# This is a private helper for IMPORT_MODULE.
+define _IMPORT_MODULE
+  include $(1)/Make.module
 endef
+# Import a sub-module's make targets.
+IMPORT_MODULE = $(eval $(call _IMPORT_MODULE,$(strip $(1))))
 
-libpp.a: $(OBJS) devices/all_devices.o $(DRIVER_LIB)
-	ar rcs $@ $(OBJS) devices/all_devices.o
-	@$(foreach drvobj,$(shell ar -t $(DRIVER_LIB)),$(call add_driver,$(drvobj),$@))
+# Import all of the sub-modules.
+$(call IMPORT_MODULE, .)
+$(call IMPORT_MODULE, devices)
+$(call IMPORT_MODULE, drivers)
+$(call IMPORT_MODULE, examples)
+$(call IMPORT_MODULE, util)
+
+all: $(BINS) $(TESTS)
+
+$(BINS): %: %.cpp libpp.a
+
+libpp.a: $(OBJS)
+	$(RM) $@
+	ar rcs $@ $^
 	ranlib $@
 
-$(DRIVER_LIB): drivers
-	@$(MAKE) -C drivers $$(basename $@)
-
-.PHONY: drivers devices
-drivers devices:
-	@$(MAKE) -C $@
-
-.PHONY: examples
-examples: libpp.a
-	@$(MAKE) -C $@
-
-# This target is a hack until we have a real language.  It's written this
-# way on purpose, to work around make being too smart for it's own good.
-devices/all_devices.o: FORCE
-	@$(MAKE) devices
-
 .PHONY: test
-test: all
-	@$(MAKE) -C tests test
-	@$(MAKE) -C drivers test
-	@$(MAKE) -C devices test
+test: $(TESTS)
+	@$(MAKE) run_tests RUN_TESTS="$(TESTS)"
 
 .PHONY: clean
 clean:
-	@$(RM) $(OBJS) *.o *.a
-	@$(MAKE) -C tests clean
-	@$(MAKE) -C drivers clean
-	@$(MAKE) -C devices clean
-	@$(MAKE) -C examples clean
+	@$(RM) $(OBJS) $(CLEANS) $(BINS) $(TESTS)
 
 .PHONY: depclean
 depclean: clean
-	@$(MAKE) -C tests depclean
-	@$(MAKE) -C drivers depclean
-	@$(MAKE) -C devices depclean
-	@$(MAKE) -C examples depclean
 
 .PHONY: distclean
 distclean: clean
-	@$(RM) $(BUILD_CONFIG)
-	@$(MAKE) -C tests distclean
-	@$(MAKE) -C drivers distclean
-	@$(MAKE) -C devices distclean
-	@$(MAKE) -C examples distclean
+	@$(RM) $(BUILD_CONFIG) $(DISTCLEANS)
 
 .depend: $(SRCS)
