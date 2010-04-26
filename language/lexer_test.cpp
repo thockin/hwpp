@@ -3,9 +3,9 @@ using std::string;
 #include "pp/language/language.h"
 #include "pp/language/identifier.h"
 #include "pp/language/variable.h"
-#include "pp/language/auto.yacc.h"  // for token definitions
+#include "auto.yacc.h"  // for token definitions
 #define YY_HEADER_EXPORT_START_CONDITIONS 1
-#include "pp/language/auto.lex.h"  // for states
+#include "auto.lex.h"  // for states
 #include "pp/language/string_file.h"
 using pp::language::StringFile;
 #include "pp/util/test.h"

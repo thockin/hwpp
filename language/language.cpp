@@ -4,8 +4,8 @@
 #include "pp/pp.h"
 #include "pp/language/syntax_tree.h"
 // Leave these last.
-#include "pp/language/auto.yacc.h"
-#include "pp/language/auto.lex.h"  // depends on auto.yacc.h being first
+#include "auto.yacc.h"
+#include "auto.lex.h"  // depends on auto.yacc.h being first
 
 // For some reason auto.yacc.h does not export this.
 extern int pp__language__internal__parse(yyscan_t scanner,
