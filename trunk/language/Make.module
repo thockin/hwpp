@@ -1,0 +1,26 @@
+SRCS += language/language.cpp \
+	language/syntax_tree.cpp \
+	language/variable.cpp \
+	language/auto.lex.cpp \
+	language/auto.yacc.cpp
+
+BINS += language/parse_stdin
+
+CLEANS += language/auto.*
+
+TESTS += language/tests/variable_test \
+	language/tests/syntax_tree_test
+
+language/language.o: language/auto.lex.h language/auto.yacc.h
+
+language/auto.lex.cpp language/auto.lex.h: language/grammar.l
+	$(LEX) -o language/auto.lex.cpp --header-file=language/auto.lex.h $<
+language/auto.lex.o: CWARNS += -Wno-unused -Wno-sign-compare
+
+language/auto.yacc.cpp language/auto.yacc.h: language/grammar.y
+	$(YACC) -o language/auto.yacc.cpp --defines=language/auto.yacc.h $<
+language/auto.yacc.o: CXXWARNS += -Wno-write-strings
+
+language/tests/variable_test: language/variable.o
+language/tests/syntax_tree_test: language/syntax_tree.o language/variable.o
+

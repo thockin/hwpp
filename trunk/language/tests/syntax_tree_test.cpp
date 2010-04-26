@@ -2,6 +2,7 @@
 #include "pp/pp.h"
 #include "pp/util/test.h"
 
+#if 0
 TEST(test_syntax_node) {
 	using pp::language::syntax::SyntaxNode;
 
@@ -36,3 +37,8 @@ TEST(test_expression) {
 	t.evaluate(&v);
 	TEST_ASSERT(v.int_value() == 42);
 }
+#else
+TEST(test_failed) {
+	TEST_FAIL("test has been commented out");
+}
+#endif

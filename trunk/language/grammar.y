@@ -62,7 +62,7 @@
 
 #include <stdio.h>
 #define YY_HEADER_EXPORT_START_CONDITIONS 1
-#include "pp/language/auto.lex.h"
+#include "auto.lex.h"
 
 // Act as if this code were in the pp::language::syntax namespace.
 using namespace pp;

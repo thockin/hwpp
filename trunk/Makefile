@@ -21,6 +21,7 @@ $(call IMPORT_MODULE, .)
 $(call IMPORT_MODULE, devices)
 $(call IMPORT_MODULE, drivers)
 $(call IMPORT_MODULE, examples)
+$(call IMPORT_MODULE, language)
 $(call IMPORT_MODULE, util)
 
 all: $(BINS) $(TESTS)
