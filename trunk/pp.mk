@@ -1,7 +1,3 @@
-# guess at TOPDIR, if missing
-TOPDIR ?= $(shell pwd)
-
-
 # our build config file
 BUILD_CONFIG = $(TOPDIR)/BUILD_CONFIG
 

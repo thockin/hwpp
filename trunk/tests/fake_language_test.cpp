@@ -3,9 +3,9 @@
  */
 
 #include "pp/pp.h"
-#include "fake_language.h"
-#include "device_init.h"
-#include "test_binding.h"
+#include "pp/fake_language.h"
+#include "pp/device_init.h"
+#include "pp/tests/test_binding.h"
 #include "pp/util/test.h"
 
 // used later, must be out-of-line

@@ -1,6 +1,6 @@
 #include "pp/pp.h"
-#include "generic_device.h"
-#include "fake_language.h"
+#include "pp/devices/pci/generic_device.h"
+#include "pp/fake_language.h"
 
 namespace pp {
 namespace device {

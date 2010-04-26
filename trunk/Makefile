@@ -25,7 +25,7 @@ $(call IMPORT_MODULE, util)
 
 all: $(BINS) $(TESTS)
 
-$(BINS): %: %.cpp libpp.a
+$(BINS): %: %.o libpp.a
 
 libpp.a: $(OBJS)
 	$(RM) $@
@@ -40,11 +40,6 @@ test: $(TESTS)
 clean:
 	@$(RM) $(OBJS) $(CLEANS) $(BINS) $(TESTS)
 
-.PHONY: depclean
-depclean: clean
-
 .PHONY: distclean
 distclean: clean
 	@$(RM) $(BUILD_CONFIG) $(DISTCLEANS)
-
-.depend: $(SRCS)

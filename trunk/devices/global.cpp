@@ -1,5 +1,5 @@
-#include "device_init.h"
-#include "fake_language.h"
+#include "pp/device_init.h"
+#include "pp/fake_language.h"
 #include "pp/datatype_types.h"
 
 namespace pp {
