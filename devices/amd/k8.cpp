@@ -10,10 +10,10 @@
 // May, 2008
 
 #include "pp/pp.h"
-#include "fake_language.h"
-#include "devices/pci/generic_device.h"
-#include "devices/cpuid/generic_device.h"
-#include "devices/msr/generic_device.h"
+#include "pp/fake_language.h"
+#include "pp/devices/pci/generic_device.h"
+#include "pp/devices/cpuid/generic_device.h"
+#include "pp/devices/msr/generic_device.h"
 
 namespace pp {
 namespace device {

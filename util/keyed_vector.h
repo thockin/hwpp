@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <boost/iterator_adaptors.hpp>
 #include "pp/pp.h"
-#include "debug.h"
+#include "pp/util/assert.h"
 
 namespace util {
 
