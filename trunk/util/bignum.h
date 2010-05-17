@@ -2,6 +2,7 @@
 #ifndef PP_UTIL_BIGNUM_H__
 #define PP_UTIL_BIGNUM_H__
 
+#include <cstdio>  // Some versions of gmpxx.h need but don't include this
 #include <gmpxx.h>
 #include <ostream>
 #include <sstream>
