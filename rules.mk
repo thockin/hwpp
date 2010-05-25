@@ -50,9 +50,13 @@ export PROFILE ?= 0     # boolean: 0=no, 1=yes
 
 # Build tools
 
-CPP = $(CROSS_COMPILE)cpp
-CC  = $(CROSS_COMPILE)gcc
-CXX = $(CROSS_COMPILE)g++
+CPP    = $(CROSS_COMPILE)cpp
+CC     = $(CROSS_COMPILE)gcc
+CXX    = $(CROSS_COMPILE)g++
+LEX    = flex
+YACC   = bison
+AR     = ar
+RANLIB = ranlib
 
 
 # Build flags
