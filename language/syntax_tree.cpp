@@ -61,10 +61,8 @@ CompoundStatement::to_string() const
 {
 	string ret = Statement::to_string();
 	ret += "{\n";
-	if (m_body) {
-		for (size_t i = 0; i < m_body->size(); i++) {
-			ret += m_body->at(i)->to_string();
-		}
+	for (size_t i = 0; i < m_body->size(); i++) {
+		ret += m_body->at(i)->to_string();
 	}
 	ret += "}\n";
 	return ret;
@@ -487,7 +485,7 @@ ValueExpression::evaluate(Variable *out_result)
 string
 FunctionLiteralExpression::to_string() const
 {
-	string ret;
+	string ret = "$";
 	if (m_params) {
 		ret += "(";
 		for (size_t i = 0; i < m_params->size(); i++) {
@@ -498,17 +496,9 @@ FunctionLiteralExpression::to_string() const
 		}
 		ret += ")";
 	}
-	ret += "${";
 	if (m_body) {
-		ret += "\n";
-		for (size_t i = 0; i < m_body->size(); i++) {
-			if (i > 0) {
-				ret += ";\n";
-			}
-			ret += m_body->at(i)->to_string();
-		}
+		ret += m_body->to_string();
 	}
-	ret += "}\n";
 	return ret;
 }
 

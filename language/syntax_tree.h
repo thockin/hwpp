@@ -31,6 +31,8 @@ class SyntaxNode {
 		return m_node_type;
 	}
 
+	// Produce a string representation of this node.  For complex nodes
+	// which contain other nodes, this will be recursive.
 	virtual string to_string() const = 0;
 
     protected:
@@ -73,8 +75,6 @@ class Identifier : public SyntaxNode {
 	{
 	}
 
-	virtual string to_string() const;
-
 	const string &module() const
 	{
 		return m_module;
@@ -84,6 +84,8 @@ class Identifier : public SyntaxNode {
 	{
 		return m_symbol;
 	}
+
+	virtual string to_string() const;
 
     private:
 	string m_module;
@@ -202,9 +204,6 @@ class NullStatement : public Statement {
 
 class CompoundStatement : public Statement {
     public:
-	CompoundStatement() : m_body(NULL)
-	{
-	}
 	CompoundStatement(StatementList *body) : m_body(body)
 	{
 		DASSERT(body);
@@ -801,19 +800,19 @@ class FunctionLiteralExpression : public Expression {
 	FunctionLiteralExpression() : m_body(NULL)
 	{
 	}
-	FunctionLiteralExpression(StatementList *body) : m_body(body)
+	FunctionLiteralExpression(Statement *body) : m_body(body)
 	{
 		DASSERT(body);
 	}
 	FunctionLiteralExpression(ParameterDeclarationList *params,
-	                          StatementList *body)
+	                          Statement *body)
 	    : m_params(params), m_body(body)
 	{
 		DASSERT(params);
 		DASSERT(body);
 	}
 
-	StatementList *body()
+	Statement *body()
 	{
 		return m_body.get();
 	}
@@ -824,7 +823,7 @@ class FunctionLiteralExpression : public Expression {
 
     private:
 	boost::scoped_ptr<ParameterDeclarationList> m_params;
-	boost::scoped_ptr<StatementList> m_body;
+	boost::scoped_ptr<Statement> m_body;
 };
 
 class ListLiteralExpression : public Expression {

@@ -6,12 +6,12 @@ int
 main(void)
 {
 	pp::language::Parser parser;
-	pp::language::syntax::StatementList parsed_file;
-	parser.parse_file(stdin, &parsed_file);
-	printf("%zd top-level nodes\n", parsed_file.size());
-	for (size_t i = 0; i < parsed_file.size(); i++) {
+	pp::language::syntax::StatementList file_statements;
+	parser.parse_file(stdin, &file_statements);
+	printf("%zd top-level nodes\n", file_statements.size());
+	for (size_t i = 0; i < file_statements.size(); i++) {
 		std::cout << "[" << i << "] "
-		          << parsed_file[i]->to_string()
+		          << file_statements[i]->to_string()
 		          << std::endl;
 	}
 	return 0;
