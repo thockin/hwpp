@@ -21,7 +21,7 @@
 %parse-param {yyscan_t scanner}
 /* The Parser object gets passed into yyparse and can be user therein. */
 %parse-param {pp::language::Parser *parser}
-%parse-param {pp::language::syntax::StatementList *parsed_file}
+%parse-param {pp::language::syntax::StatementList *out_statements}
 
 /* We use GLR parsing because we need more look-ahead to resolve some rules. */
 %glr-parser
@@ -72,7 +72,7 @@ using namespace pp::language::syntax;
 // This is called on a parse error.
 static void
 pp__language__internal__error(yyscan_t scanner, Parser *parser,
-                              StatementList *parsed_file, const char *str);
+                              StatementList *out_statements, const char *str);
 
 // These are exposed from the lexer to the parser.
 extern void
@@ -125,7 +125,7 @@ pp__language__internal__pop_lexer_state(yyscan_t scanner);
 %type  <defn_stmt>       definition_statement
                          variable_definition_statement
                          function_definition_statement
-%type  <stmt_list>       non_empty_statement_list statement_list
+%type  <stmt_list>       statement_list
 %type  <expr_stmt>       expression_statement
 %type  <type>            type_primitive type_specifier qualified_type_specifier
 %type  <type_list>       qualified_type_specifier_list
@@ -245,22 +245,22 @@ list_literal
 	;
 
 function_literal
-	: TOK_FUNC_LITERAL '{' statement_list '}' {
+	: TOK_FUNC_LITERAL compound_statement {
 		SYNTRACE("function_literal",
-		         "FUNC_LITERAL '{' statement_list '}'");
-		$$ = new FunctionLiteralExpression($3);
+		         "FUNC_LITERAL compound_statement");
+		$$ = new FunctionLiteralExpression($2);
 	}
-	| TOK_FUNC_LITERAL '(' ')' '{' statement_list '}' {
+	| TOK_FUNC_LITERAL '(' ')'compound_statement {
 		SYNTRACE("function_literal",
-		         "FUNC_LITERAL '(' ')' '{' statement_list '}'");
-		$$ = new FunctionLiteralExpression($5);
+		         "FUNC_LITERAL '(' ')' compound_statement");
+		$$ = new FunctionLiteralExpression($4);
 	}
 	| TOK_FUNC_LITERAL '(' parameter_declaration_list ')'
-	  '{' statement_list '}' {
+	  compound_statement {
 		SYNTRACE("function_literal",
-		         "FUNC_LITERAL '(' " "parameter_declaration_list ')' "
-		         "'{' statement_list '}'");
-		$$ = new FunctionLiteralExpression($3, $6);
+		         "FUNC_LITERAL '(' " "parameter_declaration_list ')'"
+		         " compound_statement");
+		$$ = new FunctionLiteralExpression($3, $5);
 	}
 	;
 
@@ -686,8 +686,8 @@ qualified_type_specifier_list
 	}
 	| qualified_type_specifier_list ',' qualified_type_specifier {
 		SYNTRACE("qualified_type_specifier_list",
-		         "qualified_type_specifier_list ',' "
-		         "qualified_type_specifier");
+		         "qualified_type_specifier_list ','"
+		         " qualified_type_specifier");
 		$1->push_back($3);
 		$$ = $1;
 	}
@@ -737,8 +737,9 @@ type_specifier
 		lex_push_state(ST_TYPE_ARGS);
 	} qualified_type_specifier_list '>' {
 		lex_pop_state();
-		SYNTRACE("type_specifier", "type_primitive "
-		         "'<' qualified_type_specifier_list '>'");
+		SYNTRACE("type_specifier",
+		         "type_primitive"
+		         " '<' qualified_type_specifier_list '>'");
 		for (size_t i = 0; i < $4->size(); i++) {
 			$1->add_argument($4->at(i));
 		}
@@ -799,32 +800,24 @@ labeled_statement
 	;
 
 compound_statement
-	: '{' statement_list '}' {
+	: '{' '}' {
+		SYNTRACE("compound_statement", "'{' '}'");
+		$$ = new CompoundStatement(new StatementList());
+	}
+	| '{' statement_list '}' {
 		SYNTRACE("compound_statement", "'{' statement_list '}'");
 		$$ = new CompoundStatement($2);
 	}
 	;
 
 statement_list
-	: {
-		SYNTRACE("statement_list", "<nothing>");
-		$$ = new StatementList();
-	}
-	| non_empty_statement_list {
-		SYNTRACE("statement_list", "non_empty_statement_list");
-		$$ = $1;
-	}
-	;
-
-non_empty_statement_list
 	: statement {
-		SYNTRACE("non_empty_statement_list", "statement");
+		SYNTRACE("statement_list", "statement");
 		$$ = new StatementList();
 		$$->push_back($1);
 	}
-	| non_empty_statement_list statement {
-		SYNTRACE("non_empty_statement_list",
-		         "non_empty_statement_list statement");
+	| statement_list statement {
+		SYNTRACE("statement_list", "statement_list statement");
 		$1->push_back($2);
 		$$ = $1;
 	}
@@ -850,15 +843,15 @@ branch_statement
 	| TOK_IF '(' expression ')' compound_statement
 	  TOK_ELSE compound_statement {
 		SYNTRACE("branch_statement",
-		         "IF '(' expression ')' compound_statement "
-		         "ELSE compound_statement");
+		         "IF '(' expression ')' compound_statement"
+		         " ELSE compound_statement");
 		$$ = new ConditionalStatement($3, $5, $7);
 	}
 	| TOK_IF '(' expression ')' compound_statement
 	  TOK_ELSE branch_statement {
 		SYNTRACE("branch_statement",
-		         "IF '(' expression ')' compound_statement "
-		         "ELSE branch_statement");
+		         "IF '(' expression ')' compound_statement"
+		         " ELSE branch_statement");
 		$$ = new ConditionalStatement($3, $5, $7);
 	}
 	| TOK_SWITCH '(' expression ')' compound_statement {
@@ -913,8 +906,8 @@ loop_statement
 	| TOK_FOR '(' expression_statement
 	              expression_statement ')' compound_statement {
 		SYNTRACE("loop_statement",
-		         "FOR '(' expression_statement "
-		         "expression_statement ')' compound_statement");
+		         "FOR '(' expression_statement"
+		         " expression_statement ')' compound_statement");
 		// for (i=0; i<n;) {A;}
 		//     becomes
 		// { i=0; @loop_continue: while (i<n) {A;} @loop_break: <nop> }
@@ -932,8 +925,8 @@ loop_statement
 	              expression_statement
 	              expression ')' compound_statement {
 		SYNTRACE("loop_statement",
-		         "FOR '(' expression_statement expression_statement "
-		         "expression ')' compound_statement");
+		         "FOR '(' expression_statement expression_statement"
+		         " expression ')' compound_statement");
 		// for (i=0; i<n; i++) {A;}
 		//     becomes
 		// {
@@ -961,8 +954,8 @@ loop_statement
 	| TOK_FOR '(' variable_definition_statement
 	              expression_statement ')' compound_statement {
 		SYNTRACE("loop_statement",
-		         "FOR '(' variable_definition_statement "
-		         "expression_statement ')' compound_statement");
+		         "FOR '(' variable_definition_statement"
+		         " expression_statement ')' compound_statement");
 		// for (int i=0; i<n) {A;}
 		//     becomes
 		// { int i=0; while (i<n) {A;} }
@@ -980,9 +973,9 @@ loop_statement
 	              expression_statement
 	              expression ')' compound_statement {
 		SYNTRACE("loop_statement",
-		         "FOR '(' variable_definition_statement "
-		         "expression_statement expression ')' "
-		         "compound_statement");
+		         "FOR '(' variable_definition_statement"
+		         " expression_statement expression ')'"
+		         " compound_statement");
 		// for (int i=0; i<n; i++) {A;}
 		//     becomes
 		// {
@@ -1036,11 +1029,11 @@ jump_statement
 file_scope
 	: file_scope_item {
 		SYNTRACE("file_scope", "file_scope_item");
-		parsed_file->push_back($1);
+		out_statements->push_back($1);
 	}
 	| file_scope file_scope_item {
 		SYNTRACE("file_scope", "file_scope file_scope_item");
-		parsed_file->push_back($2);
+		out_statements->push_back($2);
 	}
 	;
 
@@ -1084,8 +1077,8 @@ definition_statement
 variable_definition_statement
 	: qualified_type_specifier initialized_identifier_list ';' {
 		SYNTRACE("variable_definition_statement",
-		         "qualified_type_specifier "
-		         "initialized_identifier_list");
+		         "qualified_type_specifier"
+		         " initialized_identifier_list");
 		$$ = new DefinitionStatement($1, $2);
 	}
 	;
@@ -1099,8 +1092,8 @@ initialized_identifier_list
 	}
 	| initialized_identifier_list ',' initialized_identifier {
 		SYNTRACE("initialized_identifier_list",
-		         "initialized_identifier_list "
-		         "',' initialized_identifier");
+		         "initialized_identifier_list"
+		         " ',' initialized_identifier");
 		$1->push_back($3);
 		$$ = $1;
 	}
@@ -1120,27 +1113,30 @@ initialized_identifier
 	;
 
 function_definition_statement
-	: simple_identifier '(' ')' '{' statement_list '}' {
+	: simple_identifier '(' ')' compound_statement {
 		SYNTRACE("function_definition_statement",
-		         "simple_identifier '(' ')' '{' statement_list '}'");
+		         "simple_identifier '(' ')' compound_statement");
 		// A(){B}  =>  func A = ${B}
 		Type *type = new Type(Type::FUNC);
 		InitializedIdentifierList *var_list
 		    = new InitializedIdentifierList();
-		Expression *body = new FunctionLiteralExpression($5);
+		Expression *body = new FunctionLiteralExpression($4);
 		InitializedIdentifier *init_ident
 		    = new InitializedIdentifier($1, body);
 		var_list->push_back(init_ident);
 		$$ = new DefinitionStatement(type, var_list);
 	}
 	| simple_identifier '(' parameter_declaration_list ')'
-	  '{' statement_list '}' {
+	  compound_statement {
+		SYNTRACE("function_definition_statement",
+		         "simple_identifier '(' parameter_declaration_list ')'"
+		         " compound_statement");
 		// Similar to above, but with named parameters.
 		Type *type = new Type(Type::FUNC);
 		InitializedIdentifierList *var_list
 		    = new InitializedIdentifierList();
 		//FIXME: should I unroll $3 here?
-		Expression *body = new FunctionLiteralExpression($3, $6);
+		Expression *body = new FunctionLiteralExpression($3, $5);
 		InitializedIdentifier *init_ident
 		    = new InitializedIdentifier($1, body);
 		var_list->push_back(init_ident);
@@ -1199,10 +1195,10 @@ discover_statement
 
 static void
 pp__language__internal__error(yyscan_t scanner, Parser *parser,
-                              StatementList *parsed_file, const char *str)
+                              StatementList *out_statements, const char *str)
 {
 	(void)parser;
-	(void)parsed_file;
+	(void)out_statements;
 	fflush(stdout);
 	printf("error on line %d: %s\n", lex_lineno(), str);
 }
