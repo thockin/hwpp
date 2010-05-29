@@ -192,19 +192,16 @@ primary_expression
 	}
 	| TOK_BOOL_LITERAL {
 		SYNTRACE("primary_expression", "BOOL_LITERAL");
-		$$ = new ValueExpression(
-		    new Variable::Datum(new Type(Type::BOOL), $1));
+		$$ = new ValueExpression(new Variable::Datum(Type::BOOL, $1));
 	}
 	| TOK_INT_LITERAL {
 		SYNTRACE("primary_expression", "INT_LITERAL");
-		$$ = new ValueExpression(
-		    new Variable::Datum(new Type(Type::INT), *$1));
+		$$ = new ValueExpression(new Variable::Datum(Type::INT, *$1));
 		delete $1;
 	}
 	| string_literal {
 		SYNTRACE("primary_expression", "string_literal");
-		$$ = new ValueExpression(
-		    new Variable::Datum(new Type(Type::STRING), *$1));
+		$$ = new ValueExpression(new Variable::Datum(Type::STRING, *$1));
 		delete $1;
 	}
 	| list_literal {
@@ -546,10 +543,10 @@ and_and_expression
 		Expression *cond = new BinaryExpression(
 		    BinaryExpression::OP_EQ, $1,
 		    new ValueExpression(
-		        new Variable::Datum(new Type(Type::BOOL), true)));
+		        new Variable::Datum(Type::BOOL, true)));
 		$$ = new ConditionalExpression(cond, $3,
 		    new ValueExpression(
-		        new Variable::Datum(new Type(Type::BOOL), false)));
+		        new Variable::Datum(Type::BOOL, false)));
 	}
 	;
 
@@ -565,10 +562,10 @@ or_or_expression
 		Expression *cond = new BinaryExpression(
 		    BinaryExpression::OP_EQ, $1,
 		    new ValueExpression(
-		        new Variable::Datum(new Type(Type::BOOL), true)));
+		        new Variable::Datum(Type::BOOL, true)));
 		$$ = new ConditionalExpression(cond,
 		    new ValueExpression(
-		        new Variable::Datum(new Type(Type::BOOL), true)), $3);
+		        new Variable::Datum(Type::BOOL, true)), $3);
 	}
 	;
 
@@ -741,7 +738,8 @@ type_specifier
 		         "type_primitive"
 		         " '<' qualified_type_specifier_list '>'");
 		for (size_t i = 0; i < $4->size(); i++) {
-			$1->add_argument($4->at(i));
+			$1->add_argument(*($4->at(i)));
+			delete $4->at(i);
 		}
 		delete $4;
 		$$ = $1;
@@ -1117,14 +1115,13 @@ function_definition_statement
 		SYNTRACE("function_definition_statement",
 		         "simple_identifier '(' ')' compound_statement");
 		// A(){B}  =>  func A = ${B}
-		Type *type = new Type(Type::FUNC);
 		InitializedIdentifierList *var_list
 		    = new InitializedIdentifierList();
 		Expression *body = new FunctionLiteralExpression($4);
 		InitializedIdentifier *init_ident
 		    = new InitializedIdentifier($1, body);
 		var_list->push_back(init_ident);
-		$$ = new DefinitionStatement(type, var_list);
+		$$ = new DefinitionStatement(new Type(Type::FUNC), var_list);
 	}
 	| simple_identifier '(' parameter_declaration_list ')'
 	  compound_statement {
@@ -1132,7 +1129,6 @@ function_definition_statement
 		         "simple_identifier '(' parameter_declaration_list ')'"
 		         " compound_statement");
 		// Similar to above, but with named parameters.
-		Type *type = new Type(Type::FUNC);
 		InitializedIdentifierList *var_list
 		    = new InitializedIdentifierList();
 		//FIXME: should I unroll $3 here?
@@ -1140,7 +1136,7 @@ function_definition_statement
 		InitializedIdentifier *init_ident
 		    = new InitializedIdentifier($1, body);
 		var_list->push_back(init_ident);
-		$$ = new DefinitionStatement(type, var_list);
+		$$ = new DefinitionStatement(new Type(Type::FUNC), var_list);
 	}
 	;
 
