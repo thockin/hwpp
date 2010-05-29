@@ -9,7 +9,9 @@ namespace pp {
 namespace language {
 
 // This represents a fully qualified datatype, including type arguments if
-// applicable.
+// applicable.  Types are almost always passed around as instances, rather
+// than pointers because they are much easier to use that way.  They have
+// value semantics,so it makes sense.
 class Type {
     public:
 	enum Primitive {
@@ -58,7 +60,7 @@ class Type {
 
 	// This takes ownership of the 'arg' argument.
 	void
-	add_argument(const Type *arg);
+	add_argument(const Type &arg);
 
 	static string
 	primitive_to_string(Primitive prim);
@@ -67,7 +69,7 @@ class Type {
 	to_string() const;
 
 	bool
-	is_equal_to(const Type *other) const;
+	is_equal_to(const Type &other) const;
 
 	// Type assignability is strict.  There is no conversion between types
 	// at all.  The only soft spot is variables with spec-type var, which
@@ -80,7 +82,7 @@ class Type {
 	//   list<var> = list<$type>		OK
 	//   list<$type> = list<var>		NOT OK
 	bool
-	is_assignable_from(const Type *other) const;
+	is_assignable_from(const Type &other) const;
 
 	Primitive
 	primitive() const
@@ -100,7 +102,7 @@ class Type {
 		m_is_const = true;
 	}
 
-	const std::vector<const Type*> &
+	const std::vector<Type> &
 	arguments() const {
 		return m_arguments;
 	}
@@ -115,17 +117,17 @@ class Type {
 	// to make Type arguments easier, we keep a notion of constness here,
 	// which we copy into Variables as they are created.
 	bool m_is_const;
-	std::vector<const Type*> m_arguments;
+	std::vector<Type> m_arguments;
 };
 inline bool
 operator==(const Type &lhs, const Type &rhs)
 {
-	return lhs.is_equal_to(&rhs);
+	return lhs.is_equal_to(rhs);
 }
 inline bool
 operator!=(const Type &lhs, const Type &rhs)
 {
-	return !(lhs.is_equal_to(&rhs));
+	return !(lhs.is_equal_to(rhs));
 }
 
 // This represents a reference to an instance of a specific datatype.  All
@@ -208,27 +210,27 @@ class Variable {
 		// Initialize to the default value for a given type.  This
 		// takes ownership of the 'type' argument.
 		explicit
-		Datum(Type *type);
+		Datum(const Type &type);
 		// Make a deep-copy of another Datum.
 		Datum(const Datum &other);
 		// Initialize a specific type with a given value.
-		Datum(Type *type, bool value);
-		Datum(Type *type, const Value &value);
-		Datum(Type *type, const Func *value);
-		Datum(Type *type, const List *value);
-		Datum(Type *type, const string &value);
-		Datum(Type *type, const Tuple *value);
+		Datum(const Type &type, bool value);
+		Datum(const Type &type, const Value &value);
+		Datum(const Type &type, const Func *value);
+		Datum(const Type &type, const List *value);
+		Datum(const Type &type, const string &value);
+		Datum(const Type &type, const Tuple *value);
 
-		const Type *
+		const Type &
 		type() const
 		{
-			return m_type.get();
+			return m_type;
 		}
 
 		bool
 		is_assignable_from(const Datum *other) const
 		{
-			return type()->is_assignable_from(other->type());
+			return type().is_assignable_from(other->type());
 		}
 
 		// Access this value as a bool.  Throws Variable::TypeError if
@@ -293,7 +295,7 @@ class Variable {
 		{
 			// Once the value gets written, the type will no
 			// longer be var.
-			return (m_type->primitive() == Type::VAR);
+			return (m_type.primitive() == Type::VAR);
 		}
 
 	    private:
@@ -306,7 +308,7 @@ class Variable {
 		    public:
 			virtual Variable *
 			call() {
-				return new Variable(new Type(Type::VAR));
+				return new Variable(Type::VAR);
 			}
 		};
 
@@ -315,7 +317,7 @@ class Variable {
 		void
 		check_type_primitive(Type::Primitive primitive) const;
 
-		boost::scoped_ptr<Type> m_type;
+		Type m_type;
 		bool m_type_locked;
 
 		// These are essentially a union.  Only one is ever valid at a
@@ -340,8 +342,8 @@ class Variable {
 
 	// Initialize to the default value for a given type.
 	explicit
-	Variable(Type *type)
-	    : m_value(new Datum(type)), m_is_const(type->is_const())
+	Variable(const Type &type)
+	    : m_value(new Datum(type)), m_is_const(type.is_const())
 	{
 	}
 	// Initialize from another Variable.  NOTE: These make a reference,
@@ -355,56 +357,56 @@ class Variable {
 	{
 	}
 	// Init as bool.
-	Variable(Type *type, bool value)
-	    : m_value(new Datum(type, value)), m_is_const(type->is_const())
+	Variable(const Type &type, bool value)
+	    : m_value(new Datum(type, value)), m_is_const(type.is_const())
 	{
 	}
-	Variable(Type *type, Constness constness, bool value)
+	Variable(const Type &type, Constness constness, bool value)
 	    : m_value(new Datum(type, value)), m_is_const(constness)
 	{
 	}
 	// Init as func.
-	Variable(Type *type, const Func *value)
-	    : m_value(new Datum(type, value)), m_is_const(type->is_const())
+	Variable(const Type &type, const Func *value)
+	    : m_value(new Datum(type, value)), m_is_const(type.is_const())
 	{
 	}
-	Variable(Type *type, Constness constness, const Func *value)
+	Variable(const Type &type, Constness constness, const Func *value)
 	    : m_value(new Datum(type, value)), m_is_const(constness)
 	{
 	}
 	// Init as int.
-	Variable(Type *type, const Value &value)
-	    : m_value(new Datum(type, value)), m_is_const(type->is_const())
+	Variable(const Type &type, const Value &value)
+	    : m_value(new Datum(type, value)), m_is_const(type.is_const())
 	{
 	}
-	Variable(Type *type, Constness constness, const Value &value)
+	Variable(const Type &type, Constness constness, const Value &value)
 	    : m_value(new Datum(type, value)), m_is_const(constness)
 	{
 	}
 	// Init as list.
-	Variable(Type *type, const List *value)
-	    : m_value(new Datum(type, value)), m_is_const(type->is_const())
+	Variable(const Type &type, const List *value)
+	    : m_value(new Datum(type, value)), m_is_const(type.is_const())
 	{
 	}
-	Variable(Type *type, Constness constness, const List *value)
+	Variable(const Type &type, Constness constness, const List *value)
 	    : m_value(new Datum(type, value)), m_is_const(constness)
 	{
 	}
 	// Init as string.
-	Variable(Type *type, const string &value)
-	    : m_value(new Datum(type, value)), m_is_const(type->is_const())
+	Variable(const Type &type, const string &value)
+	    : m_value(new Datum(type, value)), m_is_const(type.is_const())
 	{
 	}
-	Variable(Type *type, Constness constness, const string &value)
+	Variable(const Type &type, Constness constness, const string &value)
 	    : m_value(new Datum(type, value)), m_is_const(constness)
 	{
 	}
 	// Init as tuple.
-	Variable(Type *type, const Tuple *value)
-	    : m_value(new Datum(type, value)), m_is_const(type->is_const())
+	Variable(const Type &type, const Tuple *value)
+	    : m_value(new Datum(type, value)), m_is_const(type.is_const())
 	{
 	}
-	Variable(Type *type, Constness constness, const Tuple *value)
+	Variable(const Type &type, Constness constness, const Tuple *value)
 	    : m_value(new Datum(type, value)), m_is_const(constness)
 	{
 	}
@@ -421,7 +423,7 @@ class Variable {
 		return m_is_const;
 	}
 
-	const Type *
+	const Type &
 	type() const
 	{
 		return m_value->type();

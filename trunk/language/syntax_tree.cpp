@@ -420,7 +420,7 @@ static string
 datum_to_string(const Variable::Datum *datum)
 {
 	string ret;
-	switch (datum->type()->primitive()) {
+	switch (datum->type().primitive()) {
 	 case Type::BOOL:
 		ret += sprintfxx("%s",
 		    datum->bool_value() ? "true" : "false");
