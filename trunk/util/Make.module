@@ -3,6 +3,7 @@ TESTS += \
 	util/tests/bit_buffer_test \
 	util/tests/filesystem_test \
 	util/tests/keyed_vector_test \
+	util/tests/pointer_test \
 	util/tests/printfxx_test \
 	util/tests/regex_test \
 	util/tests/sockets_test \
