@@ -27,6 +27,14 @@ Type::reinit(Primitive prim)
 	m_primitive = prim;
 	m_is_const = false;
 }
+void
+Type::reinit(Primitive prim, Type::Constness constness)
+{
+	// Clean up arguments.
+	m_arguments.clear();
+	m_primitive = prim;
+	m_is_const = constness;
+}
 
 void
 Type::add_argument(const Type &arg)
@@ -98,11 +106,13 @@ Type::is_equal_to(const Type &other) const
 
 // See comment in header.
 bool
-Type::is_assignable_from(const Type &other) const
+Type::is_assignable_from(const Type &other, IgnoreConst ignore_const) const
 {
-	// Const types are never assignable.
-	if (m_is_const) {
-		return false;
+	if (!ignore_const) {
+		// Const types are never assignable.
+		if (m_is_const) {
+			return false;
+		}
 	}
 	// VAR is assignable from anything.
 	if (m_primitive == VAR) {
@@ -118,11 +128,16 @@ Type::is_assignable_from(const Type &other) const
 	for (size_t i = 0; i < m_arguments.size(); i++) {
 		const Type &lhs = m_arguments[i];
 		const Type &rhs = other.m_arguments[i];
-		if (!lhs.is_assignable_from(rhs)) {
+		if (!lhs.is_assignable_from(rhs, ignore_const)) {
 			return false;
 		}
 	}
 	return true;
+}
+bool
+Type::is_assignable_from(const Type &other) const
+{
+	return is_assignable_from(other, DONT_IGNORE_CONST);
 }
 
 void

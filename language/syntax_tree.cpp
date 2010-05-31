@@ -85,10 +85,6 @@ ExpressionStatement::to_string() const
 bool
 ExpressionStatement::execute()
 {
-	if (expression()) {
-		// NULL statement.
-		return true;
-	}
 	//FIXME:
 	return true;
 }
@@ -469,13 +465,13 @@ datum_to_string(const Variable::Datum *datum)
 }
 
 string
-ValueExpression::to_string() const
+LiteralExpression::to_string() const
 {
 	return datum_to_string(m_value.get());
 }
 
 void
-ValueExpression::evaluate(Variable *out_result)
+LiteralExpression::evaluate(Variable *out_result)
 {
 	//FIXME:
 	(void)out_result;

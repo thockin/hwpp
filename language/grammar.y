@@ -46,7 +46,6 @@
 	pp::language::syntax::BinaryExpression::Operator binary_op;
 	pp::language::syntax::Argument *arg;
 	pp::language::syntax::ArgumentList *arg_list;
-	pp::language::syntax::ExpressionStatement *expr_stmt;
 	pp::language::syntax::DefinitionStatement *defn_stmt;
 	pp::language::syntax::ParameterDeclaration *param_decl;
 	pp::language::syntax::ParameterDeclarationList *param_decl_list;
@@ -107,6 +106,7 @@ pp__language__internal__pop_lexer_state(yyscan_t scanner);
                          unary_expression postfix_expression
                          subscript_expression function_call_expression
                          function_literal list_literal
+                         expression_or_nothing
 %type  <unary_op>        unary_operator
 %type  <binary_op>       assignment_operator
 %type  <arg>             argument
@@ -120,13 +120,12 @@ pp__language__internal__pop_lexer_state(yyscan_t scanner);
 %type  <stmt>            file_scope_item
                          statement labeled_statement
                          discover_statement import_statement module_statement
-                         compound_statement
+                         compound_statement empty_statement expression_statement
                          branch_statement loop_statement jump_statement
 %type  <defn_stmt>       definition_statement
                          variable_definition_statement
                          function_definition_statement
 %type  <stmt_list>       statement_list
-%type  <expr_stmt>       expression_statement
 %type  <type>            type_primitive type_specifier qualified_type_specifier
 %type  <type_list>       qualified_type_specifier_list
 %type  <param_decl>      parameter_declaration
@@ -192,16 +191,19 @@ primary_expression
 	}
 	| TOK_BOOL_LITERAL {
 		SYNTRACE("primary_expression", "BOOL_LITERAL");
-		$$ = new ValueExpression(new Variable::Datum(Type::BOOL, $1));
+		$$ = new LiteralExpression(
+		    new Variable::Datum(Type(Type::BOOL, Type::CONST), $1));
 	}
 	| TOK_INT_LITERAL {
 		SYNTRACE("primary_expression", "INT_LITERAL");
-		$$ = new ValueExpression(new Variable::Datum(Type::INT, *$1));
+		$$ = new LiteralExpression(
+		     new Variable::Datum(Type(Type::INT, Type::CONST), *$1));
 		delete $1;
 	}
 	| string_literal {
 		SYNTRACE("primary_expression", "string_literal");
-		$$ = new ValueExpression(new Variable::Datum(Type::STRING, *$1));
+		$$ = new LiteralExpression(
+		    new Variable::Datum(Type(Type::STRING, Type::CONST), *$1));
 		delete $1;
 	}
 	| list_literal {
@@ -233,7 +235,7 @@ string_literal
 list_literal
 	: '[' ']' {
 		SYNTRACE("list_literal", "'[' ']'");
-		$$ = new ListLiteralExpression();
+		$$ = new ListLiteralExpression(new ArgumentList());
 	}
 	| '[' argument_list ']' {
 		SYNTRACE("list_literal", "'[' argument_list ']'");
@@ -346,7 +348,7 @@ unary_expression
 		$$ = $1;
 	}
 	| unary_operator unary_expression {
-		SYNTRACE("unary_expression", "unary_operator cast_expression");
+		SYNTRACE("unary_expression", "unary_operator unary_expression");
 		$$ = new UnaryExpression($1, $2);
 	}
 	;
@@ -542,11 +544,11 @@ and_and_expression
 		// (A && B)  =>  (A == true) ? B : false
 		Expression *cond = new BinaryExpression(
 		    BinaryExpression::OP_EQ, $1,
-		    new ValueExpression(
-		        new Variable::Datum(Type::BOOL, true)));
+		    new LiteralExpression(new Variable::Datum(
+		        Type(Type::BOOL, Type::CONST), true)));
 		$$ = new ConditionalExpression(cond, $3,
-		    new ValueExpression(
-		        new Variable::Datum(Type::BOOL, false)));
+		    new LiteralExpression(new Variable::Datum(
+		        Type(Type::BOOL, Type::CONST), false)));
 	}
 	;
 
@@ -561,11 +563,11 @@ or_or_expression
 		// (A || B)  =>  (A == true) ? true : B
 		Expression *cond = new BinaryExpression(
 		    BinaryExpression::OP_EQ, $1,
-		    new ValueExpression(
-		        new Variable::Datum(Type::BOOL, true)));
+		    new LiteralExpression(new Variable::Datum(
+		        Type(Type::BOOL, Type::CONST), true)));
 		$$ = new ConditionalExpression(cond,
-		    new ValueExpression(
-		        new Variable::Datum(Type::BOOL, true)), $3);
+		    new LiteralExpression(new Variable::Datum(
+		       Type(Type::BOOL, Type::CONST), true)), $3);
 	}
 	;
 
@@ -751,6 +753,10 @@ statement
 		SYNTRACE("statement", "labeled_statement");
 		$$ = $1;
 	}
+	| empty_statement {
+		SYNTRACE("statement", "empty_statement");
+		$$ = $1;
+	}
 	| compound_statement {
 		SYNTRACE("statement", "compound_statement");
 		$$ = $1;
@@ -797,6 +803,13 @@ labeled_statement
 	}
 	;
 
+empty_statement
+	: ';' {
+		SYNTRACE("empty_statement", "';'");
+		$$ = new NullStatement();
+	}
+	;
+
 compound_statement
 	: '{' '}' {
 		SYNTRACE("compound_statement", "'{' '}'");
@@ -822,11 +835,7 @@ statement_list
 	;
 
 expression_statement
-	: ';' {
-		SYNTRACE("expression_statement", "';'");
-		$$ = new ExpressionStatement();
-	}
-	| expression ';' {
+	: expression ';' {
 		SYNTRACE("expression_statement", "expression ';'");
 		$$ = new ExpressionStatement($1);
 	}
@@ -856,6 +865,16 @@ branch_statement
 		SYNTRACE("branch_statement",
 		         "SWITCH '(' expression ')' compound_statement");
 		$$ = new SwitchStatement($3, $5);
+	}
+	;
+
+expression_or_nothing
+	: expression {
+		$$ = $1;
+	}
+	| {
+		$$ = new LiteralExpression(
+		    new Variable::Datum(Type(Type::BOOL, Type::CONST), true));
 	}
 	;
 
@@ -901,30 +920,13 @@ loop_statement
 		stmts->push_back(nop);
 		$$ = new CompoundStatement(stmts);
 	}
-	| TOK_FOR '(' expression_statement
-	              expression_statement ')' compound_statement {
+	| TOK_FOR '(' expression_or_nothing ';'
+	              expression_or_nothing ';'
+	              expression_or_nothing ')' compound_statement {
 		SYNTRACE("loop_statement",
-		         "FOR '(' expression_statement"
-		         " expression_statement ')' compound_statement");
-		// for (i=0; i<n;) {A;}
-		//     becomes
-		// { i=0; @loop_continue: while (i<n) {A;} @loop_break: <nop> }
-		StatementList *stmts = new StatementList();
-		stmts->push_back($3);
-		Statement *loop = new WhileLoopStatement($4, $6);
-		loop->add_label(new Identifier("@loop_continue"));
-		stmts->push_back(loop);
-		Statement *nop = new NullStatement();
-		nop->add_label(new Identifier("@loop_break"));
-		stmts->push_back(nop);
-		$$ = new CompoundStatement(stmts);
-	}
-	| TOK_FOR '(' expression_statement
-	              expression_statement
-	              expression ')' compound_statement {
-		SYNTRACE("loop_statement",
-		         "FOR '(' expression_statement expression_statement"
-		         " expression ')' compound_statement");
+		         "FOR '(' expression_or_nothing ';'"
+		         " expression_or_nothing ';' expression_or_nothing ')'"
+		         " compound_statement");
 		// for (i=0; i<n; i++) {A;}
 		//     becomes
 		// {
@@ -936,12 +938,12 @@ loop_statement
 		//   @loop_break: <nop>
 		// }
 		StatementList *stmts = new StatementList();
-		stmts->push_back($3);
+		stmts->push_back(new ExpressionStatement($3));
 		StatementList *body_stmts = new StatementList();
-		body_stmts->push_back($7);
-		body_stmts->push_back(new ExpressionStatement($5));
+		body_stmts->push_back($9);
+		body_stmts->push_back(new ExpressionStatement($7));
 		CompoundStatement *body = new CompoundStatement(body_stmts);
-		Statement *loop = new WhileLoopStatement($4, body);
+		Statement *loop = new WhileLoopStatement($5, body);
 		loop->add_label(new Identifier("@loop_continue"));
 		stmts->push_back(loop);
 		Statement *nop = new NullStatement();
@@ -950,29 +952,11 @@ loop_statement
 		$$ = new CompoundStatement(stmts);
 	}
 	| TOK_FOR '(' variable_definition_statement
-	              expression_statement ')' compound_statement {
+	              expression_or_nothing ';'
+	              expression_or_nothing ')' compound_statement {
 		SYNTRACE("loop_statement",
 		         "FOR '(' variable_definition_statement"
-		         " expression_statement ')' compound_statement");
-		// for (int i=0; i<n) {A;}
-		//     becomes
-		// { int i=0; while (i<n) {A;} }
-		StatementList *stmts = new StatementList();
-		stmts->push_back($3);
-		Statement *loop = new WhileLoopStatement($4, $6);
-		loop->add_label(new Identifier("@loop_continue"));
-		stmts->push_back(loop);
-		Statement *nop = new NullStatement();
-		nop->add_label(new Identifier("@loop_break"));
-		stmts->push_back(nop);
-		$$ = new CompoundStatement(stmts);
-	}
-	| TOK_FOR '(' variable_definition_statement
-	              expression_statement
-	              expression ')' compound_statement {
-		SYNTRACE("loop_statement",
-		         "FOR '(' variable_definition_statement"
-		         " expression_statement expression ')'"
+		         " expression_or_nothing ';' expression_or_nothing ')'"
 		         " compound_statement");
 		// for (int i=0; i<n; i++) {A;}
 		//     becomes
@@ -987,8 +971,8 @@ loop_statement
 		StatementList *stmts = new StatementList();
 		stmts->push_back($3);
 		StatementList *body_stmts = new StatementList();
-		body_stmts->push_back($7);
-		body_stmts->push_back(new ExpressionStatement($5));
+		body_stmts->push_back($8);
+		body_stmts->push_back(new ExpressionStatement($6));
 		CompoundStatement *body = new CompoundStatement(body_stmts);
 		Statement *loop = new WhileLoopStatement($4, body);
 		loop->add_label(new Identifier("@loop_continue"));
