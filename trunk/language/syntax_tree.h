@@ -11,6 +11,7 @@
 #include <vector>
 #include <boost/scoped_ptr.hpp>
 #include "pp/language/variable.h"
+#include "pp/util/pointer.h"
 
 namespace pp {
 namespace language {
@@ -26,7 +27,15 @@ class SyntaxNode {
 		TYPE_ARGUMENT,      // a named function call argument
 	};
 
-	NodeType node_type()
+	struct Error: public std::runtime_error
+	{
+		explicit Error(const std::string &str)
+		    : runtime_error(str)
+		{
+		}
+	};
+
+	NodeType node_type() const
 	{
 		return m_node_type;
 	}
@@ -34,6 +43,18 @@ class SyntaxNode {
 	// Produce a string representation of this node.  For complex nodes
 	// which contain other nodes, this will be recursive.
 	virtual string to_string() const = 0;
+
+	// Validate this node.  What 'validate' means depends entirely on the
+	// node and the flags, which is a mask of enum ValidateFlag.  Returns
+	// the number of warnings.  Throws SyntaxNode::Error when a hard error
+	// is detected.
+	enum ValidateFlag {
+		VALIDATE_TYPES   = 0x1, // Make sure types match where possible.
+		VALIDATE_VAR_USE = 0x2, // Warn when a 'var' type is used in a
+		                        //   potentially unsafe way.
+		VALIDATE_SYMBOLS = 0x4, // Validate all symbol references.
+	};
+	virtual int validate(uint64_t flags) const = 0;
 
     protected:
 	SyntaxNode(NodeType node_type) : m_node_type(node_type)
@@ -58,6 +79,9 @@ class Expression : public SyntaxNode {
 	virtual ~Expression()
 	{
 	}
+
+	// Get the type of this expression.
+	virtual const Type &result_type() const = 0;
 
 	// Evaluate this expression, producing a result.
 	virtual void evaluate(Variable *out_result) = 0;
@@ -87,6 +111,12 @@ class Identifier : public SyntaxNode {
 
 	virtual string to_string() const;
 
+	virtual int validate(uint64_t flags) const {
+		//FIXME: ensure that the module and symbol are valid
+		(void)flags;
+		return 0;
+	}
+
     private:
 	string m_module;
 	string m_symbol;
@@ -97,30 +127,33 @@ class InitializedIdentifier : public SyntaxNode {
 	InitializedIdentifier(Identifier *ident)
 	    : SyntaxNode(TYPE_IDENTIFIER), m_ident(ident), m_init(NULL)
 	{
-		DASSERT(ident);
 	}
 	InitializedIdentifier(Identifier *ident, Expression *init)
 	    : SyntaxNode(TYPE_IDENTIFIER), m_ident(ident), m_init(init)
 	{
-		DASSERT(ident);
-		DASSERT(init);
 	}
 
-	Identifier *identifier()
+	Identifier *identifier() const
 	{
 		return m_ident.get();
 	}
 
-	Expression *initializer()
+	Expression *initializer() const
 	{
 		return m_init.get();
 	}
 
 	virtual string to_string() const;
 
+	virtual int validate(uint64_t flags) const
+	{
+		(void)flags; //FIXME:
+		return 0;
+	}
+
     private:
-	boost::scoped_ptr<Identifier> m_ident;
-	boost::scoped_ptr<Expression> m_init;
+	util::NeverNullScopedPtr<Identifier> m_ident;
+	util::MaybeNullScopedPtr<Expression> m_init;
 };
 typedef std::vector<InitializedIdentifier*> InitializedIdentifierList;
 
@@ -143,13 +176,19 @@ class Statement : public SyntaxNode {
 	// Get a string representation of this statement.
 	virtual string to_string() const;
 
-	std::vector<Identifier*> &labels()
+	const std::vector<Identifier*> &labels() const
 	{
 		return m_labels;
 	}
 	void add_label(Identifier *label)
 	{
 		m_labels.push_back(label);
+	}
+
+	virtual int validate(uint64_t flags) const
+	{
+		(void)flags; //FIXME: check labels
+		return 0;
 	}
 
     private:
@@ -162,30 +201,33 @@ class Argument : public SyntaxNode {
 	Argument(Expression *expr)
 	    : SyntaxNode(TYPE_ARGUMENT), m_name(NULL), m_expr(expr)
 	{
-		DASSERT(expr);
 	}
 	Argument(Identifier *name, Expression *expr)
 	    : SyntaxNode(TYPE_ARGUMENT), m_name(name), m_expr(expr)
 	{
-		DASSERT(name);
-		DASSERT(expr);
 	}
 
-	Identifier *name()
+	Identifier *name() const
 	{
 		return m_name.get();
 	}
 
-	Expression *expression()
+	Expression *expression() const
 	{
 		return m_expr.get();
 	}
 
 	virtual string to_string() const;
 
+	virtual int validate(uint64_t flags) const
+	{
+		(void)flags; //FIXME:
+		return 0;
+	}
+
     private:
-	boost::scoped_ptr<Identifier> m_name;
-	boost::scoped_ptr<Expression> m_expr;
+	util::MaybeNullScopedPtr<Identifier> m_name;
+	util::NeverNullScopedPtr<Expression> m_expr;
 };
 typedef std::vector<Argument*> ArgumentList;
 
@@ -200,16 +242,20 @@ class NullStatement : public Statement {
 	virtual bool execute();
 
 	virtual string to_string() const;
+
+	virtual int validate(uint64_t /*flags*/) const
+	{
+		return 0;
+	}
 };
 
 class CompoundStatement : public Statement {
     public:
 	CompoundStatement(StatementList *body) : m_body(body)
 	{
-		DASSERT(body);
 	}
 
-	StatementList *body()
+	StatementList *body() const
 	{
 		return m_body.get();
 	}
@@ -218,37 +264,42 @@ class CompoundStatement : public Statement {
 
 	virtual string to_string() const;
 
+	virtual int validate(uint64_t flags) const
+	{
+		int warnings = 0;
+		for (size_t i = 0; i < m_body->size(); i++) {
+			warnings += m_body->at(i)->validate(flags);
+		}
+		return warnings;
+	}
+
     private:
-	boost::scoped_ptr<StatementList> m_body;
+	util::NeverNullScopedPtr<StatementList> m_body;
 };
 
-// Both and expression and a statement.
-class ExpressionStatement : public Expression, public Statement {
+class ExpressionStatement : public Statement {
     public:
-	ExpressionStatement() : m_expr(NULL)
-	{
-	}
 	ExpressionStatement(Expression *expr) : m_expr(expr)
 	{
-		DASSERT(expr);
 	}
 
-	Expression *expression()
+	Expression *expression() const
 	{
 		return m_expr.get();
-	}
-
-	virtual void evaluate(Variable *out_result)
-	{
-		m_expr->evaluate(out_result);
 	}
 
 	virtual bool execute();
 
 	virtual string to_string() const;
 
+	virtual int validate(uint64_t flags) const
+	{
+		(void)flags; //FIXME:
+		return 0;
+	}
+
     private:
-	boost::scoped_ptr<Expression> m_expr;
+	util::NeverNullScopedPtr<Expression> m_expr;
 };
 
 class ConditionalStatement : public Statement {
@@ -256,29 +307,24 @@ class ConditionalStatement : public Statement {
 	ConditionalStatement(Expression *condition, Statement *true_case)
 	    : m_condition(condition), m_true(true_case), m_false(NULL)
 	{
-		DASSERT(condition);
-		DASSERT(true_case);
 	}
 	ConditionalStatement(Expression *condition, Statement *true_case,
 	                     Statement *false_case)
 	    : m_condition(condition), m_true(true_case), m_false(false_case)
 	{
-		DASSERT(condition);
-		DASSERT(true_case);
-		DASSERT(false_case);
 	}
 
-	Expression *condition()
+	Expression *condition() const
 	{
 		return m_condition.get();
 	}
 
-	Statement *true_case()
+	Statement *true_case() const
 	{
 		return m_true.get();
 	}
 
-	Statement *false_case()
+	Statement *false_case() const
 	{
 		return m_false.get();
 	}
@@ -287,10 +333,16 @@ class ConditionalStatement : public Statement {
 
 	virtual string to_string() const;
 
+	virtual int validate(uint64_t flags) const
+	{
+		(void)flags; //FIXME:
+		return 0;
+	}
+
     private:
-	boost::scoped_ptr<Expression> m_condition;
-	boost::scoped_ptr<Statement> m_true;
-	boost::scoped_ptr<Statement> m_false;
+	util::NeverNullScopedPtr<Expression> m_condition;
+	util::NeverNullScopedPtr<Statement> m_true;
+	util::MaybeNullScopedPtr<Statement> m_false;
 };
 
 class SwitchStatement : public Statement {
@@ -298,16 +350,14 @@ class SwitchStatement : public Statement {
 	SwitchStatement(Expression *condition, Statement *body)
 	    : m_condition(condition), m_body(body)
 	{
-		DASSERT(condition);
-		DASSERT(body);
 	}
 
-	Expression *condition()
+	Expression *condition() const
 	{
 		return m_condition.get();
 	}
 
-	Statement *body()
+	Statement *body() const
 	{
 		return m_body.get();
 	}
@@ -316,9 +366,15 @@ class SwitchStatement : public Statement {
 
 	virtual string to_string() const;
 
+	virtual int validate(uint64_t flags) const
+	{
+		(void)flags; //FIXME:
+		return 0;
+	}
+
     private:
-	boost::scoped_ptr<Expression> m_condition;
-	boost::scoped_ptr<Statement> m_body;
+	util::NeverNullScopedPtr<Expression> m_condition;
+	util::NeverNullScopedPtr<Statement> m_body;
 };
 
 class LoopStatement : public Statement {
@@ -331,8 +387,6 @@ class LoopStatement : public Statement {
 	                  Statement *body)
 	    : m_loop_type(loop_type), m_expr(expr), m_body(body)
 	{
-		DASSERT(expr);
-		DASSERT(body);
 	}
 
 	LoopType loop_type() const
@@ -354,8 +408,8 @@ class LoopStatement : public Statement {
 
     private:
 	LoopType m_loop_type;
-	boost::scoped_ptr<Expression> m_expr;
-	boost::scoped_ptr<Statement> m_body;
+	util::NeverNullScopedPtr<Expression> m_expr;
+	util::NeverNullScopedPtr<Statement> m_body;
 };
 
 class WhileLoopStatement : public LoopStatement {
@@ -363,11 +417,15 @@ class WhileLoopStatement : public LoopStatement {
 	WhileLoopStatement(Expression *expr, Statement *body)
 	    : LoopStatement(LOOP_WHILE, expr, body)
 	{
-		DASSERT(body);
-		DASSERT(expr);
 	}
 
 	virtual string to_string() const;
+
+	virtual int validate(uint64_t flags) const
+	{
+		(void)flags; //FIXME:
+		return 0;
+	}
 };
 
 class DoWhileLoopStatement : public LoopStatement {
@@ -375,21 +433,24 @@ class DoWhileLoopStatement : public LoopStatement {
 	DoWhileLoopStatement(Statement *body, Expression *expr)
 	    : LoopStatement(LOOP_DO_WHILE, expr, body)
 	{
-		DASSERT(body);
-		DASSERT(expr);
 	}
 
 	virtual string to_string() const;
+
+	virtual int validate(uint64_t flags) const
+	{
+		(void)flags; //FIXME:
+		return 0;
+	}
 };
 
 class GotoStatement : public Statement {
     public:
 	GotoStatement(Identifier *target) : m_target(target)
 	{
-		DASSERT(target);
 	}
 
-	Identifier *target()
+	Identifier *target() const
 	{
 		return m_target.get();
 	}
@@ -398,8 +459,14 @@ class GotoStatement : public Statement {
 
 	virtual string to_string() const;
 
+	virtual int validate(uint64_t flags) const
+	{
+		(void)flags; //FIXME:
+		return 0;
+	}
+
     private:
-	boost::scoped_ptr<Identifier> m_target;
+	util::NeverNullScopedPtr<Identifier> m_target;
 };
 
 class CaseStatement : public Statement {
@@ -407,16 +474,14 @@ class CaseStatement : public Statement {
 	CaseStatement(Expression *expr, Statement *statement)
 	    : m_expr(expr), m_statement(statement)
 	{
-		DASSERT(expr);
-		DASSERT(statement);
 	}
 
-	Expression *expression()
+	Expression *expression() const
 	{
 		return m_expr.get();
 	}
 
-	Statement *statement()
+	Statement *statement() const
 	{
 		return m_statement.get();
 	}
@@ -425,9 +490,15 @@ class CaseStatement : public Statement {
 
 	virtual string to_string() const;
 
+	virtual int validate(uint64_t flags) const
+	{
+		(void)flags; //FIXME:
+		return 0;
+	}
+
     private:
-	boost::scoped_ptr<Expression> m_expr;
-	boost::scoped_ptr<Statement> m_statement;
+	util::NeverNullScopedPtr<Expression> m_expr;
+	util::NeverNullScopedPtr<Statement> m_statement;
 };
 
 class ReturnStatement : public Statement {
@@ -437,10 +508,9 @@ class ReturnStatement : public Statement {
 	}
 	ReturnStatement(Expression *expr) : m_expr(expr)
 	{
-		DASSERT(expr);
 	}
 
-	Expression *expression()
+	Expression *expression() const
 	{
 		return m_expr.get();
 	}
@@ -449,8 +519,14 @@ class ReturnStatement : public Statement {
 
 	virtual string to_string() const;
 
+	virtual int validate(uint64_t flags) const
+	{
+		(void)flags; //FIXME:
+		return 0;
+	}
+
     private:
-	boost::scoped_ptr<Expression> m_expr;
+	util::MaybeNullScopedPtr<Expression> m_expr;
 };
 
 class DefinitionStatement : public Statement {
@@ -459,8 +535,6 @@ class DefinitionStatement : public Statement {
 	                    const InitializedIdentifierList *vars)
 	    : m_public(false), m_type(type), m_vars(vars)
 	{
-		DASSERT(type);
-		DASSERT(vars);
 	}
 
 	void set_public()
@@ -472,10 +546,16 @@ class DefinitionStatement : public Statement {
 
 	virtual string to_string() const;
 
+	virtual int validate(uint64_t flags) const
+	{
+		(void)flags; //FIXME:
+		return 0;
+	}
+
     private:
 	bool m_public;
-	boost::scoped_ptr<const Type> m_type;
-	boost::scoped_ptr<const InitializedIdentifierList> m_vars;
+	util::NeverNullScopedPtr<const Type> m_type;
+	util::NeverNullScopedPtr<const InitializedIdentifierList> m_vars;
 };
 
 class ImportStatement : public Statement {
@@ -492,6 +572,12 @@ class ImportStatement : public Statement {
 	virtual bool execute();
 
 	virtual string to_string() const;
+
+	virtual int validate(uint64_t flags) const
+	{
+		(void)flags; //FIXME:
+		return 0;
+	}
 
     private:
 	const string m_argument;
@@ -512,6 +598,12 @@ class ModuleStatement : public Statement {
 
 	virtual string to_string() const;
 
+	virtual int validate(uint64_t flags) const
+	{
+		(void)flags; //FIXME:
+		return 0;
+	}
+
     private:
 	const string m_argument;
 };
@@ -520,7 +612,6 @@ class DiscoverStatement : public Statement {
     public:
 	DiscoverStatement(ArgumentList *args) : m_args(args)
 	{
-		DASSERT(args);
 	}
 
 	ArgumentList *args() const
@@ -532,15 +623,22 @@ class DiscoverStatement : public Statement {
 
 	virtual string to_string() const;
 
+	virtual int validate(uint64_t flags) const
+	{
+		(void)flags; //FIXME:
+		return 0;
+	}
+
     private:
-	boost::scoped_ptr<ArgumentList> m_args;
+	util::NeverNullScopedPtr<ArgumentList> m_args;
 };
+
+static Type undefined_type(Type::VAR); //FIXME: get rid of this
 
 class IdentifierExpression : public Expression {
     public:
 	IdentifierExpression(Identifier *ident) : m_ident(ident)
 	{
-		DASSERT(ident);
 	}
 
 	Identifier *identifier()
@@ -548,12 +646,24 @@ class IdentifierExpression : public Expression {
 		return m_ident.get();
 	}
 
+	virtual const Type &result_type() const
+	{
+		//FIXME:
+		return undefined_type;
+	}
+
 	virtual void evaluate(Variable *out_result);
 
 	virtual string to_string() const;
 
+	virtual int validate(uint64_t flags) const
+	{
+		(void)flags; //FIXME:
+		return 0;
+	}
+
     private:
-	boost::scoped_ptr<Identifier> m_ident;
+	util::NeverNullScopedPtr<Identifier> m_ident;
 };
 
 class SubscriptExpression : public Expression {
@@ -561,27 +671,37 @@ class SubscriptExpression : public Expression {
 	SubscriptExpression(Expression *expr, Expression *index)
 	    : m_expr(expr), m_index(index)
 	{
-		DASSERT(expr);
-		DASSERT(index);
 	}
 
-	Expression *expression()
+	Expression *expression() const
 	{
 		return m_expr.get();
 	}
 
-	Expression *index()
+	Expression *index() const
 	{
 		return m_index.get();
+	}
+
+	virtual const Type &result_type() const
+	{
+		//FIXME:
+		return undefined_type;
 	}
 
 	virtual void evaluate(Variable *out_result);
 
 	virtual string to_string() const;
 
+	virtual int validate(uint64_t flags) const
+	{
+		(void)flags; //FIXME:
+		return 0;
+	}
+
     private:
-	boost::scoped_ptr<Expression> m_expr;
-	boost::scoped_ptr<Expression> m_index;
+	util::NeverNullScopedPtr<Expression> m_expr;
+	util::NeverNullScopedPtr<Expression> m_index;
 };
 
 class FunctionCallExpression : public Expression {
@@ -589,32 +709,41 @@ class FunctionCallExpression : public Expression {
 	FunctionCallExpression(Expression *expr)
 	    : m_expr(expr), m_args(NULL)
 	{
-		DASSERT(expr);
 	}
 	FunctionCallExpression(Expression *expr, ArgumentList *args)
 	    : m_expr(expr), m_args(args)
 	{
-		DASSERT(expr);
-		DASSERT(args);
 	}
 
-	Expression *expression()
+	Expression *expression() const
 	{
 		return m_expr.get();
 	}
 
-	ArgumentList *args()
+	ArgumentList *args() const
 	{
 		return m_args.get();
+	}
+
+	virtual const Type &result_type() const
+	{
+		//FIXME:
+		return undefined_type;
 	}
 
 	virtual void evaluate(Variable *out_result);
 
 	virtual string to_string() const;
 
+	virtual int validate(uint64_t flags) const
+	{
+		(void)flags; //FIXME:
+		return 0;
+	}
+
     private:
-	boost::scoped_ptr<Expression> m_expr;
-	boost::scoped_ptr<ArgumentList> m_args;
+	util::NeverNullScopedPtr<Expression> m_expr;
+	util::MaybeNullScopedPtr<ArgumentList> m_args;
 };
 
 class UnaryExpression : public Expression {
@@ -631,9 +760,34 @@ class UnaryExpression : public Expression {
 	};
 
 	UnaryExpression(Operator op, Expression *expr)
-	    : m_op(op), m_expr(expr)
+	    : m_op(op), m_expr(expr), m_result_type(Type::VAR)
 	{
-		DASSERT(expr);
+		const Type &expr_type = m_expr->result_type();
+
+		switch (m_op) {
+		 case OP_NOT:
+			if (expr_type != Type::BOOL && expr_type != Type::VAR) {
+				throw syntax_error(
+				    "expected bool expression, found '%s'",
+				    expr_type);
+			}
+			m_result_type = Type::BOOL;
+			break;
+		 case OP_POS:
+		 case OP_NEG:
+		 case OP_BITNOT:
+		 case OP_PREINC:
+		 case OP_PREDEC:
+		 case OP_POSTINC:
+		 case OP_POSTDEC:
+			if (expr_type != Type::INT && expr_type != Type::VAR) {
+				throw syntax_error(
+				    "expected int expression, found '%s'",
+				    expr_type);
+			}
+			m_result_type = Type::INT;
+			break;
+		}
 	}
 
 	Operator op() const
@@ -641,18 +795,53 @@ class UnaryExpression : public Expression {
 		return m_op;
 	}
 
-	Expression *expression()
+	Expression *expression() const
 	{
 		return m_expr.get();
+	}
+
+	virtual const Type &result_type() const
+	{
+		return m_result_type;
 	}
 
 	virtual void evaluate(Variable *out_result);
 
 	virtual string to_string() const;
 
+	virtual int validate(uint64_t flags) const
+	{
+		int warnings = 0;
+		if (flags & (VALIDATE_TYPES | VALIDATE_VAR_USE)) {
+			const Type &t = m_expr->result_type();
+			if (flags & VALIDATE_VAR_USE) {
+				warnings += validate_var_use(t);
+			}
+		}
+		return warnings;
+	}
+
+	//FIXME: make file static
+	int validate_var_use(const Type &t) const {
+		if (t.primitive() == Type::VAR) {
+			// FIXME:
+			// emit_warning(
+			//     "potential runtime error: %s of a 'var' type");
+			return 1;
+		}
+		return 0;
+	}
+
     private:
+	SyntaxNode::Error
+	syntax_error(const string &fmt, const Type &type)
+	{
+		return SyntaxNode::Error(sprintfxx(fmt, type.to_string()));
+	}
+
 	Operator m_op;
-	boost::scoped_ptr<Expression> m_expr;
+	util::NeverNullScopedPtr<Expression> m_expr;
+	Type m_result_type;
 };
 
 class BinaryExpression : public Expression {
@@ -688,12 +877,78 @@ class BinaryExpression : public Expression {
 		OP_XOR_ASSIGN,
 	};
 
-	BinaryExpression(Operator op, Expression *lhs,
-	                     Expression *rhs)
-	    : m_op(op), m_lhs(lhs), m_rhs(rhs)
+	BinaryExpression(Operator op, Expression *lhs, Expression *rhs)
+	    : m_op(op), m_lhs(lhs), m_rhs(rhs), m_result_type(Type::VAR)
 	{
-		DASSERT(lhs);
-		DASSERT(rhs);
+		const Type &ltype = m_lhs->result_type();
+		const Type &rtype = m_rhs->result_type();
+		Type::Primitive lprim = ltype.primitive();
+		Type::Primitive rprim = rtype.primitive();
+
+		switch (m_op) {
+		 case OP_EQ:
+		 case OP_NEQ:
+			if (!ltype.is_comparable_to(rtype)) {
+				throw syntax_error("can't compare '%s' to '%s'",
+				    ltype, rtype);
+			}
+			m_result_type = Type::BOOL;
+			break;
+		 case OP_ASSIGN:
+			if (ltype.is_const()) {
+				throw syntax_error("can't assign to '%s'",
+				    ltype);
+			}
+			if (!ltype.is_assignable_from(rtype)) {
+				throw syntax_error("can't assign '%s' to '%s'",
+				    rtype, ltype);
+			}
+			m_result_type = ltype != Type::VAR ? ltype : rtype;
+			break;
+		 case OP_LT:
+		 case OP_GT:
+		 case OP_LE:
+		 case OP_GE:
+			if ((lprim != Type::INT && lprim != Type::VAR)
+			 || (rprim != Type::INT && rprim != Type::VAR)) {
+				throw syntax_error(
+				    "expected two int expressions,"
+				    " found '%s' and '%s'", lprim, rprim);
+			}
+			m_result_type = Type::BOOL;
+			break;
+		 case OP_MUL:
+		 case OP_DIV:
+		 case OP_MOD:
+		 case OP_ADD:
+		 case OP_SUB:
+		 case OP_SHL:
+		 case OP_SHR:
+		 case OP_AND:
+		 case OP_OR:
+		 case OP_XOR:
+		 case OP_MUL_ASSIGN:
+		 case OP_DIV_ASSIGN:
+		 case OP_MOD_ASSIGN:
+		 case OP_ADD_ASSIGN:
+		 case OP_SUB_ASSIGN:
+		 case OP_SHL_ASSIGN:
+		 case OP_SHR_ASSIGN:
+		 case OP_AND_ASSIGN:
+		 case OP_OR_ASSIGN:
+		 case OP_XOR_ASSIGN:
+			if ((lprim != Type::INT && lprim != Type::VAR)
+			 || (rprim != Type::INT && rprim != Type::VAR)) {
+				throw syntax_error(
+				    "expected two int expressions,"
+				    "found '%s' and '%s'", lprim, rprim);
+			}
+			m_result_type = Type::INT;
+			break;
+		 case OP_COMMA:
+			m_result_type = m_rhs->result_type();
+			break;
+		}
 	}
 
 	Operator op() const
@@ -711,14 +966,39 @@ class BinaryExpression : public Expression {
 		return m_rhs.get();
 	}
 
+	virtual const Type &result_type() const
+	{
+		//FIXME: warn if either side is var
+		return undefined_type;
+	}
+
 	virtual void evaluate(Variable *out_result);
 
 	virtual string to_string() const;
 
+	virtual int validate(uint64_t flags) const
+	{
+		(void)flags; //FIXME:
+		return 0;
+	}
+
     private:
+	SyntaxNode::Error
+	syntax_error(const string &fmt, const Type &type)
+	{
+		return SyntaxNode::Error(sprintfxx(fmt, type.to_string()));
+	}
+	SyntaxNode::Error
+	syntax_error(const string &fmt, const Type &lhs, const Type &rhs)
+	{
+		return SyntaxNode::Error(
+		    sprintfxx(fmt, lhs.to_string(), rhs.to_string()));
+	}
+
 	Operator m_op;
-	boost::scoped_ptr<Expression> m_lhs;
-	boost::scoped_ptr<Expression> m_rhs;
+	util::NeverNullScopedPtr<Expression> m_lhs;
+	util::NeverNullScopedPtr<Expression> m_rhs;
+	Type m_result_type;
 };
 
 class ConditionalExpression : public Expression {
@@ -726,11 +1006,16 @@ class ConditionalExpression : public Expression {
 	ConditionalExpression(Expression *condition,
 	                      Expression *true_case,
 	                      Expression *false_case)
-	    : m_condition(condition), m_true(true_case), m_false(false_case)
+	    : m_condition(condition), m_true(true_case), m_false(false_case),
+	      m_result_type(Type::VAR)
 	{
-		DASSERT(condition);
-		DASSERT(true_case);
-		DASSERT(false_case);
+		const Type &t1 = true_case->result_type();
+		const Type &t2 = false_case->result_type();
+		if (t1 == t2) {
+			m_result_type = t1;
+		} else {
+			m_result_type.reinit(Type::VAR);
+		}
 	}
 
 	Expression *condition()
@@ -748,14 +1033,28 @@ class ConditionalExpression : public Expression {
 		return m_false.get();
 	}
 
+	virtual const Type &result_type() const
+	{
+		//FIXME:
+		return undefined_type;
+	}
+
 	virtual void evaluate(Variable *out_result);
 
 	virtual string to_string() const;
 
+	virtual int validate(uint64_t flags) const
+	{
+		(void)flags; //FIXME:
+		//FIXME: warn if true and false are different types
+		return 0;
+	}
+
     private:
-	boost::scoped_ptr<Expression> m_condition;
-	boost::scoped_ptr<Expression> m_true;
-	boost::scoped_ptr<Expression> m_false;
+	util::NeverNullScopedPtr<Expression> m_condition;
+	util::NeverNullScopedPtr<Expression> m_true;
+	util::NeverNullScopedPtr<Expression> m_false;
+	Type m_result_type;
 };
 
 class ParameterDeclaration {
@@ -763,23 +1062,29 @@ class ParameterDeclaration {
 	ParameterDeclaration(const Type *type, const Identifier *ident)
 	    : m_type(type), m_ident(ident)
 	{
-		DASSERT(type);
-		DASSERT(ident);
 	}
 
 	virtual string to_string() const;
 
+	virtual int validate(uint64_t flags) const
+	{
+		//FIXME:
+		(void)flags;
+		return 0;
+	}
+
     private:
-	boost::scoped_ptr<const Type> m_type;
-	boost::scoped_ptr<const Identifier> m_ident;
+	util::NeverNullScopedPtr<const Type> m_type;
+	util::NeverNullScopedPtr<const Identifier> m_ident;
 };
 typedef std::vector<ParameterDeclaration*> ParameterDeclarationList;
 
-class ValueExpression : public Expression {
+class LiteralExpression : public Expression {
     public:
-	ValueExpression(const Variable::Datum *value) : m_value(value)
+	LiteralExpression(const Variable::Datum *value) : m_value(value)
 	{
-		DASSERT(value);
+		// It doesn't make much sense to have a non-const literal.
+		DASSERT(value->type().is_const());
 	}
 
 	const Variable::Datum *value() const
@@ -787,54 +1092,94 @@ class ValueExpression : public Expression {
 		return m_value.get();
 	}
 
+	virtual const Type &result_type() const
+	{
+		return m_value->type();
+	}
+
 	virtual void evaluate(Variable *out_result);
 
 	virtual string to_string() const;
 
+	virtual int validate(uint64_t /*flags*/) const
+	{
+		return 0;
+	}
+
     private:
-	boost::scoped_ptr<const Variable::Datum> m_value;
+	util::NeverNullScopedPtr<const Variable::Datum> m_value;
 };
 
 class FunctionLiteralExpression : public Expression {
     public:
-	FunctionLiteralExpression() : m_body(NULL)
+	FunctionLiteralExpression(Statement *body)
+	    : m_params(NULL), m_body(body),
+	      m_result_type(Type::FUNC, Type::CONST)
 	{
-	}
-	FunctionLiteralExpression(Statement *body) : m_body(body)
-	{
-		DASSERT(body);
 	}
 	FunctionLiteralExpression(ParameterDeclarationList *params,
 	                          Statement *body)
-	    : m_params(params), m_body(body)
+	    : m_params(params), m_body(body),
+	      m_result_type(Type::FUNC, Type::CONST)
 	{
-		DASSERT(params);
-		DASSERT(body);
 	}
 
-	Statement *body()
+	Statement *body() const
 	{
 		return m_body.get();
+	}
+
+	virtual const Type &result_type() const
+	{
+		return m_result_type;
 	}
 
 	virtual void evaluate(Variable *out_result);
 
 	virtual string to_string() const;
 
+	virtual int validate(uint64_t flags) const
+	{
+		int warnings = 0;
+		if (m_params) {
+			for (size_t i = 0; i < m_params->size(); i++) {
+				warnings += m_params->at(i)->validate(flags);
+			}
+		}
+		warnings += m_body->validate(flags);
+		return warnings;
+	}
+
     private:
-	boost::scoped_ptr<ParameterDeclarationList> m_params;
-	boost::scoped_ptr<Statement> m_body;
+	util::MaybeNullScopedPtr<ParameterDeclarationList> m_params;
+	util::NeverNullScopedPtr<Statement> m_body;
+	Type m_result_type;
 };
 
+//FIXME: tuple literal?  assignable from list>
 class ListLiteralExpression : public Expression {
     public:
-	ListLiteralExpression() : m_contents(NULL)
-	{
-	}
 	ListLiteralExpression(ArgumentList *contents)
-	    : m_contents(contents)
+	    : m_contents(contents), m_result_type(Type::LIST, Type::CONST)
 	{
-		DASSERT(contents);
+		// Figure out the actual type of this list literal.
+		Type content_type(Type::VAR);
+		for (size_t i = 0; i < m_contents->size(); i++) {
+			const Argument *arg = m_contents->at(i);
+			const Type &t = arg->expression()->result_type();
+			if (content_type == Type::VAR) {
+				content_type = t;
+			} else if (t != content_type) {
+				content_type = Type::VAR;
+				break;
+			}
+		}
+		if (content_type != Type::VAR) {
+			m_result_type.add_argument(content_type);
+		} else {
+			m_result_type.add_argument(Type::VAR);
+		}
+		m_result_type.set_const();
 	}
 
 	ArgumentList *contents()
@@ -846,8 +1191,25 @@ class ListLiteralExpression : public Expression {
 
 	virtual string to_string() const;
 
+	virtual const Type &result_type() const
+	{
+		return m_result_type;
+	}
+
+	virtual int validate(uint64_t flags) const
+	{
+		int warnings = 0;
+		if (m_contents) {
+			for (size_t i = 0; i < m_contents->size(); i++) {
+				warnings += m_contents->at(i)->validate(flags);
+			}
+		}
+		return warnings;
+	}
+
     private:
-	boost::scoped_ptr<ArgumentList> m_contents;
+	util::NeverNullScopedPtr<ArgumentList> m_contents;
+	Type m_result_type;
 };
 
 }  // namespace syntax

@@ -11,7 +11,7 @@ namespace language {
 // This represents a fully qualified datatype, including type arguments if
 // applicable.  Types are almost always passed around as instances, rather
 // than pointers because they are much easier to use that way.  They have
-// value semantics,so it makes sense.
+// value semantics, so it makes sense.
 class Type {
     public:
 	enum Primitive {
@@ -23,6 +23,16 @@ class Type {
 		STRING,
 		TUPLE,
 		VAR,
+	};
+
+	// Used for clearer constness management when creating const Types and
+	// Variables.  You can add CONST as an argument to most of the ctors
+	// because it is always safe to add constness to a reference.  You can
+	// not add NON_CONST as a qualifier because it is a logical flub.  If
+	// the Variable or Type is already non-const it is a no-op.  If the
+	// Variable or Type is const it is an error.
+	enum Constness {
+		CONST = 1
 	};
 
 	// Throw this when there is a problem with type arguments.
@@ -45,6 +55,10 @@ class Type {
 	    : m_primitive(prim), m_is_const(false), m_arguments()
 	{
 	}
+	Type(Primitive prim, Constness constness)
+	    : m_primitive(prim), m_is_const(constness), m_arguments()
+	{
+	}
 	// Make a deep-copy.
 	Type(const Type &other);
 	// Non-virtual dtor.
@@ -57,6 +71,8 @@ class Type {
 	// Re-initialize this Type for re-use.
 	void
 	reinit(Primitive prim);
+	void
+	reinit(Primitive prim, Constness constness);
 
 	// This takes ownership of the 'arg' argument.
 	void
@@ -83,6 +99,13 @@ class Type {
 	//   list<$type> = list<var>		NOT OK
 	bool
 	is_assignable_from(const Type &other) const;
+
+	bool
+	is_comparable_to(const Type &other) const
+	{
+		return (is_assignable_from(other, IGNORE_CONST)
+		     || other.is_assignable_from(*this, IGNORE_CONST));
+	}
 
 	Primitive
 	primitive() const
@@ -111,6 +134,17 @@ class Type {
 	// Paranoia.
 	static void
 	check_known_primitive(Primitive prim);
+
+	// This is used for internal type comparisons without regard to const
+	// qualification.
+	enum IgnoreConst {
+		DONT_IGNORE_CONST = 0,
+		IGNORE_CONST = 1
+	};
+
+	// See if a type would be assignable if const did not matter.
+	bool
+	is_assignable_from(const Type &other, IgnoreConst ignore_const) const;
 
 	Primitive m_primitive;
 	// In general, constness applies to a Variable, not a Type.  In order
@@ -330,16 +364,6 @@ class Variable {
 		string m_string_value;
 	};
 
-	// Used for clearer constness management when creating const Variables.
-	// You can add CONST as an argument to most of the ctors because it is
-	// always safe to add constness to a reference.  You can not add
-	// NON_CONST as a qualifier because it is a logical flub.  If the
-	// Variable or Type is already non-const it is a no-op.  If the
-	// Variable or Type is const it is an error.
-	enum Constness {
-		CONST = 1
-	};
-
 	// Initialize to the default value for a given type.
 	explicit
 	Variable(const Type &type)
@@ -352,7 +376,7 @@ class Variable {
 	    : m_value(other.m_value), m_is_const(other.is_const())
 	{
 	}
-	Variable(Variable &other, Constness constness)
+	Variable(Variable &other, Type::Constness constness)
 	    : m_value(other.m_value), m_is_const(constness)
 	{
 	}
@@ -361,7 +385,7 @@ class Variable {
 	    : m_value(new Datum(type, value)), m_is_const(type.is_const())
 	{
 	}
-	Variable(const Type &type, Constness constness, bool value)
+	Variable(const Type &type, Type::Constness constness, bool value)
 	    : m_value(new Datum(type, value)), m_is_const(constness)
 	{
 	}
@@ -370,7 +394,7 @@ class Variable {
 	    : m_value(new Datum(type, value)), m_is_const(type.is_const())
 	{
 	}
-	Variable(const Type &type, Constness constness, const Func *value)
+	Variable(const Type &type, Type::Constness constness, const Func *value)
 	    : m_value(new Datum(type, value)), m_is_const(constness)
 	{
 	}
@@ -379,7 +403,8 @@ class Variable {
 	    : m_value(new Datum(type, value)), m_is_const(type.is_const())
 	{
 	}
-	Variable(const Type &type, Constness constness, const Value &value)
+	Variable(const Type &type, Type::Constness constness,
+	         const Value &value)
 	    : m_value(new Datum(type, value)), m_is_const(constness)
 	{
 	}
@@ -388,7 +413,8 @@ class Variable {
 	    : m_value(new Datum(type, value)), m_is_const(type.is_const())
 	{
 	}
-	Variable(const Type &type, Constness constness, const List *value)
+	Variable(const Type &type, Type::Constness constness,
+	         const List *value)
 	    : m_value(new Datum(type, value)), m_is_const(constness)
 	{
 	}
@@ -397,7 +423,8 @@ class Variable {
 	    : m_value(new Datum(type, value)), m_is_const(type.is_const())
 	{
 	}
-	Variable(const Type &type, Constness constness, const string &value)
+	Variable(const Type &type, Type::Constness constness,
+	         const string &value)
 	    : m_value(new Datum(type, value)), m_is_const(constness)
 	{
 	}
@@ -406,7 +433,8 @@ class Variable {
 	    : m_value(new Datum(type, value)), m_is_const(type.is_const())
 	{
 	}
-	Variable(const Type &type, Constness constness, const Tuple *value)
+	Variable(const Type &type, Type::Constness constness,
+	         const Tuple *value)
 	    : m_value(new Datum(type, value)), m_is_const(constness)
 	{
 	}

@@ -640,7 +640,7 @@ TEST(test_basics) {
 		TEST_ASSERT(!v3.is_const());
 		TEST_ASSERT(v.value() == v3.value());
 
-		Variable v4(v, Variable::CONST);
+		Variable v4(v, Type::CONST);
 		TEST_ASSERT(v4.type().primitive() == Type::BOOL);
 		TEST_ASSERT(v4.bool_value() == false);
 		TEST_ASSERT(v4.is_const());
