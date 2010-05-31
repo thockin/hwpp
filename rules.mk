@@ -197,6 +197,7 @@ _build_vinclude:
 	@ \
 	if [ "$$(readlink .vinclude/pp)" != $(TOPDIR) ]; then \
 		mkdir -p .vinclude; \
+		rm -f .vinclude/pp; \
 		ln -sf $(TOPDIR) .vinclude/pp; \
 	fi
 
