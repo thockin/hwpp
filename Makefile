@@ -27,6 +27,7 @@ $(call IMPORT_MODULE, util)
 all: $(BINS) $(TESTS)
 
 $(BINS): %: %.o libpp.a
+$(TESTS): %: %.o
 
 libpp.a: $(OBJS)
 	$(RM) $@
