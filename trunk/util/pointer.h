@@ -32,6 +32,7 @@ class NeverNullScopedPtr : public boost::scoped_ptr<Tptr>
 	};
 
  public:
+	explicit
 	NeverNullScopedPtr(typename UnConst<Tptr>::type *pointer)
 	    : boost::scoped_ptr<Tptr>(pointer)
 	{
@@ -40,6 +41,7 @@ class NeverNullScopedPtr : public boost::scoped_ptr<Tptr>
 			    "NeverNullScopedPtr initialized to NULL");
 		}
 	}
+	explicit
 	NeverNullScopedPtr(const typename UnConst<Tptr>::type *pointer)
 	    : boost::scoped_ptr<Tptr>(pointer)
 	{
@@ -50,6 +52,7 @@ class NeverNullScopedPtr : public boost::scoped_ptr<Tptr>
 	}
 	// This catches static initializations to NULL.
 	template<typename T>
+	explicit
 	NeverNullScopedPtr(T catches_null)
 	{
 		// This symbol does not exist, but makes for better errors.
@@ -74,9 +77,10 @@ class NeverNullScopedPtr : public boost::scoped_ptr<Tptr>
 		}
 		boost::scoped_ptr<Tptr>::reset(pointer);
 	}
-	// This catches static resets to NULL.
+	// This catches static reset()s to NULL.
 	template<typename T>
-	void reset(T catches_null)
+	void
+	reset(T catches_null)
 	{
 		// This symbol does not exist, but makes for better errors.
 		dont_reset_NeverNullScopedPtr_to_NULL(catches_null);
@@ -98,6 +102,7 @@ template<typename Tptr>
 class MaybeNullScopedPtr : public boost::scoped_ptr<Tptr>
 {
  public:
+	explicit
 	MaybeNullScopedPtr(Tptr *pointer = NULL)
 	    : boost::scoped_ptr<Tptr>(pointer)
 	{
