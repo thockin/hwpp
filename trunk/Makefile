@@ -28,6 +28,7 @@ all: $(BINS) $(TESTS)
 
 $(BINS): %: %.o libpp.a
 $(TESTS): %: %.o
+CLEANS += $(BINS) $(BINS:=.o) $(TESTS) $(TESTS:=.o)
 
 libpp.a: $(OBJS)
 	$(RM) $@
@@ -40,7 +41,7 @@ test: $(TESTS)
 
 .PHONY: clean
 clean:
-	@$(RM) $(OBJS) $(CLEANS) $(BINS) $(TESTS)
+	@$(RM) $(OBJS) $(CLEANS)
 
 .PHONY: distclean
 distclean: clean
