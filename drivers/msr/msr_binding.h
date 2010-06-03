@@ -2,10 +2,10 @@
 #ifndef PP_DRIVERS_MSR_MSR_BINDING_H__
 #define PP_DRIVERS_MSR_MSR_BINDING_H__
 
-#include "pp/pp.h"
-#include "pp/binding.h"
-#include "pp/driver.h"
-#include "pp/util/filesystem.h"
+#include "pp.h"
+#include "binding.h"
+#include "driver.h"
+#include "util/filesystem.h"
 #include <iostream>
 
 namespace pp { 

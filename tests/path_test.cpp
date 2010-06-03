@@ -1,7 +1,7 @@
-#include "pp/pp.h"
-#include "pp/path.h"
+#include "pp.h"
+#include "path.h"
 #include <iostream>
-#include "pp/util/test.h"
+#include "util/test.h"
 
 TEST(test_element)
 {

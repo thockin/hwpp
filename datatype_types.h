@@ -2,12 +2,12 @@
 #ifndef PP_DATATYPES_H__
 #define PP_DATATYPES_H__
 
-#include "pp/pp.h"
-#include "pp/util/printfxx.h"
-#include "pp/datatype.h"
-#include "pp/util/keyed_vector.h"
+#include "pp.h"
+#include "util/printfxx.h"
+#include "datatype.h"
+#include "util/keyed_vector.h"
 #include "language.h"
-#include "pp/util/bit_buffer.h"
+#include "util/bit_buffer.h"
 
 namespace pp {
 

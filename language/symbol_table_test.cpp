@@ -1,8 +1,8 @@
 //FIXME: fix include paths
 #include "symbol_table.h"
 #include "variable.h"
-#include "pp/pp.h"
-#include "pp/util/test.h"
+#include "pp.h"
+#include "util/test.h"
 
 TEST(test_ctor) {
 	pp::language::SymbolTable s;

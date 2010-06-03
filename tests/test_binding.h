@@ -2,9 +2,9 @@
 #ifndef PP_TESTS_TEST_BINDING_H__
 #define PP_TESTS_TEST_BINDING_H__
 
-#include "pp/binding.h"
-#include "pp/driver.h"
-#include "pp/pp.h"
+#include "binding.h"
+#include "driver.h"
+#include "pp.h"
 #
 /* define a test binding */
 class TestBinding: public pp::Binding

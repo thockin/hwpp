@@ -71,7 +71,7 @@ PRJ_VER_DEFS   = -DPRJ_VER_MAJOR=$(PRJ_VER_MAJOR) \
                  -DPRJ_VER_MINOR=$(PRJ_VER_MINOR) \
                  -DPRJ_VER_MICRO=$(PRJ_VER_MICRO)
 PRJ_DEFS       = $(DEFS) $(PRJ_VER_DEFS)
-PRJ_INCLUDES   = -iquote $(TOPDIR)/.vinclude $(INCLUDES)
+PRJ_INCLUDES   = -iquote $(TOPDIR) $(INCLUDES)
 PRJ_LDLIBS     = $(LIBS)
 PRJ_LDLIBS_DYN = $(LIBS_DYN)
 
@@ -177,29 +177,6 @@ all:
 		fi; \
 	fi
 sinclude .previous_make_flags
-
-# This rule provides a place to do make-related setup operations before any
-# real rules are evaluated.  How?  By including the 'file' that is the
-# result of this rule (even though it does not exist), we force make to
-# evaluate this before the $(MAKECMDGOALS).  Note: in the case of make -j,
-# any of these early rules of this rule can run in parallel, including
-# .previous_make_flags.
-#
-# The top-level Makefile can add new deps to this rule, if needed.
-.PHONY: build_setup
-build_setup: _build_vinclude
-sinclude build_setup
-
-# This rule builds a virtual include dir, which allows us to use include
-# paths that work in the source tree or in the installed include tree.
-.PHONY: _build_vinclude
-_build_vinclude:
-	@ \
-	if [ "$$(readlink .vinclude/pp)" != $(TOPDIR) ]; then \
-		mkdir -p .vinclude; \
-		rm -f .vinclude/pp; \
-		ln -sf $(TOPDIR) .vinclude/pp; \
-	fi
 
 # The top-level Makefile can define more deps for this rule or actions, if
 # it has something it needs done.

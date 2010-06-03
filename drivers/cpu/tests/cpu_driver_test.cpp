@@ -1,6 +1,6 @@
-#include "pp/pp.h"
-#include "pp/drivers/cpu/cpu_driver.h"
-#include "pp/util/test.h"
+#include "pp.h"
+#include "drivers/cpu/cpu_driver.h"
+#include "util/test.h"
 
 namespace pp {
 

@@ -2,9 +2,9 @@
 #ifndef PP_ALIAS_H__
 #define PP_ALIAS_H__
 
-#include "pp/pp.h"
-#include "pp/dirent.h"
-#include "pp/path.h"
+#include "pp.h"
+#include "dirent.h"
+#include "path.h"
 
 namespace pp {
 

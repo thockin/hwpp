@@ -1,7 +1,7 @@
 /* Copyright (c) Tim Hockin, 2008 */
-#include "pp/pp.h"
+#include "pp.h"
 #include "language.h"
-#include "pp/util/simple_regex.h"
+#include "util/simple_regex.h"
 
 namespace pp {
 

@@ -1,8 +1,8 @@
 #ifndef PP_DRIVERS_H__
 #define PP_DRIVERS_H__
 
-#include "pp/pp.h"
-#include "pp/driver.h"
+#include "pp.h"
+#include "driver.h"
 #include "runtime.h"
 
 namespace pp {

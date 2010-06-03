@@ -1,7 +1,7 @@
 #ifndef PP_LANGUAGE_IDENTIFIER_H__
 #define PP_LANGUAGE_IDENTIFIER_H__
 
-#include "pp/pp.h"
+#include "pp.h"
 #include <string>
 
 namespace pp {

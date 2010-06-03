@@ -1,9 +1,9 @@
-#include "pp/pp.h"
-#include "pp/register_types.h"
-#include "pp/runtime.h"
-#include "pp/rwprocs.h"
+#include "pp.h"
+#include "register_types.h"
+#include "runtime.h"
+#include "rwprocs.h"
 #include "test_binding.h"
-#include "pp/util/test.h"
+#include "util/test.h"
 
 TEST(test_pp_bound_register)
 {

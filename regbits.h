@@ -2,9 +2,9 @@
 #ifndef PP_REGBITS_H__
 #define PP_REGBITS_H__
 
-#include "pp/pp.h"
-#include "pp/util/printfxx.h"
-#include "pp/register.h"
+#include "pp.h"
+#include "util/printfxx.h"
+#include "register.h"
 
 namespace pp {
 

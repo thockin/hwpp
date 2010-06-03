@@ -2,13 +2,13 @@
 #ifndef PP_CONTEXT_H__
 #define PP_CONTEXT_H__
 
-#include "pp/pp.h"
-#include "pp/scope.h"
-#include "pp/path.h"
-#include "pp/dirent.h"
-#include "pp/register.h"
-#include "pp/field.h"
-#include "pp/datatype.h"
+#include "pp.h"
+#include "scope.h"
+#include "path.h"
+#include "dirent.h"
+#include "register.h"
+#include "field.h"
+#include "datatype.h"
 
 namespace pp {
 

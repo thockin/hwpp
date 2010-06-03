@@ -2,20 +2,20 @@
  * Copyright 2007 Google Inc. All Rights Reserved.
  */
 
-#include "pp/pp.h"
-#include "pp/util/printfxx.h"
+#include "pp.h"
+#include "util/printfxx.h"
 #include "fake_language.h"
 #include "language.h"
 #include "runtime.h"
-#include "pp/field.h"
-#include "pp/field_types.h"
-#include "pp/path.h"
-#include "pp/dirent.h"
-#include "pp/register.h"
-#include "pp/register_types.h"
-#include "pp/scope.h"
-#include "pp/datatype_types.h"
-#include "pp/alias.h"
+#include "field.h"
+#include "field_types.h"
+#include "path.h"
+#include "dirent.h"
+#include "register.h"
+#include "register_types.h"
+#include "scope.h"
+#include "datatype_types.h"
+#include "alias.h"
 
 #include <stdexcept>
 

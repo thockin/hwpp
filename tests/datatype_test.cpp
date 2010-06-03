@@ -1,7 +1,7 @@
-#include "pp/pp.h"
-#include "pp/datatype_types.h"
-#include "pp/util/bignum_lambda.h"
-#include "pp/util/test.h"
+#include "pp.h"
+#include "datatype_types.h"
+#include "util/bignum_lambda.h"
+#include "util/test.h"
 
 TEST(test_pp_enum_datatype)
 {

@@ -5,8 +5,8 @@
 #ifndef PP_DEVICE_INIT_H__
 #define PP_DEVICE_INIT_H__
 
-#include "pp/runtime.h"
-#include "pp/scope.h"
+#include "runtime.h"
+#include "scope.h"
 
 namespace pp {
 namespace device {

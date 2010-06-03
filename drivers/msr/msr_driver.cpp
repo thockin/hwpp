@@ -1,5 +1,5 @@
-#include "pp/pp.h"
-#include "pp/datatype_types.h"
+#include "pp.h"
+#include "datatype_types.h"
 #include "msr_driver.h"
 #include "msr_binding.h"
 

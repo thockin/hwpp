@@ -2,7 +2,7 @@
 #ifndef PP_RWPROCS_H__
 #define PP_RWPROCS_H__
 
-#include "pp/pp.h"
+#include "pp.h"
 
 namespace pp {
 

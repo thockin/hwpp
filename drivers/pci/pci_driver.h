@@ -2,8 +2,8 @@
 #ifndef PP_DRIVERS_PCI_PCI_DRIVER_H__
 #define PP_DRIVERS_PCI_PCI_DRIVER_H__
 
-#include "pp/pp.h"
-#include "pp/driver.h"
+#include "pp.h"
+#include "driver.h"
 #include "pci_binding.h"
 
 namespace pp { 

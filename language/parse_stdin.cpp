@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <iostream>
-#include "pp/language/language.h"
+#include "language/language.h"
 
 int
 main(void)

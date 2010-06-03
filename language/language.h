@@ -7,13 +7,13 @@
 // The grammar.l and grammar.y files include this header, which will screw
 // them up if they include their own auto-generated headers, so don't include
 // auto.*.h here.
-#include "pp/pp.h"
+#include "pp.h"
 #include <stdio.h>
 #include <map>
 #include <string>
 #include <vector>
-#include "pp/language/symbol_table.h"
-#include "pp/language/syntax_tree.h"
+#include "language/symbol_table.h"
+#include "language/syntax_tree.h"
 
 // Forward declaration.
 union YYSTYPE;

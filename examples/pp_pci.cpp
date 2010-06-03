@@ -1,11 +1,11 @@
-#include "pp/pp.h"
-#include "pp/util/printfxx.h"
-#include "pp/drivers.h"
-#include "pp/device_init.h"
-#include "pp/register.h"
-#include "pp/datatype_types.h"
-#include "pp/field_types.h"
-#include "pp/array.h"
+#include "pp.h"
+#include "util/printfxx.h"
+#include "drivers.h"
+#include "device_init.h"
+#include "register.h"
+#include "datatype_types.h"
+#include "field_types.h"
+#include "array.h"
 
 using namespace std;
 

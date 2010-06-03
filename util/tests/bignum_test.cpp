@@ -1,6 +1,6 @@
-#include "pp/util/bignum.h"
-#include "pp/util/bit_buffer.h"
-#include "pp/util/test.h"
+#include "util/bignum.h"
+#include "util/bit_buffer.h"
+#include "util/test.h"
 
 namespace bignum {
 

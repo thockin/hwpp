@@ -3,7 +3,7 @@
 #define PP_UTIL_POINTER_H__
 
 #include <boost/scoped_ptr.hpp>
-#include "pp/util/assert.h"
+#include "util/assert.h"
 
 namespace util {
 

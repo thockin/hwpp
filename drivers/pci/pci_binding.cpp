@@ -1,5 +1,5 @@
-#include "pp/pp.h"
-#include "pp/util/printfxx.h"
+#include "pp.h"
+#include "util/printfxx.h"
 
 #include <stdint.h>
 #include <unistd.h>
@@ -11,9 +11,9 @@
 #include <sstream>
 
 #include "pci_binding.h"
-#include "pp/driver.h"
-#include "pp/util/filesystem.h"
-#include "pp/util/bit_buffer.h"
+#include "driver.h"
+#include "util/filesystem.h"
+#include "util/bit_buffer.h"
 
 namespace pp { 
 

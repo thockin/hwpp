@@ -1,5 +1,5 @@
-#include "pp/pp.h"
-#include "pp/datatype_types.h"
+#include "pp.h"
+#include "datatype_types.h"
 #include "io_driver.h"
 #include "io_binding.h"
 

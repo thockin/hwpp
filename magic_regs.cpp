@@ -1,7 +1,7 @@
-#include "pp/pp.h"
-#include "pp/util/printfxx.h"
-#include "pp/binding.h"
-#include "pp/register_types.h"
+#include "pp.h"
+#include "util/printfxx.h"
+#include "binding.h"
+#include "register_types.h"
 
 namespace pp {
 

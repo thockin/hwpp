@@ -2,7 +2,7 @@
 #ifndef PP_DATATYPE_H__
 #define PP_DATATYPE_H__
 
-#include "pp/pp.h"
+#include "pp.h"
 #include <stdexcept>
 
 namespace pp {

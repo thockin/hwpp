@@ -16,10 +16,10 @@ using std::size_t;
 #include <boost/smart_ptr.hpp>
 using boost::static_pointer_cast;
 using boost::const_pointer_cast;
-#include "pp/util/printfxx.h"
-#include "pp/util/bignum.h"
-#include "pp/debug.h"
-#include "pp/version.h"
+#include "util/printfxx.h"
+#include "util/bignum.h"
+#include "debug.h"
+#include "version.h"
 
 namespace pp {
 

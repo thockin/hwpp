@@ -1,5 +1,5 @@
-#include "pp/util/sockets.h"
-#include "pp/util/test.h"
+#include "util/sockets.h"
+#include "util/test.h"
 
 #define UNIX_SOCKET_NAME		"socket.exists"
 #define UNIX_SOCKET_PATH		TEST_TMP_DIR "/" UNIX_SOCKET_NAME

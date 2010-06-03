@@ -2,12 +2,12 @@
 #ifndef PP_REGISTER_TYPES_H__
 #define PP_REGISTER_TYPES_H__
 
-#include "pp/pp.h"
-#include "pp/register.h"
-#include "pp/binding.h"
-#include "pp/rwprocs.h"
-#include "pp/context.h"
-#include "pp/runtime.h"
+#include "pp.h"
+#include "register.h"
+#include "binding.h"
+#include "rwprocs.h"
+#include "context.h"
+#include "runtime.h"
 
 namespace pp {
 

@@ -1,7 +1,7 @@
 //FIXME: fix include paths
-#include "pp/language/variable.h"
-#include "pp/pp.h"
-#include "pp/util/test.h"
+#include "language/variable.h"
+#include "pp.h"
+#include "util/test.h"
 
 TEST(test_type) {
 	using pp::language::Type;

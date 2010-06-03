@@ -1,13 +1,13 @@
-#include "pp/pp.h"
-#include "pp/util/printfxx.h"
+#include "pp.h"
+#include "util/printfxx.h"
 #include <signal.h>
-#include "pp/drivers.h"
-#include "pp/device_init.h"
-#include "pp/field.h"
-#include "pp/register.h"
-#include "pp/scope.h"
-#include "pp/array.h"
-#include "pp/util/sockets.h"
+#include "drivers.h"
+#include "device_init.h"
+#include "field.h"
+#include "register.h"
+#include "scope.h"
+#include "array.h"
+#include "util/sockets.h"
 
 using namespace std;
 

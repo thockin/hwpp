@@ -1,6 +1,6 @@
-#include "pp/pp.h"
-#include "pp/util/pointer.h"
-#include "pp/util/test.h"
+#include "pp.h"
+#include "util/pointer.h"
+#include "util/test.h"
 
 namespace util {
 

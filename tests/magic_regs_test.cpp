@@ -2,9 +2,9 @@
  * Copyright 2007 Google Inc. All Rights Reserved.
  */
 
-#include "pp/pp.h"
-#include "pp/register.h"
-#include "pp/util/test.h"
+#include "pp.h"
+#include "register.h"
+#include "util/test.h"
 
 namespace pp {
 extern RegisterPtr magic_zeros;

@@ -1,8 +1,8 @@
-#include "pp/language/language.h"
+#include "language/language.h"
 #include <stdio.h>
 #include <string>
-#include "pp/pp.h"
-#include "pp/language/syntax_tree.h"
+#include "pp.h"
+#include "language/syntax_tree.h"
 // Leave these last.
 #include "auto.yacc.h"
 #include "auto.lex.h"  // depends on auto.yacc.h being first

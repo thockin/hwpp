@@ -2,11 +2,11 @@
 #ifndef PP_DRIVERS_MEM_MEM_BINDING_H__
 #define PP_DRIVERS_MEM_MEM_BINDING_H__
 
-#include "pp/pp.h"
-#include "pp/util/printfxx.h"
-#include "pp/binding.h"
-#include "pp/driver.h"
-#include "pp/util/filesystem.h"
+#include "pp.h"
+#include "util/printfxx.h"
+#include "binding.h"
+#include "driver.h"
+#include "util/filesystem.h"
 #include <iostream>
 
 namespace pp { 

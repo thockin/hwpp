@@ -2,7 +2,7 @@
 #ifndef PP_DIRENT_H__
 #define PP_DIRENT_H__
 
-#include "pp/pp.h"
+#include "pp.h"
 #include <ostream>
 
 namespace pp {

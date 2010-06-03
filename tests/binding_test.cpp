@@ -1,7 +1,7 @@
-#include "pp/pp.h"
-#include "pp/binding.h"
+#include "pp.h"
+#include "binding.h"
 #include "test_binding.h"
-#include "pp/util/test.h"
+#include "util/test.h"
 
 TEST(test_pp_binding)
 {

@@ -1,7 +1,7 @@
 // Copyright 2008 Google Inc. All Rights Reserved.
 
-#include "pp/pp.h"
-#include "pp/path.h"
+#include "pp.h"
+#include "path.h"
 #include <stdexcept>
 #include <vector>
 #include <boost/algorithm/string.hpp>

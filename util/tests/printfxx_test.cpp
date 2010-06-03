@@ -1,6 +1,6 @@
-#include "pp/util/printfxx.h"
+#include "util/printfxx.h"
 #include <cstdio>
-#include "pp/util/test.h"
+#include "util/test.h"
 
 TEST(test_sprintf)
 {

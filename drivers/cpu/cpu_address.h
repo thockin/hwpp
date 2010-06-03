@@ -2,7 +2,7 @@
 #ifndef PP_DRIVERS_CPU_CPU_BINDING_H__
 #define PP_DRIVERS_CPU_CPU_BINDING_H__
 
-#include "pp/pp.h"
+#include "pp.h"
 #include <iostream>
 
 namespace pp { 
