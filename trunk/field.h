@@ -2,9 +2,9 @@
 #ifndef PP_FIELD_H__
 #define PP_FIELD_H__
 
-#include "pp/pp.h"
-#include "pp/dirent.h"
-#include "pp/datatype.h"
+#include "pp.h"
+#include "dirent.h"
+#include "datatype.h"
 #include <stdexcept>
 
 namespace pp {

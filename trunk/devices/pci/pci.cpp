@@ -1,8 +1,8 @@
-#include "pp/pp.h"
-#include "pp/util/printfxx.h"
+#include "pp.h"
+#include "util/printfxx.h"
 #include <vector>
-#include "pp/fake_language.h"
-#include "pp/devices/pci/generic_device.h"
+#include "fake_language.h"
+#include "devices/pci/generic_device.h"
 
 namespace pp {
 namespace device {

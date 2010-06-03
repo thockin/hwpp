@@ -6,9 +6,9 @@
 // http://www.sandpile.org/ia32/cpuid.htm
 //
 
-#include "pp/pp.h"
-#include "pp/devices/cpuid/generic_device.h"
-#include "pp/fake_language.h"
+#include "pp.h"
+#include "devices/cpuid/generic_device.h"
+#include "fake_language.h"
 
 namespace pp {
 namespace device {

@@ -2,7 +2,7 @@
 #ifndef PP_DEBUG_H__
 #define PP_DEBUG_H__
 
-#include "pp/util/assert.h"
+#include "util/assert.h"
 
 #if DEBUG
 

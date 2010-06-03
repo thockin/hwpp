@@ -2,17 +2,17 @@
 #ifndef PP_SCOPE_H__
 #define PP_SCOPE_H__
 
-#include "pp/pp.h"
+#include "pp.h"
 #include <stdexcept>
 #include <map>
-#include "pp/path.h"
-#include "pp/dirent.h"
-#include "pp/binding.h"
-#include "pp/util/keyed_vector.h"
-#include "pp/datatype.h"
-#include "pp/register.h"
-#include "pp/field.h"
-#include "pp/array.h"
+#include "path.h"
+#include "dirent.h"
+#include "binding.h"
+#include "util/keyed_vector.h"
+#include "datatype.h"
+#include "register.h"
+#include "field.h"
+#include "array.h"
 #include <boost/enable_shared_from_this.hpp>
 
 namespace pp {

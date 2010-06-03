@@ -26,11 +26,11 @@ SPACE			[ \t\n\v\f\r]
 #include <stdio.h>
 #include <stdexcept>
 #include <string>
-#include "pp/pp.h"
-#include "pp/language/language.h"
-#include "pp/language/syntax_tree.h"
-#include "auto.yacc.h"
-#include "pp/util/printfxx.h"
+#include "pp.h"
+#include "language/language.h"
+#include "language/syntax_tree.h"
+#include "language/auto.yacc.h"
+#include "util/printfxx.h"
 
 using namespace pp;
 using namespace pp::language;

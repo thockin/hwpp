@@ -4,8 +4,8 @@
 #ifndef PP_RUNTIME_H__
 #define PP_RUNTIME_H__
 
-#include "pp/pp.h"
-#include "pp/context.h"
+#include "pp.h"
+#include "context.h"
 #include <vector>
 
 namespace pp {

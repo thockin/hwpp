@@ -1,10 +1,10 @@
-#include "pp/language/syntax_tree.h"
+#include "language/syntax_tree.h"
 
-#include "pp/pp.h"
+#include "pp.h"
 #include <map>
 #include <string>
 #include <vector>
-#include "pp/language/variable.h"
+#include "language/variable.h"
 
 namespace pp {
 namespace language {

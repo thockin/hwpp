@@ -1,10 +1,10 @@
-#include "pp/pp.h"
-#include "pp/dirent.h"
-#include "pp/field_types.h"
-#include "pp/register.h"
-#include "pp/scope.h"
-#include "pp/datatype_types.h"
-#include "pp/util/test.h"
+#include "pp.h"
+#include "dirent.h"
+#include "field_types.h"
+#include "register.h"
+#include "scope.h"
+#include "datatype_types.h"
+#include "util/test.h"
 
 class TestDirent: public pp::Dirent
 {

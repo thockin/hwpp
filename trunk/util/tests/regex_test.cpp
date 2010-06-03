@@ -1,6 +1,6 @@
-#include "pp/pp.h"
-#include "pp/util/simple_regex.h"
-#include "pp/util/test.h"
+#include "pp.h"
+#include "util/simple_regex.h"
+#include "util/test.h"
 
 namespace util {
 

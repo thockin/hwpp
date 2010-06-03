@@ -1,10 +1,10 @@
-#include "pp/pp.h"
-#include "pp/scope.h"
+#include "pp.h"
+#include "scope.h"
 #include "test_binding.h"
-#include "pp/datatype_types.h"
-#include "pp/register_types.h"
-#include "pp/field_types.h"
-#include "pp/util/test.h"
+#include "datatype_types.h"
+#include "register_types.h"
+#include "field_types.h"
+#include "util/test.h"
 
 TEST(test_ctors)
 {

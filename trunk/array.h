@@ -2,12 +2,12 @@
 #ifndef PP_ARRAY_H__
 #define PP_ARRAY_H__
 
-#include "pp/pp.h"
-#include "pp/util/printfxx.h"
+#include "pp.h"
+#include "util/printfxx.h"
 #include <vector>
 #include <stdexcept>
-#include "pp/path.h"
-#include "pp/dirent.h"
+#include "path.h"
+#include "dirent.h"
 
 namespace pp {
 

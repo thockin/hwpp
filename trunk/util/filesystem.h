@@ -23,8 +23,8 @@
 #include <sys/stat.h>
 #include <sys/mman.h>
 
-#include "pp/pp.h"
-#include "pp/util/syserror.h"
+#include "pp.h"
+#include "util/syserror.h"
 
 namespace filesystem {
 

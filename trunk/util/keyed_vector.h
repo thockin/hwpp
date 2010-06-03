@@ -10,8 +10,8 @@
 #include <map>
 #include <stdexcept>
 #include <boost/iterator_adaptors.hpp>
-#include "pp/pp.h"
-#include "pp/util/assert.h"
+#include "pp.h"
+#include "util/assert.h"
 
 namespace util {
 

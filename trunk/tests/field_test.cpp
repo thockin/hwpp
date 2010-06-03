@@ -1,11 +1,11 @@
-#include "pp/pp.h"
-#include "pp/device_init.h"
-#include "pp/field_types.h"
-#include "pp/datatype_types.h"
-#include "pp/register_types.h"
-#include "pp/regbits.h"
+#include "pp.h"
+#include "device_init.h"
+#include "field_types.h"
+#include "datatype_types.h"
+#include "register_types.h"
+#include "regbits.h"
 #include "test_binding.h"
-#include "pp/util/test.h"
+#include "util/test.h"
 
 //FIXME: test lookup()
 //FIXME: test compare()

@@ -2,12 +2,12 @@
 #ifndef PP_FIELDS_H__
 #define PP_FIELDS_H__
 
-#include "pp/field.h"
-#include "pp/datatype.h"
-#include "pp/register.h"
-#include "pp/regbits.h"
-#include "pp/rwprocs.h"
-#include "pp/context.h"
+#include "field.h"
+#include "datatype.h"
+#include "register.h"
+#include "regbits.h"
+#include "rwprocs.h"
+#include "context.h"
 #include "runtime.h"
 #include <vector>
 

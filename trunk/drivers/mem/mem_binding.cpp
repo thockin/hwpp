@@ -1,5 +1,5 @@
-#include "pp/pp.h"
-#include "pp/util/printfxx.h"
+#include "pp.h"
+#include "util/printfxx.h"
 
 #include <stdint.h>
 #include <unistd.h>
@@ -8,8 +8,8 @@
 #include <stdexcept>
 
 #include "mem_binding.h"
-#include "pp/driver.h"
-#include "pp/util/filesystem.h"
+#include "driver.h"
+#include "util/filesystem.h"
 
 namespace pp { 
 

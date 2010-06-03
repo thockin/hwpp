@@ -2,9 +2,9 @@
 #ifndef PP_DRIVER_H__
 #define PP_DRIVER_H__
 
-#include "pp/pp.h"
-#include "pp/binding.h"
-#include "pp/scope.h"
+#include "pp.h"
+#include "binding.h"
+#include "scope.h"
 
 namespace pp {
 

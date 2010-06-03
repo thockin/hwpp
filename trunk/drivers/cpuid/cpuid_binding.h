@@ -2,9 +2,9 @@
 #ifndef PP_DRIVERS_CPUID_CPUID_BINDING_H__
 #define PP_DRIVERS_CPUID_CPUID_BINDING_H__
 
-#include "pp/pp.h"
-#include "pp/binding.h"
-#include "pp/driver.h"
+#include "pp.h"
+#include "binding.h"
+#include "driver.h"
 #include <iostream>
 
 namespace pp { 

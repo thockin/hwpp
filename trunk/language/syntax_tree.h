@@ -6,12 +6,12 @@
 // The grammar.l and grammar.y files include this header, which will screw
 // them up if they include their own auto-generated headers, so don't include
 // auto.*.h here.
-#include "pp/pp.h"
+#include "pp.h"
 #include <string>
 #include <vector>
 #include <boost/scoped_ptr.hpp>
-#include "pp/language/variable.h"
-#include "pp/util/pointer.h"
+#include "language/variable.h"
+#include "util/pointer.h"
 
 namespace pp {
 namespace language {

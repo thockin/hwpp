@@ -5,22 +5,22 @@
 #ifndef PP_FAKE_LANGUAGE_H__
 #define PP_FAKE_LANGUAGE_H__
 
-#include "pp/pp.h"
+#include "pp.h"
 #include "language.h"
-#include "pp/dirent.h"
-#include "pp/register_types.h"
-#include "pp/field.h"
-#include "pp/alias.h"
-#include "pp/regbits.h"
-#include "pp/binding.h"
-#include "pp/util/bignum_lambda.h"
+#include "dirent.h"
+#include "register_types.h"
+#include "field.h"
+#include "alias.h"
+#include "regbits.h"
+#include "binding.h"
+#include "util/bignum_lambda.h"
 #include "drivers.h"
 
 #include <vector>
 #include <iostream>
 #include <unistd.h>
 
-#include "pp/field_types.h"
+#include "field_types.h"
 
 namespace pp {
 
@@ -239,7 +239,7 @@ fkl_bits(const ParseLocation &loc,
 
 }  // namespace pp
 
-#include "pp/datatype.h"
+#include "datatype.h"
 
 namespace pp {
 
@@ -320,7 +320,7 @@ fkl_alias(const ParseLocation &loc, const string &name, const string &tgt_path);
 
 }  // namespace pp
 
-#include "pp/datatype_types.h"
+#include "datatype_types.h"
 
 namespace pp {
 

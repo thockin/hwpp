@@ -1,8 +1,8 @@
-#include "pp/pp.h"
-#include "pp/array.h"
-#include "pp/dirent.h"
-#include "pp/scope.h"
-#include "pp/util/test.h"
+#include "pp.h"
+#include "array.h"
+#include "dirent.h"
+#include "scope.h"
+#include "util/test.h"
 
 TEST(test_ctors)
 {

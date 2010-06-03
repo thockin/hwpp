@@ -2,9 +2,9 @@
  * Copyright 2008 Google Inc. All Rights Reserved.
  */
 
-#include "pp/pp.h"
-#include "pp/runtime.h"
-#include "pp/context.h"
+#include "pp.h"
+#include "runtime.h"
+#include "context.h"
 
 namespace pp {
 

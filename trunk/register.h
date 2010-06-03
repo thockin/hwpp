@@ -2,8 +2,8 @@
 #ifndef PP_REGISTER_H__
 #define PP_REGISTER_H__
 
-#include "pp/pp.h"
-#include "pp/dirent.h"
+#include "pp.h"
+#include "dirent.h"
 
 namespace pp {
 

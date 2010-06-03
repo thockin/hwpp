@@ -1,14 +1,14 @@
 #include <string>
 using std::string;
-#include "pp/language/language.h"
-#include "pp/language/identifier.h"
-#include "pp/language/variable.h"
+#include "language/language.h"
+#include "language/identifier.h"
+#include "language/variable.h"
 #include "auto.yacc.h"  // for token definitions
 #define YY_HEADER_EXPORT_START_CONDITIONS 1
 #include "auto.lex.h"  // for states
-#include "pp/language/string_file.h"
+#include "language/string_file.h"
 using pp::language::StringFile;
-#include "pp/util/test.h"
+#include "util/test.h"
 
 // These are used throughout the test.  Wrapped to make them simpler to use.
 static pp::language::Lexer *lexer;

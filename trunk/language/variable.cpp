@@ -1,5 +1,5 @@
-#include "pp/language/variable.h"
-#include "pp/pp.h"
+#include "language/variable.h"
+#include "pp.h"
 #include <string>
 #include <boost/smart_ptr.hpp>
 

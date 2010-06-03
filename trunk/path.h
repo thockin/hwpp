@@ -3,7 +3,7 @@
 #ifndef PP_PATH_HPP__
 #define PP_PATH_HPP__
 
-#include "pp/pp.h"
+#include "pp.h"
 #include <list>
 #include <stdexcept>
 #include <ostream>

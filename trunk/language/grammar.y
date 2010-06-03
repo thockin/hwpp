@@ -6,9 +6,9 @@
 //
 
 #include <string>
-#include "pp/pp.h"
-#include "pp/language/language.h"
-#include "pp/language/syntax_tree.h"
+#include "pp.h"
+#include "language/language.h"
+#include "language/syntax_tree.h"
 
 %}
 

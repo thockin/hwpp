@@ -2,11 +2,11 @@
  * Copyright 2008 Tim Hockin
  */
 
-#include "pp/pp.h"
-#include "pp/fake_language.h"
-#include "pp/device_init.h"
-#include "pp/tests/test_binding.h"
-#include "pp/util/test.h"
+#include "pp.h"
+#include "fake_language.h"
+#include "device_init.h"
+#include "tests/test_binding.h"
+#include "util/test.h"
 
 // used later, must be out-of-line
 class TestProcs: public pp::RwProcs

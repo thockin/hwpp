@@ -1,5 +1,5 @@
-#include "pp/pp.h"
-#include "pp/datatype_types.h"
+#include "pp.h"
+#include "datatype_types.h"
 #include "cpu_driver.h"
 #include "cpu_address.h"
 
@@ -9,9 +9,9 @@
 #include <vector>
 #include <algorithm>
 
-#include "pp/util/filesystem.h"
-#include "pp/util/simple_regex.h"
-#include "pp/util/bit_buffer.h"
+#include "util/filesystem.h"
+#include "util/simple_regex.h"
+#include "util/bit_buffer.h"
 
 namespace pp {
 

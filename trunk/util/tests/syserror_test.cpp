@@ -1,5 +1,5 @@
-#include "pp/util/syserror.h"
-#include "pp/util/test.h"
+#include "util/syserror.h"
+#include "util/test.h"
 
 TEST(test_syserror)
 {

@@ -1,14 +1,14 @@
 // This tool takes a list of PP paths (on the commandline or stdin) and
 // reads them.  If a path is a scope or array, it will recurse.
-#include "pp/pp.h"
-#include "pp/util/printfxx.h"
-#include "pp/drivers.h"
-#include "pp/device_init.h"
-#include "pp/field.h"
-#include "pp/register.h"
-#include "pp/scope.h"
-#include "pp/array.h"
-#include "pp/alias.h"
+#include "pp.h"
+#include "util/printfxx.h"
+#include "drivers.h"
+#include "device_init.h"
+#include "field.h"
+#include "register.h"
+#include "scope.h"
+#include "array.h"
+#include "alias.h"
 #include "cmdline.h"
 
 using namespace std;

@@ -1,6 +1,6 @@
-#include "pp/language/syntax_tree.h"
-#include "pp/pp.h"
-#include "pp/util/test.h"
+#include "language/syntax_tree.h"
+#include "pp.h"
+#include "util/test.h"
 
 #if 0
 TEST(test_syntax_node) {

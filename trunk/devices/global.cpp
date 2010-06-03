@@ -1,6 +1,6 @@
-#include "pp/device_init.h"
-#include "pp/fake_language.h"
-#include "pp/datatype_types.h"
+#include "device_init.h"
+#include "fake_language.h"
+#include "datatype_types.h"
 
 namespace pp {
 namespace device {

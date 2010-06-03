@@ -2,8 +2,8 @@
 #ifndef PP_DRIVERS_CPU_CPU_DRIVER_H__
 #define PP_DRIVERS_CPU_CPU_DRIVER_H__
 
-#include "pp/pp.h"
-#include "pp/driver.h"
+#include "pp.h"
+#include "driver.h"
 #include "cpu_address.h"
 
 #include <vector>

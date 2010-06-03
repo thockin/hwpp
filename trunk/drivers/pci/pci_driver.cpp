@@ -1,6 +1,6 @@
-#include "pp/pp.h"
-#include "pp/util/printfxx.h"
-#include "pp/datatype_types.h"
+#include "pp.h"
+#include "util/printfxx.h"
+#include "datatype_types.h"
 #include "pci_driver.h"
 #include "pci_binding.h"
 

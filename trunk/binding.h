@@ -2,7 +2,7 @@
 #ifndef PP_BINDING_H__
 #define PP_BINDING_H__
 
-#include "pp/pp.h"
+#include "pp.h"
 #include <stdexcept>
 #include <ostream>
 
