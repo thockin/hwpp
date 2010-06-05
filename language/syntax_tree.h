@@ -80,7 +80,7 @@ class Expression : public SyntaxNode {
 	{
 	}
 
-	// Get the type of this expression.
+	// Get the resulting type of this expression.
 	virtual const Type &result_type() const = 0;
 
 	// Evaluate this expression, producing a result.
@@ -969,7 +969,7 @@ class BinaryExpression : public Expression {
 	virtual const Type &result_type() const
 	{
 		//FIXME: warn if either side is var
-		return undefined_type;
+		return m_result_type;
 	}
 
 	virtual void evaluate(Variable *out_result);
@@ -1013,9 +1013,7 @@ class ConditionalExpression : public Expression {
 		const Type &t2 = false_case->result_type();
 		if (t1 == t2) {
 			m_result_type = t1;
-		} else {
-			m_result_type.reinit(Type::VAR);
-		}
+		}  // else leave it as VAR
 	}
 
 	Expression *condition()
@@ -1035,8 +1033,7 @@ class ConditionalExpression : public Expression {
 
 	virtual const Type &result_type() const
 	{
-		//FIXME:
-		return undefined_type;
+		return m_result_type;
 	}
 
 	virtual void evaluate(Variable *out_result);
