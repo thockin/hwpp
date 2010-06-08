@@ -1,16 +1,15 @@
 // Tim Hockin <thockin@hockin.org>
 // Similar to ostringstream, but for stdio FILEs.
 
-#ifndef PP_LANGUAGE_PIPE_FILE_H__
-#define PP_LANGUAGE_PIPE_FILE_H__
+#ifndef PP_UTIL_PIPE_FILE_H__
+#define PP_UTIL_PIPE_FILE_H__
 
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <string>
 
-namespace pp {
-namespace language {
+namespace util {
 
 // This is a simple helper class for allowing code to write to a FILE and
 // read it back as a string. In many respects it is very similar to
@@ -116,7 +115,6 @@ class PipeFile {
 	FILE *m_write_file;
 };
 
-}  // namespace language
-}  // namespace pp
+}  // namespace util
 
-#endif  // PP_LANGUAGE_PIPE_FILE_H__
+#endif  // PP_UTIL_PIPE_FILE_H__

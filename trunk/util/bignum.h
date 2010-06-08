@@ -6,8 +6,8 @@
 #include <gmpxx.h>
 #include <ostream>
 #include <sstream>
-#include "util/assert.h"
-#include "util/bit_buffer.h"
+#include "assert.h"
+#include "bit_buffer.h"
 
 #define BITS_PER_LONG	(sizeof(long)*CHAR_BIT)
 
