@@ -8,6 +8,7 @@
 #include <string>
 #include "pp.h"
 #include "language/language.h"
+#include "language/parsed_file.h"
 #include "language/syntax_tree.h"
 
 %}
@@ -21,7 +22,7 @@
 %parse-param {yyscan_t scanner}
 /* The Parser object gets passed into yyparse and can be user therein. */
 %parse-param {pp::language::Parser *parser}
-%parse-param {pp::language::syntax::StatementList *out_statements}
+%parse-param {pp::language::ParsedFile *out_parsed_file}
 
 /* We use GLR parsing because we need more look-ahead to resolve some rules. */
 %glr-parser
@@ -71,7 +72,7 @@ using namespace pp::language::syntax;
 // This is called on a parse error.
 static void
 pp__language__internal__error(yyscan_t scanner, Parser *parser,
-                              StatementList *out_statements, const char *str);
+                              ParsedFile *out_parsed_file, const char *str);
 
 // These are exposed from the lexer to the parser.
 extern void
@@ -1011,11 +1012,11 @@ jump_statement
 file_scope
 	: file_scope_item {
 		SYNTRACE("file_scope", "file_scope_item");
-		out_statements->push_back($1);
+		out_parsed_file->add_statement($1);
 	}
 	| file_scope file_scope_item {
 		SYNTRACE("file_scope", "file_scope file_scope_item");
-		out_statements->push_back($2);
+		out_parsed_file->add_statement($2);
 	}
 	;
 
@@ -1175,10 +1176,10 @@ discover_statement
 
 static void
 pp__language__internal__error(yyscan_t scanner, Parser *parser,
-                              StatementList *out_statements, const char *str)
+                              ParsedFile *out_parsed_file, const char *str)
 {
 	(void)parser;
-	(void)out_statements;
+	(void)out_parsed_file;
 	fflush(stdout);
 	printf("error on line %d: %s\n", lex_lineno(), str);
 }

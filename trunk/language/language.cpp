@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string>
 #include "pp.h"
+#include "language/parsed_file.h"
 #include "language/syntax_tree.h"
 // Leave these last.
 #include "auto.yacc.h"
@@ -10,7 +11,7 @@
 // For some reason auto.yacc.h does not export this.
 extern int pp__language__internal__parse(yyscan_t scanner,
     pp::language::Parser *parser,
-    pp::language::syntax::StatementList *out_statements);
+    pp::language::ParsedFile *out_parsed_file);
 
 // These are exposed from the lexer to the parser and for testing.
 extern void pp__language__internal__push_lexer_state(int new_state,
@@ -118,12 +119,12 @@ class ParserImpl {
 	{
 	}
 
-	int parse_file(FILE *file, syntax::StatementList *out_statements)
+	int parse_file(FILE *file, ParsedFile *out_parsed_file)
 	{
 		m_lexer.restart(file);
 		yyscan_t scanner = m_lexer.internal_impl()->scanner();
 		return pp__language__internal__parse(scanner, m_outer_parser,
-		                                     out_statements);
+		                                     out_parsed_file);
 	}
 
     private:
@@ -141,9 +142,9 @@ Parser::~Parser()
 	delete m_impl;
 }
 
-int Parser::parse_file(FILE *file, syntax::StatementList *out_statements)
+int Parser::parse_file(FILE *file, ParsedFile *out_parsed_file)
 {
-	return m_impl->parse_file(file, out_statements);
+	return m_impl->parse_file(file, out_parsed_file);
 }
 
 }  // namespace language
