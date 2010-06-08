@@ -1,7 +1,7 @@
 // SyntaxNode tree support.
 
-#ifndef PP_LANGAUGE_SYNTAX_TREE_H__
-#define PP_LANGAUGE_SYNTAX_TREE_H__
+#ifndef PP_LANGUAGE_SYNTAX_TREE_H__
+#define PP_LANGUAGE_SYNTAX_TREE_H__
 
 // The grammar.l and grammar.y files include this header, which will screw
 // them up if they include their own auto-generated headers, so don't include
@@ -1213,4 +1213,4 @@ class ListLiteralExpression : public Expression {
 }  // namespace language
 }  // namespace pp
 
-#endif  // PP_LANGAUGE_SYNTAX_TREE_H__
+#endif  // PP_LANGUAGE_SYNTAX_TREE_H__

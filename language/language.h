@@ -1,8 +1,8 @@
 // Language-related stuff that needs to be exposed, since I can't inject code
 // into the lex and yacc generated headers.
 
-#ifndef PP_LANGAUGE_LANGUAGE_H__
-#define PP_LANGAUGE_LANGUAGE_H__
+#ifndef PP_LANGUAGE_LANGUAGE_H__
+#define PP_LANGUAGE_LANGUAGE_H__
 
 // The grammar.l and grammar.y files include this header, which will screw
 // them up if they include their own auto-generated headers, so don't include
@@ -189,4 +189,4 @@ class Parser {
 }  // namespace language
 }  // namespace pp
 
-#endif  // PP_LANGAUGE_LANGUAGE_H__
+#endif  // PP_LANGUAGE_LANGUAGE_H__
