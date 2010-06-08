@@ -1,15 +1,14 @@
 // Tim Hockin <thockin@hockin.org>
 // Similar to ostringstream, but for stdio FILEs.
 
-#ifndef PP_LANGUAGE_STRING_FILE_H__
-#define PP_LANGUAGE_STRING_FILE_H__
+#ifndef PP_UTIL_STRING_FILE_H__
+#define PP_UTIL_STRING_FILE_H__
 
-#include "pipe_file.h"  //FIXME: include path
+#include "pipe_file.h"
 
-namespace pp {
-namespace language {  //FIXME: what namespace
+namespace util {
 
-// This is a simple helper class for llowing code to read a provided string
+// This is a simple helper class for allowing code to read a provided string
 // from a FILE. In many respects it is very similar to std::ostringstream.
 class StringFile {
  public:
@@ -52,7 +51,6 @@ class StringFile {
   string m_string;
 };
 
-}  // namespace language
-}  // namespace pp
+}  // namespace util
 
-#endif  // PP_LANGUAGE_STRING_FILE_H__
+#endif  // PP_UTIL_STRING_FILE_H__
