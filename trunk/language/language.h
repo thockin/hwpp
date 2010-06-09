@@ -12,8 +12,6 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "language/parsed_file.h"
-#include "language/syntax_tree.h"
 
 // Forward declaration.
 union YYSTYPE;
@@ -60,6 +58,7 @@ class Lexer {
 
 // Wrap all of the yacc parser logic.
 class ParserImpl;
+class ParsedFile;
 class Parser {
     public:
 	Parser();
@@ -75,6 +74,13 @@ class Parser {
 
 	// Get the current file name.
 	const string &current_file();
+
+	// This represents the current position.
+	struct Position {
+		string file;
+		int line;
+	};
+	Position current_position();
 
     private:
 	ParserImpl *m_impl;

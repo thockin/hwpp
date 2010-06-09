@@ -91,6 +91,9 @@ pp__language__internal__pop_lexer_state(yyscan_t scanner);
 	fprintf(stderr, "%d: %s <- %s\n", lex_lineno(), left, right); \
 } while (0)
 
+// To make position tracking less "in your face".
+#define curpos() parser->current_position()
+
 %}
 
 %token <string_val>      TOK_IDENTIFIER
@@ -171,7 +174,7 @@ identifier
 simple_identifier
 	: TOK_IDENTIFIER {
 		SYNTRACE("simple_identifier", "IDENTIFIER");
-		$$ = new Identifier(*$1);
+		$$ = new Identifier(curpos(), *$1);
 		delete $1;
 	}
 	;
@@ -179,7 +182,7 @@ simple_identifier
 absolute_identifier
 	: TOK_IDENTIFIER '.' TOK_IDENTIFIER {
 		SYNTRACE("absolute_identifier", "IDENTIFIER '.' IDENTIFIER");
-		$$ = new Identifier(*$1, *$3);
+		$$ = new Identifier(curpos(), *$1, *$3);
 		delete $1;
 		delete $3;
 	}
@@ -188,23 +191,20 @@ absolute_identifier
 primary_expression
 	: identifier {
 		SYNTRACE("primary_expression", "identifier");
-		$$ = new IdentifierExpression($1);
+		$$ = new IdentifierExpression(curpos(), $1);
 	}
 	| TOK_BOOL_LITERAL {
 		SYNTRACE("primary_expression", "BOOL_LITERAL");
-		$$ = new LiteralExpression(
-		    new Variable::Datum(Type(Type::BOOL, Type::CONST), $1));
+		$$ = new BoolLiteralExpression(curpos(), $1);
 	}
 	| TOK_INT_LITERAL {
 		SYNTRACE("primary_expression", "INT_LITERAL");
-		$$ = new LiteralExpression(
-		     new Variable::Datum(Type(Type::INT, Type::CONST), *$1));
+		$$ = new IntLiteralExpression(curpos(), *$1);
 		delete $1;
 	}
 	| string_literal {
 		SYNTRACE("primary_expression", "string_literal");
-		$$ = new LiteralExpression(
-		    new Variable::Datum(Type(Type::STRING, Type::CONST), *$1));
+		$$ = new StringLiteralExpression(curpos(), *$1);
 		delete $1;
 	}
 	| list_literal {
@@ -236,11 +236,11 @@ string_literal
 list_literal
 	: '[' ']' {
 		SYNTRACE("list_literal", "'[' ']'");
-		$$ = new ListLiteralExpression(new ArgumentList());
+		$$ = new ListLiteralExpression(curpos(), new ArgumentList());
 	}
 	| '[' argument_list ']' {
 		SYNTRACE("list_literal", "'[' argument_list ']'");
-		$$ = new ListLiteralExpression($2);
+		$$ = new ListLiteralExpression(curpos(), $2);
 	}
 	;
 
@@ -248,19 +248,19 @@ function_literal
 	: TOK_FUNC_LITERAL compound_statement {
 		SYNTRACE("function_literal",
 		         "FUNC_LITERAL compound_statement");
-		$$ = new FunctionLiteralExpression($2);
+		$$ = new FunctionLiteralExpression(curpos(), $2);
 	}
 	| TOK_FUNC_LITERAL '(' ')'compound_statement {
 		SYNTRACE("function_literal",
 		         "FUNC_LITERAL '(' ')' compound_statement");
-		$$ = new FunctionLiteralExpression($4);
+		$$ = new FunctionLiteralExpression(curpos(), $4);
 	}
 	| TOK_FUNC_LITERAL '(' parameter_declaration_list ')'
 	  compound_statement {
 		SYNTRACE("function_literal",
 		         "FUNC_LITERAL '(' " "parameter_declaration_list ')'"
 		         " compound_statement");
-		$$ = new FunctionLiteralExpression($3, $5);
+		$$ = new FunctionLiteralExpression(curpos(), $3, $5);
 	}
 	;
 
@@ -274,12 +274,12 @@ function_call_expression
 	| subscript_expression '(' ')' {
 		SYNTRACE("function_call_expression",
 		         "function_call_expression '(' ')'");
-		$$ = new FunctionCallExpression($1);
+		$$ = new FunctionCallExpression(curpos(), $1);
 	}
 	| subscript_expression '(' argument_list ')' {
 		SYNTRACE("function_call_expression",
 		         "function_call_expression '(' argument_list ')'");
-		$$ = new FunctionCallExpression($1, $3);
+		$$ = new FunctionCallExpression(curpos(), $1, $3);
 	}
 	;
 
@@ -303,12 +303,12 @@ argument_list
 argument
 	: assignment_expression {
 		SYNTRACE("argument", "assignment_expression");
-		$$ = new Argument($1);
+		$$ = new Argument(curpos(), $1);
 	}
 	| simple_identifier ':' assignment_expression {
 		SYNTRACE("argument",
 		         "simple_identifier ':' assignment_expression");
-		$$ = new Argument($1, $3);
+		$$ = new Argument(curpos(), $1, $3);
 	}
 	;
 
@@ -322,7 +322,7 @@ subscript_expression
 	| subscript_expression '[' expression ']' {
 		SYNTRACE("subscript_expression",
 		         "subscript_expression '[' expression ']'");
-		$$ = new SubscriptExpression($1, $3);
+		$$ = new SubscriptExpression(curpos(), $1, $3);
 	}
 	;
 
@@ -333,13 +333,13 @@ postfix_expression
 	}
 	| postfix_expression TOK_INC {
 		SYNTRACE("postfix_expression", "postfix_expression INC");
-		$$ = new UnaryExpression(UnaryExpression::OP_POSTINC,
-		                             $1);
+		$$ = new UnaryExpression(curpos(),
+		                         UnaryExpression::OP_POSTINC, $1);
 	}
 	| postfix_expression TOK_DEC {
 		SYNTRACE("postfix_expression", "postfix_expression DEC");
-		$$ = new UnaryExpression(UnaryExpression::OP_POSTDEC,
-		                             $1);
+		$$ = new UnaryExpression(curpos(),
+		                         UnaryExpression::OP_POSTDEC, $1);
 	}
 	;
 
@@ -350,7 +350,7 @@ unary_expression
 	}
 	| unary_operator unary_expression {
 		SYNTRACE("unary_expression", "unary_operator unary_expression");
-		$$ = new UnaryExpression($1, $2);
+		$$ = new UnaryExpression(curpos(), $1, $2);
 	}
 	;
 
@@ -389,20 +389,20 @@ multiplicative_expression
 	| multiplicative_expression '*' unary_expression {
 		SYNTRACE("multiplicative_expression",
 		         "multiplicative_expression '*' unary_expression");
-		$$ = new BinaryExpression(BinaryExpression::OP_MUL,
-		                              $1, $3);
+		$$ = new BinaryExpression(curpos(),
+		                          BinaryExpression::OP_MUL, $1, $3);
 	}
 	| multiplicative_expression '/' unary_expression {
 		SYNTRACE("multiplicative_expression",
 		         "multiplicative_expression '/' unary_expression");
-		$$ = new BinaryExpression(BinaryExpression::OP_DIV,
-		                              $1, $3);
+		$$ = new BinaryExpression(curpos(),
+		                          BinaryExpression::OP_DIV, $1, $3);
 	}
 	| multiplicative_expression '%' unary_expression {
 		SYNTRACE("multiplicative_expression",
 		         "multiplicative_expression '%' unary_expression");
-		$$ = new BinaryExpression(BinaryExpression::OP_MOD,
-		                              $1, $3);
+		$$ = new BinaryExpression(curpos(),
+		                          BinaryExpression::OP_MOD, $1, $3);
 	}
 	;
 
@@ -414,14 +414,14 @@ additive_expression
 	| additive_expression '+' multiplicative_expression {
 		SYNTRACE("additive_expression",
 		         "additive_expression '+' multiplicative_expression");
-		$$ = new BinaryExpression(BinaryExpression::OP_ADD,
-		                              $1, $3);
+		$$ = new BinaryExpression(curpos(),
+		                          BinaryExpression::OP_ADD, $1, $3);
 	}
 	| additive_expression '-' multiplicative_expression {
 		SYNTRACE("additive_expression",
 		         "additive_expression '-' multiplicative_expression");
-		$$ = new BinaryExpression(BinaryExpression::OP_SUB,
-		                              $1, $3);
+		$$ = new BinaryExpression(curpos(),
+		                          BinaryExpression::OP_SUB, $1, $3);
 	}
 	;
 
@@ -433,14 +433,14 @@ shift_expression
 	| shift_expression TOK_SHL additive_expression {
 		SYNTRACE("shift_expression",
 		         "shift_expression SHL additive_expression");
-		$$ = new BinaryExpression(BinaryExpression::OP_SHL,
-		                              $1, $3);
+		$$ = new BinaryExpression(curpos(),
+		                          BinaryExpression::OP_SHL, $1, $3);
 	}
 	| shift_expression TOK_SHR additive_expression {
 		SYNTRACE("shift_expression",
 		         "shift_expression SHR additive_expression");
-		$$ = new BinaryExpression(BinaryExpression::OP_SHR,
-		                              $1, $3);
+		$$ = new BinaryExpression(curpos(),
+		                          BinaryExpression::OP_SHR, $1, $3);
 	}
 	;
 
@@ -452,26 +452,26 @@ relational_expression
 	| relational_expression '<' shift_expression {
 		SYNTRACE("relational_expression",
 		         "relational_expression '<' shift_expression");
-		$$ = new BinaryExpression(BinaryExpression::OP_LT,
-		                              $1, $3);
+		$$ = new BinaryExpression(curpos(),
+		                          BinaryExpression::OP_LT, $1, $3);
 	}
 	| relational_expression '>' shift_expression {
 		SYNTRACE("relational_expression",
 		         "relational_expression '>' shift_expression");
-		$$ = new BinaryExpression(BinaryExpression::OP_GT,
-		                              $1, $3);
+		$$ = new BinaryExpression(curpos(),
+		                          BinaryExpression::OP_GT, $1, $3);
 	}
 	| relational_expression TOK_LE shift_expression {
 		SYNTRACE("relational_expression",
 		         "relational_expression LE shift_expression");
-		$$ = new BinaryExpression(BinaryExpression::OP_LE,
-		                              $1, $3);
+		$$ = new BinaryExpression(curpos(),
+		                          BinaryExpression::OP_LE, $1, $3);
 	}
 	| relational_expression TOK_GE shift_expression {
 		SYNTRACE("relational_expression",
 		         "relational_expression GE shift_expression");
-		$$ = new BinaryExpression(BinaryExpression::OP_GE,
-		                              $1, $3);
+		$$ = new BinaryExpression(curpos(),
+		                          BinaryExpression::OP_GE, $1, $3);
 	}
 	;
 
@@ -484,15 +484,15 @@ equality_expression
 	{
 		SYNTRACE("equality_expression",
 		         "equality_expression EQ relational_expression");
-		$$ = new BinaryExpression(BinaryExpression::OP_EQ,
-		                              $1, $3);
+		$$ = new BinaryExpression(curpos(),
+		                          BinaryExpression::OP_EQ, $1, $3);
 	}
 	| equality_expression TOK_NE relational_expression
 	{
 		SYNTRACE("equality_expression",
 		         "equality_expression NE relational_expression");
-		$$ = new BinaryExpression(BinaryExpression::OP_NEQ,
-		                              $1, $3);
+		$$ = new BinaryExpression(curpos(),
+		                          BinaryExpression::OP_NEQ, $1, $3);
 	}
 	;
 
@@ -504,8 +504,8 @@ and_expression
 	| and_expression '&' equality_expression {
 		SYNTRACE("and_expression",
 		         "and_expression '&' equality_expression");
-		$$ = new BinaryExpression(BinaryExpression::OP_AND,
-		                              $1, $3);
+		$$ = new BinaryExpression(curpos(),
+		                          BinaryExpression::OP_AND, $1, $3);
 	}
 	;
 
@@ -517,8 +517,8 @@ xor_expression
 	| xor_expression '^' and_expression {
 		SYNTRACE("xor_expression",
 		         "xor_expression '^' and_expression");
-		$$ = new BinaryExpression(BinaryExpression::OP_XOR,
-		                              $1, $3);
+		$$ = new BinaryExpression(curpos(),
+		                          BinaryExpression::OP_XOR, $1, $3);
 	}
 	;
 
@@ -529,8 +529,8 @@ or_expression
 	}
 	| or_expression '|' xor_expression {
 		SYNTRACE("or_expression", "or_expression '|' xor_expression");
-		$$ = new BinaryExpression(BinaryExpression::OP_OR,
-		                              $1, $3);
+		$$ = new BinaryExpression(curpos(),
+		                          BinaryExpression::OP_OR, $1, $3);
 	}
 	;
 
@@ -543,13 +543,11 @@ and_and_expression
 		SYNTRACE("and_and_expression",
 		         "and_and_expression AND_AND or_expression");
 		// (A && B)  =>  (A == true) ? B : false
-		Expression *cond = new BinaryExpression(
+		Expression *cond = new BinaryExpression(curpos(),
 		    BinaryExpression::OP_EQ, $1,
-		    new LiteralExpression(new Variable::Datum(
-		        Type(Type::BOOL, Type::CONST), true)));
-		$$ = new ConditionalExpression(cond, $3,
-		    new LiteralExpression(new Variable::Datum(
-		        Type(Type::BOOL, Type::CONST), false)));
+		    new BoolLiteralExpression(curpos(), true));
+		$$ = new ConditionalExpression(curpos(), cond, $3,
+		    new BoolLiteralExpression(curpos(), false));
 	}
 	;
 
@@ -562,13 +560,12 @@ or_or_expression
 		SYNTRACE("or_or_expression",
 		         "or_or_expression OR_OR and_and_expression");
 		// (A || B)  =>  (A == true) ? true : B
-		Expression *cond = new BinaryExpression(
+		Expression *cond = new
+		BinaryExpression(curpos(),
 		    BinaryExpression::OP_EQ, $1,
-		    new LiteralExpression(new Variable::Datum(
-		        Type(Type::BOOL, Type::CONST), true)));
-		$$ = new ConditionalExpression(cond,
-		    new LiteralExpression(new Variable::Datum(
-		       Type(Type::BOOL, Type::CONST), true)), $3);
+		    new BoolLiteralExpression(curpos(), true));
+		$$ = new ConditionalExpression(curpos(), cond,
+		    new BoolLiteralExpression(curpos(), true), $3);
 	}
 	;
 
@@ -582,7 +579,7 @@ conditional_expression
 		SYNTRACE("conditional_expression",
 		         "or_or_expression '?' expression"
 		         " ':' conditional_expression");
-		$$ = new ConditionalExpression($1, $3, $5);
+		$$ = new ConditionalExpression(curpos(), $1, $3, $5);
 	}
 	;
 
@@ -594,7 +591,7 @@ assignment_expression
 	| unary_expression assignment_operator assignment_expression {
 		SYNTRACE("assignment_expression",
 		"unary_expression assignment_operator assignment_expression");
-		$$ = new BinaryExpression($2, $1, $3);
+		$$ = new BinaryExpression(curpos(), $2, $1, $3);
 	}
 	;
 
@@ -652,8 +649,8 @@ expression
 	}
 	| expression ',' assignment_expression {
 		SYNTRACE("expression", "expression ',' assignment_expression");
-		$$ = new BinaryExpression(BinaryExpression::OP_COMMA,
-		                              $1, $3);
+		$$ = new BinaryExpression(curpos(),
+		                          BinaryExpression::OP_COMMA, $1, $3);
 	}
 	;
 
@@ -795,11 +792,11 @@ labeled_statement
 	| TOK_CASE constant_expression ':' statement {
 		SYNTRACE("labeled_statement",
 		         "CASE constant_expression ':' statement");
-		$$ = new CaseStatement($2, $4);
+		$$ = new CaseStatement(curpos(), $2, $4);
 	}
 	| TOK_DEFAULT ':' statement {
 		SYNTRACE("labeled_statement", "DEFAULT ':' statement");
-		$3->add_label(new Identifier("@switch_default"));
+		$3->add_label(new Identifier(curpos(), "@switch_default"));
 		$$ = $3;
 	}
 	;
@@ -807,18 +804,18 @@ labeled_statement
 empty_statement
 	: ';' {
 		SYNTRACE("empty_statement", "';'");
-		$$ = new NullStatement();
+		$$ = new NullStatement(curpos());
 	}
 	;
 
 compound_statement
 	: '{' '}' {
 		SYNTRACE("compound_statement", "'{' '}'");
-		$$ = new CompoundStatement(new StatementList());
+		$$ = new CompoundStatement(curpos(), new StatementList());
 	}
 	| '{' statement_list '}' {
 		SYNTRACE("compound_statement", "'{' statement_list '}'");
-		$$ = new CompoundStatement($2);
+		$$ = new CompoundStatement(curpos(), $2);
 	}
 	;
 
@@ -838,7 +835,7 @@ statement_list
 expression_statement
 	: expression ';' {
 		SYNTRACE("expression_statement", "expression ';'");
-		$$ = new ExpressionStatement($1);
+		$$ = new ExpressionStatement(curpos(), $1);
 	}
 	;
 
@@ -846,26 +843,26 @@ branch_statement
 	: TOK_IF '(' expression ')' compound_statement {
 		SYNTRACE("branch_statement",
 		         "IF '(' expression ')' compound_statement");
-		$$ = new ConditionalStatement($3, $5);
+		$$ = new ConditionalStatement(curpos(), $3, $5);
 	}
 	| TOK_IF '(' expression ')' compound_statement
 	  TOK_ELSE compound_statement {
 		SYNTRACE("branch_statement",
 		         "IF '(' expression ')' compound_statement"
 		         " ELSE compound_statement");
-		$$ = new ConditionalStatement($3, $5, $7);
+		$$ = new ConditionalStatement(curpos(), $3, $5, $7);
 	}
 	| TOK_IF '(' expression ')' compound_statement
 	  TOK_ELSE branch_statement {
 		SYNTRACE("branch_statement",
 		         "IF '(' expression ')' compound_statement"
 		         " ELSE branch_statement");
-		$$ = new ConditionalStatement($3, $5, $7);
+		$$ = new ConditionalStatement(curpos(), $3, $5, $7);
 	}
 	| TOK_SWITCH '(' expression ')' compound_statement {
 		SYNTRACE("branch_statement",
 		         "SWITCH '(' expression ')' compound_statement");
-		$$ = new SwitchStatement($3, $5);
+		$$ = new SwitchStatement(curpos(), $3, $5);
 	}
 	;
 
@@ -874,8 +871,7 @@ expression_or_nothing
 		$$ = $1;
 	}
 	| {
-		$$ = new LiteralExpression(
-		    new Variable::Datum(Type(Type::BOOL, Type::CONST), true));
+		$$ = new BoolLiteralExpression(curpos(), true);
 	}
 	;
 
@@ -889,13 +885,14 @@ loop_statement
 		//    becomes
 		// { @loop_continue: while(A) {B;} @loop_break: <nop> }
 		StatementList *stmts = new StatementList();
-		Statement *loop = new WhileLoopStatement($3, $5);
-		loop->add_label(new Identifier("@loop_continue"));
+		Statement *loop = new
+		WhileLoopStatement(curpos(), $3, $5);
+		loop->add_label(new Identifier(curpos(), "@loop_continue"));
 		stmts->push_back(loop);
-		Statement *nop = new NullStatement();
-		nop->add_label(new Identifier("@loop_break"));
+		Statement *nop = new NullStatement(curpos());
+		nop->add_label(new Identifier(curpos(), "@loop_break"));
 		stmts->push_back(nop);
-		$$ = new CompoundStatement(stmts);
+		$$ = new CompoundStatement(curpos(), stmts);
 	}
 	| TOK_DO compound_statement TOK_WHILE '(' expression ')' ';' {
 		SYNTRACE("loop_statement",
@@ -910,16 +907,17 @@ loop_statement
 		//   @loop_break: <nop>
 		// }
 		StatementList *stmts = new StatementList();
-		Statement *goto_inner
-		    = new GotoStatement(new Identifier("@do_while_inner"));
+		Statement *goto_inner = new GotoStatement(curpos(),
+		    new Identifier(curpos(), "@do_while_inner"));
 		stmts->push_back(goto_inner);
-		Statement *loop = new WhileLoopStatement($5, $2);
-		loop->add_label(new Identifier("@loop_continue"));
+		Statement *loop = new
+		WhileLoopStatement(curpos(), $5, $2);
+		loop->add_label(new Identifier(curpos(), "@loop_continue"));
 		stmts->push_back(loop);
-		Statement *nop = new NullStatement();
-		nop->add_label(new Identifier("@loop_break"));
+		Statement *nop = new NullStatement(curpos());
+		nop->add_label(new Identifier(curpos(), "@loop_break"));
 		stmts->push_back(nop);
-		$$ = new CompoundStatement(stmts);
+		$$ = new CompoundStatement(curpos(), stmts);
 	}
 	| TOK_FOR '(' expression_or_nothing ';'
 	              expression_or_nothing ';'
@@ -939,18 +937,22 @@ loop_statement
 		//   @loop_break: <nop>
 		// }
 		StatementList *stmts = new StatementList();
-		stmts->push_back(new ExpressionStatement($3));
+		stmts->push_back(new
+		ExpressionStatement(curpos(), $3));
 		StatementList *body_stmts = new StatementList();
 		body_stmts->push_back($9);
-		body_stmts->push_back(new ExpressionStatement($7));
-		CompoundStatement *body = new CompoundStatement(body_stmts);
-		Statement *loop = new WhileLoopStatement($5, body);
-		loop->add_label(new Identifier("@loop_continue"));
+		body_stmts->push_back(new
+		ExpressionStatement(curpos(), $7));
+		CompoundStatement *body = new
+		CompoundStatement(curpos(), body_stmts);
+		Statement *loop = new
+		WhileLoopStatement(curpos(), $5, body);
+		loop->add_label(new Identifier(curpos(), "@loop_continue"));
 		stmts->push_back(loop);
-		Statement *nop = new NullStatement();
-		nop->add_label(new Identifier("@loop_break"));
+		Statement *nop = new NullStatement(curpos());
+		nop->add_label(new Identifier(curpos(), "@loop_break"));
 		stmts->push_back(nop);
-		$$ = new CompoundStatement(stmts);
+		$$ = new CompoundStatement(curpos(), stmts);
 	}
 	| TOK_FOR '(' variable_definition_statement
 	              expression_or_nothing ';'
@@ -973,38 +975,43 @@ loop_statement
 		stmts->push_back($3);
 		StatementList *body_stmts = new StatementList();
 		body_stmts->push_back($8);
-		body_stmts->push_back(new ExpressionStatement($6));
-		CompoundStatement *body = new CompoundStatement(body_stmts);
-		Statement *loop = new WhileLoopStatement($4, body);
-		loop->add_label(new Identifier("@loop_continue"));
+		body_stmts->push_back(new
+		ExpressionStatement(curpos(), $6));
+		CompoundStatement *body = new
+		CompoundStatement(curpos(), body_stmts);
+		Statement *loop = new
+		WhileLoopStatement(curpos(), $4, body);
+		loop->add_label(new Identifier(curpos(), "@loop_continue"));
 		stmts->push_back(loop);
-		Statement *nop = new NullStatement();
-		nop->add_label(new Identifier("@loop_break"));
+		Statement *nop = new NullStatement(curpos());
+		nop->add_label(new Identifier(curpos(), "@loop_break"));
 		stmts->push_back(nop);
-		$$ = new CompoundStatement(stmts);
+		$$ = new CompoundStatement(curpos(), stmts);
 	}
 	;
 
 jump_statement
 	: TOK_BREAK ';' {
 		SYNTRACE("jump_statement", "BREAK ';'");
-		$$ = new GotoStatement(new Identifier("@loop_break"));
+		$$ = new GotoStatement(curpos(), new
+		Identifier(curpos(), "@loop_break"));
 	}
 	| TOK_CONTINUE ';' {
 		SYNTRACE("jump_statement", "CONTINUE ';'");
-		$$ = new GotoStatement(new Identifier("@loop_continue"));
+		$$ = new GotoStatement(curpos(),
+		    new Identifier(curpos(), "@loop_continue"));
 	}
 	| TOK_GOTO simple_identifier ';' {
 		SYNTRACE("jump_statement", "GOTO simple_identifier ';'");
-		$$ = new GotoStatement($2);
+		$$ = new GotoStatement(curpos(), $2);
 	}
 	| TOK_RETURN ';' {
 		SYNTRACE("jump_statement", "RETURN ';'");
-		$$ = new ReturnStatement();
+		$$ = new ReturnStatement(curpos());
 	}
 	| TOK_RETURN expression ';' {
 		SYNTRACE("jump_statement", "RETURN expression ';'");
-		$$ = new ReturnStatement($2);
+		$$ = new ReturnStatement(curpos(), $2);
 	}
 	;
 
@@ -1030,8 +1037,8 @@ file_scope_item
 			string symbol
 			    = init_ident_list->at(i)->identifier()->symbol();
 			if (out_parsed_file->add_private_symbol(symbol, $1)) {
-				throw SyntaxError(sprintfxx(
-				    "symbol '%s' redefined", symbol));
+				throw SyntaxError(curpos(),
+				    sprintfxx("symbol '%s' redefined", symbol));
 			}
 		}
 	}
@@ -1045,8 +1052,8 @@ file_scope_item
 			string symbol
 			    = init_ident_list->at(i)->identifier()->symbol();
 			if (out_parsed_file->add_public_symbol(symbol, $2)) {
-				throw SyntaxError(sprintfxx(
-				    "symbol '%s' redefined", symbol));
+				throw SyntaxError(curpos(),
+				    sprintfxx("symbol '%s' redefined", symbol));
 			}
 		}
 	}
@@ -1082,7 +1089,7 @@ variable_definition_statement
 		SYNTRACE("variable_definition_statement",
 		         "qualified_type_specifier"
 		         " initialized_identifier_list");
-		$$ = new DefinitionStatement($1, $2);
+		$$ = new DefinitionStatement(curpos(), $1, $2);
 	}
 	;
 
@@ -1105,13 +1112,13 @@ initialized_identifier_list
 initialized_identifier
 	: simple_identifier {
 		SYNTRACE("initialized_identifier", "simple_identifier");
-		$$ = new InitializedIdentifier($1);
+		$$ = new InitializedIdentifier(curpos(), $1);
 	}
 	| simple_identifier '=' constant_expression {
 		//TODO: this allows function calls, which is bad at file-scope
 		SYNTRACE("initialized_identifier",
 		         "simple_identifier '=' constant_expression");
-		$$ = new InitializedIdentifier($1, $3);
+		$$ = new InitializedIdentifier(curpos(), $1, $3);
 	}
 	;
 
@@ -1122,11 +1129,13 @@ function_definition_statement
 		// A(){B}  =>  func A = ${B}
 		InitializedIdentifierList *var_list
 		    = new InitializedIdentifierList();
-		Expression *body = new FunctionLiteralExpression($4);
+		Expression *body = new
+		FunctionLiteralExpression(curpos(), $4);
 		InitializedIdentifier *init_ident
-		    = new InitializedIdentifier($1, body);
+		    = new InitializedIdentifier(curpos(), $1, body);
 		var_list->push_back(init_ident);
-		$$ = new DefinitionStatement(new Type(Type::FUNC), var_list);
+		$$ = new DefinitionStatement(curpos(),
+		                             new Type(Type::FUNC), var_list);
 	}
 	| simple_identifier '(' parameter_declaration_list ')'
 	  compound_statement {
@@ -1137,11 +1146,13 @@ function_definition_statement
 		InitializedIdentifierList *var_list
 		    = new InitializedIdentifierList();
 		//FIXME: should I unroll $3 here?
-		Expression *body = new FunctionLiteralExpression($3, $5);
+		Expression *body = new
+		FunctionLiteralExpression(curpos(), $3, $5);
 		InitializedIdentifier *init_ident
-		    = new InitializedIdentifier($1, body);
+		    = new InitializedIdentifier(curpos(), $1, body);
 		var_list->push_back(init_ident);
-		$$ = new DefinitionStatement(new Type(Type::FUNC), var_list);
+		$$ = new DefinitionStatement(curpos(),
+		                             new Type(Type::FUNC), var_list);
 	}
 	;
 
@@ -1164,14 +1175,14 @@ parameter_declaration
 	: qualified_type_specifier simple_identifier {
 		SYNTRACE("parameter_declaration",
 		         "qualified_type_specifier simple_identifier");
-		$$ = new ParameterDeclaration($1, $2);
+		$$ = new ParameterDeclaration(curpos(), $1, $2);
 	}
 	;
 
 import_statement
 	: TOK_IMPORT string_literal ';' {
 		SYNTRACE("import_statement", "IMPORT string_literal");
-		$$ = new ImportStatement(*$2);
+		$$ = new ImportStatement(curpos(), *$2);
 		delete $2;
 	}
 	;
@@ -1179,7 +1190,7 @@ import_statement
 module_statement
 	: TOK_MODULE simple_identifier ';' {
 		SYNTRACE("module_statement", "MODULE simple_identifier");
-		$$ = new ModuleStatement($2->symbol());
+		$$ = new ModuleStatement(curpos(), $2->symbol());
 		delete $2;
 	}
 	;
@@ -1188,7 +1199,7 @@ discover_statement
 	: TOK_DISCOVER '(' argument_list ')' ';' {
 		SYNTRACE("discover_statement",
 		         "DISCOVER '(' argument_list ')' ';'");
-		$$ = new DiscoverStatement($3);
+		$$ = new DiscoverStatement(curpos(), $3);
 	}
 	;
 

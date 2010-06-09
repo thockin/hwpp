@@ -177,5 +177,14 @@ Parser::current_file()
 	return m_impl->current_file();
 }
 
+Parser::Position
+Parser::current_position()
+{
+	Position p;
+	p.file = current_file();
+	p.line = current_line();
+	return p;
+}
+
 }  // namespace language
 }  // namespace pp
