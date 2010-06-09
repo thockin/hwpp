@@ -119,17 +119,33 @@ class ParserImpl {
 	{
 	}
 
-	int parse_file(FILE *file, ParsedFile *out_parsed_file)
+	int parse_file(const string &name, FILE *file,
+	               ParsedFile *out_parsed_file)
 	{
+		m_name = name;
 		m_lexer.restart(file);
 		yyscan_t scanner = m_lexer.internal_impl()->scanner();
 		return pp__language__internal__parse(scanner, m_outer_parser,
 		                                     out_parsed_file);
 	}
 
+	int
+	current_line()
+	{
+		yyscan_t scanner = m_lexer.internal_impl()->scanner();
+		return pp__language__internal__get_lineno(scanner);
+	}
+
+	const string &
+	current_file()
+	{
+		return m_name;
+	}
+
     private:
 	Parser *m_outer_parser;
 	Lexer m_lexer;
+	string m_name;
 };
 
 Parser::Parser()
@@ -142,9 +158,23 @@ Parser::~Parser()
 	delete m_impl;
 }
 
-int Parser::parse_file(FILE *file, ParsedFile *out_parsed_file)
+int
+Parser::parse_file(const string &name, FILE *file,
+                       ParsedFile *out_parsed_file)
 {
-	return m_impl->parse_file(file, out_parsed_file);
+	return m_impl->parse_file(name, file, out_parsed_file);
+}
+
+int
+Parser::current_line()
+{
+	return m_impl->current_line();
+}
+
+const string &
+Parser::current_file()
+{
+	return m_impl->current_file();
 }
 
 }  // namespace language
