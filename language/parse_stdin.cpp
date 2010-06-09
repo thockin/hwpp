@@ -8,7 +8,7 @@ main(void)
 {
 	pp::language::Parser parser;
 	pp::language::ParsedFile parsed_file("stdin");
-	parser.parse_file("stdin", stdin, &parsed_file);
+	parser.parse_file("<stdin>", stdin, &parsed_file);
 	printf("%zd top-level nodes\n", parsed_file.n_statements());
 	for (size_t i = 0; i < parsed_file.n_statements(); i++) {
 		std::cout << "[" << i << "] "

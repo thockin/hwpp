@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <boost/scoped_ptr.hpp>
+#include "language/language.h"
 #include "language/variable.h"
 #include "util/pointer.h"
 
@@ -19,8 +20,9 @@ namespace syntax {
 
 struct SyntaxError: public std::runtime_error
 {
-	explicit SyntaxError(const std::string &str)
-	    : runtime_error(str)
+	//FIXME: format the what() on the fly.
+	SyntaxError(const Parser::Position &pos, const std::string &str)
+	    : runtime_error(sprintfxx("[%s:%d] : %s", pos.file, pos.line, str))
 	{
 	}
 };
@@ -32,17 +34,26 @@ class SyntaxNode {
 		TYPE_IDENTIFIER,    // a symbol name
 		TYPE_EXPRESSION,    // an expression produces a value
 		TYPE_STATEMENT,     // a statement executes
-		TYPE_ARGUMENT,      // a named function call argument
+		TYPE_ARGUMENT,      // a named argument (e.g. function call)
+		TYPE_PARAMETER,     // a parameter declaration
 	};
 
-	NodeType node_type() const
+	NodeType
+	node_type() const
 	{
 		return m_node_type;
 	}
 
+	const Parser::Position &
+	parse_position() const
+	{
+		return m_position;
+	}
+
 	// Produce a string representation of this node.  For complex nodes
 	// which contain other nodes, this will be recursive.
-	virtual string to_string() const = 0;
+	virtual string
+	to_string() const = 0;
 
 	// Validate this node.  What 'validate' means depends entirely on the
 	// node and the flags, which is a mask of enum ValidateFlag.  Returns
@@ -54,25 +65,31 @@ class SyntaxNode {
 		                        //   potentially unsafe way.
 		VALIDATE_SYMBOLS = 0x4, // Validate all symbol references.
 	};
-	virtual int validate(uint64_t flags) const = 0;
+	virtual int
+	validate(uint64_t flags) const = 0;
 
     protected:
-	SyntaxNode(NodeType node_type) : m_node_type(node_type)
+	SyntaxNode(const Parser::Position &pos, NodeType node_type)
+	    : m_position(pos), m_node_type(node_type)
 	{
 	}
 
-	virtual ~SyntaxNode()
+	virtual
+	~SyntaxNode()
 	{
 	}
 
     private:
+	Parser::Position m_position;
 	NodeType m_node_type;
 };
 
 // Abstract base class for expressions which produce a value.
 class Expression : public SyntaxNode {
     public:
-	Expression() : SyntaxNode(TYPE_EXPRESSION)
+	explicit
+	Expression(const Parser::Position &pos)
+	    : SyntaxNode(pos, TYPE_EXPRESSION)
 	{
 	}
 
@@ -90,12 +107,15 @@ typedef std::vector<Expression*> ExpressionList;
 
 class Identifier : public SyntaxNode {
     public:
-	Identifier(const string &symbol)
-	    : SyntaxNode(TYPE_IDENTIFIER), m_module(""), m_symbol(symbol)
+	Identifier(const Parser::Position &pos, const string &symbol)
+	    : SyntaxNode(pos, TYPE_IDENTIFIER),
+	      m_module(""), m_symbol(symbol)
 	{
 	}
-	Identifier(const string &module, const string &symbol)
-	    : SyntaxNode(TYPE_IDENTIFIER), m_module(module), m_symbol(symbol)
+	Identifier(const Parser::Position &pos,
+	           const string &module, const string &symbol)
+	    : SyntaxNode(pos, TYPE_IDENTIFIER),
+	      m_module(module), m_symbol(symbol)
 	{
 	}
 
@@ -124,12 +144,15 @@ class Identifier : public SyntaxNode {
 
 class InitializedIdentifier : public SyntaxNode {
     public:
-	InitializedIdentifier(Identifier *ident)
-	    : SyntaxNode(TYPE_IDENTIFIER), m_ident(ident), m_init(NULL)
+	InitializedIdentifier(const Parser::Position &pos, Identifier *ident)
+	    : SyntaxNode(pos, TYPE_IDENTIFIER),
+	      m_ident(ident), m_init(NULL)
 	{
 	}
-	InitializedIdentifier(Identifier *ident, Expression *init)
-	    : SyntaxNode(TYPE_IDENTIFIER), m_ident(ident), m_init(init)
+	InitializedIdentifier(const Parser::Position &pos,
+	                      Identifier *ident, Expression *init)
+	    : SyntaxNode(pos, TYPE_IDENTIFIER),
+	                 m_ident(ident), m_init(init)
 	{
 	}
 
@@ -160,7 +183,9 @@ typedef std::vector<InitializedIdentifier*> InitializedIdentifierList;
 // Abstract base class for statements.
 class Statement : public SyntaxNode {
     public:
-	Statement() : SyntaxNode(TYPE_STATEMENT), m_labels(NULL)
+	explicit
+	Statement(const Parser::Position &pos)
+	    : SyntaxNode(pos, TYPE_STATEMENT), m_labels(NULL)
 	{
 	}
 	virtual ~Statement()
@@ -198,12 +223,13 @@ typedef std::vector<Statement*> StatementList;
 
 class Argument : public SyntaxNode {
     public:
-	Argument(Expression *expr)
-	    : SyntaxNode(TYPE_ARGUMENT), m_name(NULL), m_expr(expr)
+	Argument(const Parser::Position &pos, Expression *expr)
+	    : SyntaxNode(pos, TYPE_ARGUMENT), m_name(NULL), m_expr(expr)
 	{
 	}
-	Argument(Identifier *name, Expression *expr)
-	    : SyntaxNode(TYPE_ARGUMENT), m_name(name), m_expr(expr)
+	Argument(const Parser::Position &pos,
+	         Identifier *name, Expression *expr)
+	    : SyntaxNode(pos, TYPE_ARGUMENT), m_name(name), m_expr(expr)
 	{
 	}
 
@@ -235,7 +261,9 @@ typedef std::vector<Type*> TypeList;
 
 class NullStatement : public Statement {
     public:
-	NullStatement()
+	explicit
+	NullStatement(const Parser::Position &pos)
+	    : Statement(pos)
 	{
 	}
 
@@ -251,7 +279,8 @@ class NullStatement : public Statement {
 
 class CompoundStatement : public Statement {
     public:
-	CompoundStatement(StatementList *body) : m_body(body)
+	CompoundStatement(const Parser::Position &pos, StatementList *body)
+	    : Statement(pos), m_body(body)
 	{
 	}
 
@@ -279,7 +308,8 @@ class CompoundStatement : public Statement {
 
 class ExpressionStatement : public Statement {
     public:
-	ExpressionStatement(Expression *expr) : m_expr(expr)
+	ExpressionStatement(const Parser::Position &pos, Expression *expr)
+	    : Statement(pos), m_expr(expr)
 	{
 	}
 
@@ -304,13 +334,17 @@ class ExpressionStatement : public Statement {
 
 class ConditionalStatement : public Statement {
     public:
-	ConditionalStatement(Expression *condition, Statement *true_case)
-	    : m_condition(condition), m_true(true_case), m_false(NULL)
+	ConditionalStatement(const Parser::Position &pos,
+	                     Expression *condition, Statement *true_case)
+	    : Statement(pos),
+	      m_condition(condition), m_true(true_case), m_false(NULL)
 	{
 	}
-	ConditionalStatement(Expression *condition, Statement *true_case,
+	ConditionalStatement(const Parser::Position &pos,
+	                     Expression *condition, Statement *true_case,
 	                     Statement *false_case)
-	    : m_condition(condition), m_true(true_case), m_false(false_case)
+	    : Statement(pos),
+	      m_condition(condition), m_true(true_case), m_false(false_case)
 	{
 	}
 
@@ -347,8 +381,9 @@ class ConditionalStatement : public Statement {
 
 class SwitchStatement : public Statement {
     public:
-	SwitchStatement(Expression *condition, Statement *body)
-	    : m_condition(condition), m_body(body)
+	SwitchStatement(const Parser::Position &pos,
+	                Expression *condition, Statement *body)
+	    : Statement(pos), m_condition(condition), m_body(body)
 	{
 	}
 
@@ -383,9 +418,10 @@ class LoopStatement : public Statement {
 		LOOP_WHILE,
 		LOOP_DO_WHILE,
 	};
-	LoopStatement(LoopType loop_type, Expression *expr,
-	                  Statement *body)
-	    : m_loop_type(loop_type), m_expr(expr), m_body(body)
+	LoopStatement(const Parser::Position &pos,
+	              LoopType loop_type, Expression *expr, Statement *body)
+	    : Statement(pos),
+	      m_loop_type(loop_type), m_expr(expr), m_body(body)
 	{
 	}
 
@@ -414,8 +450,9 @@ class LoopStatement : public Statement {
 
 class WhileLoopStatement : public LoopStatement {
     public:
-	WhileLoopStatement(Expression *expr, Statement *body)
-	    : LoopStatement(LOOP_WHILE, expr, body)
+	WhileLoopStatement(const Parser::Position &pos,
+	                   Expression *expr, Statement *body)
+	    : LoopStatement(pos, LOOP_WHILE, expr, body)
 	{
 	}
 
@@ -430,8 +467,9 @@ class WhileLoopStatement : public LoopStatement {
 
 class DoWhileLoopStatement : public LoopStatement {
     public:
-	DoWhileLoopStatement(Statement *body, Expression *expr)
-	    : LoopStatement(LOOP_DO_WHILE, expr, body)
+	DoWhileLoopStatement(const Parser::Position &pos,
+	                     Statement *body, Expression *expr)
+	    : LoopStatement(pos, LOOP_DO_WHILE, expr, body)
 	{
 	}
 
@@ -446,7 +484,8 @@ class DoWhileLoopStatement : public LoopStatement {
 
 class GotoStatement : public Statement {
     public:
-	GotoStatement(Identifier *target) : m_target(target)
+	GotoStatement(const Parser::Position &pos, Identifier *target)
+	    : Statement(pos), m_target(target)
 	{
 	}
 
@@ -471,8 +510,9 @@ class GotoStatement : public Statement {
 
 class CaseStatement : public Statement {
     public:
-	CaseStatement(Expression *expr, Statement *statement)
-	    : m_expr(expr), m_statement(statement)
+	CaseStatement(const Parser::Position &pos,
+	              Expression *expr, Statement *statement)
+	    : Statement(pos), m_expr(expr), m_statement(statement)
 	{
 	}
 
@@ -503,10 +543,13 @@ class CaseStatement : public Statement {
 
 class ReturnStatement : public Statement {
     public:
-	ReturnStatement() : m_expr(NULL)
+	explicit
+	ReturnStatement(const Parser::Position &pos)
+	    : Statement(pos), m_expr(NULL)
 	{
 	}
-	ReturnStatement(Expression *expr) : m_expr(expr)
+	ReturnStatement(const Parser::Position &pos, Expression *expr)
+	    : Statement(pos), m_expr(expr)
 	{
 	}
 
@@ -531,9 +574,10 @@ class ReturnStatement : public Statement {
 
 class DefinitionStatement : public Statement {
     public:
-	DefinitionStatement(const Type *type,
+	DefinitionStatement(const Parser::Position &pos,
+	                    const Type *type,
 	                    const InitializedIdentifierList *vars)
-	    : m_public(false), m_type(type), m_vars(vars)
+	    : Statement(pos), m_public(false), m_type(type), m_vars(vars)
 	{
 	}
 
@@ -570,7 +614,8 @@ class DefinitionStatement : public Statement {
 
 class ImportStatement : public Statement {
     public:
-	ImportStatement(const string &arg) : m_argument(arg)
+	ImportStatement(const Parser::Position &pos, const string &arg)
+	    : Statement(pos), m_argument(arg)
 	{
 	}
 
@@ -595,7 +640,8 @@ class ImportStatement : public Statement {
 
 class ModuleStatement : public Statement {
     public:
-	ModuleStatement(const string &arg) : m_argument(arg)
+	ModuleStatement(const Parser::Position &pos, const string &arg)
+	    : Statement(pos), m_argument(arg)
 	{
 	}
 
@@ -620,7 +666,8 @@ class ModuleStatement : public Statement {
 
 class DiscoverStatement : public Statement {
     public:
-	DiscoverStatement(ArgumentList *args) : m_args(args)
+	DiscoverStatement(const Parser::Position &pos, ArgumentList *args)
+	    : Statement(pos), m_args(args)
 	{
 	}
 
@@ -647,7 +694,8 @@ static Type undefined_type(Type::VAR); //FIXME: get rid of this
 
 class IdentifierExpression : public Expression {
     public:
-	IdentifierExpression(Identifier *ident) : m_ident(ident)
+	IdentifierExpression(const Parser::Position &pos, Identifier *ident)
+	    : Expression(pos), m_ident(ident)
 	{
 	}
 
@@ -678,8 +726,9 @@ class IdentifierExpression : public Expression {
 
 class SubscriptExpression : public Expression {
     public:
-	SubscriptExpression(Expression *expr, Expression *index)
-	    : m_expr(expr), m_index(index)
+	SubscriptExpression(const Parser::Position &pos,
+	                    Expression *expr, Expression *index)
+	    : Expression(pos), m_expr(expr), m_index(index)
 	{
 	}
 
@@ -716,12 +765,13 @@ class SubscriptExpression : public Expression {
 
 class FunctionCallExpression : public Expression {
     public:
-	FunctionCallExpression(Expression *expr)
-	    : m_expr(expr), m_args(NULL)
+	FunctionCallExpression(const Parser::Position &pos, Expression *expr)
+	    : Expression(pos), m_expr(expr), m_args(NULL)
 	{
 	}
-	FunctionCallExpression(Expression *expr, ArgumentList *args)
-	    : m_expr(expr), m_args(args)
+	FunctionCallExpression(const Parser::Position &pos,
+	                       Expression *expr, ArgumentList *args)
+	    : Expression(pos), m_expr(expr), m_args(args)
 	{
 	}
 
@@ -769,8 +819,9 @@ class UnaryExpression : public Expression {
 		OP_POSTDEC, // foo--
 	};
 
-	UnaryExpression(Operator op, Expression *expr)
-	    : m_op(op), m_expr(expr), m_result_type(Type::VAR)
+	UnaryExpression(const Parser::Position &pos,
+	                Operator op, Expression *expr)
+	    : Expression(pos), m_op(op), m_expr(expr), m_result_type(Type::VAR)
 	{
 		const Type &expr_type = m_expr->result_type();
 
@@ -846,7 +897,8 @@ class UnaryExpression : public Expression {
 	SyntaxError
 	syntax_error(const string &fmt, const Type &type)
 	{
-		return SyntaxError(sprintfxx(fmt, type.to_string()));
+		return SyntaxError(parse_position(),
+		                   sprintfxx(fmt, type.to_string()));
 	}
 
 	Operator m_op;
@@ -887,8 +939,10 @@ class BinaryExpression : public Expression {
 		OP_XOR_ASSIGN,
 	};
 
-	BinaryExpression(Operator op, Expression *lhs, Expression *rhs)
-	    : m_op(op), m_lhs(lhs), m_rhs(rhs), m_result_type(Type::VAR)
+	BinaryExpression(const Parser::Position &pos,
+	                 Operator op, Expression *lhs, Expression *rhs)
+	    : Expression(pos),
+	      m_op(op), m_lhs(lhs), m_rhs(rhs), m_result_type(Type::VAR)
 	{
 		const Type &ltype = m_lhs->result_type();
 		const Type &rtype = m_rhs->result_type();
@@ -996,12 +1050,13 @@ class BinaryExpression : public Expression {
 	SyntaxError
 	syntax_error(const string &fmt, const Type &type)
 	{
-		return SyntaxError(sprintfxx(fmt, type.to_string()));
+		return SyntaxError(parse_position(),
+		                   sprintfxx(fmt, type.to_string()));
 	}
 	SyntaxError
 	syntax_error(const string &fmt, const Type &lhs, const Type &rhs)
 	{
-		return SyntaxError(
+		return SyntaxError(parse_position(),
 		    sprintfxx(fmt, lhs.to_string(), rhs.to_string()));
 	}
 
@@ -1013,10 +1068,12 @@ class BinaryExpression : public Expression {
 
 class ConditionalExpression : public Expression {
     public:
-	ConditionalExpression(Expression *condition,
+	ConditionalExpression(const Parser::Position &pos,
+	                      Expression *condition,
 	                      Expression *true_case,
 	                      Expression *false_case)
-	    : m_condition(condition), m_true(true_case), m_false(false_case),
+	    : Expression(pos),
+	      m_condition(condition), m_true(true_case), m_false(false_case),
 	      m_result_type(Type::VAR)
 	{
 		const Type &t1 = true_case->result_type();
@@ -1064,10 +1121,11 @@ class ConditionalExpression : public Expression {
 	Type m_result_type;
 };
 
-class ParameterDeclaration {
+class ParameterDeclaration : public SyntaxNode {
     public:
-	ParameterDeclaration(const Type *type, const Identifier *ident)
-	    : m_type(type), m_ident(ident)
+	ParameterDeclaration(const Parser::Position &pos,
+	                     const Type *type, const Identifier *ident)
+	    : SyntaxNode(pos, TYPE_PARAMETER), m_type(type), m_ident(ident)
 	{
 	}
 
@@ -1088,7 +1146,9 @@ typedef std::vector<ParameterDeclaration*> ParameterDeclarationList;
 
 class LiteralExpression : public Expression {
     public:
-	LiteralExpression(const Variable::Datum *value) : m_value(value)
+	LiteralExpression(const Parser::Position &pos,
+	                  const Variable::Datum *value)
+	    : Expression(pos), m_value(value)
 	{
 		// It doesn't make much sense to have a non-const literal.
 		DASSERT(value->type().is_const());
@@ -1117,16 +1177,45 @@ class LiteralExpression : public Expression {
 	util::NeverNullScopedPtr<const Variable::Datum> m_value;
 };
 
+// Helpers for easier usage.
+class BoolLiteralExpression : public LiteralExpression {
+    public:
+	BoolLiteralExpression(const Parser::Position &pos, bool val)
+	    : LiteralExpression(pos,
+	          new Variable::Datum(Type(Type::BOOL, Type::CONST), val))
+	{
+	}
+};
+class IntLiteralExpression : public LiteralExpression {
+    public:
+	IntLiteralExpression(const Parser::Position &pos, const Value &val)
+	    : LiteralExpression(pos,
+	          new Variable::Datum(Type(Type::INT, Type::CONST), val))
+	{
+	}
+};
+class StringLiteralExpression : public LiteralExpression {
+    public:
+	StringLiteralExpression(const Parser::Position &pos, const string &val)
+	    : LiteralExpression(pos,
+	          new Variable::Datum(Type(Type::STRING, Type::CONST), val))
+	{
+	}
+};
+
 class FunctionLiteralExpression : public Expression {
     public:
-	FunctionLiteralExpression(Statement *body)
-	    : m_params(NULL), m_body(body),
+	FunctionLiteralExpression(const Parser::Position &pos, Statement *body)
+	    : Expression(pos),
+	      m_params(NULL), m_body(body),
 	      m_result_type(Type::FUNC, Type::CONST)
 	{
 	}
-	FunctionLiteralExpression(ParameterDeclarationList *params,
+	FunctionLiteralExpression(const Parser::Position &pos,
+	                          ParameterDeclarationList *params,
 	                          Statement *body)
-	    : m_params(params), m_body(body),
+	    : Expression(pos),
+	      m_params(params), m_body(body),
 	      m_result_type(Type::FUNC, Type::CONST)
 	{
 	}
@@ -1166,8 +1255,10 @@ class FunctionLiteralExpression : public Expression {
 //FIXME: tuple literal?  assignable from list>
 class ListLiteralExpression : public Expression {
     public:
-	ListLiteralExpression(ArgumentList *contents)
-	    : m_contents(contents), m_result_type(Type::LIST, Type::CONST)
+	ListLiteralExpression(const Parser::Position &pos,
+	                      ArgumentList *contents)
+	    : Expression(pos),
+	      m_contents(contents), m_result_type(Type::LIST, Type::CONST)
 	{
 		// Figure out the actual type of this list literal.
 		Type content_type(Type::VAR);
