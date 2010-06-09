@@ -5,6 +5,7 @@
 // them up if they include their own auto-generated headers, so don't include
 // auto.*.h here.
 #include "pp.h"
+#include <map>
 #include <string>
 #include <vector>
 #include "language/syntax_tree.h"
@@ -14,7 +15,12 @@ namespace pp {
 namespace language {
 
 class ParsedFile {
+ private:
+	typedef std::map<string, const syntax::DefinitionStatement*> SymbolMap;
+
  public:
+	typedef SymbolMap::const_iterator SymbolIterator;
+
 	explicit
 	ParsedFile(const string &name)
 	    : m_name(name)
@@ -49,63 +55,83 @@ class ParsedFile {
 		m_statements.push_back(statement);
 	}
 
-	enum SymbolScope {
-		SCOPE_PUBLIC = 1,
-		SCOPE_PRIVATE = 2,
-	};
-
 	size_t
 	n_symbols() const
 	{
 		return m_public_symbols.size() + m_private_symbols.size();
 	}
 	size_t
-	n_symbols(SymbolScope scope) const
+	n_public_symbols() const
 	{
-		check_symbol_scope(scope);
-		if (scope == SCOPE_PUBLIC) {
-			return m_public_symbols.size();
-		}
+		return m_public_symbols.size();
+	}
+	size_t
+	n_private_symbols() const
+	{
 		return m_private_symbols.size();
 	}
-	const syntax::Identifier *
-	symbol(SymbolScope scope, size_t i) const
+	SymbolIterator
+	public_symbols_begin() const
 	{
-		check_symbol_scope(scope);
-		if (scope == SCOPE_PUBLIC) {
-			return m_public_symbols[i];
-		}
-		return m_private_symbols[i];
+		return m_public_symbols.begin();
 	}
-	void
-	add_symbol(SymbolScope scope, const syntax::Identifier *identifier)
+	SymbolIterator
+	public_symbols_end() const
 	{
-		check_symbol_scope(scope);
-		if (scope == SCOPE_PUBLIC) {
-			m_public_symbols.push_back(identifier);
-			return;
+		return m_public_symbols.end();
+	}
+	SymbolIterator
+	private_symbols_begin() const
+	{
+		return m_private_symbols.begin();
+	}
+	SymbolIterator
+	private_symbols_end() const
+	{
+		return m_private_symbols.end();
+	}
+	const syntax::DefinitionStatement *
+	public_symbol(const string &name) const
+	{
+		SymbolIterator it = m_public_symbols.find(name);
+		if (it == m_public_symbols.end()) {
+			return NULL;
 		}
-		m_private_symbols.push_back(identifier);
+		return it->second;
+	}
+	const syntax::DefinitionStatement *
+	private_symbol(const string &name) const
+	{
+		SymbolIterator it = m_private_symbols.find(name);
+		if (it == m_private_symbols.end()) {
+			return NULL;
+		}
+		return it->second;
+	}
+	// Returns true if the symbol already existed.
+	bool
+	add_public_symbol(const string &name,
+	                  const syntax::DefinitionStatement *definition)
+	{
+		const syntax::DefinitionStatement *p = m_public_symbols[name];
+		m_public_symbols[name] = definition;
+		return p;
+	}
+	// Returns true if the symbol already existed.
+	bool
+	add_private_symbol(const string &name,
+	                   const syntax::DefinitionStatement *definition)
+	{
+		const syntax::DefinitionStatement *p = m_private_symbols[name];
+		m_private_symbols[name] = definition;
+		return p;
 	}
 
  private:
-	void
-	check_symbol_scope(SymbolScope scope) const
-	{
-		switch(scope) {
-		 case SCOPE_PUBLIC:
-		 case SCOPE_PRIVATE:
-			return;
-		 default:
-			ASSERT_MSG(false,
-			           sprintfxx("unknown SymbolScope: %d", scope));
-		}
-	}
-
 	string m_name;
 	std::vector<const syntax::Statement*> m_statements;
-	std::vector<const syntax::Identifier*> m_public_symbols;
-	std::vector<const syntax::Identifier*> m_private_symbols;
+	SymbolMap m_public_symbols;
+	SymbolMap m_private_symbols;
 };
 
 }  // namespace language
