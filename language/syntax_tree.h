@@ -17,6 +17,14 @@ namespace pp {
 namespace language {
 namespace syntax {
 
+struct SyntaxError: public std::runtime_error
+{
+	explicit SyntaxError(const std::string &str)
+	    : runtime_error(str)
+	{
+	}
+};
+
 // Base class for all nodes in our syntax tree.
 class SyntaxNode {
     public:
@@ -25,14 +33,6 @@ class SyntaxNode {
 		TYPE_EXPRESSION,    // an expression produces a value
 		TYPE_STATEMENT,     // a statement executes
 		TYPE_ARGUMENT,      // a named function call argument
-	};
-
-	struct Error: public std::runtime_error
-	{
-		explicit Error(const std::string &str)
-		    : runtime_error(str)
-		{
-		}
 	};
 
 	NodeType node_type() const
@@ -46,7 +46,7 @@ class SyntaxNode {
 
 	// Validate this node.  What 'validate' means depends entirely on the
 	// node and the flags, which is a mask of enum ValidateFlag.  Returns
-	// the number of warnings.  Throws SyntaxNode::Error when a hard error
+	// the number of warnings.  Throws SyntaxError when a hard error
 	// is detected.
 	enum ValidateFlag {
 		VALIDATE_TYPES   = 0x1, // Make sure types match where possible.
@@ -537,6 +537,16 @@ class DefinitionStatement : public Statement {
 	{
 	}
 
+	const Type *type() const
+	{
+		return m_type.get();
+	}
+
+	const InitializedIdentifierList *vars() const
+	{
+		return m_vars.get();
+	}
+
 	void set_public()
 	{
 		m_public = true;
@@ -833,10 +843,10 @@ class UnaryExpression : public Expression {
 	}
 
     private:
-	SyntaxNode::Error
+	SyntaxError
 	syntax_error(const string &fmt, const Type &type)
 	{
-		return SyntaxNode::Error(sprintfxx(fmt, type.to_string()));
+		return SyntaxError(sprintfxx(fmt, type.to_string()));
 	}
 
 	Operator m_op;
@@ -983,15 +993,15 @@ class BinaryExpression : public Expression {
 	}
 
     private:
-	SyntaxNode::Error
+	SyntaxError
 	syntax_error(const string &fmt, const Type &type)
 	{
-		return SyntaxNode::Error(sprintfxx(fmt, type.to_string()));
+		return SyntaxError(sprintfxx(fmt, type.to_string()));
 	}
-	SyntaxNode::Error
+	SyntaxError
 	syntax_error(const string &fmt, const Type &lhs, const Type &rhs)
 	{
-		return SyntaxNode::Error(
+		return SyntaxError(
 		    sprintfxx(fmt, lhs.to_string(), rhs.to_string()));
 	}
 

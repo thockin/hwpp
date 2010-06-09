@@ -1024,11 +1024,31 @@ file_scope_item
 	: definition_statement {
 		SYNTRACE("file_scope_item", "definition_statement");
 		$$ = $1;
+		// Save all the top-level symbols.
+		const InitializedIdentifierList *init_ident_list = $1->vars();
+		for (size_t i = 0; i < init_ident_list->size(); i++) {
+			string symbol
+			    = init_ident_list->at(i)->identifier()->symbol();
+			if (out_parsed_file->add_private_symbol(symbol, $1)) {
+				throw SyntaxError(sprintfxx(
+				    "symbol '%s' redefined", symbol));
+			}
+		}
 	}
 	| TOK_PUBLIC definition_statement {
 		SYNTRACE("file_scope_item", "PUBLIC definition_statement");
 		$2->set_public();
 		$$ = $2;
+		// Save all the top-level symbols.
+		const InitializedIdentifierList *init_ident_list = $2->vars();
+		for (size_t i = 0; i < init_ident_list->size(); i++) {
+			string symbol
+			    = init_ident_list->at(i)->identifier()->symbol();
+			if (out_parsed_file->add_public_symbol(symbol, $2)) {
+				throw SyntaxError(sprintfxx(
+				    "symbol '%s' redefined", symbol));
+			}
+		}
 	}
 	| discover_statement {
 		SYNTRACE("file_scope_item", "discover_statement");
