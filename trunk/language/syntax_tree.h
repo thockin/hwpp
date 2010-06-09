@@ -951,7 +951,7 @@ class BinaryExpression : public Expression {
 			 || (rprim != Type::INT && rprim != Type::VAR)) {
 				throw syntax_error(
 				    "expected two int expressions,"
-				    "found '%s' and '%s'", lprim, rprim);
+				    " found '%s' and '%s'", lprim, rprim);
 			}
 			m_result_type = Type::INT;
 			break;
