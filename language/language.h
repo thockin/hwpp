@@ -66,8 +66,15 @@ class Parser {
 	~Parser();
 
 	// Equivalent of yyparse.
-	int parse_file(FILE *file, ParsedFile *out_parsed_file);
+	int parse_file(const string &name, FILE *file,
+	               ParsedFile *out_parsed_file);
 	//FIXME: parse string,etc
+
+	// Get the current line number.
+	int current_line();
+
+	// Get the current file name.
+	const string &current_file();
 
     private:
 	ParserImpl *m_impl;
