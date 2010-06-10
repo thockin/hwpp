@@ -89,7 +89,7 @@ class Expression : public SyntaxNode {
     public:
 	explicit
 	Expression(const Parser::Position &pos)
-	    : SyntaxNode(pos, TYPE_EXPRESSION)
+	    : SyntaxNode(pos, TYPE_EXPRESSION), m_result_type(Type::VAR)
 	{
 	}
 
@@ -97,11 +97,24 @@ class Expression : public SyntaxNode {
 	{
 	}
 
-	// Get the resulting type of this expression.
-	virtual const Type &result_type() const = 0;
-
 	// Evaluate this expression, producing a result.
 	virtual void evaluate(Variable *out_result) = 0;
+
+	// Get the resulting type of this expression.
+	virtual const Type &result_type() const
+	{
+		return m_result_type;
+	}
+
+    protected:
+	void set_result_type(const Type &type) const
+	{
+		m_result_type = type;
+	}
+
+    private:
+	//FIXME: don't be mutable
+	mutable Type m_result_type;
 };
 typedef std::vector<Expression*> ExpressionList;
 
@@ -170,8 +183,11 @@ class InitializedIdentifier : public SyntaxNode {
 
 	virtual int validate(uint64_t flags) const
 	{
-		(void)flags; //FIXME:
-		return 0;
+		int warnings = m_ident->validate(flags);
+		if (m_init) {
+			warnings += m_init->validate(flags);
+		}
+		return warnings;
 	}
 
     private:
@@ -247,8 +263,11 @@ class Argument : public SyntaxNode {
 
 	virtual int validate(uint64_t flags) const
 	{
-		(void)flags; //FIXME:
-		return 0;
+		int warnings = m_expr->validate(flags);
+		if (m_name) {
+			warnings += m_name->validate(flags);
+		}
+		return warnings;
 	}
 
     private:
@@ -324,8 +343,7 @@ class ExpressionStatement : public Statement {
 
 	virtual int validate(uint64_t flags) const
 	{
-		(void)flags; //FIXME:
-		return 0;
+		return m_expr->validate(flags);
 	}
 
     private:
@@ -369,8 +387,12 @@ class ConditionalStatement : public Statement {
 
 	virtual int validate(uint64_t flags) const
 	{
-		(void)flags; //FIXME:
-		return 0;
+		int warnings = m_condition->validate(flags)
+		    + m_true->validate(flags);
+		if (m_false) {
+			warnings += m_false->validate(flags);
+		}
+		return warnings;
 	}
 
     private:
@@ -403,8 +425,9 @@ class SwitchStatement : public Statement {
 
 	virtual int validate(uint64_t flags) const
 	{
-		(void)flags; //FIXME:
-		return 0;
+		int warnings = m_condition->validate(flags)
+		    + m_body->validate(flags);
+		return warnings;
 	}
 
     private:
@@ -440,6 +463,13 @@ class LoopStatement : public Statement {
 		return m_body.get();
 	}
 
+	virtual int validate(uint64_t flags) const
+	{
+		int warnings = m_expr->validate(flags)
+		    + m_body->validate(flags);
+		return warnings;
+	}
+
 	virtual bool execute();
 
     private:
@@ -457,12 +487,6 @@ class WhileLoopStatement : public LoopStatement {
 	}
 
 	virtual string to_string() const;
-
-	virtual int validate(uint64_t flags) const
-	{
-		(void)flags; //FIXME:
-		return 0;
-	}
 };
 
 class DoWhileLoopStatement : public LoopStatement {
@@ -474,12 +498,6 @@ class DoWhileLoopStatement : public LoopStatement {
 	}
 
 	virtual string to_string() const;
-
-	virtual int validate(uint64_t flags) const
-	{
-		(void)flags; //FIXME:
-		return 0;
-	}
 };
 
 class GotoStatement : public Statement {
@@ -500,8 +518,8 @@ class GotoStatement : public Statement {
 
 	virtual int validate(uint64_t flags) const
 	{
-		(void)flags; //FIXME:
-		return 0;
+		int warnings = m_target->validate(flags);
+		return warnings;
 	}
 
     private:
@@ -532,8 +550,9 @@ class CaseStatement : public Statement {
 
 	virtual int validate(uint64_t flags) const
 	{
-		(void)flags; //FIXME:
-		return 0;
+		int warnings = m_expr->validate(flags)
+		    + m_statement->validate(flags);
+		return warnings;
 	}
 
     private:
@@ -564,8 +583,11 @@ class ReturnStatement : public Statement {
 
 	virtual int validate(uint64_t flags) const
 	{
-		(void)flags; //FIXME:
-		return 0;
+		int warnings = 0;
+		if (m_expr) {
+			warnings += m_expr->validate(flags);
+		}
+		return warnings;
 	}
 
     private:
@@ -602,8 +624,11 @@ class DefinitionStatement : public Statement {
 
 	virtual int validate(uint64_t flags) const
 	{
-		(void)flags; //FIXME:
-		return 0;
+		int warnings = 0;
+		for (size_t i = 0; i < m_vars->size(); i++) {
+			warnings += m_vars->at(i)->validate(flags);
+		}
+		return warnings;
 	}
 
     private:
@@ -630,7 +655,7 @@ class ImportStatement : public Statement {
 
 	virtual int validate(uint64_t flags) const
 	{
-		(void)flags; //FIXME:
+		(void)flags; //FIXME: validate the arg
 		return 0;
 	}
 
@@ -656,7 +681,7 @@ class ModuleStatement : public Statement {
 
 	virtual int validate(uint64_t flags) const
 	{
-		(void)flags; //FIXME:
+		(void)flags; //FIXME: validate the arg
 		return 0;
 	}
 
@@ -682,8 +707,11 @@ class DiscoverStatement : public Statement {
 
 	virtual int validate(uint64_t flags) const
 	{
-		(void)flags; //FIXME:
-		return 0;
+		int warnings = 0;
+		for (size_t i = 0; i < m_args->size(); i++) {
+			warnings += m_args->at(i)->validate(flags);
+		}
+		return warnings;
 	}
 
     private:
@@ -716,8 +744,8 @@ class IdentifierExpression : public Expression {
 
 	virtual int validate(uint64_t flags) const
 	{
-		(void)flags; //FIXME:
-		return 0;
+		int warnings = m_ident->validate(flags);
+		return warnings;
 	}
 
     private:
@@ -754,8 +782,9 @@ class SubscriptExpression : public Expression {
 
 	virtual int validate(uint64_t flags) const
 	{
-		(void)flags; //FIXME:
-		return 0;
+		int warnings = m_expr->validate(flags)
+		    + m_index->validate(flags);
+		return warnings;
 	}
 
     private:
@@ -797,8 +826,13 @@ class FunctionCallExpression : public Expression {
 
 	virtual int validate(uint64_t flags) const
 	{
-		(void)flags; //FIXME:
-		return 0;
+		int warnings = m_expr->validate(flags);
+		if (m_args) {
+			for (size_t i = 0; i < m_args->size(); i++) {
+				warnings += m_args->at(i)->validate(flags);
+			}
+		}
+		return warnings;
 	}
 
     private:
@@ -821,34 +855,8 @@ class UnaryExpression : public Expression {
 
 	UnaryExpression(const Parser::Position &pos,
 	                Operator op, Expression *expr)
-	    : Expression(pos), m_op(op), m_expr(expr), m_result_type(Type::VAR)
+	    : Expression(pos), m_op(op), m_expr(expr)
 	{
-		const Type &expr_type = m_expr->result_type();
-
-		switch (m_op) {
-		 case OP_NOT:
-			if (expr_type != Type::BOOL && expr_type != Type::VAR) {
-				throw syntax_error(
-				    "expected bool expression, found '%s'",
-				    expr_type);
-			}
-			m_result_type = Type::BOOL;
-			break;
-		 case OP_POS:
-		 case OP_NEG:
-		 case OP_BITNOT:
-		 case OP_PREINC:
-		 case OP_PREDEC:
-		 case OP_POSTINC:
-		 case OP_POSTDEC:
-			if (expr_type != Type::INT && expr_type != Type::VAR) {
-				throw syntax_error(
-				    "expected int expression, found '%s'",
-				    expr_type);
-			}
-			m_result_type = Type::INT;
-			break;
-		}
 	}
 
 	Operator op() const
@@ -861,24 +869,57 @@ class UnaryExpression : public Expression {
 		return m_expr.get();
 	}
 
-	virtual const Type &result_type() const
-	{
-		return m_result_type;
-	}
-
 	virtual void evaluate(Variable *out_result);
 
 	virtual string to_string() const;
 
 	virtual int validate(uint64_t flags) const
 	{
-		int warnings = 0;
-		if (flags & (VALIDATE_TYPES | VALIDATE_VAR_USE)) {
-			const Type &t = m_expr->result_type();
-			if (flags & VALIDATE_VAR_USE) {
-				warnings += validate_var_use(t);
+		int warnings = m_expr->validate(flags);
+
+		const Type &expr_type = m_expr->result_type();
+		Type::Primitive expr_prim = expr_type.primitive();
+
+		switch (m_op) {
+		 case OP_NOT:
+			// Does not care about constness.
+			if (expr_prim != Type::BOOL
+			 && expr_prim != Type::VAR) {
+				throw syntax_error(
+				    "expected bool expression, found '%s'",
+				    expr_type);
 			}
+			set_result_type(Type::BOOL);
+			break;
+		 case OP_PREINC:
+		 case OP_PREDEC:
+		 case OP_POSTINC:
+		 case OP_POSTDEC:
+			// These ops require non-const expressions.
+		 	if (expr_type.is_const()) {
+				throw syntax_error(
+				    "expected non-const int expression,"
+				    " found '%s'", expr_type);
+			}
+			// fall through
+		 case OP_POS:
+		 case OP_NEG:
+		 case OP_BITNOT:
+			// These ops do not about constness.
+			if (expr_prim != Type::INT
+			 && expr_prim != Type::VAR) {
+				throw syntax_error(
+				    "expected int expression, found '%s'",
+				    expr_type);
+			}
+			set_result_type(Type::INT);
+			break;
 		}
+
+		if (flags & VALIDATE_VAR_USE) {
+			warnings += validate_var_use(expr_type);
+		}
+
 		return warnings;
 	}
 
@@ -895,7 +936,7 @@ class UnaryExpression : public Expression {
 
     private:
 	SyntaxError
-	syntax_error(const string &fmt, const Type &type)
+	syntax_error(const string &fmt, const Type &type) const
 	{
 		return SyntaxError(parse_position(),
 		                   sprintfxx(fmt, type.to_string()));
@@ -903,7 +944,6 @@ class UnaryExpression : public Expression {
 
 	Operator m_op;
 	util::NeverNullScopedPtr<Expression> m_expr;
-	Type m_result_type;
 };
 
 class BinaryExpression : public Expression {
@@ -942,8 +982,34 @@ class BinaryExpression : public Expression {
 	BinaryExpression(const Parser::Position &pos,
 	                 Operator op, Expression *lhs, Expression *rhs)
 	    : Expression(pos),
-	      m_op(op), m_lhs(lhs), m_rhs(rhs), m_result_type(Type::VAR)
+	      m_op(op), m_lhs(lhs), m_rhs(rhs)
 	{
+	}
+
+	Operator op() const
+	{
+		return m_op;
+	}
+
+	Expression *lhs()
+	{
+		return m_lhs.get();
+	}
+
+	Expression *rhs()
+	{
+		return m_rhs.get();
+	}
+
+	virtual void evaluate(Variable *out_result);
+
+	virtual string to_string() const;
+
+	virtual int validate(uint64_t flags) const
+	{
+		//FIXME: warn if either side is var
+		int warnings = m_lhs->validate(flags) + m_rhs->validate(flags);
+
 		const Type &ltype = m_lhs->result_type();
 		const Type &rtype = m_rhs->result_type();
 		Type::Primitive lprim = ltype.primitive();
@@ -956,7 +1022,7 @@ class BinaryExpression : public Expression {
 				throw syntax_error("can't compare '%s' to '%s'",
 				    ltype, rtype);
 			}
-			m_result_type = Type::BOOL;
+			set_result_type(Type::BOOL);
 			break;
 		 case OP_ASSIGN:
 			if (ltype.is_const()) {
@@ -967,7 +1033,7 @@ class BinaryExpression : public Expression {
 				throw syntax_error("can't assign '%s' to '%s'",
 				    rtype, ltype);
 			}
-			m_result_type = ltype != Type::VAR ? ltype : rtype;
+			set_result_type(ltype != Type::VAR ? ltype : rtype);
 			break;
 		 case OP_LT:
 		 case OP_GT:
@@ -979,7 +1045,7 @@ class BinaryExpression : public Expression {
 				    "expected two int expressions,"
 				    " found '%s' and '%s'", lprim, rprim);
 			}
-			m_result_type = Type::BOOL;
+			set_result_type(Type::BOOL);
 			break;
 		 case OP_MUL:
 		 case OP_DIV:
@@ -1007,54 +1073,25 @@ class BinaryExpression : public Expression {
 				    "expected two int expressions,"
 				    " found '%s' and '%s'", lprim, rprim);
 			}
-			m_result_type = Type::INT;
+			set_result_type(Type::INT);
 			break;
 		 case OP_COMMA:
-			m_result_type = m_rhs->result_type();
+			set_result_type(m_rhs->result_type());
 			break;
 		}
-	}
 
-	Operator op() const
-	{
-		return m_op;
-	}
-
-	Expression *lhs()
-	{
-		return m_lhs.get();
-	}
-
-	Expression *rhs()
-	{
-		return m_rhs.get();
-	}
-
-	virtual const Type &result_type() const
-	{
-		//FIXME: warn if either side is var
-		return m_result_type;
-	}
-
-	virtual void evaluate(Variable *out_result);
-
-	virtual string to_string() const;
-
-	virtual int validate(uint64_t flags) const
-	{
-		(void)flags; //FIXME:
-		return 0;
+		return warnings;
 	}
 
     private:
 	SyntaxError
-	syntax_error(const string &fmt, const Type &type)
+	syntax_error(const string &fmt, const Type &type) const
 	{
 		return SyntaxError(parse_position(),
 		                   sprintfxx(fmt, type.to_string()));
 	}
 	SyntaxError
-	syntax_error(const string &fmt, const Type &lhs, const Type &rhs)
+	syntax_error(const string &fmt, const Type &lhs, const Type &rhs) const
 	{
 		return SyntaxError(parse_position(),
 		    sprintfxx(fmt, lhs.to_string(), rhs.to_string()));
@@ -1063,7 +1100,6 @@ class BinaryExpression : public Expression {
 	Operator m_op;
 	util::NeverNullScopedPtr<Expression> m_lhs;
 	util::NeverNullScopedPtr<Expression> m_rhs;
-	Type m_result_type;
 };
 
 class ConditionalExpression : public Expression {
@@ -1073,14 +1109,8 @@ class ConditionalExpression : public Expression {
 	                      Expression *true_case,
 	                      Expression *false_case)
 	    : Expression(pos),
-	      m_condition(condition), m_true(true_case), m_false(false_case),
-	      m_result_type(Type::VAR)
+	      m_condition(condition), m_true(true_case), m_false(false_case)
 	{
-		const Type &t1 = true_case->result_type();
-		const Type &t2 = false_case->result_type();
-		if (t1 == t2) {
-			m_result_type = t1;
-		}  // else leave it as VAR
 	}
 
 	Expression *condition()
@@ -1098,27 +1128,29 @@ class ConditionalExpression : public Expression {
 		return m_false.get();
 	}
 
-	virtual const Type &result_type() const
-	{
-		return m_result_type;
-	}
-
 	virtual void evaluate(Variable *out_result);
 
 	virtual string to_string() const;
 
 	virtual int validate(uint64_t flags) const
 	{
-		(void)flags; //FIXME:
+		int warnings = m_condition->validate(flags)
+		    + m_true->validate(flags) + m_false->validate(flags);
+
+		const Type &t1 = m_true->result_type();
+		const Type &t2 = m_false->result_type();
+		if (t1 == t2) {
+			set_result_type(t1);
+		}  // else leave it as VAR
 		//FIXME: warn if true and false are different types
-		return 0;
+
+		return warnings;
 	}
 
     private:
 	util::NeverNullScopedPtr<Expression> m_condition;
 	util::NeverNullScopedPtr<Expression> m_true;
 	util::NeverNullScopedPtr<Expression> m_false;
-	Type m_result_type;
 };
 
 class ParameterDeclaration : public SyntaxNode {
@@ -1133,9 +1165,8 @@ class ParameterDeclaration : public SyntaxNode {
 
 	virtual int validate(uint64_t flags) const
 	{
-		//FIXME:
-		(void)flags;
-		return 0;
+		int warnings = m_ident->validate(flags);
+		return warnings;
 	}
 
     private:
@@ -1152,16 +1183,12 @@ class LiteralExpression : public Expression {
 	{
 		// It doesn't make much sense to have a non-const literal.
 		DASSERT(value->type().is_const());
+		set_result_type(m_value->type());
 	}
 
 	const Variable::Datum *value() const
 	{
 		return m_value.get();
-	}
-
-	virtual const Type &result_type() const
-	{
-		return m_value->type();
 	}
 
 	virtual void evaluate(Variable *out_result);
@@ -1207,17 +1234,16 @@ class FunctionLiteralExpression : public Expression {
     public:
 	FunctionLiteralExpression(const Parser::Position &pos, Statement *body)
 	    : Expression(pos),
-	      m_params(NULL), m_body(body),
-	      m_result_type(Type::FUNC, Type::CONST)
+	      m_params(NULL), m_body(body)
 	{
+		set_result_type(Type(Type::FUNC, Type::CONST));
 	}
 	FunctionLiteralExpression(const Parser::Position &pos,
 	                          ParameterDeclarationList *params,
 	                          Statement *body)
-	    : Expression(pos),
-	      m_params(params), m_body(body),
-	      m_result_type(Type::FUNC, Type::CONST)
+	    : Expression(pos), m_params(params), m_body(body)
 	{
+		set_result_type(Type(Type::FUNC, Type::CONST));
 	}
 
 	Statement *body() const
@@ -1225,9 +1251,39 @@ class FunctionLiteralExpression : public Expression {
 		return m_body.get();
 	}
 
-	virtual const Type &result_type() const
+	virtual void evaluate(Variable *out_result);
+
+	virtual string to_string() const;
+
+	virtual int validate(uint64_t flags) const
 	{
-		return m_result_type;
+		int warnings = m_body->validate(flags);
+		if (m_params) {
+			for (size_t i = 0; i < m_params->size(); i++) {
+				warnings += m_params->at(i)->validate(flags);
+			}
+		}
+		return warnings;
+	}
+
+    private:
+	util::MaybeNullScopedPtr<ParameterDeclarationList> m_params;
+	util::NeverNullScopedPtr<Statement> m_body;
+};
+
+//FIXME: tuple literal?  assignable from list>
+class ListLiteralExpression : public Expression {
+    public:
+	ListLiteralExpression(const Parser::Position &pos,
+	                      ArgumentList *contents)
+	    : Expression(pos), m_contents(contents)
+	{
+		set_result_type(Type(Type::LIST, Type::CONST));
+	}
+
+	ArgumentList *contents()
+	{
+		return m_contents.get();
 	}
 
 	virtual void evaluate(Variable *out_result);
@@ -1237,29 +1293,10 @@ class FunctionLiteralExpression : public Expression {
 	virtual int validate(uint64_t flags) const
 	{
 		int warnings = 0;
-		if (m_params) {
-			for (size_t i = 0; i < m_params->size(); i++) {
-				warnings += m_params->at(i)->validate(flags);
-			}
+		for (size_t i = 0; i < m_contents->size(); i++) {
+			warnings += m_contents->at(i)->validate(flags);
 		}
-		warnings += m_body->validate(flags);
-		return warnings;
-	}
 
-    private:
-	util::MaybeNullScopedPtr<ParameterDeclarationList> m_params;
-	util::NeverNullScopedPtr<Statement> m_body;
-	Type m_result_type;
-};
-
-//FIXME: tuple literal?  assignable from list>
-class ListLiteralExpression : public Expression {
-    public:
-	ListLiteralExpression(const Parser::Position &pos,
-	                      ArgumentList *contents)
-	    : Expression(pos),
-	      m_contents(contents), m_result_type(Type::LIST, Type::CONST)
-	{
 		// Figure out the actual type of this list literal.
 		Type content_type(Type::VAR);
 		for (size_t i = 0; i < m_contents->size(); i++) {
@@ -1272,42 +1309,19 @@ class ListLiteralExpression : public Expression {
 				break;
 			}
 		}
+		Type full_result_type = result_type();
 		if (content_type != Type::VAR) {
-			m_result_type.add_argument(content_type);
+			full_result_type.add_argument(content_type);
 		} else {
-			m_result_type.add_argument(Type::VAR);
+			full_result_type.add_argument(Type::VAR);
 		}
-		m_result_type.set_const();
-	}
+		set_result_type(full_result_type);
 
-	ArgumentList *contents()
-	{
-		return m_contents.get();
-	}
-
-	virtual void evaluate(Variable *out_result);
-
-	virtual string to_string() const;
-
-	virtual const Type &result_type() const
-	{
-		return m_result_type;
-	}
-
-	virtual int validate(uint64_t flags) const
-	{
-		int warnings = 0;
-		if (m_contents) {
-			for (size_t i = 0; i < m_contents->size(); i++) {
-				warnings += m_contents->at(i)->validate(flags);
-			}
-		}
 		return warnings;
 	}
 
     private:
 	util::NeverNullScopedPtr<ArgumentList> m_contents;
-	Type m_result_type;
 };
 
 }  // namespace syntax
