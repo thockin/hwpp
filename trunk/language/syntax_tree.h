@@ -228,6 +228,7 @@ class Statement : public SyntaxNode {
 
 	virtual int validate(uint64_t flags) const
 	{
+		//FIXME: make all subclasses call this
 		(void)flags; //FIXME: check labels
 		return 0;
 	}
