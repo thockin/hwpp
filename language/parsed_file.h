@@ -16,7 +16,7 @@ namespace language {
 
 class ParsedFile {
  private:
-	typedef std::map<string, const syntax::DefinitionStatement*> SymbolMap;
+	typedef std::map<string, syntax::DefinitionStatement*> SymbolMap;
 
  public:
 	typedef SymbolMap::const_iterator SymbolIterator;
@@ -44,13 +44,13 @@ class ParsedFile {
 	{
 		return m_statements.size();
 	}
-	const syntax::Statement *
+	syntax::Statement *
 	statement(size_t i) const
 	{
 		return m_statements[i];
 	}
 	void
-	add_statement(const syntax::Statement *statement)
+	add_statement(syntax::Statement *statement)
 	{
 		m_statements.push_back(statement);
 	}
@@ -90,7 +90,7 @@ class ParsedFile {
 	{
 		return m_private_symbols.end();
 	}
-	const syntax::DefinitionStatement *
+	syntax::DefinitionStatement *
 	public_symbol(const string &name) const
 	{
 		SymbolIterator it = m_public_symbols.find(name);
@@ -99,7 +99,7 @@ class ParsedFile {
 		}
 		return it->second;
 	}
-	const syntax::DefinitionStatement *
+	syntax::DefinitionStatement *
 	private_symbol(const string &name) const
 	{
 		SymbolIterator it = m_private_symbols.find(name);
@@ -111,7 +111,7 @@ class ParsedFile {
 	// Returns true if the symbol already existed.
 	bool
 	add_public_symbol(const string &name,
-	                  const syntax::DefinitionStatement *definition)
+	                  syntax::DefinitionStatement *definition)
 	{
 		const syntax::DefinitionStatement *p = m_public_symbols[name];
 		m_public_symbols[name] = definition;
@@ -120,7 +120,7 @@ class ParsedFile {
 	// Returns true if the symbol already existed.
 	bool
 	add_private_symbol(const string &name,
-	                   const syntax::DefinitionStatement *definition)
+	                   syntax::DefinitionStatement *definition)
 	{
 		const syntax::DefinitionStatement *p = m_private_symbols[name];
 		m_private_symbols[name] = definition;
@@ -129,7 +129,7 @@ class ParsedFile {
 
  private:
 	string m_name;
-	std::vector<const syntax::Statement*> m_statements;
+	std::vector<syntax::Statement*> m_statements;
 	SymbolMap m_public_symbols;
 	SymbolMap m_private_symbols;
 };
