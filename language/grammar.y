@@ -86,10 +86,15 @@ pp__language__internal__pop_lexer_state(yyscan_t scanner);
 #define lex_push_state(x) pp__language__internal__push_lexer_state(x, scanner)
 #define lex_pop_state()   pp__language__internal__pop_lexer_state(scanner)
 
-// To make tracing the parser easier.
-#define SYNTRACE(left, right) do { \
+#define DO_SYNTRACE 0
+#if DO_SYNTRACE
+  // To make tracing the parser easier.
+  #define SYNTRACE(left, right) do { \
 	fprintf(stderr, "%d: %s <- %s\n", lex_lineno(), left, right); \
-} while (0)
+  } while (0)
+#else
+  #define SYNTRACE(left, right)
+#endif
 
 // To make position tracking less "in your face".
 #define curpos() parser->current_position()
