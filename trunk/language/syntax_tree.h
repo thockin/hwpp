@@ -66,7 +66,7 @@ class SyntaxNode {
 		VALIDATE_SYMBOLS = 0x4, // Validate all symbol references.
 	};
 	virtual int
-	validate(uint64_t flags) const = 0;
+	validate(uint64_t flags) = 0;
 
     protected:
 	SyntaxNode(const Parser::Position &pos, NodeType node_type)
@@ -107,14 +107,14 @@ class Expression : public SyntaxNode {
 	}
 
     protected:
-	void set_result_type(const Type &type) const
+	void set_result_type(const Type &type)
 	{
 		m_result_type = type;
 	}
 
     private:
-	//FIXME: don't be mutable
-	mutable Type m_result_type;
+	// The resulting datatype of the Expression.
+	Type m_result_type;
 };
 typedef std::vector<Expression*> ExpressionList;
 
@@ -144,7 +144,7 @@ class Identifier : public SyntaxNode {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) const {
+	virtual int validate(uint64_t flags) {
 		//FIXME: ensure that the module and symbol are valid
 		(void)flags;
 		return 0;
@@ -181,7 +181,7 @@ class InitializedIdentifier : public SyntaxNode {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		int warnings = m_ident->validate(flags);
 		if (m_init) {
@@ -226,7 +226,7 @@ class Statement : public SyntaxNode {
 		m_labels.push_back(label);
 	}
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		//FIXME: make all subclasses call this
 		(void)flags; //FIXME: check labels
@@ -262,7 +262,7 @@ class Argument : public SyntaxNode {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		int warnings = m_expr->validate(flags);
 		if (m_name) {
@@ -291,7 +291,7 @@ class NullStatement : public Statement {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t /*flags*/) const
+	virtual int validate(uint64_t /*flags*/)
 	{
 		return 0;
 	}
@@ -313,7 +313,7 @@ class CompoundStatement : public Statement {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		int warnings = 0;
 		for (size_t i = 0; i < m_body->size(); i++) {
@@ -342,7 +342,7 @@ class ExpressionStatement : public Statement {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		return m_expr->validate(flags);
 	}
@@ -386,7 +386,7 @@ class ConditionalStatement : public Statement {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		int warnings = m_condition->validate(flags)
 		    + m_true->validate(flags);
@@ -424,7 +424,7 @@ class SwitchStatement : public Statement {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		int warnings = m_condition->validate(flags)
 		    + m_body->validate(flags);
@@ -464,7 +464,7 @@ class LoopStatement : public Statement {
 		return m_body.get();
 	}
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		int warnings = m_expr->validate(flags)
 		    + m_body->validate(flags);
@@ -517,7 +517,7 @@ class GotoStatement : public Statement {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		int warnings = m_target->validate(flags);
 		return warnings;
@@ -549,7 +549,7 @@ class CaseStatement : public Statement {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		int warnings = m_expr->validate(flags)
 		    + m_statement->validate(flags);
@@ -582,7 +582,7 @@ class ReturnStatement : public Statement {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		int warnings = 0;
 		if (m_expr) {
@@ -598,18 +598,17 @@ class ReturnStatement : public Statement {
 class DefinitionStatement : public Statement {
     public:
 	DefinitionStatement(const Parser::Position &pos,
-	                    const Type *type,
-	                    const InitializedIdentifierList *vars)
+	                    Type *type, InitializedIdentifierList *vars)
 	    : Statement(pos), m_public(false), m_type(type), m_vars(vars)
 	{
 	}
 
-	const Type *type() const
+	Type *type() const
 	{
 		return m_type.get();
 	}
 
-	const InitializedIdentifierList *vars() const
+	InitializedIdentifierList *vars() const
 	{
 		return m_vars.get();
 	}
@@ -623,7 +622,7 @@ class DefinitionStatement : public Statement {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		int warnings = 0;
 		for (size_t i = 0; i < m_vars->size(); i++) {
@@ -634,8 +633,8 @@ class DefinitionStatement : public Statement {
 
     private:
 	bool m_public;
-	util::NeverNullScopedPtr<const Type> m_type;
-	util::NeverNullScopedPtr<const InitializedIdentifierList> m_vars;
+	util::NeverNullScopedPtr<Type> m_type;
+	util::NeverNullScopedPtr<InitializedIdentifierList> m_vars;
 };
 
 class ImportStatement : public Statement {
@@ -654,7 +653,7 @@ class ImportStatement : public Statement {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		(void)flags; //FIXME: validate the arg
 		return 0;
@@ -680,14 +679,14 @@ class ModuleStatement : public Statement {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		(void)flags; //FIXME: validate the arg
 		return 0;
 	}
 
     private:
-	const string m_argument;
+	string m_argument;
 };
 
 class DiscoverStatement : public Statement {
@@ -706,7 +705,7 @@ class DiscoverStatement : public Statement {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		int warnings = 0;
 		for (size_t i = 0; i < m_args->size(); i++) {
@@ -743,7 +742,7 @@ class IdentifierExpression : public Expression {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		int warnings = m_ident->validate(flags);
 		return warnings;
@@ -781,7 +780,7 @@ class SubscriptExpression : public Expression {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		int warnings = m_expr->validate(flags)
 		    + m_index->validate(flags);
@@ -825,7 +824,7 @@ class FunctionCallExpression : public Expression {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		int warnings = m_expr->validate(flags);
 		if (m_args) {
@@ -874,7 +873,7 @@ class UnaryExpression : public Expression {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		int warnings = m_expr->validate(flags);
 
@@ -925,7 +924,7 @@ class UnaryExpression : public Expression {
 	}
 
 	//FIXME: make file static
-	int validate_var_use(const Type &t) const {
+	int validate_var_use(const Type &t) {
 		if (t.primitive() == Type::VAR) {
 			// FIXME:
 			// emit_warning(
@@ -1006,7 +1005,7 @@ class BinaryExpression : public Expression {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		//FIXME: warn if either side is var
 		int warnings = m_lhs->validate(flags) + m_rhs->validate(flags);
@@ -1133,7 +1132,7 @@ class ConditionalExpression : public Expression {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		int warnings = m_condition->validate(flags)
 		    + m_true->validate(flags) + m_false->validate(flags);
@@ -1157,22 +1156,22 @@ class ConditionalExpression : public Expression {
 class ParameterDeclaration : public SyntaxNode {
     public:
 	ParameterDeclaration(const Parser::Position &pos,
-	                     const Type *type, const Identifier *ident)
+	                     Type *type, Identifier *ident)
 	    : SyntaxNode(pos, TYPE_PARAMETER), m_type(type), m_ident(ident)
 	{
 	}
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		int warnings = m_ident->validate(flags);
 		return warnings;
 	}
 
     private:
-	util::NeverNullScopedPtr<const Type> m_type;
-	util::NeverNullScopedPtr<const Identifier> m_ident;
+	util::NeverNullScopedPtr<Type> m_type;
+	util::NeverNullScopedPtr<Identifier> m_ident;
 };
 typedef std::vector<ParameterDeclaration*> ParameterDeclarationList;
 
@@ -1196,7 +1195,7 @@ class LiteralExpression : public Expression {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t /*flags*/) const
+	virtual int validate(uint64_t /*flags*/)
 	{
 		return 0;
 	}
@@ -1256,7 +1255,7 @@ class FunctionLiteralExpression : public Expression {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		int warnings = m_body->validate(flags);
 		if (m_params) {
@@ -1291,7 +1290,7 @@ class ListLiteralExpression : public Expression {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) const
+	virtual int validate(uint64_t flags)
 	{
 		int warnings = 0;
 		for (size_t i = 0; i < m_contents->size(); i++) {
