@@ -249,8 +249,12 @@ default			{ dump(yyscanner); return TOK_DEFAULT; }
 static void
 dump(yyscan_t scanner)
 {
-	struct yyguts_t *yyg = (struct yyguts_t*)scanner;
-	fprintf(stderr, "DBG: lex(%d): %s\n", YY_START, yyget_text(scanner));
+	// Debugging output.
+	if (0) {
+		struct yyguts_t *yyg = (struct yyguts_t*)scanner;
+		fprintf(stderr, "DBG: lex(%d): %s\n",
+		        YY_START, yyget_text(scanner));
+	}
 }
 
 static bool validate_decimal_literal(const char *text)
