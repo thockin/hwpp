@@ -2,6 +2,7 @@
 #ifndef PP_UTIL_ASSERT_H__
 #define PP_UTIL_ASSERT_H__
 
+#include <stdlib.h>
 #include <iostream>
 
 #define ASSERT_PRINT_ERR__(predicate) std::cerr \

@@ -7,6 +7,7 @@ TESTS += \
 	util/tests/printfxx_test \
 	util/tests/regex_test \
 	util/tests/sockets_test \
+	util/tests/symbol_table_test \
 	util/tests/syserror_test
 
 	#util/tests/shared_object_test
