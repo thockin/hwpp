@@ -257,7 +257,8 @@ dump(yyscan_t scanner)
 	}
 }
 
-static bool validate_decimal_literal(const char *text)
+static bool
+validate_decimal_literal(const char *text)
 {
 	size_t len = strlen(text);
 	for (size_t i = 0; i < len; i++) {
@@ -268,7 +269,8 @@ static bool validate_decimal_literal(const char *text)
 	return true;
 }
 
-bool validate_binary_literal(const char *text)
+bool
+validate_binary_literal(const char *text)
 {
 	size_t len = strlen(text);
 	for (size_t i = 0; i < len; i++) {
@@ -279,7 +281,8 @@ bool validate_binary_literal(const char *text)
 	return true;
 }
 
-bool validate_hex_literal(const char *text)
+bool
+validate_hex_literal(const char *text)
 {
 	size_t len = strlen(text);
 	for (size_t i = 0; i < len; i++) {
@@ -290,7 +293,8 @@ bool validate_hex_literal(const char *text)
 	return true;
 }
 
-bool validate_octal_literal(const char *text)
+bool
+validate_octal_literal(const char *text)
 {
 	size_t len = strlen(text);
 	for (size_t i = 0; i < len; i++) {
@@ -302,7 +306,8 @@ bool validate_octal_literal(const char *text)
 }
 
 // Process a numeric literal.
-static int int_literal(yyscan_t scanner)
+static int
+int_literal(yyscan_t scanner)
 {
 	const char *text = yyget_text(scanner);
 
@@ -348,7 +353,8 @@ static int int_literal(yyscan_t scanner)
 }
 
 // Un-escape a quoted string.
-static string unescape_qstr(const string &in)
+static string
+unescape_qstr(const string &in)
 {
 	string out;
 
@@ -367,92 +373,92 @@ static string unescape_qstr(const string &in)
 		if (c == '\\') {
 			c = in[++i];
 			switch (c) {
-				case 'a':
-					out += '\a';
+			 case 'a':
+				out += '\a';
+				break;
+			 case 'b':
+				out += '\b';
+				break;
+			 case 'f':
+				out += '\f';
+				break;
+			 case 'n':
+				out += '\n';
+				break;
+			 case 'r':
+				out += '\r';
+				break;
+			 case 't':
+				out += '\t';
+				break;
+			 case 'v':
+				out += '\v';
+				break;
+			 case 'x': {
+				// Handle \xHH hex codes.
+				c = in[i+1];  // peek ahead
+				if (!isxdigit(c)) {
+					// Fall back on literal 'x'.
+					out += 'x';
 					break;
-				case 'b':
-					out += '\b';
-					break;
-				case 'f':
-					out += '\f';
-					break;
-				case 'n':
-					out += '\n';
-					break;
-				case 'r':
-					out += '\r';
-					break;
-				case 't':
-					out += '\t';
-					break;
-				case 'v':
-					out += '\v';
-					break;
-				case 'x': {
-					// Handle \xHH hex codes.
-					c = in[i+1];  // peek ahead
-					if (!isxdigit(c)) {
-						// Fall back on literal 'x'.
-						out += 'x';
-						break;
-					}
-					i++;  // keep this char, advance i
-					char n = 0;
-					if (c >= '0' && c <= '9') {
-						n = c - '0';
-					} else {
-						n = 10 + (tolower(c) - 'a');
-					}
-					c = in[i+1];  // peek ahead again
-					if (!isxdigit(c)) {
-						out += n;
-						break;
-					}
-					i++;  // keep this char, advance i
-					if (c >= '0' && c <= '9') {
-						n *= 16;
-						n += c - '0';
-					} else {
-						n *= 16;
-						n += 10 + (tolower(c) - 'a');
-					}
+				}
+				i++;  // keep this char, advance i
+				char n = 0;
+				if (c >= '0' && c <= '9') {
+					n = c - '0';
+				} else {
+					n = 10 + (tolower(c) - 'a');
+				}
+				c = in[i+1];  // peek ahead again
+				if (!isxdigit(c)) {
 					out += n;
 					break;
 				}
-				case '0':
-				case '1':
-				case '2':
-				case '3':
-				case '4':
-				case '5':
-				case '6':
-				case '7': {
-					// Handle \xOOO octal codes.
-					char n = c - '0';
-					c = in[i+1];  // peek ahead
-					if (c >= '0' && c <= '7') {
-						i++;  // keep this char
-						n *= 8;
-						n += c - '0';
-					} else {
-						out += n;
-						break;
-					}
-					c = in[i+1];  // peek ahead again
-					if (c >= '0' && c <= '7') {
-						i++;  // keep this char
-						n *= 8;
-						n += c - '0';
-					} else {
-						out += n;
-						break;
-					}
+				i++;  // keep this char, advance i
+				if (c >= '0' && c <= '9') {
+					n *= 16;
+					n += c - '0';
+				} else {
+					n *= 16;
+					n += 10 + (tolower(c) - 'a');
+				}
+				out += n;
+				break;
+			}
+			 case '0':
+			 case '1':
+			 case '2':
+			 case '3':
+			 case '4':
+			 case '5':
+			 case '6':
+			 case '7': {
+				// Handle \xOOO octal codes.
+				char n = c - '0';
+				c = in[i+1];  // peek ahead
+				if (c >= '0' && c <= '7') {
+					i++;  // keep this char
+					n *= 8;
+					n += c - '0';
+				} else {
 					out += n;
 					break;
 				}
-				default:
-					out += c;
+				c = in[i+1];  // peek ahead again
+				if (c >= '0' && c <= '7') {
+					i++;  // keep this char
+					n *= 8;
+					n += c - '0';
+				} else {
+					out += n;
 					break;
+				}
+				out += n;
+				break;
+			}
+			 default:
+				out += c;
+				break;
 			}
 		} else {
 			out += c;
@@ -463,7 +469,8 @@ static string unescape_qstr(const string &in)
 }
 
 // Process a string literal.
-static int string_literal(yyscan_t scanner)
+static int
+string_literal(yyscan_t scanner)
 {
 	yyget_lval(scanner)->string_val
 	    = new string(unescape_qstr(yyget_text(scanner)));
@@ -471,7 +478,8 @@ static int string_literal(yyscan_t scanner)
 }
 
 // Process a boolean literal.
-static int bool_literal(yyscan_t scanner)
+static int
+bool_literal(yyscan_t scanner)
 {
 	if (string(yyget_text(scanner)) == "true") {
 		yyget_lval(scanner)->bool_val = true;
@@ -482,7 +490,8 @@ static int bool_literal(yyscan_t scanner)
 }
 
 // Process an identifier.
-static int identifier(yyscan_t scanner)
+static int
+identifier(yyscan_t scanner)
 {
 	yyget_lval(scanner)->string_val = new string(yyget_text(scanner));
 	return TOK_IDENTIFIER;
@@ -497,15 +506,19 @@ static int identifier(yyscan_t scanner)
 // example, ">>" is ambiguous.  In any sort of expression state, it means
 // right-shift.  When parsing template-args right-shift does not apply, but
 // ">>" can mean the end of a nested template-arg declaration.
-void pp__language__internal__push_lexer_state(int new_state, yyscan_t scanner)
+void
+pp__language__internal__push_lexer_state(int new_state, yyscan_t scanner)
 {
 	//struct yyguts_t *yyg = (struct yyguts_t*)scanner;
 	//printf("DBG: PUSH %d -> %d\n", YY_START, new_state);
 	yy_push_state(new_state, scanner);
 }
-void pp__language__internal__pop_lexer_state(yyscan_t scanner)
+void
+pp__language__internal__pop_lexer_state(yyscan_t scanner)
 {
 	yy_pop_state(scanner);
 	//struct yyguts_t *yyg = (struct yyguts_t*)scanner;
 	//printf("DBG: POP -> %d\n", YY_START);
 }
+
+// vim: set ai tabstop=8 shiftwidth=8 noexpandtab:

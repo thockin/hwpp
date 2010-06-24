@@ -529,3 +529,5 @@ ListLiteralExpression::evaluate(Variable *out_result)
 }  // namespace syntax
 }  // namespace language
 }  // namespace pp
+
+// vim: set ai tabstop=4 shiftwidth=4 noexpandtab:

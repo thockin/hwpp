@@ -18,3 +18,5 @@ main(void)
 	}
 	return 0;
 }
+
+// vim: set ai tabstop=4 shiftwidth=4 noexpandtab:

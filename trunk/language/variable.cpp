@@ -374,3 +374,5 @@ Variable::Datum::check_type_primitive(Type::Primitive primitive) const
 
 }  // namespace language
 }  // namespace pp
+
+// vim: set ai tabstop=4 shiftwidth=4 noexpandtab:

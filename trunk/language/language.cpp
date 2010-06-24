@@ -188,3 +188,5 @@ Parser::current_position()
 
 }  // namespace language
 }  // namespace pp
+
+// vim: set ai tabstop=4 shiftwidth=4 noexpandtab:
