@@ -180,7 +180,7 @@ class Variable {
 
 	// A base class for callable functions.
 	class Func {
-	    public:
+	 public:
 		virtual ~Func()
 		{
 		}
@@ -189,7 +189,7 @@ class Variable {
 		virtual Variable *call() = 0;
 	};
 	class Container {
-	    public:
+	 public:
 		typedef std::vector<Variable*> Contents;
 		Container() : m_contents()
 		{
@@ -221,18 +221,18 @@ class Variable {
 			return m_contents;
 		}
 
-	    private:
+	 private:
 		Contents m_contents;
 	};
 	class List : public Container
 	{
-	    public:
+	 public:
 		List() : Container() {}
 		List(const List &other) : Container(other) {}
 	};
 	class Tuple : public Container
 	{
-	    public:
+	 public:
 		Tuple() : Container() {}
 		Tuple(const Tuple &other) : Container(other) {}
 	};
@@ -240,7 +240,7 @@ class Variable {
 	// This represents the actual contents of a Variable.  This has no
 	// concept of type qualifiers like 'const'.
 	class Datum {
-	    public:
+	 public:
 		// Initialize to the default value for a given type.  This
 		// takes ownership of the 'type' argument.
 		explicit
@@ -332,14 +332,14 @@ class Variable {
 			return (m_type.primitive() == Type::VAR);
 		}
 
-	    private:
+	 private:
 		void operator=(const Datum &)
 		{
 			// Not implemented.
 		}
 
 		class UndefFunc : public Func {
-		    public:
+		 public:
 			virtual Variable *
 			call() {
 				return new Variable(Type::VAR);
