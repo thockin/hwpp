@@ -13,7 +13,7 @@ namespace language {
 // than pointers because they are much easier to use that way.  They have
 // value semantics, so it makes sense.
 class Type {
-    public:
+ public:
 	enum Primitive {
 		BOOL,
 		FLDFMT,
@@ -130,7 +130,7 @@ class Type {
 		return m_arguments;
 	}
 
-    private:
+ private:
 	// Paranoia.
 	static void
 	check_known_primitive(Primitive prim);
@@ -169,7 +169,7 @@ operator!=(const Type &lhs, const Type &rhs)
 // relationship between Variable and Variable::Datum is like that of inodes
 // and data blocks.
 class Variable {
-    public:
+ public:
 	// Throw this when there is a type mismatch or const violation.
 	struct TypeError: public std::runtime_error {
 		explicit
@@ -518,7 +518,7 @@ class Variable {
 		return m_value->tuple_value();
 	}
 
-    private:
+ private:
 	// This is shared_ptr rather than scoped_ptr for reference semantics.
 	boost::shared_ptr<Datum> m_value;
 	bool m_is_const;

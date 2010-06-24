@@ -22,7 +22,7 @@ namespace language {
 // Wrap all of the lex logic.
 class LexerImpl;
 class Lexer {
-    public:
+ public:
 	struct ExtraState {
 	};
 
@@ -44,13 +44,13 @@ class Lexer {
 	// Equivalent of yy_push_state
 	void push_state(int state);
 
-    protected:
+ protected:
 	LexerImpl *internal_impl() const
 	{
 		return m_impl;
 	}
 
-    private:
+ private:
 	LexerImpl *m_impl;
 
 	friend class ParserImpl;
@@ -60,7 +60,7 @@ class Lexer {
 class ParserImpl;
 class ParsedFile;
 class Parser {
-    public:
+ public:
 	Parser();
 	~Parser();
 
@@ -82,7 +82,7 @@ class Parser {
 	};
 	Position current_position();
 
-    private:
+ private:
 	ParserImpl *m_impl;
 };
 

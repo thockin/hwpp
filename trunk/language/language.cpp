@@ -24,7 +24,7 @@ namespace language {
 // This is the actual lexer class implementation.  It is entirely contained in
 // this file.
 class LexerImpl {
-    public:
+ public:
 	LexerImpl()
 	{
 		pp__language__internal__lex_init_extra(&m_extra, &m_scanner);
@@ -65,7 +65,7 @@ class LexerImpl {
 		return m_scanner;
 	}
 
-    private:
+ private:
 	yyscan_t m_scanner;
 	Lexer::ExtraState m_extra;
 };
@@ -110,7 +110,7 @@ void Lexer::push_state(int state)
 // in this file.
 //
 class ParserImpl {
-    public:
+ public:
 	ParserImpl(Parser *outer) : m_outer_parser(outer)
 	{
 	}
@@ -142,7 +142,7 @@ class ParserImpl {
 		return m_name;
 	}
 
-    private:
+ private:
 	Parser *m_outer_parser;
 	Lexer m_lexer;
 	string m_name;
