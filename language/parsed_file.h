@@ -138,3 +138,5 @@ class ParsedFile {
 }  // namespace pp
 
 #endif  // PP_LANGUAGE_PARSED_FILE_H__
+
+// vim: set ai tabstop=4 shiftwidth=4 noexpandtab:

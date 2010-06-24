@@ -90,3 +90,5 @@ class Parser {
 }  // namespace pp
 
 #endif  // PP_LANGUAGE_LANGUAGE_H__
+
+// vim: set ai tabstop=4 shiftwidth=4 noexpandtab:

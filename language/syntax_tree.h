@@ -1329,3 +1329,5 @@ class ListLiteralExpression : public Expression {
 }  // namespace pp
 
 #endif  // PP_LANGUAGE_SYNTAX_TREE_H__
+
+// vim: set ai tabstop=4 shiftwidth=4 noexpandtab:

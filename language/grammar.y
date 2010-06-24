@@ -1219,3 +1219,5 @@ pp__language__internal__error(yyscan_t scanner, Parser *parser,
 	fflush(stdout);
 	printf("error on line %d: %s\n", lex_lineno(), str);
 }
+
+// vim: set ai tabstop=4 shiftwidth=4 noexpandtab:

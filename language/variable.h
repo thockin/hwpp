@@ -528,3 +528,5 @@ class Variable {
 }  // namespace pp
 
 #endif  // PP_LANGUAGE_VARIABLE_H__
+
+// vim: set ai tabstop=4 shiftwidth=4 noexpandtab:
