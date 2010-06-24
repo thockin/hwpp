@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "language/type.h"
 #include "language/variable.h"
 
 namespace pp {
@@ -240,7 +241,7 @@ string
 ModuleStatement::to_string() const
 {
 	string ret = Statement::to_string();
-	ret += "module " + m_argument + ";\n";
+	ret += "module " + m_name + ";\n";
 	return ret;
 }
 

@@ -39,6 +39,6 @@ TEST(test_expression) {
 }
 #else
 TEST(test_failed) {
-	TEST_FAIL("test has been commented out");
+	TEST_FAIL("This whole test has been commented out");
 }
 #endif

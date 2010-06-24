@@ -9,7 +9,7 @@
 // Tim Hockin
 // May, 2008
 
-import "pp";
+import pp;
 
 // FIXME: this could benefit from a fixed-point type and a table
 type fid_t = HEX(8);

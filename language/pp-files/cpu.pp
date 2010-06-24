@@ -1,4 +1,4 @@
-import "pp";
+import pp;
 
 /* FIXME: re-enable this
 // Register a discovery catch-all for the "cpu" driver.

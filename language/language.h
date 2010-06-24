@@ -51,6 +51,7 @@ class Lexer {
 	}
 
  private:
+	// This can not be a scoped_ptr because it is an incomplete type.
 	LexerImpl *m_impl;
 
 	friend class ParserImpl;
@@ -83,6 +84,7 @@ class Parser {
 	Position current_position();
 
  private:
+	// This can not be a scoped_ptr because it is an incomplete type.
 	ParserImpl *m_impl;
 };
 

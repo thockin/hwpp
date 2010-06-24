@@ -6,7 +6,7 @@
 // http://www.sandpile.org/ia32/cpuid.htm
 //
 
-import "pp";
+import pp;
 
 public type cpuid_vendor_t = ENUM(
 	[0x6c65746e49656e69756e6547, "intel"],
