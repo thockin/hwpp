@@ -15,15 +15,33 @@ namespace pp {
 namespace language {
 
 class ParsedFile {
- private:
-	typedef std::map<string, syntax::DefinitionStatement*> SymbolMap;
-
  public:
+	//FIXME: move this out?
+	struct Symbol {
+		Symbol(const string &mod, const string &sym)
+		    : module(mod), symbol(sym)
+		{
+		}
+		bool
+		operator<(const Symbol &that) const
+		{
+			if (module < that.module) {
+				return true;
+			}
+			if (module == that.module) {
+				if (symbol < that.symbol) {
+					return true;
+				}
+			}
+			return false;
+		}
+		string module;
+		string symbol;
+	};
+	typedef std::map<Symbol, syntax::DefinitionStatement*> SymbolMap;
 	typedef SymbolMap::const_iterator SymbolIterator;
 
-	explicit
-	ParsedFile(const string &name)
-	    : m_name(name)
+	ParsedFile()
 	{
 	}
 	~ParsedFile()
@@ -34,9 +52,14 @@ class ParsedFile {
 	}
 
 	const string &
-	name() const
+	module() const
 	{
-		return m_name;
+		return m_module;
+	}
+	void
+	set_module(const string &name)
+	{
+		m_module = name;
 	}
 
 	size_t
@@ -90,6 +113,7 @@ class ParsedFile {
 	{
 		return m_private_symbols.end();
 	}
+	#if 0 // FIXME: handle symbols, handle "same as mine" module semantic
 	syntax::DefinitionStatement *
 	public_symbol(const string &name) const
 	{
@@ -108,13 +132,15 @@ class ParsedFile {
 		}
 		return it->second;
 	}
+	#endif
 	// Returns true if the symbol already existed.
 	bool
 	add_public_symbol(const string &name,
 	                  syntax::DefinitionStatement *definition)
 	{
-		const syntax::DefinitionStatement *p = m_public_symbols[name];
-		m_public_symbols[name] = definition;
+		Symbol sym(m_module, name);
+		const syntax::DefinitionStatement *p = m_public_symbols[sym];
+		m_public_symbols[sym] = definition;
 		return p;
 	}
 	// Returns true if the symbol already existed.
@@ -122,13 +148,14 @@ class ParsedFile {
 	add_private_symbol(const string &name,
 	                   syntax::DefinitionStatement *definition)
 	{
-		const syntax::DefinitionStatement *p = m_private_symbols[name];
-		m_private_symbols[name] = definition;
+		Symbol sym(m_module, name);
+		const syntax::DefinitionStatement *p = m_private_symbols[sym];
+		m_private_symbols[sym] = definition;
 		return p;
 	}
 
  private:
-	string m_name;
+	string m_module;
 	std::vector<syntax::Statement*> m_statements;
 	SymbolMap m_public_symbols;
 	SymbolMap m_private_symbols;

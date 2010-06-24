@@ -6,163 +6,9 @@
 namespace pp {
 namespace language {
 
-//
-// Type
-//
-
-Type::Type(const Type &other)
-{
-	m_primitive = other.m_primitive;
-	m_is_const = other.m_is_const;
-	for (size_t i = 0; i < other.m_arguments.size(); i++) {
-		m_arguments.push_back(other.m_arguments[i]);
-	}
-}
-
-void
-Type::reinit(Primitive prim)
-{
-	// Clean up arguments.
-	m_arguments.clear();
-	m_primitive = prim;
-	m_is_const = false;
-}
-void
-Type::reinit(Primitive prim, Type::Constness constness)
-{
-	// Clean up arguments.
-	m_arguments.clear();
-	m_primitive = prim;
-	m_is_const = constness;
-}
-
-void
-Type::add_argument(const Type &arg)
-{
-	switch (m_primitive) {
-		case LIST:
-			if (m_arguments.size() > 0) {
-				throw ArgumentError(sprintfxx(
-				    "type %s takes only one argument",
-				    primitive_to_string(m_primitive)));
-			}
-			// ...else fall through
-		case TUPLE:
-			m_arguments.push_back(arg);
-			break;
-		default:
-			throw ArgumentError(sprintfxx(
-			    "type %s takes no arguments",
-			    primitive_to_string(m_primitive)));
-			break;
-	}
-}
-
-string
-Type::primitive_to_string(Primitive prim)
-{
-	check_known_primitive(prim);
-	switch (prim) {
-	  case BOOL:   return "bool";
-	  case FLDFMT: return "fldfmt";
-	  case FUNC:   return "func";
-	  case INT:    return "int";
-	  case LIST:   return "list";
-	  case STRING: return "string";
-	  case TUPLE:  return "tuple";
-	  case VAR:    return "var";
-	}
-	return "(this can not happen)";
-}
-
-string
-Type::to_string() const
-{
-	return (m_is_const ? "const " : "")
-	    + primitive_to_string(m_primitive);
-}
-
-bool
-Type::is_equal_to(const Type &other) const
-{
-	if (m_is_const != other.m_is_const) {
-		return false;
-	}
-	if (m_primitive != other.m_primitive) {
-		return false;
-	}
-	if (m_arguments.size() != other.m_arguments.size()) {
-		return false;
-	}
-	for (size_t i = 0; i < m_arguments.size(); i++) {
-		const Type &a = m_arguments[i];
-		const Type &b = other.m_arguments[i];
-		if (!a.is_equal_to(b)) {
-			return false;
-		}
-	}
-	return true;
-}
-
-// See comment in header.
-bool
-Type::is_assignable_from(const Type &other, IgnoreConst ignore_const) const
-{
-	if (!ignore_const) {
-		// Const types are never assignable.
-		if (m_is_const) {
-			return false;
-		}
-	}
-	// VAR is assignable from anything.
-	if (m_primitive == VAR) {
-		return true;
-	}
-	// If the primitives don't match or the number of arguments
-	// don't match, it can't possibly be assignable.
-	if (m_primitive != other.m_primitive
-	 || m_arguments.size() != other.m_arguments.size()) {
-		return false;
-	}
-	// All arguments must also be assignable.
-	for (size_t i = 0; i < m_arguments.size(); i++) {
-		const Type &lhs = m_arguments[i];
-		const Type &rhs = other.m_arguments[i];
-		if (!lhs.is_assignable_from(rhs, ignore_const)) {
-			return false;
-		}
-	}
-	return true;
-}
-bool
-Type::is_assignable_from(const Type &other) const
-{
-	return is_assignable_from(other, DONT_IGNORE_CONST);
-}
-
-void
-Type::check_known_primitive(Primitive prim)
-{
-	switch (prim) {
-	  case BOOL:
-	  case FLDFMT:
-	  case FUNC:
-	  case INT:
-	  case LIST:
-	  case STRING:
-	  case TUPLE:
-	  case VAR:
-		return;
-	}
-	throw UnknownError(sprintfxx("unknown type (%d)", prim));
-}
-
-//
-// Variable::Datum
-//
-
 Variable::Datum::Datum(const Type &type) : m_type(type), m_type_locked(true)
 {
+	type.sanity_check();
 	switch (m_type.primitive()) {
 	  case Type::BOOL:
 		m_bool_value = false;
@@ -177,22 +23,12 @@ Variable::Datum::Datum(const Type &type) : m_type(type), m_type_locked(true)
 		m_int_value = 0;
 		break;
 	  case Type::LIST:
-		if (m_type.arguments().size() != 1) {
-			throw Type::ArgumentError(sprintfxx(
-			    "type %s requires exactly one argument",
-			    Type::primitive_to_string(Type::LIST)));
-		}
 		m_list_value.reset(new List());
 		break;
 	  case Type::STRING:
 		m_string_value = "";
 		break;
 	  case Type::TUPLE:
-		if (m_type.arguments().size() < 1) {
-			throw Type::ArgumentError(sprintfxx(
-			    "type %s requires at least one argument",
-			    Type::primitive_to_string(Type::TUPLE)));
-		}
 		m_tuple_value.reset(new Tuple());
 		break;
 	  case Type::VAR:
@@ -251,7 +87,7 @@ Variable::Datum::Datum(const Type &type, bool value)
 	}
 	if (m_type.primitive() != Type::BOOL) {
 		throw TypeError(sprintfxx(
-		    "can't init value of type %s as bool",
+		    "can't init value of type '%s' as bool",
 		    m_type.to_string()));
 	}
 	m_bool_value = value;
@@ -267,7 +103,7 @@ Variable::Datum::Datum(const Type &type, const Value &value)
 	}
 	if (m_type.primitive() != Type::INT) {
 		throw TypeError(sprintfxx(
-		    "can't init value of type %s as int",
+		    "can't init value of type '%s' as int",
 		    m_type.to_string()));
 	}
 	m_int_value = value;
@@ -283,7 +119,7 @@ Variable::Datum::Datum(const Type &type, const Func *value)
 	}
 	if (m_type.primitive() != Type::FUNC) {
 		throw TypeError(sprintfxx(
-		    "can't init value of type %s as func",
+		    "can't init value of type '%s' as func",
 		    m_type.to_string()));
 	}
 	m_func_value.reset(value);
@@ -299,17 +135,17 @@ Variable::Datum::Datum(const Type &type, const List *value)
 	}
 	if (m_type.primitive() != Type::LIST) {
 		throw TypeError(sprintfxx(
-		    "can't init value of type %s as list",
+		    "can't init value of type '%s' as list",
 		    m_type.to_string()));
 	}
 	// Validate that the new actual-types are OK for this list.
-	const Type &spec_type = m_type.arguments()[0];
+	const Type &spec_type = m_type.argument(0);
 	const List::Contents &vars = value->contents();
 	for (size_t i = 0; i < vars.size(); i++) {
 		const Type &actual_type = vars[i]->type();
 		if (!spec_type.is_assignable_from(actual_type)) {
 			throw TypeError(sprintfxx(
-			    "can't init value of type %s as %s",
+			    "can't init value of type '%s' as '%s'",
 			    spec_type.to_string(),
 			    actual_type.to_string()));
 		}
@@ -327,7 +163,7 @@ Variable::Datum::Datum(const Type &type, const string &value)
 	}
 	if (m_type.primitive() != Type::STRING) {
 		throw TypeError(sprintfxx(
-		    "can't init value of type %s as string",
+		    "can't init value of type '%s' as string",
 		    m_type.to_string()));
 	}
 	m_string_value = value;
@@ -343,17 +179,17 @@ Variable::Datum::Datum(const Type &type, const Tuple *value)
 	}
 	if (m_type.primitive() != Type::TUPLE) {
 		throw TypeError(sprintfxx(
-		    "can't init value of type %s as list",
+		    "can't init value of type '%s' as list",
 		    m_type.to_string()));
 	}
 	// Validate that the new actual-types are OK for this list.
-	const Type &spec_type = m_type.arguments()[0];
+	const Type &spec_type = m_type.argument(0);
 	const Tuple::Contents &vars = value->contents();
 	for (size_t i = 0; i < vars.size(); i++) {
 		const Type &actual_type = vars[i]->type();
 		if (!spec_type.is_assignable_from(actual_type)) {
 			throw TypeError(sprintfxx(
-			    "can't init value of type %s as %s",
+			    "can't init value of type '%s' as '%s'",
 			    spec_type.to_string(),
 			    actual_type.to_string()));
 		}
@@ -366,7 +202,7 @@ Variable::Datum::check_type_primitive(Type::Primitive primitive) const
 {
 	if (m_type.primitive() != primitive) {
 		throw TypeError(
-		    sprintfxx("can't access value of type %s as %s",
+		    sprintfxx("can't access value of type '%s' as '%s'",
 		              Type::primitive_to_string(m_type.primitive()),
 		              Type::primitive_to_string(primitive)));
 	}

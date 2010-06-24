@@ -695,6 +695,7 @@ qualified_type_specifier_list
 	}
 	;
 
+// TODO: Add 'auto' as a keyword to detect static type for initialized vars.
 type_primitive
 	: TOK_BOOL {
 		SYNTRACE("type_primitive", "BOOL");
@@ -998,8 +999,8 @@ loop_statement
 jump_statement
 	: TOK_BREAK ';' {
 		SYNTRACE("jump_statement", "BREAK ';'");
-		$$ = new GotoStatement(curpos(), new
-		Identifier(curpos(), "@loop_break"));
+		$$ = new GotoStatement(curpos(),
+		    new Identifier(curpos(), "@loop_break"));
 	}
 	| TOK_CONTINUE ';' {
 		SYNTRACE("jump_statement", "CONTINUE ';'");
@@ -1035,7 +1036,6 @@ file_scope
 file_scope_item
 	: definition_statement {
 		SYNTRACE("file_scope_item", "definition_statement");
-		$$ = $1;
 		// Save all the top-level symbols.
 		const InitializedIdentifierList *init_ident_list = $1->vars();
 		for (size_t i = 0; i < init_ident_list->size(); i++) {
@@ -1046,11 +1046,10 @@ file_scope_item
 				    sprintfxx("symbol '%s' redefined", symbol));
 			}
 		}
+		$$ = $1;
 	}
 	| TOK_PUBLIC definition_statement {
 		SYNTRACE("file_scope_item", "PUBLIC definition_statement");
-		$2->set_public();
-		$$ = $2;
 		// Save all the top-level symbols.
 		const InitializedIdentifierList *init_ident_list = $2->vars();
 		for (size_t i = 0; i < init_ident_list->size(); i++) {
@@ -1061,6 +1060,8 @@ file_scope_item
 				    sprintfxx("symbol '%s' redefined", symbol));
 			}
 		}
+		$2->set_public();
+		$$ = $2;
 	}
 	| discover_statement {
 		SYNTRACE("file_scope_item", "discover_statement");
@@ -1185,9 +1186,9 @@ parameter_declaration
 	;
 
 import_statement
-	: TOK_IMPORT string_literal ';' {
-		SYNTRACE("import_statement", "IMPORT string_literal");
-		$$ = new ImportStatement(curpos(), *$2);
+	: TOK_IMPORT simple_identifier ';' {
+		SYNTRACE("import_statement", "IMPORT simple_identifier");
+		$$ = new ImportStatement(curpos(), $2->symbol());
 		delete $2;
 	}
 	;
@@ -1195,6 +1196,7 @@ import_statement
 module_statement
 	: TOK_MODULE simple_identifier ';' {
 		SYNTRACE("module_statement", "MODULE simple_identifier");
+		out_parsed_file->set_module($2->symbol());
 		$$ = new ModuleStatement(curpos(), $2->symbol());
 		delete $2;
 	}
@@ -1210,6 +1212,7 @@ discover_statement
 
 %%
 
+//TODO: make better error messages!
 static void
 pp__language__internal__error(yyscan_t scanner, Parser *parser,
                               ParsedFile *out_parsed_file, const char *str)

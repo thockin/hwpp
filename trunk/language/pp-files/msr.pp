@@ -1,4 +1,4 @@
-import "pp";
+import pp;
 
 public type mtrr_type_t = ENUM(
 	[0, "UC"],

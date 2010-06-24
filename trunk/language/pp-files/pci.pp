@@ -1,6 +1,6 @@
-import "pp";
-
 module pci;
+
+import pp;
 
 // Register a discovery catch-all for the "pci" driver.
 discover("pci", [], ${
@@ -807,7 +807,7 @@ msix_capability(int address)
 					break;
 				}
 				//TODO: sprintf
-				FIELD("pending" + to_string(i*64 + j),
+				FIELD(strcat("pending", to_string(i*64 + j)),
 				      "yesno_t", BITS("%pending[-1]", j));
 			}
 			tmp_size -= 64;
@@ -1245,7 +1245,7 @@ pcie_capability(int address)
 					BITS("%slot_control", 5));
 			FIELD("no_cmd_complete", "yesno_t",
 					BITS("%slot_caps", 18));
-			if (EVAL("no_cmd_complete") == TRUE == 0) {
+			if (EVAL("no_cmd_complete") == FALSE) {
 				FIELD("cmd_complete_intr_en",
 						"yesno_t", BITS("%slot_control", 4));
 				FIELD("cmd_completed", "yesno_t",

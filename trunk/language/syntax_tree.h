@@ -10,22 +10,16 @@
 #include <string>
 #include <vector>
 #include <boost/scoped_ptr.hpp>
+#include "language/environment.h"
+#include "language/errors.h"
 #include "language/language.h"
+#include "language/type.h"
 #include "language/variable.h"
 #include "util/pointer.h"
 
 namespace pp {
 namespace language {
 namespace syntax {
-
-struct SyntaxError: public std::runtime_error
-{
-	//FIXME: format the what() on the fly.
-	SyntaxError(const Parser::Position &pos, const std::string &str)
-	    : runtime_error(sprintfxx("[%s:%d] : %s", pos.file, pos.line, str))
-	{
-	}
-};
 
 // Base class for all nodes in our syntax tree.
 class SyntaxNode {
@@ -56,21 +50,28 @@ class SyntaxNode {
 	to_string() const = 0;
 
 	// Validate this node.  What 'validate' means depends entirely on the
-	// node and the flags, which is a mask of enum ValidateFlag.  Returns
-	// the number of warnings.  Throws SyntaxError when a hard error
+	// node and the flags.
+	//
+	// Returns the number of warnings.  Throws SyntaxError when a hard error
 	// is detected.
-	enum ValidateFlag {
-		VALIDATE_TYPES   = 0x1, // Make sure types match where possible.
-		VALIDATE_VAR_USE = 0x2, // Warn when a 'var' type is used in a
-		                        //   potentially unsafe way.
-		VALIDATE_SYMBOLS = 0x4, // Validate all symbol references.
-	};
 	virtual int
-	validate(uint64_t flags) = 0;
+	validate(const ValidateOptions &flags, Environment *env) = 0;
+
+	// This is a helper method to ensure that calls to validate are
+	// idempotent.
+	int
+	validate_once(const ValidateOptions &flags, Environment *env)
+	{
+		if (m_validated) {
+			return 0;
+		}
+		m_validated = true;
+		return validate(flags, env);
+	}
 
  protected:
 	SyntaxNode(const Parser::Position &pos, NodeType node_type)
-	    : m_position(pos), m_node_type(node_type)
+	    : m_position(pos), m_node_type(node_type), m_validated(false)
 	{
 	}
 
@@ -82,6 +83,7 @@ class SyntaxNode {
  private:
 	Parser::Position m_position;
 	NodeType m_node_type;
+	bool m_validated;
 };
 
 // Abstract base class for expressions which produce a value.
@@ -142,17 +144,25 @@ class Identifier : public SyntaxNode {
 		return m_symbol;
 	}
 
+	const DefinitionStatement *
+	definition() const
+	{
+		return m_definition;
+	}
+
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags) {
-		//FIXME: ensure that the module and symbol are valid
-		(void)flags;
+	//FIXME: move all of the validate methods to the .cpp file.
+	virtual int
+	validate(const ValidateOptions & /*flags*/, Environment * /*env*/)
+	{
 		return 0;
 	}
 
  private:
 	string m_module;
 	string m_symbol;
+	DefinitionStatement *m_definition;
 };
 
 class InitializedIdentifier : public SyntaxNode {
@@ -181,11 +191,11 @@ class InitializedIdentifier : public SyntaxNode {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags)
+	virtual int validate(const ValidateOptions &flags, Environment *env)
 	{
-		int warnings = m_ident->validate(flags);
+		int warnings = m_ident->validate_once(flags, env);
 		if (m_init) {
-			warnings += m_init->validate(flags);
+			warnings += m_init->validate_once(flags, env);
 		}
 		return warnings;
 	}
@@ -204,7 +214,8 @@ class Statement : public SyntaxNode {
 	    : SyntaxNode(pos, TYPE_STATEMENT), m_labels(NULL)
 	{
 	}
-	virtual ~Statement()
+	virtual
+	~Statement()
 	{
 		for (size_t i = 0; i < m_labels.size(); i++) {
 			delete m_labels[i];
@@ -212,24 +223,29 @@ class Statement : public SyntaxNode {
 	}
 
 	// Execute this statement.
-	virtual bool execute() = 0;
+	virtual bool
+	execute() = 0;
 
 	// Get a string representation of this statement.
-	virtual string to_string() const;
+	virtual string
+	to_string() const;
 
-	const std::vector<Identifier*> &labels() const
+	const std::vector<Identifier*> &
+	labels() const
 	{
 		return m_labels;
 	}
-	void add_label(Identifier *label)
+	void
+	add_label(Identifier *label)
 	{
 		m_labels.push_back(label);
 	}
 
-	virtual int validate(uint64_t flags)
+	virtual int
+	validate(const ValidateOptions &flags, Environment *env)
 	{
-		//FIXME: make all subclasses call this
-		(void)flags; //FIXME: check labels
+		(void)flags; //FIXME: check labels for conflicts
+		(void)env;
 		return 0;
 	}
 
@@ -250,23 +266,27 @@ class Argument : public SyntaxNode {
 	{
 	}
 
-	Identifier *name() const
+	Identifier *
+	name() const
 	{
 		return m_name.get();
 	}
 
-	Expression *expression() const
+	Expression *
+	expression() const
 	{
 		return m_expr.get();
 	}
 
-	virtual string to_string() const;
+	virtual string
+	to_string() const;
 
-	virtual int validate(uint64_t flags)
+	virtual int
+	validate(const ValidateOptions &flags, Environment *env)
 	{
-		int warnings = m_expr->validate(flags);
+		int warnings = m_expr->validate_once(flags, env);
 		if (m_name) {
-			warnings += m_name->validate(flags);
+			warnings += m_name->validate_once(flags, env);
 		}
 		return warnings;
 	}
@@ -291,9 +311,10 @@ class NullStatement : public Statement {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t /*flags*/)
+	virtual int
+	validate(const ValidateOptions &flags, Environment *env)
 	{
-		return 0;
+		return Statement::validate(flags, env);
 	}
 };
 
@@ -313,12 +334,14 @@ class CompoundStatement : public Statement {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags)
+	virtual int validate(const ValidateOptions &flags, Environment *env)
 	{
-		int warnings = 0;
+		env->new_symbol_scope();
+		int warnings = Statement::validate(flags, env);
 		for (size_t i = 0; i < m_body->size(); i++) {
-			warnings += m_body->at(i)->validate(flags);
+			warnings += m_body->at(i)->validate_once(flags, env);
 		}
+		env->end_symbol_scope();
 		return warnings;
 	}
 
@@ -342,9 +365,10 @@ class ExpressionStatement : public Statement {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags)
+	virtual int validate(const ValidateOptions &flags, Environment *env)
 	{
-		return m_expr->validate(flags);
+		return Statement::validate(flags, env)
+		     + m_expr->validate_once(flags, env);
 	}
 
  private:
@@ -386,12 +410,13 @@ class ConditionalStatement : public Statement {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags)
+	virtual int validate(const ValidateOptions &flags, Environment *env)
 	{
-		int warnings = m_condition->validate(flags)
-		    + m_true->validate(flags);
+		int warnings = Statement::validate(flags, env)
+		    + m_condition->validate_once(flags, env)
+		    + m_true->validate_once(flags, env);
 		if (m_false) {
-			warnings += m_false->validate(flags);
+			warnings += m_false->validate_once(flags, env);
 		}
 		return warnings;
 	}
@@ -424,10 +449,11 @@ class SwitchStatement : public Statement {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags)
+	virtual int validate(const ValidateOptions &flags, Environment *env)
 	{
-		int warnings = m_condition->validate(flags)
-		    + m_body->validate(flags);
+		int warnings = Statement::validate(flags, env)
+		    + m_condition->validate_once(flags, env)
+		    + m_body->validate_once(flags, env);
 		return warnings;
 	}
 
@@ -464,10 +490,11 @@ class LoopStatement : public Statement {
 		return m_body.get();
 	}
 
-	virtual int validate(uint64_t flags)
+	virtual int validate(const ValidateOptions &flags, Environment *env)
 	{
-		int warnings = m_expr->validate(flags)
-		    + m_body->validate(flags);
+		int warnings = Statement::validate(flags, env)
+		    + m_expr->validate_once(flags, env)
+		    + m_body->validate_once(flags, env);
 		return warnings;
 	}
 
@@ -517,9 +544,10 @@ class GotoStatement : public Statement {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags)
+	virtual int validate(const ValidateOptions &flags, Environment *env)
 	{
-		int warnings = m_target->validate(flags);
+		int warnings = Statement::validate(flags, env)
+		    + m_target->validate_once(flags, env);
 		return warnings;
 	}
 
@@ -549,10 +577,11 @@ class CaseStatement : public Statement {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags)
+	virtual int validate(const ValidateOptions &flags, Environment *env)
 	{
-		int warnings = m_expr->validate(flags)
-		    + m_statement->validate(flags);
+		int warnings = Statement::validate(flags, env)
+		    + m_expr->validate_once(flags, env)
+		    + m_statement->validate_once(flags, env);
 		return warnings;
 	}
 
@@ -582,11 +611,11 @@ class ReturnStatement : public Statement {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags)
+	virtual int validate(const ValidateOptions &flags, Environment *env)
 	{
-		int warnings = 0;
+		int warnings = Statement::validate(flags, env);
 		if (m_expr) {
-			warnings += m_expr->validate(flags);
+			warnings += m_expr->validate_once(flags, env);
 		}
 		return warnings;
 	}
@@ -622,11 +651,33 @@ class DefinitionStatement : public Statement {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags)
+	virtual int validate(const ValidateOptions &flags, Environment *env)
 	{
-		int warnings = 0;
+		int warnings = Statement::validate(flags, env);
+
+		// Validate that the type is acceptable, and not ill-formed.
+		m_type->sanity_check();
+
+		// For each defined variable...
 		for (size_t i = 0; i < m_vars->size(); i++) {
-			warnings += m_vars->at(i)->validate(flags);
+			InitializedIdentifier *init_ident = m_vars->at(i);
+			warnings += init_ident->validate_once(flags, env);
+
+			// Make sure the type can be initialized correctly.
+			Expression *expr = init_ident->initializer();
+			if (expr && !m_type->is_assignable_from(expr->result_type())) {
+				throw SyntaxError(parse_position(),
+				    sprintfxx("can't init type '%s' from '%s'",
+				              m_type->to_string(),
+				              expr->result_type().to_string()));
+			}
+
+			// Keep track of the symbol, making sure it does not already exist.
+			string symbol = init_ident->identifier()->symbol();
+			if (env->add_symbol(symbol, this) == false) {
+				throw SyntaxError(parse_position(),
+				    sprintfxx("symbol '%s' redefined", symbol));
+			}
 		}
 		return warnings;
 	}
@@ -653,10 +704,10 @@ class ImportStatement : public Statement {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags)
+	virtual int validate(const ValidateOptions &flags, Environment *env)
 	{
-		(void)flags; //FIXME: validate the arg
-		return 0;
+		//FIXME: validate the arg
+		return Statement::validate(flags, env);
 	}
 
  private:
@@ -665,28 +716,29 @@ class ImportStatement : public Statement {
 
 class ModuleStatement : public Statement {
  public:
-	ModuleStatement(const Parser::Position &pos, const string &arg)
-	    : Statement(pos), m_argument(arg)
+	ModuleStatement(const Parser::Position &pos, const string &name)
+	    : Statement(pos), m_name(name)
 	{
 	}
 
-	const string &argument() const
+	const string &name() const
 	{
-		return m_argument;
+		return m_name;
 	}
 
 	virtual bool execute();
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags)
+	virtual int validate(const ValidateOptions &flags, Environment *env)
 	{
-		(void)flags; //FIXME: validate the arg
-		return 0;
+		//FIXME: validate that name does not exist and that this file
+		//       has only one module
+		return Statement::validate(flags, env);
 	}
 
  private:
-	string m_argument;
+	string m_name;
 };
 
 class DiscoverStatement : public Statement {
@@ -705,11 +757,11 @@ class DiscoverStatement : public Statement {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags)
+	virtual int validate(const ValidateOptions &flags, Environment *env)
 	{
-		int warnings = 0;
+		int warnings = Statement::validate(flags, env);
 		for (size_t i = 0; i < m_args->size(); i++) {
-			warnings += m_args->at(i)->validate(flags);
+			warnings += m_args->at(i)->validate_once(flags, env);
 		}
 		return warnings;
 	}
@@ -718,8 +770,6 @@ class DiscoverStatement : public Statement {
 	util::NeverNullScopedPtr<ArgumentList> m_args;
 };
 
-static Type undefined_type(Type::VAR); //FIXME: get rid of this
-
 class IdentifierExpression : public Expression {
  public:
 	IdentifierExpression(const Parser::Position &pos, Identifier *ident)
@@ -727,24 +777,33 @@ class IdentifierExpression : public Expression {
 	{
 	}
 
-	Identifier *identifier()
+	Identifier *
+	identifier()
 	{
 		return m_ident.get();
 	}
 
-	virtual const Type &result_type() const
+	virtual void
+	evaluate(Variable *out_result);
+
+	virtual string
+	to_string() const;
+
+	virtual int
+	validate(const ValidateOptions &flags, Environment *env)
 	{
-		//FIXME:
-		return undefined_type;
-	}
-
-	virtual void evaluate(Variable *out_result);
-
-	virtual string to_string() const;
-
-	virtual int validate(uint64_t flags)
-	{
-		int warnings = m_ident->validate(flags);
+		DefinitionStatement *def = env->lookup_symbol(m_ident->symbol());
+		if (!def) {
+			string why = "symbol '" + to_string() + "' can't be resolved";
+			if (flags.error_on_unresolved_symbols()) {
+				throw SyntaxError(parse_position(), why);
+			}
+			flags.warnings_stream() << why << std::endl;
+			set_result_type(Type::VAR);
+			return 1;
+		}
+		int warnings = def->validate_once(flags, env);
+		set_result_type(*(def->type()));
 		return warnings;
 	}
 
@@ -770,20 +829,25 @@ class SubscriptExpression : public Expression {
 		return m_index.get();
 	}
 
-	virtual const Type &result_type() const
-	{
-		//FIXME:
-		return undefined_type;
-	}
-
 	virtual void evaluate(Variable *out_result);
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags)
+	virtual int validate(const ValidateOptions &flags, Environment *env)
 	{
-		int warnings = m_expr->validate(flags)
-		    + m_index->validate(flags);
+		int warnings = m_expr->validate_once(flags, env)
+		    + m_index->validate_once(flags, env);
+		const Type &expr_type = m_expr->result_type();
+		Type::Primitive expr_prim = expr_type.primitive();
+		if (expr_prim != Type::LIST && expr_prim != Type::TUPLE
+		 && expr_prim != Type::VAR) {
+			string why = "can't subscript type '" + expr_type.to_string() + "'";
+			throw SyntaxError(parse_position(), why);
+		}
+		if (expr_prim == Type::LIST) {
+			set_result_type(expr_type.argument(0));
+		}
+		//FIXME: tuple -> need to tell a constexpr from non
 		return warnings;
 	}
 
@@ -816,20 +880,20 @@ class FunctionCallExpression : public Expression {
 
 	virtual const Type &result_type() const
 	{
-		//FIXME:
-		return undefined_type;
+		static Type t(Type::VAR);
+		return t; //FIXME:
 	}
 
 	virtual void evaluate(Variable *out_result);
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags)
+	virtual int validate(const ValidateOptions &flags, Environment *env)
 	{
-		int warnings = m_expr->validate(flags);
+		int warnings = m_expr->validate_once(flags, env);
 		if (m_args) {
 			for (size_t i = 0; i < m_args->size(); i++) {
-				warnings += m_args->at(i)->validate(flags);
+				warnings += m_args->at(i)->validate_once(flags, env);
 			}
 		}
 		return warnings;
@@ -873,9 +937,9 @@ class UnaryExpression : public Expression {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags)
+	virtual int validate(const ValidateOptions &flags, Environment *env)
 	{
-		int warnings = m_expr->validate(flags);
+		int warnings = m_expr->validate_once(flags, env);
 
 		const Type &expr_type = m_expr->result_type();
 		Type::Primitive expr_prim = expr_type.primitive();
@@ -916,22 +980,7 @@ class UnaryExpression : public Expression {
 			break;
 		}
 
-		if (flags & VALIDATE_VAR_USE) {
-			warnings += validate_var_use(expr_type);
-		}
-
 		return warnings;
-	}
-
-	//FIXME: make file static
-	int validate_var_use(const Type &t) {
-		if (t.primitive() == Type::VAR) {
-			// FIXME:
-			// emit_warning(
-			//     "potential runtime error: %s of a 'var' type");
-			return 1;
-		}
-		return 0;
 	}
 
  private:
@@ -1005,10 +1054,11 @@ class BinaryExpression : public Expression {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags)
+	virtual int validate(const ValidateOptions &flags, Environment *env)
 	{
 		//FIXME: warn if either side is var
-		int warnings = m_lhs->validate(flags) + m_rhs->validate(flags);
+		int warnings = m_lhs->validate_once(flags, env)
+		    + m_rhs->validate_once(flags, env);
 
 		const Type &ltype = m_lhs->result_type();
 		const Type &rtype = m_rhs->result_type();
@@ -1094,7 +1144,7 @@ class BinaryExpression : public Expression {
 	syntax_error(const string &fmt, const Type &lhs, const Type &rhs) const
 	{
 		return SyntaxError(parse_position(),
-		    sprintfxx(fmt, lhs.to_string(), rhs.to_string()));
+		                   sprintfxx(fmt, lhs.to_string(), rhs.to_string()));
 	}
 
 	Operator m_op;
@@ -1132,10 +1182,11 @@ class ConditionalExpression : public Expression {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags)
+	virtual int validate(const ValidateOptions &flags, Environment *env)
 	{
-		int warnings = m_condition->validate(flags)
-		    + m_true->validate(flags) + m_false->validate(flags);
+		int warnings = m_condition->validate_once(flags, env)
+		    + m_true->validate_once(flags, env)
+		    + m_false->validate_once(flags, env);
 
 		const Type &t1 = m_true->result_type();
 		const Type &t2 = m_false->result_type();
@@ -1163,9 +1214,9 @@ class ParameterDeclaration : public SyntaxNode {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags)
+	virtual int validate(const ValidateOptions &flags, Environment *env)
 	{
-		int warnings = m_ident->validate(flags);
+		int warnings = m_ident->validate_once(flags, env);
 		return warnings;
 	}
 
@@ -1177,8 +1228,7 @@ typedef std::vector<ParameterDeclaration*> ParameterDeclarationList;
 
 class LiteralExpression : public Expression {
  public:
-	LiteralExpression(const Parser::Position &pos,
-	                  const Variable::Datum *value)
+	LiteralExpression(const Parser::Position &pos, const Variable::Datum *value)
 	    : Expression(pos), m_value(value)
 	{
 		// It doesn't make much sense to have a non-const literal.
@@ -1195,7 +1245,8 @@ class LiteralExpression : public Expression {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t /*flags*/)
+	virtual int
+	validate(const ValidateOptions & /*flags*/, Environment * /*env*/)
 	{
 		return 0;
 	}
@@ -1255,27 +1306,44 @@ class FunctionLiteralExpression : public Expression {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags)
+	virtual int validate(const ValidateOptions &flags, Environment *env)
 	{
-		int warnings = m_body->validate(flags);
+		int warnings = 0;
+		env->new_symbol_scope();
+		static DefinitionStatement *args_defn = new_args_definition();
+		env->add_symbol("args", args_defn);
+		warnings += m_body->validate_once(flags, env);
 		if (m_params) {
 			for (size_t i = 0; i < m_params->size(); i++) {
-				warnings += m_params->at(i)->validate(flags);
+				warnings += m_params->at(i)->validate_once(flags, env);
 			}
 		}
+		env->end_symbol_scope();
 		return warnings;
 	}
 
  private:
+	// Make a new DefinitionStatement that is the built-in function args list.
+	DefinitionStatement *
+	new_args_definition()
+	{
+		const Parser::Position &pos = parse_position();
+		Type *args_type = (new Type(Type::LIST))->add_argument(Type::VAR);
+		InitializedIdentifierList *ident_list = new InitializedIdentifierList();
+		ident_list->push_back(
+		    new InitializedIdentifier(pos, new Identifier(pos, "args")));
+
+		return new DefinitionStatement(pos, args_type, ident_list);
+	}
+
 	util::MaybeNullScopedPtr<ParameterDeclarationList> m_params;
 	util::NeverNullScopedPtr<Statement> m_body;
 };
 
-//FIXME: tuple literal?  assignable from list>
+//FIXME: tuple literal?  assignable from list?
 class ListLiteralExpression : public Expression {
  public:
-	ListLiteralExpression(const Parser::Position &pos,
-	                      ArgumentList *contents)
+	ListLiteralExpression(const Parser::Position &pos, ArgumentList *contents)
 	    : Expression(pos), m_contents(contents)
 	{
 		set_result_type(Type(Type::LIST, Type::CONST));
@@ -1290,11 +1358,11 @@ class ListLiteralExpression : public Expression {
 
 	virtual string to_string() const;
 
-	virtual int validate(uint64_t flags)
+	virtual int validate(const ValidateOptions &flags, Environment *env)
 	{
 		int warnings = 0;
 		for (size_t i = 0; i < m_contents->size(); i++) {
-			warnings += m_contents->at(i)->validate(flags);
+			warnings += m_contents->at(i)->validate_once(flags, env);
 		}
 
 		// Figure out the actual type of this list literal.
