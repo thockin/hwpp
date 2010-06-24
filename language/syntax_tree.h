@@ -29,7 +29,7 @@ struct SyntaxError: public std::runtime_error
 
 // Base class for all nodes in our syntax tree.
 class SyntaxNode {
-    public:
+ public:
 	enum NodeType {
 		TYPE_IDENTIFIER,    // a symbol name
 		TYPE_EXPRESSION,    // an expression produces a value
@@ -68,7 +68,7 @@ class SyntaxNode {
 	virtual int
 	validate(uint64_t flags) = 0;
 
-    protected:
+ protected:
 	SyntaxNode(const Parser::Position &pos, NodeType node_type)
 	    : m_position(pos), m_node_type(node_type)
 	{
@@ -79,14 +79,14 @@ class SyntaxNode {
 	{
 	}
 
-    private:
+ private:
 	Parser::Position m_position;
 	NodeType m_node_type;
 };
 
 // Abstract base class for expressions which produce a value.
 class Expression : public SyntaxNode {
-    public:
+ public:
 	explicit
 	Expression(const Parser::Position &pos)
 	    : SyntaxNode(pos, TYPE_EXPRESSION), m_result_type(Type::VAR)
@@ -106,20 +106,20 @@ class Expression : public SyntaxNode {
 		return m_result_type;
 	}
 
-    protected:
+ protected:
 	void set_result_type(const Type &type)
 	{
 		m_result_type = type;
 	}
 
-    private:
+ private:
 	// The resulting datatype of the Expression.
 	Type m_result_type;
 };
 typedef std::vector<Expression*> ExpressionList;
 
 class Identifier : public SyntaxNode {
-    public:
+ public:
 	Identifier(const Parser::Position &pos, const string &symbol)
 	    : SyntaxNode(pos, TYPE_IDENTIFIER),
 	      m_module(""), m_symbol(symbol)
@@ -150,13 +150,13 @@ class Identifier : public SyntaxNode {
 		return 0;
 	}
 
-    private:
+ private:
 	string m_module;
 	string m_symbol;
 };
 
 class InitializedIdentifier : public SyntaxNode {
-    public:
+ public:
 	InitializedIdentifier(const Parser::Position &pos, Identifier *ident)
 	    : SyntaxNode(pos, TYPE_IDENTIFIER),
 	      m_ident(ident), m_init(NULL)
@@ -190,7 +190,7 @@ class InitializedIdentifier : public SyntaxNode {
 		return warnings;
 	}
 
-    private:
+ private:
 	util::NeverNullScopedPtr<Identifier> m_ident;
 	util::MaybeNullScopedPtr<Expression> m_init;
 };
@@ -198,7 +198,7 @@ typedef std::vector<InitializedIdentifier*> InitializedIdentifierList;
 
 // Abstract base class for statements.
 class Statement : public SyntaxNode {
-    public:
+ public:
 	explicit
 	Statement(const Parser::Position &pos)
 	    : SyntaxNode(pos, TYPE_STATEMENT), m_labels(NULL)
@@ -233,13 +233,13 @@ class Statement : public SyntaxNode {
 		return 0;
 	}
 
-    private:
+ private:
 	std::vector<Identifier*> m_labels;
 };
 typedef std::vector<Statement*> StatementList;
 
 class Argument : public SyntaxNode {
-    public:
+ public:
 	Argument(const Parser::Position &pos, Expression *expr)
 	    : SyntaxNode(pos, TYPE_ARGUMENT), m_name(NULL), m_expr(expr)
 	{
@@ -271,7 +271,7 @@ class Argument : public SyntaxNode {
 		return warnings;
 	}
 
-    private:
+ private:
 	util::MaybeNullScopedPtr<Identifier> m_name;
 	util::NeverNullScopedPtr<Expression> m_expr;
 };
@@ -280,7 +280,7 @@ typedef std::vector<Argument*> ArgumentList;
 typedef std::vector<Type*> TypeList;
 
 class NullStatement : public Statement {
-    public:
+ public:
 	explicit
 	NullStatement(const Parser::Position &pos)
 	    : Statement(pos)
@@ -298,7 +298,7 @@ class NullStatement : public Statement {
 };
 
 class CompoundStatement : public Statement {
-    public:
+ public:
 	CompoundStatement(const Parser::Position &pos, StatementList *body)
 	    : Statement(pos), m_body(body)
 	{
@@ -322,12 +322,12 @@ class CompoundStatement : public Statement {
 		return warnings;
 	}
 
-    private:
+ private:
 	util::NeverNullScopedPtr<StatementList> m_body;
 };
 
 class ExpressionStatement : public Statement {
-    public:
+ public:
 	ExpressionStatement(const Parser::Position &pos, Expression *expr)
 	    : Statement(pos), m_expr(expr)
 	{
@@ -347,12 +347,12 @@ class ExpressionStatement : public Statement {
 		return m_expr->validate(flags);
 	}
 
-    private:
+ private:
 	util::NeverNullScopedPtr<Expression> m_expr;
 };
 
 class ConditionalStatement : public Statement {
-    public:
+ public:
 	ConditionalStatement(const Parser::Position &pos,
 	                     Expression *condition, Statement *true_case)
 	    : Statement(pos),
@@ -396,14 +396,14 @@ class ConditionalStatement : public Statement {
 		return warnings;
 	}
 
-    private:
+ private:
 	util::NeverNullScopedPtr<Expression> m_condition;
 	util::NeverNullScopedPtr<Statement> m_true;
 	util::MaybeNullScopedPtr<Statement> m_false;
 };
 
 class SwitchStatement : public Statement {
-    public:
+ public:
 	SwitchStatement(const Parser::Position &pos,
 	                Expression *condition, Statement *body)
 	    : Statement(pos), m_condition(condition), m_body(body)
@@ -431,13 +431,13 @@ class SwitchStatement : public Statement {
 		return warnings;
 	}
 
-    private:
+ private:
 	util::NeverNullScopedPtr<Expression> m_condition;
 	util::NeverNullScopedPtr<Statement> m_body;
 };
 
 class LoopStatement : public Statement {
-    public:
+ public:
 	enum LoopType {
 		LOOP_WHILE,
 		LOOP_DO_WHILE,
@@ -473,14 +473,14 @@ class LoopStatement : public Statement {
 
 	virtual bool execute();
 
-    private:
+ private:
 	LoopType m_loop_type;
 	util::NeverNullScopedPtr<Expression> m_expr;
 	util::NeverNullScopedPtr<Statement> m_body;
 };
 
 class WhileLoopStatement : public LoopStatement {
-    public:
+ public:
 	WhileLoopStatement(const Parser::Position &pos,
 	                   Expression *expr, Statement *body)
 	    : LoopStatement(pos, LOOP_WHILE, expr, body)
@@ -491,7 +491,7 @@ class WhileLoopStatement : public LoopStatement {
 };
 
 class DoWhileLoopStatement : public LoopStatement {
-    public:
+ public:
 	DoWhileLoopStatement(const Parser::Position &pos,
 	                     Statement *body, Expression *expr)
 	    : LoopStatement(pos, LOOP_DO_WHILE, expr, body)
@@ -502,7 +502,7 @@ class DoWhileLoopStatement : public LoopStatement {
 };
 
 class GotoStatement : public Statement {
-    public:
+ public:
 	GotoStatement(const Parser::Position &pos, Identifier *target)
 	    : Statement(pos), m_target(target)
 	{
@@ -523,12 +523,12 @@ class GotoStatement : public Statement {
 		return warnings;
 	}
 
-    private:
+ private:
 	util::NeverNullScopedPtr<Identifier> m_target;
 };
 
 class CaseStatement : public Statement {
-    public:
+ public:
 	CaseStatement(const Parser::Position &pos,
 	              Expression *expr, Statement *statement)
 	    : Statement(pos), m_expr(expr), m_statement(statement)
@@ -556,13 +556,13 @@ class CaseStatement : public Statement {
 		return warnings;
 	}
 
-    private:
+ private:
 	util::NeverNullScopedPtr<Expression> m_expr;
 	util::NeverNullScopedPtr<Statement> m_statement;
 };
 
 class ReturnStatement : public Statement {
-    public:
+ public:
 	explicit
 	ReturnStatement(const Parser::Position &pos)
 	    : Statement(pos), m_expr(NULL)
@@ -591,12 +591,12 @@ class ReturnStatement : public Statement {
 		return warnings;
 	}
 
-    private:
+ private:
 	util::MaybeNullScopedPtr<Expression> m_expr;
 };
 
 class DefinitionStatement : public Statement {
-    public:
+ public:
 	DefinitionStatement(const Parser::Position &pos,
 	                    Type *type, InitializedIdentifierList *vars)
 	    : Statement(pos), m_public(false), m_type(type), m_vars(vars)
@@ -631,14 +631,14 @@ class DefinitionStatement : public Statement {
 		return warnings;
 	}
 
-    private:
+ private:
 	bool m_public;
 	util::NeverNullScopedPtr<Type> m_type;
 	util::NeverNullScopedPtr<InitializedIdentifierList> m_vars;
 };
 
 class ImportStatement : public Statement {
-    public:
+ public:
 	ImportStatement(const Parser::Position &pos, const string &arg)
 	    : Statement(pos), m_argument(arg)
 	{
@@ -659,12 +659,12 @@ class ImportStatement : public Statement {
 		return 0;
 	}
 
-    private:
+ private:
 	const string m_argument;
 };
 
 class ModuleStatement : public Statement {
-    public:
+ public:
 	ModuleStatement(const Parser::Position &pos, const string &arg)
 	    : Statement(pos), m_argument(arg)
 	{
@@ -685,12 +685,12 @@ class ModuleStatement : public Statement {
 		return 0;
 	}
 
-    private:
+ private:
 	string m_argument;
 };
 
 class DiscoverStatement : public Statement {
-    public:
+ public:
 	DiscoverStatement(const Parser::Position &pos, ArgumentList *args)
 	    : Statement(pos), m_args(args)
 	{
@@ -714,14 +714,14 @@ class DiscoverStatement : public Statement {
 		return warnings;
 	}
 
-    private:
+ private:
 	util::NeverNullScopedPtr<ArgumentList> m_args;
 };
 
 static Type undefined_type(Type::VAR); //FIXME: get rid of this
 
 class IdentifierExpression : public Expression {
-    public:
+ public:
 	IdentifierExpression(const Parser::Position &pos, Identifier *ident)
 	    : Expression(pos), m_ident(ident)
 	{
@@ -748,12 +748,12 @@ class IdentifierExpression : public Expression {
 		return warnings;
 	}
 
-    private:
+ private:
 	util::NeverNullScopedPtr<Identifier> m_ident;
 };
 
 class SubscriptExpression : public Expression {
-    public:
+ public:
 	SubscriptExpression(const Parser::Position &pos,
 	                    Expression *expr, Expression *index)
 	    : Expression(pos), m_expr(expr), m_index(index)
@@ -787,13 +787,13 @@ class SubscriptExpression : public Expression {
 		return warnings;
 	}
 
-    private:
+ private:
 	util::NeverNullScopedPtr<Expression> m_expr;
 	util::NeverNullScopedPtr<Expression> m_index;
 };
 
 class FunctionCallExpression : public Expression {
-    public:
+ public:
 	FunctionCallExpression(const Parser::Position &pos, Expression *expr)
 	    : Expression(pos), m_expr(expr), m_args(NULL)
 	{
@@ -835,13 +835,13 @@ class FunctionCallExpression : public Expression {
 		return warnings;
 	}
 
-    private:
+ private:
 	util::NeverNullScopedPtr<Expression> m_expr;
 	util::MaybeNullScopedPtr<ArgumentList> m_args;
 };
 
 class UnaryExpression : public Expression {
-    public:
+ public:
 	enum Operator {
 		OP_POS,     // +foo
 		OP_NEG,     // -foo
@@ -934,7 +934,7 @@ class UnaryExpression : public Expression {
 		return 0;
 	}
 
-    private:
+ private:
 	SyntaxError
 	syntax_error(const string &fmt, const Type &type) const
 	{
@@ -947,7 +947,7 @@ class UnaryExpression : public Expression {
 };
 
 class BinaryExpression : public Expression {
-    public:
+ public:
 	enum Operator {
 		OP_EQ,
 		OP_NEQ,
@@ -1083,7 +1083,7 @@ class BinaryExpression : public Expression {
 		return warnings;
 	}
 
-    private:
+ private:
 	SyntaxError
 	syntax_error(const string &fmt, const Type &type) const
 	{
@@ -1103,7 +1103,7 @@ class BinaryExpression : public Expression {
 };
 
 class ConditionalExpression : public Expression {
-    public:
+ public:
 	ConditionalExpression(const Parser::Position &pos,
 	                      Expression *condition,
 	                      Expression *true_case,
@@ -1147,14 +1147,14 @@ class ConditionalExpression : public Expression {
 		return warnings;
 	}
 
-    private:
+ private:
 	util::NeverNullScopedPtr<Expression> m_condition;
 	util::NeverNullScopedPtr<Expression> m_true;
 	util::NeverNullScopedPtr<Expression> m_false;
 };
 
 class ParameterDeclaration : public SyntaxNode {
-    public:
+ public:
 	ParameterDeclaration(const Parser::Position &pos,
 	                     Type *type, Identifier *ident)
 	    : SyntaxNode(pos, TYPE_PARAMETER), m_type(type), m_ident(ident)
@@ -1169,14 +1169,14 @@ class ParameterDeclaration : public SyntaxNode {
 		return warnings;
 	}
 
-    private:
+ private:
 	util::NeverNullScopedPtr<Type> m_type;
 	util::NeverNullScopedPtr<Identifier> m_ident;
 };
 typedef std::vector<ParameterDeclaration*> ParameterDeclarationList;
 
 class LiteralExpression : public Expression {
-    public:
+ public:
 	LiteralExpression(const Parser::Position &pos,
 	                  const Variable::Datum *value)
 	    : Expression(pos), m_value(value)
@@ -1200,13 +1200,13 @@ class LiteralExpression : public Expression {
 		return 0;
 	}
 
-    private:
+ private:
 	util::NeverNullScopedPtr<const Variable::Datum> m_value;
 };
 
 // Helpers for easier usage.
 class BoolLiteralExpression : public LiteralExpression {
-    public:
+ public:
 	BoolLiteralExpression(const Parser::Position &pos, bool val)
 	    : LiteralExpression(pos,
 	          new Variable::Datum(Type(Type::BOOL, Type::CONST), val))
@@ -1214,7 +1214,7 @@ class BoolLiteralExpression : public LiteralExpression {
 	}
 };
 class IntLiteralExpression : public LiteralExpression {
-    public:
+ public:
 	IntLiteralExpression(const Parser::Position &pos, const Value &val)
 	    : LiteralExpression(pos,
 	          new Variable::Datum(Type(Type::INT, Type::CONST), val))
@@ -1222,7 +1222,7 @@ class IntLiteralExpression : public LiteralExpression {
 	}
 };
 class StringLiteralExpression : public LiteralExpression {
-    public:
+ public:
 	StringLiteralExpression(const Parser::Position &pos, const string &val)
 	    : LiteralExpression(pos,
 	          new Variable::Datum(Type(Type::STRING, Type::CONST), val))
@@ -1231,7 +1231,7 @@ class StringLiteralExpression : public LiteralExpression {
 };
 
 class FunctionLiteralExpression : public Expression {
-    public:
+ public:
 	FunctionLiteralExpression(const Parser::Position &pos, Statement *body)
 	    : Expression(pos),
 	      m_params(NULL), m_body(body)
@@ -1266,14 +1266,14 @@ class FunctionLiteralExpression : public Expression {
 		return warnings;
 	}
 
-    private:
+ private:
 	util::MaybeNullScopedPtr<ParameterDeclarationList> m_params;
 	util::NeverNullScopedPtr<Statement> m_body;
 };
 
 //FIXME: tuple literal?  assignable from list>
 class ListLiteralExpression : public Expression {
-    public:
+ public:
 	ListLiteralExpression(const Parser::Position &pos,
 	                      ArgumentList *contents)
 	    : Expression(pos), m_contents(contents)
@@ -1320,7 +1320,7 @@ class ListLiteralExpression : public Expression {
 		return warnings;
 	}
 
-    private:
+ private:
 	util::NeverNullScopedPtr<ArgumentList> m_contents;
 };
 
