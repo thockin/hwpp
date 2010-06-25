@@ -195,6 +195,18 @@ TEST(test_type) {
 		TEST_ASSERT(t1.is_assignable_from(t2));
 		TEST_ASSERT(t2.is_assignable_from(t1));
 	}
+	// tuple<int> = list<int>
+	{
+		Type t1(Type::TUPLE);
+		t1.add_argument(Type::INT);
+
+		Type t2(Type::LIST);
+		t2.add_argument(Type::INT);
+
+		TEST_ASSERT(!t1.is_equal_to(t2));
+		TEST_ASSERT(t1.is_assignable_from(t2));
+		TEST_ASSERT(!t2.is_assignable_from(t1));
+	}
 	// tuple<int,int> = tuple<int,int>
 	{
 		Type t1(Type::TUPLE);
@@ -208,6 +220,19 @@ TEST(test_type) {
 		TEST_ASSERT(t1.is_equal_to(t2));
 		TEST_ASSERT(t1.is_assignable_from(t2));
 		TEST_ASSERT(t2.is_assignable_from(t1));
+	}
+	// tuple<int,int> = list<int,int>
+	{
+		Type t1(Type::TUPLE);
+		t1.add_argument(Type::INT);
+		t1.add_argument(Type::INT);
+
+		Type t2(Type::LIST);
+		t2.add_argument(Type::INT);
+
+		TEST_ASSERT(!t1.is_equal_to(t2));
+		TEST_ASSERT(t1.is_assignable_from(t2));
+		TEST_ASSERT(!t2.is_assignable_from(t1));
 	}
 	// tuple<int> = tuple<bool>
 	{

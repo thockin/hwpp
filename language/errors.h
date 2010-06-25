@@ -34,3 +34,5 @@ struct SyntaxError: public LanguageError
 }  // namespace pp
 
 #endif  // PP_LANGUAGE_ERRORS_H__
+
+// vim: set ai tabstop=4 shiftwidth=4 noexpandtab:

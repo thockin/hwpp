@@ -80,3 +80,5 @@ Environment::lookup_module(const string &name)
 
 }  // namespace language
 }  // namespace pp
+
+// vim: set ai tabstop=4 shiftwidth=4 noexpandtab:

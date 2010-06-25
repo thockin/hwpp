@@ -144,3 +144,5 @@ class Environment {
 }  // namespace pp
 
 #endif  // PP_LANGUAGE_ENVIRONMENT_H__
+
+// vim: set ai tabstop=4 shiftwidth=4 noexpandtab:
