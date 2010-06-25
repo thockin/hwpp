@@ -1080,8 +1080,8 @@ class BinaryExpression : public Expression {
 				    ltype);
 			}
 			if (!ltype.is_assignable_from(rtype)) {
-				throw syntax_error("can't assign '%s' to '%s'",
-				    rtype, ltype);
+				throw syntax_error("can't assign '%s' from '%s'",
+				    ltype, rtype);
 			}
 			set_result_type(ltype != Type::VAR ? ltype : rtype);
 			break;
@@ -1340,7 +1340,6 @@ class FunctionLiteralExpression : public Expression {
 	util::NeverNullScopedPtr<Statement> m_body;
 };
 
-//FIXME: tuple literal?  assignable from list?
 class ListLiteralExpression : public Expression {
  public:
 	ListLiteralExpression(const Parser::Position &pos, ArgumentList *contents)

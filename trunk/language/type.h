@@ -186,3 +186,5 @@ operator!=(const Type &lhs, const Type &rhs)
 }  // namespace pp
 
 #endif  // PP_LANGUAGE_TYPE_H__
+
+// vim: set ai tabstop=4 shiftwidth=4 noexpandtab:

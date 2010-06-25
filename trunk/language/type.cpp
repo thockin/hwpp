@@ -166,14 +166,23 @@ Type::is_assignable_from(const Type &other, IgnoreConst ignore_const) const
 	if (m_primitive == VAR || other.m_primitive == VAR) {
 		return true;
 	}
-	// If the primitives don't match or the number of arguments
-	// don't match, it can't possibly be assignable.
-	if (m_primitive != other.m_primitive
-	 || m_arguments.size() != other.m_arguments.size()) {
-		return false;
+	// Special case: tuple is assignable from list, as long as args match.
+	// Otherwise, we apply some other rules.
+	if (m_primitive == TUPLE && other.m_primitive == LIST) {
+		// The logic is easier to read this way.
+	} else {
+		// If the primitives don't match, it can't be assignable.
+		if (m_primitive != other.m_primitive) {
+			return false;
+		}
+		// If the number of arguments don't match, it can't be assignable.
+		if (m_arguments.size() != other.m_arguments.size()) {
+			return false;
+		}
 	}
 	// All arguments must also be assignable.
-	for (size_t i = 0; i < m_arguments.size(); i++) {
+	size_t n_args = std::min(m_arguments.size(), other.m_arguments.size());
+	for (size_t i = 0; i < n_args; i++) {
 		const Type &lhs = m_arguments[i];
 		const Type &rhs = other.m_arguments[i];
 		if (!lhs.is_assignable_from(rhs, ignore_const)) {
@@ -220,3 +229,5 @@ Type::sanity_check() const
 
 }  // namespace language
 }  // namespace pp
+
+// vim: set ai tabstop=4 shiftwidth=4 noexpandtab:
