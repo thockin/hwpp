@@ -506,7 +506,7 @@ FunctionLiteralExpression::evaluate(Variable *out_result)
 }
 
 string
-ListLiteralExpression::to_string() const
+TupleLiteralExpression::to_string() const
 {
 	string ret = "[";
 	if (m_contents) {
@@ -522,7 +522,7 @@ ListLiteralExpression::to_string() const
 }
 
 void
-ListLiteralExpression::evaluate(Variable *out_result)
+TupleLiteralExpression::evaluate(Variable *out_result)
 {
 	(void)out_result;//FIXME:
 }

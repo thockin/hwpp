@@ -1340,12 +1340,12 @@ class FunctionLiteralExpression : public Expression {
 	util::NeverNullScopedPtr<Statement> m_body;
 };
 
-class ListLiteralExpression : public Expression {
+class TupleLiteralExpression : public Expression {
  public:
-	ListLiteralExpression(const Parser::Position &pos, ArgumentList *contents)
+	TupleLiteralExpression(const Parser::Position &pos, ArgumentList *contents)
 	    : Expression(pos), m_contents(contents)
 	{
-		set_result_type(Type(Type::LIST, Type::CONST));
+		set_result_type(Type(Type::TUPLE, Type::CONST));
 	}
 
 	ArgumentList *contents()
@@ -1364,25 +1364,14 @@ class ListLiteralExpression : public Expression {
 			warnings += m_contents->at(i)->validate_once(flags, env);
 		}
 
-		// Figure out the actual type of this list literal.
-		Type content_type(Type::VAR);
+		// Figure out the type-args of this tuple literal.
+		Type my_result_type = result_type();
 		for (size_t i = 0; i < m_contents->size(); i++) {
 			const Argument *arg = m_contents->at(i);
 			const Type &t = arg->expression()->result_type();
-			if (content_type == Type::VAR) {
-				content_type = t;
-			} else if (t != content_type) {
-				content_type = Type::VAR;
-				break;
-			}
+			my_result_type.add_argument(t);
 		}
-		Type full_result_type = result_type();
-		if (content_type != Type::VAR) {
-			full_result_type.add_argument(content_type);
-		} else {
-			full_result_type.add_argument(Type::VAR);
-		}
-		set_result_type(full_result_type);
+		set_result_type(my_result_type);
 
 		return warnings;
 	}

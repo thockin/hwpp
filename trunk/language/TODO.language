@@ -5,17 +5,10 @@ Define a standard lib for things like strcat()
 
 Define how to convert non-strings to strings, including formatting (hex, etc)
 
-Tuple literals?
+tuple<int, bool> = [0]  should probably work
 
-auto x = [ 1, 2 ];                 // detect x as list<int>
-list<auto> x = [ 1, 2 ];           // detect x as list<int>
 list x = [ 1, 2 ];                 // detect x as list<int>
-tuple<auto, auto> x = [ 1, "2" ];  // detext x as tuple<int, string>
 tuple x = [ 1, "2" ];              // detext x as tuple<int, string>
-
-typedef
-
-struct
 
 Can I find a way to name tuple members?
 
@@ -26,3 +19,7 @@ Can a function redefine args[] in a local scope?
 Can a file have more than 1 'module' line?
 
 Can a file have 0 'module' lines?
+
+typedef
+
+struct and struct literals
