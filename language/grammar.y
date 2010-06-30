@@ -114,7 +114,7 @@ pp__language__internal__pop_lexer_state(yyscan_t scanner);
                          multiplicative_expression additive_expression
                          unary_expression postfix_expression
                          subscript_expression function_call_expression
-                         function_literal list_literal
+                         function_literal tuple_literal
                          expression_or_nothing
 %type  <unary_op>        unary_operator
 %type  <binary_op>       assignment_operator
@@ -212,8 +212,8 @@ primary_expression
 		$$ = new StringLiteralExpression(curpos(), *$1);
 		delete $1;
 	}
-	| list_literal {
-		SYNTRACE("primary_expression", "list_literal");
+	| tuple_literal {
+		SYNTRACE("primary_expression", "tuple_literal");
 		$$ = $1;
 	}
 	| function_literal {
@@ -238,14 +238,14 @@ string_literal
 	}
 	;
 
-list_literal
+tuple_literal
 	: '[' ']' {
-		SYNTRACE("list_literal", "'[' ']'");
-		$$ = new ListLiteralExpression(curpos(), new ArgumentList());
+		SYNTRACE("tuple_literal", "'[' ']'");
+		$$ = new TupleLiteralExpression(curpos(), new ArgumentList());
 	}
 	| '[' argument_list ']' {
-		SYNTRACE("list_literal", "'[' argument_list ']'");
-		$$ = new ListLiteralExpression(curpos(), $2);
+		SYNTRACE("tuple_literal", "'[' argument_list ']'");
+		$$ = new TupleLiteralExpression(curpos(), $2);
 	}
 	;
 
