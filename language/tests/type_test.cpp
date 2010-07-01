@@ -311,13 +311,13 @@ TEST(test_type) {
 		TEST_ASSERT(!t1.is_assignable_from(t2));
 		TEST_ASSERT(!t2.is_assignable_from(t1));
 	}
-	// tuple<int,bool> = tuple<int>
+	// tuple<int,bool> = tuple<int> (literal)
 	{
 		Type t1(Type::TUPLE);
 		t1.add_argument(Type::INT);
 		t1.add_argument(Type::BOOL);
 
-		Type t2(Type::TUPLE);
+		Type t2(Type::TUPLE, Type::LITERAL);
 		t2.add_argument(Type::INT);
 
 		TEST_ASSERT(!t1.is_equal_to(t2));
