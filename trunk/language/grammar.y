@@ -567,8 +567,7 @@ or_or_expression
 		SYNTRACE("or_or_expression",
 		         "or_or_expression OR_OR and_and_expression");
 		// (A || B)  =>  (A == true) ? true : B
-		Expression *cond = new
-		BinaryExpression(curpos(),
+		Expression *cond = new BinaryExpression(curpos(),
 		    BinaryExpression::OP_EQ, $1,
 		    new BoolLiteralExpression(curpos(), true));
 		$$ = new ConditionalExpression(curpos(), cond,
@@ -893,8 +892,7 @@ loop_statement
 		//    becomes
 		// { @loop_continue: while(A) {B;} @loop_break: <nop> }
 		StatementList *stmts = new StatementList();
-		Statement *loop = new
-		WhileLoopStatement(curpos(), $3, $5);
+		Statement *loop = new WhileLoopStatement(curpos(), $3, $5);
 		loop->add_label(new Identifier(curpos(), "@loop_continue"));
 		stmts->push_back(loop);
 		Statement *nop = new NullStatement(curpos());
@@ -918,8 +916,7 @@ loop_statement
 		Statement *goto_inner = new GotoStatement(curpos(),
 		    new Identifier(curpos(), "@do_while_inner"));
 		stmts->push_back(goto_inner);
-		Statement *loop = new
-		WhileLoopStatement(curpos(), $5, $2);
+		Statement *loop = new WhileLoopStatement(curpos(), $5, $2);
 		loop->add_label(new Identifier(curpos(), "@loop_continue"));
 		stmts->push_back(loop);
 		Statement *nop = new NullStatement(curpos());
@@ -945,16 +942,12 @@ loop_statement
 		//   @loop_break: <nop>
 		// }
 		StatementList *stmts = new StatementList();
-		stmts->push_back(new
-		ExpressionStatement(curpos(), $3));
+		stmts->push_back(new ExpressionStatement(curpos(), $3));
 		StatementList *body_stmts = new StatementList();
 		body_stmts->push_back($9);
-		body_stmts->push_back(new
-		ExpressionStatement(curpos(), $7));
-		CompoundStatement *body = new
-		CompoundStatement(curpos(), body_stmts);
-		Statement *loop = new
-		WhileLoopStatement(curpos(), $5, body);
+		body_stmts->push_back(new ExpressionStatement(curpos(), $7));
+		CompoundStatement *body = new CompoundStatement(curpos(), body_stmts);
+		Statement *loop = new WhileLoopStatement(curpos(), $5, body);
 		loop->add_label(new Identifier(curpos(), "@loop_continue"));
 		stmts->push_back(loop);
 		Statement *nop = new NullStatement(curpos());
@@ -983,12 +976,9 @@ loop_statement
 		stmts->push_back($3);
 		StatementList *body_stmts = new StatementList();
 		body_stmts->push_back($8);
-		body_stmts->push_back(new
-		ExpressionStatement(curpos(), $6));
-		CompoundStatement *body = new
-		CompoundStatement(curpos(), body_stmts);
-		Statement *loop = new
-		WhileLoopStatement(curpos(), $4, body);
+		body_stmts->push_back(new ExpressionStatement(curpos(), $6));
+		CompoundStatement *body = new CompoundStatement(curpos(), body_stmts);
+		Statement *loop = new WhileLoopStatement(curpos(), $4, body);
 		loop->add_label(new Identifier(curpos(), "@loop_continue"));
 		stmts->push_back(loop);
 		Statement *nop = new NullStatement(curpos());
@@ -1041,8 +1031,7 @@ file_scope_item
 		// Save all the top-level symbols.
 		const InitializedIdentifierList *init_ident_list = $1->vars();
 		for (size_t i = 0; i < init_ident_list->size(); i++) {
-			string symbol
-			    = init_ident_list->at(i)->identifier()->symbol();
+			string symbol = init_ident_list->at(i)->identifier()->symbol();
 			if (out_parsed_file->add_private_symbol(symbol, $1)) {
 				throw SyntaxError(curpos(),
 				    sprintfxx("symbol '%s' redefined", symbol));
@@ -1055,8 +1044,7 @@ file_scope_item
 		// Save all the top-level symbols.
 		const InitializedIdentifierList *init_ident_list = $2->vars();
 		for (size_t i = 0; i < init_ident_list->size(); i++) {
-			string symbol
-			    = init_ident_list->at(i)->identifier()->symbol();
+			string symbol = init_ident_list->at(i)->identifier()->symbol();
 			if (out_parsed_file->add_public_symbol(symbol, $2)) {
 				throw SyntaxError(curpos(),
 				    sprintfxx("symbol '%s' redefined", symbol));
@@ -1135,10 +1123,10 @@ function_definition_statement
 		SYNTRACE("function_definition_statement",
 		         "simple_identifier '(' ')' compound_statement");
 		// A(){B}  =>  func A = ${B}
-		InitializedIdentifierList *var_list
-		    = new InitializedIdentifierList();
-		Expression *body = new
-		FunctionLiteralExpression(curpos(), new ParameterDeclarationList(), $4);
+		InitializedIdentifierList *var_list = new InitializedIdentifierList();
+		Expression *body
+		    = new FunctionLiteralExpression(curpos(),
+			                                new ParameterDeclarationList(), $4);
 		InitializedIdentifier *init_ident
 		    = new InitializedIdentifier(curpos(), $1, body);
 		var_list->push_back(init_ident);
@@ -1151,11 +1139,8 @@ function_definition_statement
 		         "simple_identifier '(' parameter_declaration_list ')'"
 		         " compound_statement");
 		// Similar to above, but with named parameters.
-		InitializedIdentifierList *var_list
-		    = new InitializedIdentifierList();
-		//FIXME: should I unroll $3 here?
-		Expression *body = new
-		FunctionLiteralExpression(curpos(), $3, $5);
+		InitializedIdentifierList *var_list = new InitializedIdentifierList();
+		Expression *body = new FunctionLiteralExpression(curpos(), $3, $5);
 		InitializedIdentifier *init_ident
 		    = new InitializedIdentifier(curpos(), $1, body);
 		var_list->push_back(init_ident);
