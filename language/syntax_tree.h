@@ -1226,9 +1226,9 @@ class ParameterDeclaration : public SyntaxNode {
 };
 typedef std::vector<ParameterDeclaration*> ParameterDeclarationList;
 
-class LiteralExpression : public Expression {
+class ValueExpression : public Expression {
  public:
-	LiteralExpression(const Parser::Position &pos, const Variable::Datum *value)
+	ValueExpression(const Parser::Position &pos, const Variable::Datum *value)
 	    : Expression(pos), m_value(value)
 	{
 		// It doesn't make much sense to have a non-const literal.
@@ -1256,45 +1256,39 @@ class LiteralExpression : public Expression {
 };
 
 // Helpers for easier usage.
-class BoolLiteralExpression : public LiteralExpression {
+class BoolLiteralExpression : public ValueExpression {
  public:
 	BoolLiteralExpression(const Parser::Position &pos, bool val)
-	    : LiteralExpression(pos,
-	          new Variable::Datum(Type(Type::BOOL, Type::CONST), val))
+	    : ValueExpression(pos,
+	          new Variable::Datum(Type(Type::BOOL, Type::LITERAL), val))
 	{
 	}
 };
-class IntLiteralExpression : public LiteralExpression {
+class IntLiteralExpression : public ValueExpression {
  public:
 	IntLiteralExpression(const Parser::Position &pos, const Value &val)
-	    : LiteralExpression(pos,
-	          new Variable::Datum(Type(Type::INT, Type::CONST), val))
+	    : ValueExpression(pos,
+	          new Variable::Datum(Type(Type::INT, Type::LITERAL), val))
 	{
 	}
 };
-class StringLiteralExpression : public LiteralExpression {
+class StringLiteralExpression : public ValueExpression {
  public:
 	StringLiteralExpression(const Parser::Position &pos, const string &val)
-	    : LiteralExpression(pos,
-	          new Variable::Datum(Type(Type::STRING, Type::CONST), val))
+	    : ValueExpression(pos,
+	          new Variable::Datum(Type(Type::STRING, Type::LITERAL), val))
 	{
 	}
 };
 
 class FunctionLiteralExpression : public Expression {
  public:
-	FunctionLiteralExpression(const Parser::Position &pos, Statement *body)
-	    : Expression(pos),
-	      m_params(NULL), m_body(body)
-	{
-		set_result_type(Type(Type::FUNC, Type::CONST));
-	}
 	FunctionLiteralExpression(const Parser::Position &pos,
 	                          ParameterDeclarationList *params,
 	                          Statement *body)
 	    : Expression(pos), m_params(params), m_body(body)
 	{
-		set_result_type(Type(Type::FUNC, Type::CONST));
+		set_result_type(Type(Type::FUNC, Type::LITERAL));
 	}
 
 	Statement *body() const
@@ -1313,10 +1307,8 @@ class FunctionLiteralExpression : public Expression {
 		static DefinitionStatement *args_defn = new_args_definition();
 		env->add_symbol("args", args_defn);
 		warnings += m_body->validate_once(flags, env);
-		if (m_params) {
-			for (size_t i = 0; i < m_params->size(); i++) {
-				warnings += m_params->at(i)->validate_once(flags, env);
-			}
+		for (size_t i = 0; i < m_params->size(); i++) {
+			warnings += m_params->at(i)->validate_once(flags, env);
 		}
 		env->end_symbol_scope();
 		return warnings;
@@ -1336,7 +1328,7 @@ class FunctionLiteralExpression : public Expression {
 		return new DefinitionStatement(pos, args_type, ident_list);
 	}
 
-	util::MaybeNullScopedPtr<ParameterDeclarationList> m_params;
+	util::NeverNullScopedPtr<ParameterDeclarationList> m_params;
 	util::NeverNullScopedPtr<Statement> m_body;
 };
 
@@ -1345,7 +1337,7 @@ class TupleLiteralExpression : public Expression {
 	TupleLiteralExpression(const Parser::Position &pos, ArgumentList *contents)
 	    : Expression(pos), m_contents(contents)
 	{
-		set_result_type(Type(Type::TUPLE, Type::CONST));
+		set_result_type(Type(Type::TUPLE, Type::LITERAL));
 	}
 
 	ArgumentList *contents()

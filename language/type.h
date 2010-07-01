@@ -25,13 +25,14 @@ class Type {
 	};
 
 	// Used for clearer constness management when creating const Types and
-	// Variables.  You can add CONST as an argument to most of the ctors
+	// Variables.  You can add Constness as an argument to most of the ctors
 	// because it is always safe to add constness to a reference.  You can
 	// not add NON_CONST as a qualifier because it is a logical flub.  If
 	// the Variable or Type is already non-const it is a no-op.  If the
 	// Variable or Type is const it is an error.
 	enum Constness {
-		CONST = 1
+		CONST = 1,
+		LITERAL = 2,
 	};
 
 	// A generic type error.  Prefer using subclasses when possible.
@@ -58,7 +59,7 @@ class Type {
 
 	// Implicit conversion is OK.
 	Type(Primitive prim)
-	    : m_primitive(prim), m_is_const(false), m_arguments()
+	    : m_primitive(prim), m_is_const(0), m_arguments()
 	{
 	}
 	Type(Primitive prim, Constness constness)
@@ -123,14 +124,20 @@ class Type {
 	bool
 	is_const() const
 	{
-		return m_is_const;
+		return m_is_const != 0;
 	}
 
 	Type *
 	set_const()
 	{
-		m_is_const = true;
+		m_is_const = CONST;
 		return this;
+	}
+
+	bool
+	is_literal() const
+	{
+		return m_is_const == LITERAL;
 	}
 
 	size_t
@@ -164,9 +171,10 @@ class Type {
 
 	Primitive m_primitive;
 	// In general, constness applies to a Variable, not a Type.  In order
-	// to make Type arguments easier, we keep a notion of constness here,
-	// which we copy into Variables as they are created.
-	bool m_is_const;
+	// to make Type arguments and some literal assigments easier, we keep a
+	// notion of constness here, which we can copy into Variables as they are
+	// created.
+	int m_is_const;
 	std::vector<Type> m_arguments;
 };
 

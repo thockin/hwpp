@@ -253,12 +253,14 @@ function_literal
 	: TOK_FUNC_LITERAL compound_statement {
 		SYNTRACE("function_literal",
 		         "FUNC_LITERAL compound_statement");
-		$$ = new FunctionLiteralExpression(curpos(), $2);
+		$$ = new FunctionLiteralExpression(curpos(),
+		                                   new ParameterDeclarationList(), $2);
 	}
 	| TOK_FUNC_LITERAL '(' ')'compound_statement {
 		SYNTRACE("function_literal",
 		         "FUNC_LITERAL '(' ')' compound_statement");
-		$$ = new FunctionLiteralExpression(curpos(), $4);
+		$$ = new FunctionLiteralExpression(curpos(),
+		                                   new ParameterDeclarationList(), $4);
 	}
 	| TOK_FUNC_LITERAL '(' parameter_declaration_list ')'
 	  compound_statement {
@@ -1136,7 +1138,7 @@ function_definition_statement
 		InitializedIdentifierList *var_list
 		    = new InitializedIdentifierList();
 		Expression *body = new
-		FunctionLiteralExpression(curpos(), $4);
+		FunctionLiteralExpression(curpos(), new ParameterDeclarationList(), $4);
 		InitializedIdentifier *init_ident
 		    = new InitializedIdentifier(curpos(), $1, body);
 		var_list->push_back(init_ident);
