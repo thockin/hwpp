@@ -466,13 +466,13 @@ datum_to_string(const Variable::Datum *datum)
 }
 
 string
-LiteralExpression::to_string() const
+ValueExpression::to_string() const
 {
 	return datum_to_string(m_value.get());
 }
 
 void
-LiteralExpression::evaluate(Variable *out_result)
+ValueExpression::evaluate(Variable *out_result)
 {
 	//FIXME:
 	(void)out_result;
@@ -483,19 +483,15 @@ string
 FunctionLiteralExpression::to_string() const
 {
 	string ret = "$";
-	if (m_params) {
-		ret += "(";
-		for (size_t i = 0; i < m_params->size(); i++) {
-			if (i > 0) {
-				ret += ", ";
-			}
-			ret += m_params->at(i)->to_string();
+	ret += "(";
+	for (size_t i = 0; i < m_params->size(); i++) {
+		if (i > 0) {
+			ret += ", ";
 		}
-		ret += ")";
+		ret += m_params->at(i)->to_string();
 	}
-	if (m_body) {
-		ret += m_body->to_string();
-	}
+	ret += ")";
+	ret += m_body->to_string();
 	return ret;
 }
 

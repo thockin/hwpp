@@ -21,7 +21,7 @@ Type::reinit(Primitive prim)
 	// Clean up arguments.
 	m_arguments.clear();
 	m_primitive = prim;
-	m_is_const = false;
+	m_is_const = 0;
 	return this;
 }
 Type *
@@ -112,7 +112,7 @@ Type::primitive_to_string(Primitive prim)
 string
 Type::to_string() const
 {
-	string str = (m_is_const ? "const " : "")
+	string str = (is_const() ? "const " : "")
 	    + primitive_to_string(m_primitive);
 	if (primitive_max_args(m_primitive) > 0) {
 		str += "<";
@@ -132,7 +132,7 @@ Type::to_string() const
 bool
 Type::is_equal_to(const Type &other) const
 {
-	if (m_is_const != other.m_is_const) {
+	if (is_const() != other.is_const()) {
 		return false;
 	}
 	if (m_primitive != other.m_primitive) {
@@ -157,7 +157,7 @@ Type::is_assignable_from(const Type &other, IgnoreConst ignore_const) const
 {
 	if (!ignore_const) {
 		// Const types are never assignable.
-		if (m_is_const) {
+		if (is_const()) {
 			return false;
 		}
 	}
@@ -185,10 +185,20 @@ Type::is_assignable_from(const Type &other, IgnoreConst ignore_const) const
 		}
 		// If the number of type-args don't match, it can't be assignable.
 		if (m_arguments.size() != other.m_arguments.size()) {
-			return false;
+			// Special case: a tuple can be initialized from a literal that is
+			// a strict prefix of the tuple's type.
+			if (m_primitive == TUPLE && other.m_primitive == TUPLE
+			 && m_arguments.size() > other.m_arguments.size()
+			 && other.is_literal()) {
+				// The code is easier to read this way.
+			} else {
+				return false;
+			}
 		}
-		// All of the type-args must also be assignable.
-		for (size_t i = 0; i < m_arguments.size(); i++) {
+		// This allows the strict prefix init of tuples.
+		size_t n_args = std::min(m_arguments.size(), other.m_arguments.size());
+		// The type-args must also be assignable.
+		for (size_t i = 0; i < n_args; i++) {
 			const Type &lhs = m_arguments[i];
 			const Type &rhs = other.m_arguments[i];
 			if (!lhs.is_assignable_from(rhs, ignore_const)) {
