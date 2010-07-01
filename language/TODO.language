@@ -5,8 +5,6 @@ Define a standard lib for things like strcat()
 
 Define how to convert non-strings to strings, including formatting (hex, etc)
 
-tuple<int, bool> = [0]  should probably work
-
 list x = [ 1, 2 ];                 // detect x as list<int>
 tuple x = [ 1, "2" ];              // detext x as tuple<int, string>
 
