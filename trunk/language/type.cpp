@@ -214,6 +214,12 @@ Type::is_assignable_from(const Type &other) const
 	return is_assignable_from(other, DONT_IGNORE_CONST);
 }
 
+bool
+Type::is_initializable_from(const Type &other) const
+{
+	return is_assignable_from(other, IGNORE_CONST);
+}
+
 void
 Type::sanity_check() const
 {
