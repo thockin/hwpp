@@ -108,6 +108,12 @@ class Type {
 	bool
 	is_assignable_from(const Type &other) const;
 
+	// Type initialization is equivalent to type assignment, except for some
+	// subtle details.  Making this a distinct function makes the code easier
+	// to follow.
+	bool
+	is_initializable_from(const Type &other) const;
+
 	bool
 	is_comparable_to(const Type &other) const
 	{

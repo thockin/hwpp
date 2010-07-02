@@ -665,7 +665,7 @@ class DefinitionStatement : public Statement {
 
 			// Make sure the type can be initialized correctly.
 			Expression *expr = init_ident->initializer();
-			if (expr && !m_type->is_assignable_from(expr->result_type())) {
+			if (expr && !m_type->is_initializable_from(expr->result_type())) {
 				throw SyntaxError(parse_position(),
 				    sprintfxx("can't init type '%s' from '%s'",
 				              m_type->to_string(),
