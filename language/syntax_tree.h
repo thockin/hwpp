@@ -655,14 +655,12 @@ class DefinitionStatement : public Statement {
 	{
 		int warnings = Statement::validate(flags, env);
 
-		// Validate that the type is acceptable, and not ill-formed.
-		m_type->sanity_check();
-
 		// For each defined variable...
 		for (size_t i = 0; i < m_vars->size(); i++) {
 			InitializedIdentifier *init_ident = m_vars->at(i);
 			warnings += init_ident->validate_once(flags, env);
 
+			//FIXME: make list and tuple initializaeble without args
 			// Make sure the type can be initialized correctly.
 			Expression *expr = init_ident->initializer();
 			if (expr && !m_type->is_initializable_from(expr->result_type())) {

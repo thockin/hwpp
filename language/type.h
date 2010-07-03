@@ -157,12 +157,6 @@ class Type {
 		return m_arguments[index];
 	}
 
-	// Make sure that compound types are properly defined (e.g. list has
-	// an argument).  Throws a specific Type::Error (e.g. ArgumentError)
-	// on failure.
-	void
-	sanity_check() const;
-
  private:
 	// This is used for internal type comparisons without regard to const
 	// qualification.
