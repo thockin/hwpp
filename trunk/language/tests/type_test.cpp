@@ -206,6 +206,27 @@ TEST(test_type) {
 		TEST_ASSERT(!t1.is_assignable_from(t2));
 		TEST_ASSERT(!t2.is_assignable_from(t1));
 	}
+	// list<> = list<>
+	{
+		Type t1(Type::LIST);
+
+		Type t2(Type::TUPLE);
+
+		TEST_ASSERT(t1.is_equal_to(t2));
+		TEST_ASSERT(t1.is_assignable_from(t2));
+		TEST_ASSERT(t2.is_assignable_from(t1));
+	}
+	// list<> = list<int>
+	{
+		Type t1(Type::LIST);
+
+		Type t2(Type::TUPLE);
+		t2.add_argument(Type::INT);
+
+		TEST_ASSERT(!t1.is_equal_to(t2));
+		TEST_ASSERT(t1.is_assignable_from(t2));
+		TEST_ASSERT(!t2.is_assignable_from(t1));
+	}
 	// list<list<int>> = list<list<int>>
 	{
 		Type t1(Type::LIST);

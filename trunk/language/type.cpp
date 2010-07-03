@@ -41,7 +41,7 @@ Type::add_argument(const Type &arg)
 	 case LIST:
 		if (m_arguments.size() > 0) {
 			throw ArgumentError(sprintfxx(
-			    "type '%s' takes exactly one argument",
+			    "type '%s' takes zero or one arguments",
 			    primitive_to_string(m_primitive)));
 		}
 		// ...else fall through
@@ -161,16 +161,31 @@ Type::is_assignable_from(const Type &other, IgnoreConst ignore_const) const
 			return false;
 		}
 	}
-	// VAR is assignable from anything.  Assignments from var are checked
+	// VAR is assignable from anything.  Assignments from VAR are checked
 	// at runtime.
 	if (m_primitive == VAR || other.m_primitive == VAR) {
 		return true;
 	}
-	// Special case: list is assignable from tuple, as long as args match.
-	// Otherwise, we apply some other rules.
+	// Special case: LIST with no type args can be assigned from any LIST or
+	// TUPLE.
+	if (m_primitive == LIST && m_arguments.size() == 0) {
+		if (other.m_primitive == LIST || other.m_primitive == TUPLE) {
+			return true;
+		}
+		return false;
+	}
+	// Special case: TUPLE with no type args can be assigned from any TUPLE.
+	if (m_primitive == TUPLE && m_arguments.size() == 0) {
+		if (other.m_primitive == TUPLE) {
+			return true;
+		}
+		return false;
+	}
+	// Special case: LIST is assignable from TUPLE, as long as the type-args
+	// allow it.
 	if (m_primitive == LIST && other.m_primitive == TUPLE) {
-		// We can only assign list = tuple if the list type-arg is assignable
-		// from all of the tuple type-args.
+		// We can only assign LIST = TUPLE if the LIST type-arg is assignable
+		// from all of the TUPLE type-args.
 		const Type &lhs = m_arguments[0];
 		for (size_t i = 0; i < other.m_arguments.size(); i++) {
 			const Type &rhs = other.m_arguments[i];
@@ -185,8 +200,8 @@ Type::is_assignable_from(const Type &other, IgnoreConst ignore_const) const
 		}
 		// If the number of type-args don't match, it can't be assignable.
 		if (m_arguments.size() != other.m_arguments.size()) {
-			// Special case: a tuple can be initialized from a literal that is
-			// a strict prefix of the tuple's type.
+			// Special case: a TUPLE can be initialized from a literal that is
+			// a strict prefix of the TUPLE's type.
 			if (m_primitive == TUPLE && other.m_primitive == TUPLE
 			 && m_arguments.size() > other.m_arguments.size()
 			 && other.is_literal()) {
@@ -218,36 +233,6 @@ bool
 Type::is_initializable_from(const Type &other) const
 {
 	return is_assignable_from(other, IGNORE_CONST);
-}
-
-void
-Type::sanity_check() const
-{
-	// Type::add_argument checks that a type does not end up with too many
-	// type-args before adding them.  We need to check that it got enough.
-	switch (m_primitive) {
-	 case BOOL:
-	 case FLDFMT:
-	 case FUNC:
-	 case INT:
-	 case STRING:
-	 case VAR:
-		break;
-	 case LIST:
-		if (m_arguments.size() == 0) {
-			throw Type::ArgumentError(sprintfxx(
-			    "type '%s' requires exactly one argument",
-			    Type::primitive_to_string(Type::LIST)));
-		}
-		break;
-	 case TUPLE:
-		if (m_arguments.size() == 0) {
-			throw Type::ArgumentError(sprintfxx(
-			    "type '%s' requires at least one argument",
-			    Type::primitive_to_string(Type::TUPLE)));
-		}
-		break;
-	}
 }
 
 }  // namespace language

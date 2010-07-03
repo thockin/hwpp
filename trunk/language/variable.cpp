@@ -8,7 +8,6 @@ namespace language {
 
 Variable::Datum::Datum(const Type &type) : m_type(type), m_type_locked(true)
 {
-	type.sanity_check();
 	switch (m_type.primitive()) {
 	  case Type::BOOL:
 		m_bool_value = false;
