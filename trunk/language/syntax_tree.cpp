@@ -302,7 +302,7 @@ SubscriptExpression::evaluate(Variable *out_result)
 string
 FunctionCallExpression::to_string() const
 {
-	string ret = "(" + m_expr->to_string() + ")" + "(";
+	string ret = "(" + m_callee->to_string() + ")" + "(";
 	if (m_args) {
 		for (size_t i = 0; i < m_args->size(); i++) {
 			if (i > 0) {

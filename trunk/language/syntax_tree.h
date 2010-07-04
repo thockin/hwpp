@@ -95,21 +95,32 @@ class Expression : public SyntaxNode {
 	{
 	}
 
-	virtual ~Expression()
+	virtual
+	~Expression()
 	{
 	}
 
 	// Evaluate this expression, producing a result.
-	virtual void evaluate(Variable *out_result) = 0;
+	virtual void
+	evaluate(Variable *out_result) = 0;
 
 	// Get the resulting type of this expression.
-	virtual const Type &result_type() const
+	virtual const Type &
+	result_type() const
 	{
 		return m_result_type;
 	}
 
+	// Test whether this expression is compile-time evaluatable.
+	virtual bool
+	is_constexpr() const
+	{
+		return false;
+	}
+
  protected:
-	void set_result_type(const Type &type)
+	void
+	set_result_type(const Type &type)
 	{
 		m_result_type = type;
 	}
@@ -802,11 +813,24 @@ class IdentifierExpression : public Expression {
 		}
 		int warnings = def->validate_once(flags, env);
 		set_result_type(*(def->type()));
+		m_definition = def;
 		return warnings;
+	}
+
+	//FIXME: comments/docs - All nodes MUST be validated before any other
+	// methods are called on them.
+	virtual bool
+	is_constexpr() const
+	{
+		if (result_type().is_const()) {
+			return true;
+		}
+		return false;
 	}
 
  private:
 	util::NeverNullScopedPtr<Identifier> m_ident;
+	DefinitionStatement *m_definition;  // cached for easy access
 };
 
 class SubscriptExpression : public Expression {
@@ -835,18 +859,71 @@ class SubscriptExpression : public Expression {
 	{
 		int warnings = m_expr->validate_once(flags, env)
 		    + m_index->validate_once(flags, env);
+
+		// Make sure it can be subscripted.
 		const Type &expr_type = m_expr->result_type();
 		Type::Primitive expr_prim = expr_type.primitive();
 		if (expr_prim != Type::LIST && expr_prim != Type::TUPLE
 		 && expr_prim != Type::VAR) {
-			string why = "can't subscript type '" + expr_type.to_string() + "'";
+			string why = "can't subscript type '"
+			            + expr_type.to_string() + "'";
 			throw SyntaxError(parse_position(), why);
 		}
-		if (expr_prim == Type::LIST) {
-			set_result_type(expr_type.argument(0));
+
+		// Make sure the subscript is legit.
+		const Type &index_type = m_index->result_type();
+		Type::Primitive index_prim = index_type.primitive();
+		if (index_prim != Type::INT && index_prim != Type::VAR) {
+			string why = "subscript index must be type '"
+			           + Type::primitive_to_string(Type::INT)
+			           + "', found type '" + index_type.to_string() + "'";
+			throw SyntaxError(parse_position(), why);
 		}
-		//FIXME: tuple -> need to tell a constexpr from non
+
+		// Lists have at most 1 type-arg.
+		if (expr_prim == Type::LIST) {
+			// See if it is a list<>, which can be any list type.
+			if (expr_type.n_arguments() == 0) {
+				//FIXME: const list l = [0,1,2]; bool b = l[0]; must fail.
+				set_result_type(Type::VAR);
+			} else {
+				set_result_type(expr_type.argument(0));
+			}
+		}
+
+		// Tuples have zero or more type-args.  If the index is a constexpr,
+		// we know the type.  If it is not, this expression must be runtime
+		// evaluated.
+		if (expr_prim == Type::TUPLE && m_index->is_constexpr()) {
+			//FIXME: const tuple t = [ false ]; bool b = t[0]; must succeed.
+			//FIXME: const tuple t = [ false ]; int i = t[0]; must fail.
+			try {
+				Variable v(Type::INT);
+				m_index->evaluate(&v);
+				size_t index = v.int_value().get_int();
+				if (index >= expr_type.n_arguments()) {
+					string why = sprintfxx("type '%s' has no [%d] member",
+					                       expr_type.to_string(),
+					                       index);
+					throw SyntaxError(parse_position(), why);
+				}
+				set_result_type(expr_type.argument(index));
+			} catch (Variable::TypeError &type_error) {
+				string why = "subscript index must be type '"
+				           + Type::primitive_to_string(Type::INT)
+				           + "', found type '" + index_type.to_string() + "'";
+				throw SyntaxError(parse_position(), why);
+			}
+		} else {
+			set_result_type(Type::VAR);
+		}
 		return warnings;
+	}
+
+	virtual bool
+	is_constexpr() const
+	{
+		return (m_expr->is_constexpr() && m_index->is_constexpr());
 	}
 
  private:
@@ -856,19 +933,20 @@ class SubscriptExpression : public Expression {
 
 class FunctionCallExpression : public Expression {
  public:
-	FunctionCallExpression(const Parser::Position &pos, Expression *expr)
-	    : Expression(pos), m_expr(expr), m_args(NULL)
+	//FIXME: reduce to 1 ctor
+	FunctionCallExpression(const Parser::Position &pos, Expression *callee)
+	    : Expression(pos), m_callee(callee), m_args(NULL)
 	{
 	}
 	FunctionCallExpression(const Parser::Position &pos,
-	                       Expression *expr, ArgumentList *args)
-	    : Expression(pos), m_expr(expr), m_args(args)
+	                       Expression *callee, ArgumentList *args)
+	    : Expression(pos), m_callee(callee), m_args(args)
 	{
 	}
 
-	Expression *expression() const
+	Expression *callee() const
 	{
-		return m_expr.get();
+		return m_callee.get();
 	}
 
 	ArgumentList *args() const
@@ -888,7 +966,7 @@ class FunctionCallExpression : public Expression {
 
 	virtual int validate(const ValidateOptions &flags, Environment *env)
 	{
-		int warnings = m_expr->validate_once(flags, env);
+		int warnings = m_callee->validate_once(flags, env);
 		if (m_args) {
 			for (size_t i = 0; i < m_args->size(); i++) {
 				warnings += m_args->at(i)->validate_once(flags, env);
@@ -898,7 +976,7 @@ class FunctionCallExpression : public Expression {
 	}
 
  private:
-	util::NeverNullScopedPtr<Expression> m_expr;
+	util::NeverNullScopedPtr<Expression> m_callee;
 	util::MaybeNullScopedPtr<ArgumentList> m_args;
 };
 
@@ -959,9 +1037,8 @@ class UnaryExpression : public Expression {
 		 case OP_POSTDEC:
 			// These ops require non-const expressions.
 		 	if (expr_type.is_const()) {
-				throw syntax_error(
-				    "expected non-const int expression,"
-				    " found '%s'", expr_type);
+				throw syntax_error("expected non-const expression, found '%s'",
+				                   expr_type);
 			}
 			// fall through
 		 case OP_POS:
@@ -970,15 +1047,31 @@ class UnaryExpression : public Expression {
 			// These ops do not about constness.
 			if (expr_prim != Type::INT
 			 && expr_prim != Type::VAR) {
-				throw syntax_error(
-				    "expected int expression, found '%s'",
-				    expr_type);
+				throw syntax_error("expected int expression, found '%s'",
+				                   expr_type);
 			}
 			set_result_type(Type::INT);
 			break;
 		}
 
 		return warnings;
+	}
+
+	virtual bool
+	is_constexpr() const
+	{
+		if (m_expr->is_constexpr()) {
+			switch (m_op) {
+			 case OP_POS:
+			 case OP_NEG:
+			 case OP_NOT:
+			 case OP_BITNOT:
+				return true;
+			 default:
+				break;
+			}
+		}
+		return false;
 	}
 
  private:
@@ -1131,6 +1224,36 @@ class BinaryExpression : public Expression {
 		return warnings;
 	}
 
+	virtual bool
+	is_constexpr() const
+	{
+		if (m_lhs->is_constexpr() && m_rhs->is_constexpr()) {
+			switch (m_op) {
+			 case OP_EQ:
+			 case OP_NEQ:
+			 case OP_LT:
+			 case OP_GT:
+			 case OP_LE:
+			 case OP_GE:
+			 case OP_MUL:
+			 case OP_DIV:
+			 case OP_MOD:
+			 case OP_ADD:
+			 case OP_SUB:
+			 case OP_SHL:
+			 case OP_SHR:
+			 case OP_AND:
+			 case OP_OR:
+			 case OP_XOR:
+			 case OP_COMMA:
+				return true;
+			 default:
+				break;
+			}
+		}
+		return false;
+	}
+
  private:
 	SyntaxError
 	syntax_error(const string &fmt, const Type &type) const
@@ -1196,6 +1319,13 @@ class ConditionalExpression : public Expression {
 		return warnings;
 	}
 
+	virtual bool
+	is_constexpr() const
+	{
+		return (m_condition->is_constexpr()
+		    && m_true->is_constexpr() && m_false->is_constexpr());
+	}
+
  private:
 	util::NeverNullScopedPtr<Expression> m_condition;
 	util::NeverNullScopedPtr<Expression> m_true;
@@ -1247,6 +1377,12 @@ class ValueExpression : public Expression {
 	validate(const ValidateOptions & /*flags*/, Environment * /*env*/)
 	{
 		return 0;
+	}
+
+	virtual bool
+	is_constexpr() const
+	{
+		return true;
 	}
 
  private:
@@ -1312,6 +1448,12 @@ class FunctionLiteralExpression : public Expression {
 		return warnings;
 	}
 
+	virtual bool
+	is_constexpr() const
+	{
+		return true;
+	}
+
  private:
 	// Make a new DefinitionStatement that is the built-in function args list.
 	DefinitionStatement *
@@ -1364,6 +1506,12 @@ class TupleLiteralExpression : public Expression {
 		set_result_type(my_result_type);
 
 		return warnings;
+	}
+
+	virtual bool
+	is_constexpr() const
+	{
+		return true;
 	}
 
  private:
