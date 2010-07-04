@@ -167,10 +167,10 @@ class BigInt: public mpz_class
 	long long
 	get_si() const
 	{
-		return get_int();
+		return as_int();
 	}
 	long long
-	get_int() const
+	as_int() const
 	{
 		if (sizeof(long) == sizeof(long long)
 		 || (*this >= LONG_MIN && *this <= LONG_MAX)) {
@@ -199,10 +199,10 @@ class BigInt: public mpz_class
 	unsigned long long
 	get_ui() const
 	{
-		return get_int();
+		return as_uint();
 	}
 	unsigned long long
-	get_uint() const
+	as_uint() const
 	{
 		if ((sizeof(long) == sizeof(long long))
 		 || (*this >= 0 && *this <= ULONG_MAX)) {
@@ -224,7 +224,7 @@ class BigInt: public mpz_class
 	// Don't call this for negative numbers, which effectively have an
 	// infinite number of bits.
 	util::BitBuffer 
-	get_bitbuffer(std::size_t bits=0) const
+	to_bitbuffer(std::size_t bits=0) const
 	{
 		ASSERT(*this >= 0);
 
@@ -242,7 +242,7 @@ class BigInt: public mpz_class
 
 		BigInt myval(*this);
 		for (std::size_t i = 0; i < bytes; i++) {
-			bitbuf.byte_at(i) = myval.get_uint() & 0xff;
+			bitbuf.byte_at(i) = myval.as_uint() & 0xff;
 			myval >>= CHAR_BIT;
 		}
 

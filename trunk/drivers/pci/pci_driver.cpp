@@ -59,8 +59,8 @@ PciDriver::new_binding(const std::vector<Value> &args) const
 	if (func < 0 || func >= 8) {
 		throw Driver::ArgsError("pci<>: invalid function");
 	}
-	return new_pci_binding(PciAddress(seg.get_uint(), bus.get_uint(),
-		dev.get_uint(), func.get_uint()));
+	return new_pci_binding(PciAddress(seg.as_uint(), bus.as_uint(),
+		dev.as_uint(), func.as_uint()));
 }
 
 void
@@ -114,8 +114,8 @@ PciDriver::register_discovery(const std::vector<Value> &args,
 	}
 
 	DiscoveryRequest dr;
-	dr.vendor = args[0].get_uint();
-	dr.device = args[1].get_uint();
+	dr.vendor = args[0].as_uint();
+	dr.device = args[1].as_uint();
 	dr.function = function;
 	m_callbacks.push_back(dr);
 }
@@ -124,8 +124,8 @@ const PciDriver::DiscoveryRequest *
 PciDriver::find_discovery_request(const PciAddress &addr) const
 {
 	PciIo dev(addr);
-	uint16_t vid = dev.read(0, BITS16).get_uint();
-	uint16_t did = dev.read(2, BITS16).get_uint();
+	uint16_t vid = dev.read(0, BITS16).as_uint();
+	uint16_t did = dev.read(2, BITS16).as_uint();
 
 	DTRACE(TRACE_DISCOVERY, sprintfxx("discovery: pci 0x%04x 0x%04x",
 	                                  vid, did));

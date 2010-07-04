@@ -41,7 +41,7 @@ CpuidDriver::new_binding(const std::vector<Value> &args) const
 		throw Driver::ArgsError("cpuid<>: invalid cpu");
 	}
 
-	return new_cpuid_binding(CpuidAddress(cpu.get_uint()));
+	return new_cpuid_binding(CpuidAddress(cpu.as_uint()));
 }
 
 }  // namespace pp

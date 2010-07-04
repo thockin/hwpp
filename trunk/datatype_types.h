@@ -456,7 +456,7 @@ class StringDatatype: public Datatype
 	virtual string
 	evaluate(const Value &value) const
 	{
-		util::BitBuffer bits = value.get_bitbuffer();
+		util::BitBuffer bits = value.to_bitbuffer();
 		return string((char *)bits.get(), bits.size_bytes());
 	}
 

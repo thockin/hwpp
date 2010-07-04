@@ -106,11 +106,11 @@ MemIo::open_device(string device)
 filesystem::FileMappingPtr
 MemIo::map(const Value &offset, size_t length) const
 {
-	if (offset.get_uint()+length > m_address.size) {
+	if (offset.as_uint()+length > m_address.size) {
 		do_io_error(sprintfxx("can't access register 0x%x", offset));
 	}
 
-	return m_file->mmap(m_address.base+offset.get_uint(), length);
+	return m_file->mmap(m_address.base+offset.as_uint(), length);
 }
 
 void
@@ -158,7 +158,7 @@ MemIo::do_write(const Value &offset, const Value &value) const
 
 	filesystem::FileMappingPtr mapping = map(offset, sizeof(Tdata));
 	Tdata *ptr = (Tdata *)mapping->address();
-	Tdata data = value.get_uint();
+	Tdata data = value.as_uint();
 	*ptr = data;
 }
 

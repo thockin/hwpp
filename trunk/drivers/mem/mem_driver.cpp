@@ -46,7 +46,7 @@ MemDriver::new_binding(const std::vector<Value> &args) const
 		throw Driver::ArgsError("mem<>: invalid size");
 	}
 
-	return new_mem_binding(MemAddress(base.get_uint(), size.get_uint()));
+	return new_mem_binding(MemAddress(base.as_uint(), size.as_uint()));
 }
 
 }  // namespace pp

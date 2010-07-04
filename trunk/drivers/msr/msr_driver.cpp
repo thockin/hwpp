@@ -41,7 +41,7 @@ MsrDriver::new_binding(const std::vector<Value> &args) const
 		throw Driver::ArgsError("msr<>: invalid cpu");
 	}
 
-	return new_msr_binding(MsrAddress(cpu.get_uint()));
+	return new_msr_binding(MsrAddress(cpu.as_uint()));
 }
 
 }  // namespace pp

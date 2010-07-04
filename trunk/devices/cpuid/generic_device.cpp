@@ -199,7 +199,7 @@ cpuid_generic_device()
 				FIELD("queries_needed", "int_t",
 						EAX("%function_2[-1]", 7, 0));
 				queries_needed =
-					READ("queries_needed").get_uint();
+					READ("queries_needed").as_uint();
 			}
 
 			if (READ(EAX("%function_2[-1]", 31)) == Value(0)) {
