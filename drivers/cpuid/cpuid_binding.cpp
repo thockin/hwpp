@@ -57,9 +57,9 @@ CpuidIo::read(const Value &address, const BitWidth width) const
 
 	// call CPUID
 	uint32_t regs[4];
-	unsigned int function = Value(address & MASK(32)).get_uint();
+	unsigned int function = Value(address & MASK(32)).as_uint();
 	unsigned int argument = 
-		Value((address >> 32) & MASK(32)).get_uint();
+		Value((address >> 32) & MASK(32)).as_uint();
 	asm volatile(
 		"cpuid"
 		: "=a" (regs[0]),

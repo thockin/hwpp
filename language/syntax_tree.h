@@ -900,7 +900,7 @@ class SubscriptExpression : public Expression {
 			try {
 				Variable v(Type::INT);
 				m_index->evaluate(&v);
-				size_t index = v.int_value().get_int();
+				size_t index = v.int_value().as_uint();
 				if (index >= expr_type.n_arguments()) {
 					string why = sprintfxx("type '%s' has no [%d] member",
 					                       expr_type.to_string(),

@@ -81,7 +81,7 @@ PciIo::write(const Value &address, const BitWidth width,
 	}
 
 	seek(address);
-	util::BitBuffer bb = value.get_bitbuffer(width);
+	util::BitBuffer bb = value.to_bitbuffer(width);
 	if (m_file->write(bb.get(), bb.size_bytes()) != bb.size_bytes()) {
 		// We already did bounds checking, but we might hit EOF on
 		// a 256 B PCI config space.  That's still valid, since the
@@ -171,7 +171,7 @@ PciIo::check_bounds(const Value &offset, size_t bytes) const
 void
 PciIo::seek(const Value &offset) const
 {
-	m_file->seek(offset.get_uint(), SEEK_SET);
+	m_file->seek(offset.as_uint(), SEEK_SET);
 }
 
 static void

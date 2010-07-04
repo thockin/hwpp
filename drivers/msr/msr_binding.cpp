@@ -70,7 +70,7 @@ MsrIo::write(const Value &address, const BitWidth width,
 	}
 
 	seek(address);
-	util::BitBuffer bb = value.get_bitbuffer(width);
+	util::BitBuffer bb = value.to_bitbuffer(width);
 	if (m_file->write(bb.get(), bb.size_bytes()) != bb.size_bytes()) {
 		// We already did bounds checking, so this must be bad.
 		do_io_error(sprintfxx("error writing register 0x%x: %s",
@@ -138,7 +138,7 @@ MsrIo::check_bounds(const Value &offset, unsigned bytes) const
 void
 MsrIo::seek(const Value &offset) const
 {
-	m_file->seek(offset.get_uint(), SEEK_SET);
+	m_file->seek(offset.as_uint(), SEEK_SET);
 }
 
 }  // namespace pp

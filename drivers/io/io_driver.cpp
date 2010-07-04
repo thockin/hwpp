@@ -48,7 +48,7 @@ IoDriver::new_binding(const std::vector<Value> &args) const
 		throw Driver::ArgsError("io<>: invalid size");
 	}
 
-	return new_io_binding(IoAddress(base.get_uint(), size.get_uint()));
+	return new_io_binding(IoAddress(base.as_uint(), size.as_uint()));
 }
 
 }  // namespace pp

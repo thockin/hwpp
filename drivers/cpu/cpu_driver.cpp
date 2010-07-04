@@ -91,12 +91,12 @@ CpuDriver::register_discovery(const std::vector<Value> &args,
 
 	DiscoveryRequest dr;
 	dr.vendor = args[0] & MASK(12*8);
-	dr.family_min = args[1].get_uint();
-	dr.family_max = args[2].get_uint();
-	dr.model_min = args[3].get_uint();
-	dr.model_max = args[4].get_uint();
-	dr.stepping_min = args[5].get_uint();
-	dr.stepping_max = args[6].get_uint();
+	dr.family_min = args[1].as_uint();
+	dr.family_max = args[2].as_uint();
+	dr.model_min = args[3].as_uint();
+	dr.model_max = args[4].as_uint();
+	dr.stepping_min = args[5].as_uint();
+	dr.stepping_max = args[6].as_uint();
 	dr.function = function;
 	m_callbacks.push_back(dr);
 }

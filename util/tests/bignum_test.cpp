@@ -132,30 +132,30 @@ TEST(test_ctors)
 	{
 		BigInt val(0x123456789abcdef0LL);
 		TEST_ASSERT(val.get_si() == 0x123456789abcdef0LL,
-			"val.get_int()");
+			"val.get_si()");
 		TEST_ASSERT(val.get_ui() == 0x123456789abcdef0ULL,
-			"val.get_uint()");
+			"val.get_ui()");
 		TEST_ASSERT(val.get_str(16) == "123456789abcdef0",
 			"BigInt::BigInt(signed long long)");
 	}
 	{
 		BigInt val(-1LL);
 		TEST_ASSERT(val.get_si() == -1,
-			"val.get_int()");
+			"val.get_si()");
 		TEST_ASSERT(val.get_str(10) == "-1",
 			"BigInt::BigInt(signed long long)");
 	}
 	{
 		BigInt val(0x123456789abcdef0ULL);
 		TEST_ASSERT(val.get_ui() == 0x123456789abcdef0ULL,
-			"val.get_uint()");
+			"val.get_ui()");
 		TEST_ASSERT(val.get_str(16) == "123456789abcdef0",
 			"BigInt::BigInt(unsigned long long)");
 	}
 	{
 		BigInt val(-1ULL);
-		TEST_ASSERT(val.get_uint() == 0xffffffffffffffffULL,
-			"val.get_uint()");
+		TEST_ASSERT(val.as_uint() == 0xffffffffffffffffULL,
+			"val.as_uint()");
 		TEST_ASSERT(val.get_str(16) == "ffffffffffffffff",
 			"BigInt::BigInt(unsigned long long)");
 	}
@@ -211,12 +211,12 @@ TEST(test_ctors)
 		BigInt val(bb);
 		TEST_ASSERT(val.get_ui() == 0x12,
 			"BigInt(util::BitBuffer)");
-		util::BitBuffer bb2 = val.get_bitbuffer();
+		util::BitBuffer bb2 = val.to_bitbuffer();
 		TEST_ASSERT(bb2.to_string() == "0x12",
-			"BigInt::get_bitbuffer()");
-		util::BitBuffer bb3 = val.get_bitbuffer(8);
+			"BigInt::to_bitbuffer()");
+		util::BitBuffer bb3 = val.to_bitbuffer(8);
 		TEST_ASSERT(bb3.to_string() == "0x12",
-			"BigInt::get_bitbuffer(int)");
+			"BigInt::to_bitbuffer(int)");
 	}
 	{
 		util::BitBuffer bb(16);
@@ -225,12 +225,12 @@ TEST(test_ctors)
 		BigInt val(bb);
 		TEST_ASSERT(val.get_ui() == 0x1234,
 			"BigInt(util::BitBuffer)");
-		util::BitBuffer bb2 = val.get_bitbuffer();
+		util::BitBuffer bb2 = val.to_bitbuffer();
 		TEST_ASSERT(bb2.to_string() == "0x1234",
-			"BigInt::get_bitbuffer()");
-		util::BitBuffer bb3 = val.get_bitbuffer(16);
+			"BigInt::to_bitbuffer()");
+		util::BitBuffer bb3 = val.to_bitbuffer(16);
 		TEST_ASSERT(bb3.to_string() == "0x1234",
-			"BigInt::get_bitbuffer(int)");
+			"BigInt::to_bitbuffer(int)");
 	}
 }
 
