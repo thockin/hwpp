@@ -106,7 +106,7 @@ class Environment {
 	void
 	new_symbol_scope()
 	{
-		m_symtab.new_context();
+		m_symtab.push_context();
 	}
 
 	// Add a symbol to the current nested scope.  This is used while
@@ -122,7 +122,7 @@ class Environment {
 	void
 	end_symbol_scope()
 	{
-		m_symtab.end_context();
+		m_symtab.pop_context();
 	}
 
 	// Look up a symbol by name in the current nested scope hierarchy.
