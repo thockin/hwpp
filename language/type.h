@@ -59,11 +59,11 @@ class Type {
 
 	// Implicit conversion is OK.
 	Type(Primitive prim)
-	    : m_primitive(prim), m_is_const(0), m_arguments()
+	    : m_primitive(prim), m_constness(0), m_arguments()
 	{
 	}
 	Type(Primitive prim, Constness constness)
-	    : m_primitive(prim), m_is_const(constness), m_arguments()
+	    : m_primitive(prim), m_constness(constness), m_arguments()
 	{
 	}
 	// Make a deep-copy.
@@ -130,20 +130,20 @@ class Type {
 	bool
 	is_const() const
 	{
-		return m_is_const != 0;
+		return m_constness != 0;
 	}
 
 	Type *
 	set_const()
 	{
-		m_is_const = CONST;
+		m_constness = CONST;
 		return this;
 	}
 
 	bool
 	is_literal() const
 	{
-		return m_is_const == LITERAL;
+		return m_constness == LITERAL;
 	}
 
 	size_t
@@ -173,8 +173,9 @@ class Type {
 	// In general, constness applies to a Variable, not a Type.  In order
 	// to make Type arguments and some literal assigments easier, we keep a
 	// notion of constness here, which we can copy into Variables as they are
-	// created.
-	int m_is_const;
+	// created.  This is 'int' rather than 'Constness' so we can set it
+	// to 0 without exposing a NON_CONST enum value.
+	int m_constness;
 	std::vector<Type> m_arguments;
 };
 

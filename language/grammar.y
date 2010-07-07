@@ -1029,10 +1029,10 @@ file_scope_item
 	: definition_statement {
 		SYNTRACE("file_scope_item", "definition_statement");
 		// Save all the top-level symbols.
-		const InitializedIdentifierList *init_ident_list = $1->vars();
-		for (size_t i = 0; i < init_ident_list->size(); i++) {
-			string symbol = init_ident_list->at(i)->identifier()->symbol();
-			if (out_parsed_file->add_private_symbol(symbol, $1)) {
+		const DefinitionList &defn_list = $1->vars();
+		for (size_t i = 0; i < defn_list.size(); i++) {
+			string symbol = defn_list[i]->identifier()->symbol();
+			if (out_parsed_file->add_private_symbol(symbol, defn_list[i])) {
 				throw SyntaxError(curpos(),
 				    sprintfxx("symbol '%s' redefined", symbol));
 			}
@@ -1042,15 +1042,14 @@ file_scope_item
 	| TOK_PUBLIC definition_statement {
 		SYNTRACE("file_scope_item", "PUBLIC definition_statement");
 		// Save all the top-level symbols.
-		const InitializedIdentifierList *init_ident_list = $2->vars();
-		for (size_t i = 0; i < init_ident_list->size(); i++) {
-			string symbol = init_ident_list->at(i)->identifier()->symbol();
-			if (out_parsed_file->add_public_symbol(symbol, $2)) {
+		const DefinitionList &defn_list = $2->vars();
+		for (size_t i = 0; i < defn_list.size(); i++) {
+			string symbol = defn_list[i]->identifier()->symbol();
+			if (out_parsed_file->add_public_symbol(symbol, defn_list[i])) {
 				throw SyntaxError(curpos(),
 				    sprintfxx("symbol '%s' redefined", symbol));
 			}
 		}
-		$2->set_public();
 		$$ = $2;
 	}
 	| discover_statement {

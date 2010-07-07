@@ -38,7 +38,7 @@ class ParsedFile {
 		string module;
 		string symbol;
 	};
-	typedef std::map<Symbol, syntax::DefinitionStatement*> SymbolMap;
+	typedef std::map<Symbol, syntax::Definition*> SymbolMap;
 	typedef SymbolMap::const_iterator SymbolIterator;
 
 	ParsedFile()
@@ -114,7 +114,7 @@ class ParsedFile {
 		return m_private_symbols.end();
 	}
 	#if 0 // FIXME: handle symbols, handle "same as mine" module semantic
-	syntax::DefinitionStatement *
+	syntax::Definition *
 	public_symbol(const string &name) const
 	{
 		SymbolIterator it = m_public_symbols.find(name);
@@ -123,7 +123,7 @@ class ParsedFile {
 		}
 		return it->second;
 	}
-	syntax::DefinitionStatement *
+	syntax::Definition *
 	private_symbol(const string &name) const
 	{
 		SymbolIterator it = m_private_symbols.find(name);
@@ -135,23 +135,21 @@ class ParsedFile {
 	#endif
 	// Returns true if the symbol already existed.
 	bool
-	add_public_symbol(const string &name,
-	                  syntax::DefinitionStatement *definition)
+	add_public_symbol(const string &name, syntax::Definition *definition)
 	{
 		Symbol sym(m_module, name);
-		const syntax::DefinitionStatement *p = m_public_symbols[sym];
+		const syntax::Definition *def = m_public_symbols[sym];
 		m_public_symbols[sym] = definition;
-		return p;
+		return def;
 	}
 	// Returns true if the symbol already existed.
 	bool
-	add_private_symbol(const string &name,
-	                   syntax::DefinitionStatement *definition)
+	add_private_symbol(const string &name, syntax::Definition *definition)
 	{
 		Symbol sym(m_module, name);
-		const syntax::DefinitionStatement *p = m_private_symbols[sym];
+		const syntax::Definition *def = m_private_symbols[sym];
 		m_private_symbols[sym] = definition;
-		return p;
+		return def;
 	}
 
  private:

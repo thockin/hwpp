@@ -16,7 +16,7 @@ namespace language {
 // Forward declarations.
 class ParsedFile;
 namespace syntax {
-	class DefinitionStatement;
+	class Definition;
 	class Identifier;
 }
 
@@ -112,7 +112,7 @@ class Environment {
 	// Add a symbol to the current nested scope.  This is used while
 	// validating parsed files to do symbol resolution.
 	bool
-	add_symbol(const string &name, syntax::DefinitionStatement *definition)
+	add_symbol(const string &name, syntax::Definition *definition)
 	{
 		return m_symtab.add_unique(name,definition);
 	}
@@ -127,7 +127,7 @@ class Environment {
 
 	// Look up a symbol by name in the current nested scope hierarchy.
 	// This is used while validating parsed files to do symbol resolution.
-	syntax::DefinitionStatement *
+	syntax::Definition *
 	lookup_symbol(const string &name);
 
 	const ParsedFile *
@@ -135,7 +135,7 @@ class Environment {
 
  private:
 	Parser m_parser;
-	util::SymbolTable<string, syntax::DefinitionStatement*> m_symtab;
+	util::SymbolTable<string, syntax::Definition*> m_symtab;
 	ParsedFileMap m_parsed_files;  // Owns the ParsedFile pointers.
 	ModuleMap m_modules;
 };

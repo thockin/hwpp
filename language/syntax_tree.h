@@ -25,11 +25,12 @@ namespace syntax {
 class SyntaxNode {
  public:
 	enum NodeType {
-		TYPE_IDENTIFIER,    // a symbol name
-		TYPE_EXPRESSION,    // an expression produces a value
-		TYPE_STATEMENT,     // a statement executes
-		TYPE_ARGUMENT,      // a named argument (e.g. function call)
-		TYPE_PARAMETER,     // a parameter declaration
+		NODE_TYPE_IDENTIFIER,    // a symbol name
+		NODE_TYPE_DEFINITION,    // an object definition
+		NODE_TYPE_EXPRESSION,    // an expression produces a value
+		NODE_TYPE_STATEMENT,     // a statement executes
+		NODE_TYPE_ARGUMENT,      // a named argument (e.g. function call)
+		NODE_TYPE_PARAMETER,     // a parameter declaration
 	};
 
 	NodeType
@@ -91,7 +92,7 @@ class Expression : public SyntaxNode {
  public:
 	explicit
 	Expression(const Parser::Position &pos)
-	    : SyntaxNode(pos, TYPE_EXPRESSION), m_result_type(Type::VAR)
+	    : SyntaxNode(pos, NODE_TYPE_EXPRESSION), m_result_type(Type::VAR)
 	{
 	}
 
@@ -134,13 +135,13 @@ typedef std::vector<Expression*> ExpressionList;
 class Identifier : public SyntaxNode {
  public:
 	Identifier(const Parser::Position &pos, const string &symbol)
-	    : SyntaxNode(pos, TYPE_IDENTIFIER),
+	    : SyntaxNode(pos, NODE_TYPE_IDENTIFIER),
 	      m_module(""), m_symbol(symbol)
 	{
 	}
 	Identifier(const Parser::Position &pos,
 	           const string &module, const string &symbol)
-	    : SyntaxNode(pos, TYPE_IDENTIFIER),
+	    : SyntaxNode(pos, NODE_TYPE_IDENTIFIER),
 	      m_module(module), m_symbol(symbol)
 	{
 	}
@@ -155,7 +156,7 @@ class Identifier : public SyntaxNode {
 		return m_symbol;
 	}
 
-	const DefinitionStatement *
+	const Definition *
 	definition() const
 	{
 		return m_definition;
@@ -173,19 +174,19 @@ class Identifier : public SyntaxNode {
  private:
 	string m_module;
 	string m_symbol;
-	DefinitionStatement *m_definition;
+	Definition *m_definition;
 };
 
 class InitializedIdentifier : public SyntaxNode {
  public:
 	InitializedIdentifier(const Parser::Position &pos, Identifier *ident)
-	    : SyntaxNode(pos, TYPE_IDENTIFIER),
+	    : SyntaxNode(pos, NODE_TYPE_IDENTIFIER),
 	      m_ident(ident), m_init(NULL)
 	{
 	}
 	InitializedIdentifier(const Parser::Position &pos,
 	                      Identifier *ident, Expression *init)
-	    : SyntaxNode(pos, TYPE_IDENTIFIER),
+	    : SyntaxNode(pos, NODE_TYPE_IDENTIFIER),
 	                 m_ident(ident), m_init(init)
 	{
 	}
@@ -222,7 +223,7 @@ class Statement : public SyntaxNode {
  public:
 	explicit
 	Statement(const Parser::Position &pos)
-	    : SyntaxNode(pos, TYPE_STATEMENT), m_labels(NULL)
+	    : SyntaxNode(pos, NODE_TYPE_STATEMENT), m_labels(NULL)
 	{
 	}
 	virtual
@@ -265,15 +266,138 @@ class Statement : public SyntaxNode {
 };
 typedef std::vector<Statement*> StatementList;
 
+class Definition : public SyntaxNode {
+ public:
+	Definition(const Parser::Position &pos,
+	           const Type &type, InitializedIdentifier *init_ident)
+	    : SyntaxNode(pos, NODE_TYPE_DEFINITION),
+	      m_type(type), m_init_ident(init_ident)
+	{
+	}
+
+	const Type &
+	type()
+	{
+		return m_type;
+	}
+
+	InitializedIdentifier *
+	init_ident()
+	{
+		return m_init_ident.get();
+	}
+
+	Identifier *
+	identifier() const
+	{
+		return m_init_ident->identifier();
+	}
+
+	Expression *
+	initializer() const
+	{
+		return m_init_ident->initializer();
+	}
+	
+	// FIXME: move to .cpp file
+	virtual string
+	to_string() const
+	{
+		return m_type.to_string() + " " + m_init_ident->to_string();
+	}
+
+	virtual int
+	validate(const ValidateOptions &flags, Environment *env)
+	{
+		int warnings = m_init_ident->validate_once(flags, env);
+
+		Expression *init_expr = m_init_ident->initializer();
+
+		// Some types are not completely defined until init time.
+		detect_final_type_from_init(&m_type, init_expr);
+
+		//FIXME: undo flexibility inside Type, call sanity_check()
+		// Make sure the type can be initialized correctly.
+		if (init_expr != NULL
+		 && !m_type.is_initializable_from(init_expr->result_type())) {
+			throw SyntaxError(parse_position(),
+			    sprintfxx("can't init type '%s' from '%s'",
+			              m_type.to_string(),
+			              init_expr->result_type().to_string()));
+		}
+
+		// Keep track of the symbol, making sure it does not already exist.
+		string symbol = m_init_ident->identifier()->symbol();
+		if (env->add_symbol(symbol, this) == false) {
+			throw SyntaxError(parse_position(),
+			    sprintfxx("symbol '%s' redefined", symbol));
+		}
+		return warnings;
+	}
+
+ private:
+	Type m_type;
+	util::NeverNullScopedPtr<InitializedIdentifier> m_init_ident;
+
+	//FIXME: move to .cpp, make file static
+	void
+	detect_final_type_from_init(Type *type, Expression *init_expr)
+		//FIXME: handle list<list>
+		//FIXME: list x = [0]; => list<int-literal>.  Const is bad.
+	{
+		// Handle "list x;" style definitions.  If there is no initializer,
+		// it is equivalent to "list<var> x;".  Otherwise we'll try to
+		// detect the best type-arg.
+		if (type->primitive() == Type::LIST && type->n_arguments() == 0) {
+			if (init_expr == NULL) {
+				type->add_argument(Type::VAR);
+				return;
+			}
+
+			const Type &init_type = init_expr->result_type();
+			if (init_type.primitive() == Type::LIST) {
+				type->add_argument(init_type.argument(0));
+			} else if (init_type.primitive() == Type::TUPLE) {
+				Type arg_type = init_type.argument(0);
+				for (size_t i = 1; i < init_type.n_arguments(); i++) {
+					if (init_type.argument(i) != arg_type) {
+						arg_type.reinit(Type::VAR);
+						break;
+					}
+				}
+				type->add_argument(arg_type);
+			}
+			return;
+		}
+
+		// Handle "tuple t;" style definitions.  If there is no initializer,
+		// it is an error.  Otherwise we'll try to detect the type-args.
+		if (type->primitive() == Type::TUPLE && type->n_arguments() == 0) {
+			if (init_expr == NULL) {
+				throw SyntaxError(parse_position(),
+				    "zero-argument tuple definitions must be initialized");
+			}
+
+			const Type &init_type = init_expr->result_type();
+			if (init_type.primitive() == Type::TUPLE) {
+				for (size_t i = 0; i < init_type.n_arguments(); i++) {
+					type->add_argument(init_type.argument(i));
+				}
+			}
+		}
+	}
+};
+typedef std::vector<Definition*> DefinitionList;
+
 class Argument : public SyntaxNode {
  public:
 	Argument(const Parser::Position &pos, Expression *expr)
-	    : SyntaxNode(pos, TYPE_ARGUMENT), m_name(NULL), m_expr(expr)
+	    : SyntaxNode(pos, NODE_TYPE_ARGUMENT), m_name(NULL), m_expr(expr)
 	{
 	}
 	Argument(const Parser::Position &pos,
 	         Identifier *name, Expression *expr)
-	    : SyntaxNode(pos, TYPE_ARGUMENT), m_name(name), m_expr(expr)
+	    : SyntaxNode(pos, NODE_TYPE_ARGUMENT), m_name(name), m_expr(expr)
 	{
 	}
 
@@ -638,63 +762,44 @@ class ReturnStatement : public Statement {
 class DefinitionStatement : public Statement {
  public:
 	DefinitionStatement(const Parser::Position &pos,
-	                    Type *type, InitializedIdentifierList *vars)
-	    : Statement(pos), m_public(false), m_type(type), m_vars(vars)
+	                    Type *def_type, InitializedIdentifierList *def_vars)
+	    : Statement(pos)
 	{
+		// Just for RAII.
+		util::NeverNullScopedPtr<Type> type_ptr(def_type);
+		util::NeverNullScopedPtr<InitializedIdentifierList> vars_ptr(def_vars);
+
+		// Expand "int x=0, y, z=1;" into "int x=0; int y; int z=1;" for
+		// easier use later.
+		for (size_t i = 0; i < def_vars->size(); i++) {
+			m_vars.push_back(new Definition(pos, *def_type, def_vars->at(i)));
+		}
 	}
 
-	Type *type() const
+	const DefinitionList &
+	vars() const
 	{
-		return m_type.get();
+		return m_vars;
 	}
 
-	InitializedIdentifierList *vars() const
-	{
-		return m_vars.get();
-	}
+	virtual bool
+	execute();
 
-	void set_public()
-	{
-		m_public = true;
-	}
+	virtual string
+	to_string() const;
 
-	virtual bool execute();
-
-	virtual string to_string() const;
-
-	virtual int validate(const ValidateOptions &flags, Environment *env)
+	virtual int
+	validate(const ValidateOptions &flags, Environment *env)
 	{
 		int warnings = Statement::validate(flags, env);
-
-		// For each defined variable...
-		for (size_t i = 0; i < m_vars->size(); i++) {
-			InitializedIdentifier *init_ident = m_vars->at(i);
-			warnings += init_ident->validate_once(flags, env);
-
-			//FIXME: make list and tuple initializaeble without args
-			// Make sure the type can be initialized correctly.
-			Expression *expr = init_ident->initializer();
-			if (expr && !m_type->is_initializable_from(expr->result_type())) {
-				throw SyntaxError(parse_position(),
-				    sprintfxx("can't init type '%s' from '%s'",
-				              m_type->to_string(),
-				              expr->result_type().to_string()));
-			}
-
-			// Keep track of the symbol, making sure it does not already exist.
-			string symbol = init_ident->identifier()->symbol();
-			if (env->add_symbol(symbol, this) == false) {
-				throw SyntaxError(parse_position(),
-				    sprintfxx("symbol '%s' redefined", symbol));
-			}
+		for (size_t i = 0; i < m_vars.size(); i++) {
+			warnings += m_vars[i]->validate_once(flags, env);
 		}
 		return warnings;
 	}
 
  private:
-	bool m_public;
-	util::NeverNullScopedPtr<Type> m_type;
-	util::NeverNullScopedPtr<InitializedIdentifierList> m_vars;
+	DefinitionList m_vars;
 };
 
 class ImportStatement : public Statement {
@@ -801,7 +906,7 @@ class IdentifierExpression : public Expression {
 	virtual int
 	validate(const ValidateOptions &flags, Environment *env)
 	{
-		DefinitionStatement *def = env->lookup_symbol(m_ident->symbol());
+		Definition *def = env->lookup_symbol(m_ident->symbol());
 		if (!def) {
 			string why = "symbol '" + to_string() + "' can't be resolved";
 			if (flags.error_on_unresolved_symbols()) {
@@ -812,7 +917,7 @@ class IdentifierExpression : public Expression {
 			return 1;
 		}
 		int warnings = def->validate_once(flags, env);
-		set_result_type(*(def->type()));
+		set_result_type(def->type());
 		m_definition = def;
 		return warnings;
 	}
@@ -830,7 +935,7 @@ class IdentifierExpression : public Expression {
 
  private:
 	util::NeverNullScopedPtr<Identifier> m_ident;
-	DefinitionStatement *m_definition;  // cached for easy access
+	Definition *m_definition;  // cached for easy access
 };
 
 class SubscriptExpression : public Expression {
@@ -894,28 +999,31 @@ class SubscriptExpression : public Expression {
 		// Tuples have zero or more type-args.  If the index is a constexpr,
 		// we know the type.  If it is not, this expression must be runtime
 		// evaluated.
-		if (expr_prim == Type::TUPLE && m_index->is_constexpr()) {
-			//FIXME: const tuple t = [ false ]; bool b = t[0]; must succeed.
-			//FIXME: const tuple t = [ false ]; int i = t[0]; must fail.
-			try {
-				Variable v(Type::INT);
-				m_index->evaluate(&v);
-				size_t index = v.int_value().as_uint();
-				if (index >= expr_type.n_arguments()) {
-					string why = sprintfxx("type '%s' has no [%d] member",
-					                       expr_type.to_string(),
-					                       index);
+		if (expr_prim == Type::TUPLE) {
+			if (m_index->is_constexpr()) {
+				//FIXME: const tuple t = [ false ]; bool b = t[0]; must succeed.
+				//FIXME: const tuple t = [ false ]; int i = t[0]; must fail.
+				try {
+					Variable v(Type::INT);
+					m_index->evaluate(&v);
+					size_t index = v.int_value().as_uint();
+					if (index >= expr_type.n_arguments()) {
+						string why = sprintfxx(
+						    "type '%s' has no [%d] member",
+						    expr_type.to_string(), index);
+						throw SyntaxError(parse_position(), why);
+					}
+					set_result_type(expr_type.argument(index));
+				} catch (Variable::TypeError &type_error) {
+					string why = sprintfxx(
+					    "subscript index must be type '%s', found type '%s'",
+					    Type::primitive_to_string(Type::INT),
+					    index_type.to_string());
 					throw SyntaxError(parse_position(), why);
 				}
-				set_result_type(expr_type.argument(index));
-			} catch (Variable::TypeError &type_error) {
-				string why = "subscript index must be type '"
-				           + Type::primitive_to_string(Type::INT)
-				           + "', found type '" + index_type.to_string() + "'";
-				throw SyntaxError(parse_position(), why);
+			} else {
+				set_result_type(Type::VAR);
 			}
-		} else {
-			set_result_type(Type::VAR);
 		}
 		return warnings;
 	}
@@ -1336,7 +1444,7 @@ class ParameterDeclaration : public SyntaxNode {
  public:
 	ParameterDeclaration(const Parser::Position &pos,
 	                     Type *type, Identifier *ident)
-	    : SyntaxNode(pos, TYPE_PARAMETER), m_type(type), m_ident(ident)
+	    : SyntaxNode(pos, NODE_TYPE_PARAMETER), m_type(type), m_ident(ident)
 	{
 	}
 
@@ -1438,7 +1546,7 @@ class FunctionLiteralExpression : public Expression {
 	{
 		int warnings = 0;
 		env->new_symbol_scope();
-		static DefinitionStatement *args_defn = new_args_definition();
+		static Definition *args_defn = new_args_definition();
 		env->add_symbol("args", args_defn);
 		warnings += m_body->validate_once(flags, env);
 		for (size_t i = 0; i < m_params->size(); i++) {
@@ -1455,17 +1563,16 @@ class FunctionLiteralExpression : public Expression {
 	}
 
  private:
-	// Make a new DefinitionStatement that is the built-in function args list.
-	DefinitionStatement *
+	// Make a new Definition that is the built-in function args list.
+	Definition *
 	new_args_definition()
 	{
 		const Parser::Position &pos = parse_position();
-		Type *args_type = (new Type(Type::LIST))->add_argument(Type::VAR);
-		InitializedIdentifierList *ident_list = new InitializedIdentifierList();
-		ident_list->push_back(
-		    new InitializedIdentifier(pos, new Identifier(pos, "args")));
-
-		return new DefinitionStatement(pos, args_type, ident_list);
+		Type type(Type::LIST);
+		type.add_argument(Type::VAR);
+		InitializedIdentifier *init_ident
+		    = new InitializedIdentifier(pos, new Identifier(pos, "args"));
+		return new Definition(pos, type, init_ident);
 	}
 
 	util::NeverNullScopedPtr<ParameterDeclarationList> m_params;
