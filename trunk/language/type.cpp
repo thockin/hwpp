@@ -9,7 +9,7 @@ namespace language {
 Type::Type(const Type &other)
 {
 	m_primitive = other.m_primitive;
-	m_is_const = other.m_is_const;
+	m_constness = other.m_constness;
 	for (size_t i = 0; i < other.m_arguments.size(); i++) {
 		m_arguments.push_back(other.m_arguments[i]);
 	}
@@ -21,7 +21,7 @@ Type::reinit(Primitive prim)
 	// Clean up arguments.
 	m_arguments.clear();
 	m_primitive = prim;
-	m_is_const = 0;
+	m_constness = 0;
 	return this;
 }
 Type *
@@ -30,7 +30,7 @@ Type::reinit(Primitive prim, Type::Constness constness)
 	// Clean up arguments.
 	m_arguments.clear();
 	m_primitive = prim;
-	m_is_const = constness;
+	m_constness = constness;
 	return this;
 }
 

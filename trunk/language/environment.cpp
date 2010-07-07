@@ -58,10 +58,10 @@ Environment::validate(const ValidateOptions &flags)
 	return warns;
 }
 
-syntax::DefinitionStatement *
+syntax::Definition *
 Environment::lookup_symbol(const string &name)
 {
-	syntax::DefinitionStatement * const *p = m_symtab.lookup(name);
+	syntax::Definition * const *p = m_symtab.lookup(name);
 	if (p == NULL) {
 		return NULL;
 	}

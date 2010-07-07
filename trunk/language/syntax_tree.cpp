@@ -22,7 +22,7 @@ InitializedIdentifier::to_string() const
 {
 	string ret = m_ident->to_string();
 	if (m_init) {
-		ret += " = " + m_init->to_string() + "\n";
+		ret += " = " + m_init->to_string();
 	}
 	return ret;
 }
@@ -204,14 +204,10 @@ string
 DefinitionStatement::to_string() const
 {
 	string ret = Statement::to_string();
-	ret += m_type->to_string() + " ";
-	for (size_t i = 0; i < m_vars->size(); i++) {
-		if (i > 0) {
-			ret += ", ";
-		}
-		ret += m_vars->at(i)->to_string();
+	for (size_t i = 0; i < m_vars.size(); i++) {
+		ret += m_vars[i]->to_string();
+		ret += ";\n";
 	}
-	ret += "\n";
 	return ret;
 }
 

@@ -24,3 +24,5 @@ struct and struct literals
 allow 'list<>' === 'list', but not 'int<>'
 
 better syntax errors when yacc blows up
+
+map<k, v>
