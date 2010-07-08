@@ -299,12 +299,8 @@ class Definition : public SyntaxNode {
 		return m_init_ident->initializer();
 	}
 	
-	// FIXME: move to .cpp file
 	virtual string
-	to_string() const
-	{
-		return m_type.to_string() + " " + m_init_ident->to_string();
-	}
+	to_string() const;
 
 	virtual int
 	validate(const ValidateOptions &flags, Environment *env)

@@ -38,6 +38,12 @@ Statement::to_string() const
 }
 
 string
+Definition::to_string() const
+{
+	return m_type.to_string() + " " + m_init_ident->to_string();
+}
+
+string
 Argument::to_string() const
 {
 	return (m_name ? m_name->to_string() + ":" : "")
