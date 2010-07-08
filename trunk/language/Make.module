@@ -12,7 +12,8 @@ CLEANS += language/auto.*
 
 TESTS += language/tests/type_test \
 	language/tests/variable_test \
-	language/tests/syntax_tree_test
+	language/tests/syntax_tree_test \
+	language/tests/language_test
 
 language/language.o: language/auto.lex.h language/auto.yacc.h
 
@@ -31,6 +32,14 @@ language/tests/syntax_tree_test: language/syntax_tree.o \
 	language/auto.yacc.o \
 	language/environment.o \
 	language/language.o \
+	language/type.o \
+	language/variable.o
+language/tests/parse_and_validate_test: \
+	language/auto.lex.o \
+	language/auto.yacc.o \
+	language/environment.o \
+	language/language.o \
+	language/syntax_tree.o \
 	language/type.o \
 	language/variable.o
 
