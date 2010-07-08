@@ -88,6 +88,10 @@ class Environment {
 	// Returns NULL on failure.
 	const ParsedFile *
 	parse_file(const string &name);
+	// Parse an already opened file.  The caller owns both the FILE pointer
+	// and the returned pointer.  Returns NULL on failure.
+	const ParsedFile *
+	parse_file(FILE *file, const string &name);
 
 	// Validate all parsed files.  Returns the number of warnings
 	// generated.

@@ -22,6 +22,12 @@ Environment::parse_file(const string &name)
 	if (!file) {
 		return NULL;
 	}
+	return parse_file(file, name);
+}
+
+const ParsedFile *
+Environment::parse_file(FILE *file, const string &name)
+{
 	// RAII for file.
 	boost::shared_ptr<FILE> file_ptr(file, fclose);
 
