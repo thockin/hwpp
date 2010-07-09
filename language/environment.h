@@ -84,12 +84,13 @@ class Environment {
 	}
 	~Environment();
 
-	// Open and parse a file name.  The caller owns the returned pointer.
+	// Open and parse a file name.  This object owns the returned pointer.
 	// Returns NULL on failure.
 	const ParsedFile *
 	parse_file(const string &name);
-	// Parse an already opened file.  The caller owns both the FILE pointer
-	// and the returned pointer.  Returns NULL on failure.
+	// Parse an already opened file.  This object owns the returned pointer.
+	// This does not take ownership of the FILE pointer.  Returns NULL on
+	// failure.
 	const ParsedFile *
 	parse_file(FILE *file, const string &name);
 
