@@ -22,15 +22,15 @@ Environment::parse_file(const string &name)
 	if (!file) {
 		return NULL;
 	}
+	// RAII for file.
+	boost::shared_ptr<FILE> file_ptr(file, fclose);
+
 	return parse_file(file, name);
 }
 
 const ParsedFile *
 Environment::parse_file(FILE *file, const string &name)
 {
-	// RAII for file.
-	boost::shared_ptr<FILE> file_ptr(file, fclose);
-
 	// Parse the file.
 	std::auto_ptr<ParsedFile> parsed_file_ptr(new ParsedFile());
 	ParsedFile *current_file = parsed_file_ptr.get();

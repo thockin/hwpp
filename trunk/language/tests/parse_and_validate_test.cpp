@@ -10,7 +10,8 @@ static pp::language::Environment *env;
 static util::PipeFile *pipef;
 static const pp::language::ParsedFile *parsed_file;
 
-TEST_SETUP_EACH() {
+static void reinit()
+{
 	delete env;
 	env = new pp::language::Environment();
 
@@ -18,8 +19,11 @@ TEST_SETUP_EACH() {
 	pipef = new util::PipeFile();
 	TEST_ASSERT(pipef->open() == true);
 
-	delete parsed_file;
 	parsed_file = NULL;
+}
+
+TEST_SETUP_EACH() {
+	reinit();
 }
 
 static void
@@ -49,6 +53,66 @@ TEST(test_basic_definitions) {
 	    "tuple<int,string> tis; \n"
 	    "var v; \n"
 	) == 0);
+	reinit();
+
+	TEST_ASSERT(parse_and_validate(
+	    "bool b = true; \n"
+	    "func f = ${}; \n"
+	    "int i = -1; \n"
+	    "list<int> li = [93,76]; \n"
+	    "string s = \"foo\"; \n"
+	    "tuple<int,string> tis = [93, \"seven-six\"]; \n"
+	    "var v = 12345; \n"
+	) == 0);
+	reinit();
+
+	TEST_ASSERT(parse_and_validate(
+	    "list l = [ 0, 0 ]; \n"
+	    "tuple t = [ 93, \"seven-six\" ]; \n"
+	) == 0);
+	reinit();
+
+	TEST_ASSERT(parse_and_validate(
+	    "const tuple t = [ false ]; \n"
+	    "bool b = t[0]; \n"
+	) == 0);
+	reinit();
+
+	try {
+		parse_and_validate(
+		    "const list l = [true, true]; \n"
+		    "int i = l[0]; \n"
+		);
+		TEST_FAIL();
+	} catch (pp::language::SyntaxError &e) {
+	} catch (...) {
+		TEST_FAIL();
+	}
+	reinit();
+
+	try {
+		parse_and_validate(
+		    "const tuple t = [ false ]; \n"
+		    "int i = t[0]; \n"
+		);
+		TEST_FAIL();
+	} catch (pp::language::SyntaxError &e) {
+	} catch (...) {
+		TEST_FAIL();
+	}
+	reinit();
+
+	try {
+		parse_and_validate(
+		    "const tuple t = [ false ]; \n"
+		    "var i = t[1]; \n"
+		);
+		TEST_FAIL();
+	} catch (pp::language::SyntaxError &e) {
+	} catch (...) {
+		TEST_FAIL();
+	}
+	reinit();
 }
 
 // vim: set ai tabstop=4 shiftwidth=4 noexpandtab:
