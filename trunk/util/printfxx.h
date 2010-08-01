@@ -85,7 +85,7 @@ sprintfxx(const std::string& fmt, \
 	return to_string(boost::format(fmt) BOOST_PP_REPEAT(N, GEN_ARG, _)); \
 }
 
-// allow up to 20 args
+// allow up to 16 args
 #define BOOST_PP_LOCAL_LIMITS  (1, 16)
 #include BOOST_PP_LOCAL_ITERATE()
 #undef GEN_ARG
