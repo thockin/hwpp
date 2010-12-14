@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <ostream>
 #include <map>
+#include "language/environment.h"
 #include "language/language.h"
 #include "util/symbol_table.h"
 
@@ -92,7 +93,12 @@ class Environment {
 	// This does not take ownership of the FILE pointer.  Returns NULL on
 	// failure.
 	const ParsedFile *
-	parse_file(FILE *file, const string &name);
+	parse_file(const string &name, FILE *file);
+
+	// Parse a string.  This object owns the returned pointer.  Returns NULL
+	// on failure.
+	const ParsedFile *
+	parse_string(const string &name, const string &data);
 
 	// Validate all parsed files.  Returns the number of warnings
 	// generated.

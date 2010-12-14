@@ -3,6 +3,7 @@
 #include <map>
 #include "language/language.h"
 #include "language/parsed_file.h"
+#include "util/string_file.h"
 
 namespace pp {
 namespace language {
@@ -25,11 +26,11 @@ Environment::parse_file(const string &name)
 	// RAII for file.
 	boost::shared_ptr<FILE> file_ptr(file, fclose);
 
-	return parse_file(file, name);
+	return parse_file(name, file);
 }
 
 const ParsedFile *
-Environment::parse_file(FILE *file, const string &name)
+Environment::parse_file(const string &name, FILE *file)
 {
 	// Parse the file.
 	std::auto_ptr<ParsedFile> parsed_file_ptr(new ParsedFile());
@@ -46,6 +47,19 @@ Environment::parse_file(FILE *file, const string &name)
 	}
 
 	return m_parsed_files[name];
+}
+
+const ParsedFile *
+Environment::parse_string(const string &name, const string &data)
+{
+	util::StringFile sf;
+
+	if (!sf.open(data)) {
+		WARN("could not create StringFile for data");
+		return NULL;
+	}
+
+	return parse_file(name, sf.get_read_file());
 }
 
 int

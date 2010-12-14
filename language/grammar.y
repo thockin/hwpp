@@ -1015,11 +1015,16 @@ jump_statement
 
 // Parsing starts here.
 file_scope
+	: file_scope_item_list
+	| { /* nothing */ }
+	;
+
+file_scope_item_list
 	: file_scope_item {
 		SYNTRACE("file_scope", "file_scope_item");
 		out_parsed_file->add_statement($1);
 	}
-	| file_scope file_scope_item {
+	| file_scope_item_list file_scope_item {
 		SYNTRACE("file_scope", "file_scope file_scope_item");
 		out_parsed_file->add_statement($2);
 	}
