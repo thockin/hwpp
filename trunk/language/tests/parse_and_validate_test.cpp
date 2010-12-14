@@ -38,7 +38,7 @@ static int
 parse_and_validate(const string &str)
 {
 	write_to_pipe(str);
-	parsed_file = env->parse_file(pipef->get_read_file(), "pipe");
+	parsed_file = env->parse_file("pipe", pipef->get_read_file());
 	return env->validate(env->default_validate_options()
 	                        .set_warn_on_unresolved_symbols());
 }
