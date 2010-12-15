@@ -51,14 +51,14 @@ Argument::to_string() const
 }
 
 string
-NullStatement::to_string() const
+EmptyStatement::to_string() const
 {
 	string ret = Statement::to_string();
 	return ret + "(undef);";
 }
 
 bool
-NullStatement::execute()
+EmptyStatement::execute()
 {
 	return true;
 }
