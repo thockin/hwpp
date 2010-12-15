@@ -430,10 +430,10 @@ typedef std::vector<Argument*> ArgumentList;
 
 typedef std::vector<Type*> TypeList;
 
-class NullStatement : public Statement {
+class EmptyStatement : public Statement {
  public:
 	explicit
-	NullStatement(const Parser::Position &pos)
+	EmptyStatement(const Parser::Position &pos)
 	    : Statement(pos)
 	{
 	}

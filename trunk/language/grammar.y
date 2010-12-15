@@ -811,7 +811,7 @@ labeled_statement
 empty_statement
 	: ';' {
 		SYNTRACE("empty_statement", "';'");
-		$$ = new NullStatement(curpos());
+		$$ = new EmptyStatement(curpos());
 	}
 	;
 
@@ -895,7 +895,7 @@ loop_statement
 		Statement *loop = new WhileLoopStatement(curpos(), $3, $5);
 		loop->add_label(new Identifier(curpos(), "@loop_continue"));
 		stmts->push_back(loop);
-		Statement *nop = new NullStatement(curpos());
+		Statement *nop = new EmptyStatement(curpos());
 		nop->add_label(new Identifier(curpos(), "@loop_break"));
 		stmts->push_back(nop);
 		$$ = new CompoundStatement(curpos(), stmts);
@@ -919,7 +919,7 @@ loop_statement
 		Statement *loop = new WhileLoopStatement(curpos(), $5, $2);
 		loop->add_label(new Identifier(curpos(), "@loop_continue"));
 		stmts->push_back(loop);
-		Statement *nop = new NullStatement(curpos());
+		Statement *nop = new EmptyStatement(curpos());
 		nop->add_label(new Identifier(curpos(), "@loop_break"));
 		stmts->push_back(nop);
 		$$ = new CompoundStatement(curpos(), stmts);
@@ -950,7 +950,7 @@ loop_statement
 		Statement *loop = new WhileLoopStatement(curpos(), $5, body);
 		loop->add_label(new Identifier(curpos(), "@loop_continue"));
 		stmts->push_back(loop);
-		Statement *nop = new NullStatement(curpos());
+		Statement *nop = new EmptyStatement(curpos());
 		nop->add_label(new Identifier(curpos(), "@loop_break"));
 		stmts->push_back(nop);
 		$$ = new CompoundStatement(curpos(), stmts);
@@ -981,7 +981,7 @@ loop_statement
 		Statement *loop = new WhileLoopStatement(curpos(), $4, body);
 		loop->add_label(new Identifier(curpos(), "@loop_continue"));
 		stmts->push_back(loop);
-		Statement *nop = new NullStatement(curpos());
+		Statement *nop = new EmptyStatement(curpos());
 		nop->add_label(new Identifier(curpos(), "@loop_break"));
 		stmts->push_back(nop);
 		$$ = new CompoundStatement(curpos(), stmts);
