@@ -1,45 +1,49 @@
 SRCS += language/environment.cpp \
-	language/language.cpp \
-	language/syntax_tree.cpp \
-	language/type.cpp \
-	language/variable.cpp \
-	language/auto.lex.cpp \
-	language/auto.yacc.cpp
+        language/language.cpp \
+        language/syntax_tree.cpp \
+        language/type.cpp \
+        language/variable.cpp \
+        language/auto.lex.cpp \
+        language/auto.yacc.cpp
 
 BINS += language/parse_stdin
 
 CLEANS += language/auto.*
 
 TESTS += language/tests/type_test \
-	language/tests/variable_test \
-	language/tests/syntax_tree_test \
-	language/tests/language_test
+         language/tests/variable_test \
+         language/tests/syntax_tree_test
+         #language/tests/language_test
 
 language/language.o: language/auto.lex.h language/auto.yacc.h
 
-language/auto.lex.cpp language/auto.lex.h: language/grammar.l
+language/auto.lex.cpp \
+language/auto.lex.h: language/grammar.l
 	$(LEX) -o language/auto.lex.cpp --header-file=language/auto.lex.h $<
 language/auto.lex.o: CWARNS += -Wno-unused -Wno-sign-compare
 
-language/auto.yacc.cpp language/auto.yacc.h: language/grammar.y
+language/auto.yacc.cpp \
+language/auto.yacc.h: language/grammar.y
 	$(YACC) -o language/auto.yacc.cpp --defines=language/auto.yacc.h $<
 language/auto.yacc.o: CXXWARNS += -Wno-write-strings
 
 language/tests/variable_test: language/variable.o language/type.o
+
 language/tests/type_test: language/type.o
+
 language/tests/syntax_tree_test: language/syntax_tree.o \
-	language/auto.lex.o \
-	language/auto.yacc.o \
-	language/environment.o \
-	language/language.o \
-	language/type.o \
-	language/variable.o
-language/tests/parse_and_validate_test: \
-	language/auto.lex.o \
-	language/auto.yacc.o \
-	language/environment.o \
-	language/language.o \
-	language/syntax_tree.o \
-	language/type.o \
-	language/variable.o
+                                 language/auto.lex.o \
+                                 language/auto.yacc.o \
+                                 language/environment.o \
+                                 language/language.o \
+                                 language/type.o \
+                                 language/variable.o
+
+language/tests/parse_and_validate_test: language/auto.lex.o \
+                                        language/auto.yacc.o \
+                                        language/environment.o \
+                                        language/language.o \
+                                        language/syntax_tree.o \
+                                        language/type.o \
+                                        language/variable.o
 

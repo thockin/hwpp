@@ -1,10 +1,9 @@
-MODULE_BINS := \
-	examples/pp_discover \
-	examples/pp_pci \
-	examples/pp_read \
-	examples/pp_fuse \
-	examples/pp_server \
-	examples/pp_client
+MODULE_BINS := examples/pp_discover \
+               examples/pp_pci \
+               examples/pp_read \
+               examples/pp_fuse \
+               examples/pp_server \
+               examples/pp_client
 
 BINS += $(MODULE_BINS)
 CLEANS += examples/cmdline.o

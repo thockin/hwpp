@@ -23,6 +23,5 @@ DRIVER_INIT_PROTOS = $(foreach d,$(ALL_DRIVERS), \
 DRIVER_INIT_FUNCS = $(foreach d,$(ALL_DRIVERS), \
         load_$(d)_driver, \
 )
-drivers/all_drivers.o: DEFS += \
-	-DDRIVER_INIT_FUNCS="$(DRIVER_INIT_FUNCS)" \
-	-DDRIVER_INIT_PROTOS="$(DRIVER_INIT_PROTOS)"
+drivers/all_drivers.o: DEFS += -DDRIVER_INIT_FUNCS="$(DRIVER_INIT_FUNCS)" \
+                               -DDRIVER_INIT_PROTOS="$(DRIVER_INIT_PROTOS)"
