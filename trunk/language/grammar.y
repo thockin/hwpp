@@ -88,12 +88,12 @@ pp__language__internal__pop_lexer_state(yyscan_t scanner);
 
 #define DO_SYNTRACE 0
 #if DO_SYNTRACE
-  // To make tracing the parser easier.
-  #define SYNTRACE(left, right) do { \
-	fprintf(stderr, "%d: %s <- %s\n", lex_lineno(), left, right); \
-  } while (0)
+	// To make tracing the parser easier.
+	#define SYNTRACE(left, right) do { \
+		fprintf(stderr, "%d: %s <- %s\n", lex_lineno(), left, right); \
+	} while (0)
 #else
-  #define SYNTRACE(left, right)
+	#define SYNTRACE(left, right)
 #endif
 
 // To make position tracking less "in your face".

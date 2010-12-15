@@ -1,24 +1,24 @@
 SRCS += fake_language.cpp \
-	runtime.cpp \
-	language.cpp \
-	magic_regs.cpp \
-	drivers.cpp \
-	path.cpp \
-	scope.cpp \
-	version.cpp
+        runtime.cpp \
+        language.cpp \
+        magic_regs.cpp \
+        drivers.cpp \
+        path.cpp \
+        scope.cpp \
+        version.cpp
 
 TESTS += tests/path_test \
-	tests/dirent_test \
-	tests/binding_test \
-	tests/register_test \
-	tests/regbits_test \
-	tests/datatype_test \
-	tests/field_test \
-	tests/scope_test \
-	tests/array_test \
-	tests/alias_test \
-	tests/fake_language_test \
-	tests/magic_regs_test
+         tests/dirent_test \
+         tests/binding_test \
+         tests/register_test \
+         tests/regbits_test \
+         tests/datatype_test \
+         tests/field_test \
+         tests/scope_test \
+         tests/array_test \
+         tests/alias_test \
+         tests/fake_language_test \
+         tests/magic_regs_test
 
 tests/path_test: path.o
 tests/dirent_test:

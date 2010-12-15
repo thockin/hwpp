@@ -11,6 +11,7 @@ DISTCLEANS :=
 
 # This is a private helper for IMPORT_MODULE.
 define _IMPORT_MODULE
+  DIR := $(1)
   include $(1)/Make.module
 endef
 # Import a sub-module's make targets.

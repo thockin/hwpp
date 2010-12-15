@@ -1,5 +1,5 @@
 SRCS += drivers/msr/msr_driver.cpp \
-	drivers/msr/msr_binding.cpp
+        drivers/msr/msr_binding.cpp
 
 TESTS += drivers/msr/tests/msr_io_test
 
