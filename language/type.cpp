@@ -90,6 +90,7 @@ primitive_max_args(Type::Primitive prim)
 	 case Type::TUPLE:
 		return INT_MAX;
 	}
+	throw Type::UnknownError(sprintfxx("unknown type (%d)", prim));
 }
 
 string
@@ -106,7 +107,7 @@ Type::primitive_to_string(Primitive prim)
 	  case TUPLE:  return "tuple";
 	  case VAR:    return "var";
 	}
-	return "(this can not happen)";
+	throw Type::UnknownError(sprintfxx("unknown type (%d)", prim));
 }
 
 string

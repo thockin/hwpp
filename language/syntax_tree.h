@@ -223,7 +223,7 @@ class Statement : public SyntaxNode {
  public:
 	explicit
 	Statement(const Parser::Position &pos)
-	    : SyntaxNode(pos, NODE_TYPE_STATEMENT), m_labels(NULL)
+	    : SyntaxNode(pos, NODE_TYPE_STATEMENT), m_labels()
 	{
 	}
 	virtual
