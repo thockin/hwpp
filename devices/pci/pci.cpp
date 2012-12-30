@@ -19,6 +19,7 @@ pci_datatypes_init()
 		KV("broadcom", 0x14e4),
 		KV("silicon_image", 0x1095),
 		KV("marvell", 0x11ab),
+		KV("marvell.2", 0x1b4b),
 		KV("google", 0x1ae0),
 		KV("plx", 0x10b5));
 		//FIXME: default?
