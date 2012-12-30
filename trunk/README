@@ -6,6 +6,9 @@ Bugs:
 Requirements:
 
   To build this you will need several libraries:
+	- flex and bison
+	  These should not be hard to get for just about any distro.
+
   	- gmp and gmpxx version 4.2.1 or higher
 	  Apparently, ubuntu-dapper does not have official packages
 	  that meet this requirement.  I have rebuilt the ubuntu-edgy
