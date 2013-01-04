@@ -106,7 +106,8 @@ CPPFLAGS += $(PRJ_DEFS) $(PRJ_INCLUDES)
 CFLAGS   += $(PRJ_CFLAGS) $(PRJ_CWARNS) $(PRJ_CDEBUG)
 CXXFLAGS += $(PRJ_CXXFLAGS) $(PRJ_CXXWARNS) $(PRJ_CXXDEBUG)
 LDFLAGS  += $(PRJ_LDFLAGS)
-LDLIBS   += $(PRJ_STATIC) $(PRJ_LDLIBS) $(PRJ_DYNAMIC) $(PRJ_LDLIBS_DYN)
+LDLIBS   += $(PRJ_STATIC) $(TGT_LDLIBS_STATIC) $(PRJ_LDLIBS) \
+	    $(PRJ_DYNAMIC) $(TGT_LDLIBS_DYNAMIC) $(PRJ_LDLIBS_DYN)
 
 # This is used in the suffix rules below.  It's defined here simply to avoid
 # duplication.  Suffix rules must call this as $(MKDEP) $(SRC_FILE).

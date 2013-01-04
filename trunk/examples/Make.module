@@ -10,6 +10,6 @@ CLEANS += examples/cmdline.o
 
 $(MODULE_BINS): examples/cmdline.o
 
-examples/pp_fuse: LDLIBS += -lfuse
-examples/pp_fuse: LDLIBS_DYN += -lpthread -ldl -lrt
+examples/pp_fuse: TGT_LDLIBS_STATIC += -lfuse
+examples/pp_fuse: TGT_LDLIBS_DYNAMIC += -lpthread -ldl -lrt
 
