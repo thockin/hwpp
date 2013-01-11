@@ -1,4 +1,4 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "util/printfxx.h"
 
 #include <stdint.h>
@@ -12,7 +12,7 @@
 #include "util/filesystem.h"
 #include "util/bit_buffer.h"
 
-namespace pp { 
+namespace hwpp { 
 
 #define IO_DEVICE	"/dev/port"
 
@@ -120,4 +120,4 @@ IoIo::seek(const Value &offset) const
 	m_file->seek(m_address.base+offset.as_uint(), SEEK_SET);
 }
 
-}  // namespace pp
+}  // namespace hwpp

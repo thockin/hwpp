@@ -3,14 +3,14 @@
 // Tim Hockin <thockin@hockin.org>
 // 2007
 //
-#ifndef PP_UTIL_KEYED_VECTOR_HPP__
-#define PP_UTIL_KEYED_VECTOR_HPP__
+#ifndef HWPP_UTIL_KEYED_VECTOR_HHWPP__
+#define HWPP_UTIL_KEYED_VECTOR_HHWPP__
 
 #include <vector>
 #include <map>
 #include <stdexcept>
 #include <boost/iterator_adaptors.hpp>
-#include "pp.h"
+#include "hwpp.h"
 #include "assert.h"
 
 namespace util {
@@ -507,4 +507,4 @@ class KeyedVector
 
 } // namespace util
 
-#endif // PP_UTIL_KEYED_VECTOR_HPP__
+#endif // HWPP_UTIL_KEYED_VECTOR_HHWPP__

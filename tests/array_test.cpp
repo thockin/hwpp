@@ -1,4 +1,4 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "array.h"
 #include "dirent.h"
 #include "scope.h"
@@ -8,58 +8,58 @@ TEST(test_ctors)
 {
 	// test the basic constructor
 	{
-		pp::ArrayPtr array = new_pp_array(pp::DIRENT_TYPE_SCOPE);
-		if (array->array_type() != pp::DIRENT_TYPE_SCOPE) {
-			TEST_FAIL("pp::Array::Array()");
+		hwpp::ArrayPtr array = new_hwpp_array(hwpp::DIRENT_TYPE_SCOPE);
+		if (array->array_type() != hwpp::DIRENT_TYPE_SCOPE) {
+			TEST_FAIL("hwpp::Array::Array()");
 		}
 	}
 	{
-		pp::ArrayPtr array = new_pp_array(pp::DIRENT_TYPE_REGISTER);
-		if (array->array_type() != pp::DIRENT_TYPE_REGISTER) {
-			TEST_FAIL("pp::Array::Array()");
+		hwpp::ArrayPtr array = new_hwpp_array(hwpp::DIRENT_TYPE_REGISTER);
+		if (array->array_type() != hwpp::DIRENT_TYPE_REGISTER) {
+			TEST_FAIL("hwpp::Array::Array()");
 		}
 	}
 	{
-		pp::ArrayPtr array = new_pp_array(pp::DIRENT_TYPE_FIELD);
-		if (array->array_type() != pp::DIRENT_TYPE_FIELD) {
-			TEST_FAIL("pp::Array::Array()");
+		hwpp::ArrayPtr array = new_hwpp_array(hwpp::DIRENT_TYPE_FIELD);
+		if (array->array_type() != hwpp::DIRENT_TYPE_FIELD) {
+			TEST_FAIL("hwpp::Array::Array()");
 		}
 	}
 	{
-		pp::ArrayPtr array = new_pp_array(pp::DIRENT_TYPE_ARRAY);
-		if (array->array_type() != pp::DIRENT_TYPE_ARRAY) {
-			TEST_FAIL("pp::Array::Array()");
+		hwpp::ArrayPtr array = new_hwpp_array(hwpp::DIRENT_TYPE_ARRAY);
+		if (array->array_type() != hwpp::DIRENT_TYPE_ARRAY) {
+			TEST_FAIL("hwpp::Array::Array()");
 		}
 	}
 	{
-		pp::ArrayPtr array = new_pp_array(pp::DIRENT_TYPE_ALIAS);
-		if (array->array_type() != pp::DIRENT_TYPE_ALIAS) {
-			TEST_ERROR("pp::Array::Array()");
+		hwpp::ArrayPtr array = new_hwpp_array(hwpp::DIRENT_TYPE_ALIAS);
+		if (array->array_type() != hwpp::DIRENT_TYPE_ALIAS) {
+			TEST_ERROR("hwpp::Array::Array()");
 		}
 	}
 }
 
 TEST(test_indexing)
 {
-	pp::ArrayPtr array = new_pp_array(pp::DIRENT_TYPE_SCOPE);
+	hwpp::ArrayPtr array = new_hwpp_array(hwpp::DIRENT_TYPE_SCOPE);
 	if (array->size() != 0) {
-		TEST_FAIL("pp::Array::size()");
+		TEST_FAIL("hwpp::Array::size()");
 	}
 
-	pp::ScopePtr scope = new_pp_scope();
+	hwpp::ScopePtr scope = new_hwpp_scope();
 	array->append(scope);
 	if (array->size() != 1) {
-		TEST_FAIL("pp::Array::append()");
+		TEST_FAIL("hwpp::Array::append()");
 	}
 
 	if (array->at(0) != scope) {
-		TEST_FAIL("pp::Array::at()");
+		TEST_FAIL("hwpp::Array::at()");
 	}
 
 	try {
-		pp::ArrayPtr array2 = new_pp_array(pp::DIRENT_TYPE_FIELD);
-		array2->append(new_pp_scope());
-		TEST_FAIL("pp::Array::append()");
+		hwpp::ArrayPtr array2 = new_hwpp_array(hwpp::DIRENT_TYPE_FIELD);
+		array2->append(new_hwpp_scope());
+		TEST_FAIL("hwpp::Array::append()");
 	} catch (std::exception &e) {
 	}
 }

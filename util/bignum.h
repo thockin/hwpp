@@ -1,6 +1,6 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_UTIL_BIGNUM_H__
-#define PP_UTIL_BIGNUM_H__
+#ifndef HWPP_UTIL_BIGNUM_H__
+#define HWPP_UTIL_BIGNUM_H__
 
 #include <cstdio>  // Some versions of gmpxx.h need but don't include this
 #include <gmpxx.h>
@@ -512,4 +512,4 @@ operator>=(unsigned long long lhs, const mpz_class &rhs)
 
 } // namespace bignum
 
-#endif // PP_UTIL_BIGNUM_H__
+#endif // HWPP_UTIL_BIGNUM_H__

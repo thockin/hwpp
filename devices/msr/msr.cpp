@@ -1,8 +1,8 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "device_init.h"
 #include "fake_language.h"
 
-namespace pp {
+namespace hwpp {
 namespace device {
 
 void
@@ -25,4 +25,4 @@ msr_datatypes_init()
 }
 
 }  // namespace device
-}  // namespace pp
+}  // namespace hwpp

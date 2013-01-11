@@ -1,4 +1,4 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "util/printfxx.h"
 #include <signal.h>
 #include "drivers.h"
@@ -12,16 +12,16 @@
 using namespace std;
 
 string
-dump_field(const string &name, const pp::ConstFieldPtr &field);
+dump_field(const string &name, const hwpp::ConstFieldPtr &field);
 string
-dump_register(const string &name, const pp::ConstRegisterPtr &reg);
+dump_register(const string &name, const hwpp::ConstRegisterPtr &reg);
 string
-dump_scope(const string &name, const pp::ConstScopePtr &scope);
+dump_scope(const string &name, const hwpp::ConstScopePtr &scope);
 string
-dump_array(const string &name, const pp::ConstArrayPtr &array);
+dump_array(const string &name, const hwpp::ConstArrayPtr &array);
 
 string
-dump_field(const string &name, const pp::ConstFieldPtr &field)
+dump_field(const string &name, const hwpp::ConstFieldPtr &field)
 {
 	stringstream s;
 	s << name << ": "
@@ -33,7 +33,7 @@ dump_field(const string &name, const pp::ConstFieldPtr &field)
 }
 
 string
-dump_register(const string &name, const pp::ConstRegisterPtr &reg)
+dump_register(const string &name, const hwpp::ConstRegisterPtr &reg)
 {
 	stringstream s;
 	s << name << ": "
@@ -44,7 +44,7 @@ dump_register(const string &name, const pp::ConstRegisterPtr &reg)
 }
 
 string
-dump_scope(const string &name, const pp::ConstScopePtr &scope)
+dump_scope(const string &name, const hwpp::ConstScopePtr &scope)
 {
 	stringstream s;
 	s << name << "/";
@@ -57,16 +57,16 @@ dump_scope(const string &name, const pp::ConstScopePtr &scope)
 		string subname = sprintfxx("%s/%s",name,scope->dirent_name(i));
 		if (scope->dirent(i)->is_field()) {
 			s << dump_field(subname,
-			    pp::field_from_dirent(scope->dirent(i)));
+			    hwpp::field_from_dirent(scope->dirent(i)));
 		} else if (scope->dirent(i)->is_register()) {
 			s << dump_register(subname,
-			    pp::register_from_dirent(scope->dirent(i)));
+			    hwpp::register_from_dirent(scope->dirent(i)));
 		} else if (scope->dirent(i)->is_scope()) {
 			s << dump_scope(subname,
-			    pp::scope_from_dirent(scope->dirent(i)));
+			    hwpp::scope_from_dirent(scope->dirent(i)));
 		} else if (scope->dirent(i)->is_array()) {
 			s << dump_array(subname,
-			    pp::array_from_dirent(scope->dirent(i)));
+			    hwpp::array_from_dirent(scope->dirent(i)));
 		} else {
 			s << subname << "unknown dirent type: "
 			  << scope->dirent(i)->dirent_type() << endl;
@@ -77,23 +77,23 @@ dump_scope(const string &name, const pp::ConstScopePtr &scope)
 }
 
 string
-dump_array(const string &name, const pp::ConstArrayPtr &array)
+dump_array(const string &name, const hwpp::ConstArrayPtr &array)
 {
 	stringstream s;
 	for (size_t i = 0; i < array->size(); i++) {
 		string subname = sprintfxx("%s[%d]", name, i);
-		if (array->array_type() == pp::DIRENT_TYPE_FIELD) {
+		if (array->array_type() == hwpp::DIRENT_TYPE_FIELD) {
 			s << dump_field(subname,
-			    pp::field_from_dirent(array->at(i)));
-		} else if (array->array_type() == pp::DIRENT_TYPE_REGISTER) {
+			    hwpp::field_from_dirent(array->at(i)));
+		} else if (array->array_type() == hwpp::DIRENT_TYPE_REGISTER) {
 			s << dump_register(subname,
-			    pp::register_from_dirent(array->at(i)));
-		} else if (array->array_type() == pp::DIRENT_TYPE_SCOPE) {
+			    hwpp::register_from_dirent(array->at(i)));
+		} else if (array->array_type() == hwpp::DIRENT_TYPE_SCOPE) {
 			s << dump_scope(subname,
-			    pp::scope_from_dirent(array->at(i)));
-		} else if (array->array_type() == pp::DIRENT_TYPE_ARRAY) {
+			    hwpp::scope_from_dirent(array->at(i)));
+		} else if (array->array_type() == hwpp::DIRENT_TYPE_ARRAY) {
 			s << dump_array(subname,
-			    pp::array_from_dirent(array->at(i)));
+			    hwpp::array_from_dirent(array->at(i)));
 		} else {
 			s << name << ": unknown array type: "
 			  << array->array_type() << endl;
@@ -105,20 +105,20 @@ dump_array(const string &name, const pp::ConstArrayPtr &array)
 }
 
 string
-dump_dirent(pp::ScopePtr &root, const string &path)
+dump_dirent(hwpp::ScopePtr &root, const string &path)
 {
 	stringstream s;
-	const pp::ConstDirentPtr &de = root->lookup_dirent(path);
+	const hwpp::ConstDirentPtr &de = root->lookup_dirent(path);
 	if (de == NULL) {
 		s << path << ": path not found" << endl;
 	} else if (de->is_field()) {
-		s << dump_field(path, pp::field_from_dirent(de));
+		s << dump_field(path, hwpp::field_from_dirent(de));
 	} else if (de->is_register()) {
-		s << dump_register(path, pp::register_from_dirent(de));
+		s << dump_register(path, hwpp::register_from_dirent(de));
 	} else if (de->is_scope()) {
-		s << dump_scope(path, pp::scope_from_dirent(de));
+		s << dump_scope(path, hwpp::scope_from_dirent(de));
 	} else if (de->is_array()) {
-		s << dump_array(path, pp::array_from_dirent(de));
+		s << dump_array(path, hwpp::array_from_dirent(de));
 	} else {
 		s << path << ": unknown dirent type: "
 		  << de->dirent_type() << endl;
@@ -150,8 +150,8 @@ main(int argc, const char *argv[])
 	signal(SIGTERM, exit_handler);
 	signal(SIGQUIT, exit_handler);
 
-	pp::ScopePtr root = pp::initialize_device_tree();
-	pp::do_discovery();
+	hwpp::ScopePtr root = hwpp::initialize_device_tree();
+	hwpp::do_discovery();
 
 	if (argc == 2) {
 		string socketpath(argv[1]);

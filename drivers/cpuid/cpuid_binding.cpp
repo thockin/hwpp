@@ -1,4 +1,4 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "util/printfxx.h"
 
 #include <stdint.h>
@@ -13,7 +13,7 @@
 #include "driver.h"
 #include "util/bit_buffer.h"
 
-namespace pp { 
+namespace hwpp { 
 
 /* constructor */
 CpuidIo::CpuidIo(const CpuidAddress &address)
@@ -119,4 +119,4 @@ CpuidIo::check_bounds(const Value &offset, unsigned bytes) const
 	}
 }
 
-}  // namespace pp
+}  // namespace hwpp

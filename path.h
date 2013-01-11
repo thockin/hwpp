@@ -1,15 +1,15 @@
 // Copyright 2007 Google Inc. All Rights Reserved.
 
-#ifndef PP_PATH_HPP__
-#define PP_PATH_HPP__
+#ifndef HWPP_PATH_HHWPP__
+#define HWPP_PATH_HHWPP__
 
-#include "pp.h"
+#include "hwpp.h"
 #include <list>
 #include <stdexcept>
 #include <ostream>
 #include <boost/iterator_adaptors.hpp>
 
-namespace pp {
+namespace hwpp {
 
 //
 // This template class is a thin wrapper to make iterators work for
@@ -589,6 +589,6 @@ operator+(Path left, const Path &right)
 	return left;
 }
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_PATH_HPP__
+#endif // HWPP_PATH_HHWPP__

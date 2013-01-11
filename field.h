@@ -1,13 +1,13 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_FIELD_H__
-#define PP_FIELD_H__
+#ifndef HWPP_FIELD_H__
+#define HWPP_FIELD_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include "dirent.h"
 #include "datatype.h"
 #include <stdexcept>
 
-namespace pp {
+namespace hwpp {
 
 /*
  * Field - abstract base class for a data field.
@@ -139,6 +139,6 @@ field_from_dirent(const DirentPtr &dirent)
 	return const_pointer_cast<Field>(field_from_dirent(const_dirent));
 }
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_FIELD_H__
+#endif // HWPP_FIELD_H__

@@ -1,4 +1,4 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "util/printfxx.h"
 #include "drivers.h"
 #include "device_init.h"
@@ -17,18 +17,18 @@ cmdline_bool skip_scopes = false;
 cmdline_bool skip_aliases = false;
 
 static void
-dump_field(const string &name, const pp::ConstFieldPtr &field);
+dump_field(const string &name, const hwpp::ConstFieldPtr &field);
 static void
-dump_register(const string &name, const pp::ConstRegisterPtr &reg);
+dump_register(const string &name, const hwpp::ConstRegisterPtr &reg);
 static void
-dump_scope(const string &name, const pp::ConstScopePtr &scope);
+dump_scope(const string &name, const hwpp::ConstScopePtr &scope);
 static void
-dump_array(const string &name, const pp::ConstArrayPtr &array);
+dump_array(const string &name, const hwpp::ConstArrayPtr &array);
 static void
-dump_alias(const string &name, const pp::ConstAliasPtr &alias);
+dump_alias(const string &name, const hwpp::ConstAliasPtr &alias);
 
 static void
-dump_field(const string &name, const pp::ConstFieldPtr &field)
+dump_field(const string &name, const hwpp::ConstFieldPtr &field)
 {
 	if (!skip_fields) {
 		cout << name << ": "
@@ -40,7 +40,7 @@ dump_field(const string &name, const pp::ConstFieldPtr &field)
 }
 
 static void
-dump_register(const string &name, const pp::ConstRegisterPtr &reg)
+dump_register(const string &name, const hwpp::ConstRegisterPtr &reg)
 {
 	if (!skip_regs) {
 		cout << name << ": "
@@ -51,31 +51,31 @@ dump_register(const string &name, const pp::ConstRegisterPtr &reg)
 }
 
 static void
-dump_array(const string &name, const pp::ConstArrayPtr &array)
+dump_array(const string &name, const hwpp::ConstArrayPtr &array)
 {
 	for (size_t i = 0; i < array->size(); i++) {
 		string subname = sprintfxx("%s[%d]", name, i);
-		if (array->array_type() == pp::DIRENT_TYPE_FIELD) {
+		if (array->array_type() == hwpp::DIRENT_TYPE_FIELD) {
 			dump_field(subname,
-			    pp::field_from_dirent(array->at(i)));
-		} else if (array->array_type() == pp::DIRENT_TYPE_REGISTER) {
+			    hwpp::field_from_dirent(array->at(i)));
+		} else if (array->array_type() == hwpp::DIRENT_TYPE_REGISTER) {
 			dump_register(subname,
-			    pp::register_from_dirent(array->at(i)));
-		} else if (array->array_type() == pp::DIRENT_TYPE_SCOPE) {
+			    hwpp::register_from_dirent(array->at(i)));
+		} else if (array->array_type() == hwpp::DIRENT_TYPE_SCOPE) {
 			dump_scope(subname,
-			    pp::scope_from_dirent(array->at(i)));
-		} else if (array->array_type() == pp::DIRENT_TYPE_ARRAY) {
+			    hwpp::scope_from_dirent(array->at(i)));
+		} else if (array->array_type() == hwpp::DIRENT_TYPE_ARRAY) {
 			dump_array(subname,
-			    pp::array_from_dirent(array->at(i)));
-		} else if (array->array_type() == pp::DIRENT_TYPE_ALIAS) {
+			    hwpp::array_from_dirent(array->at(i)));
+		} else if (array->array_type() == hwpp::DIRENT_TYPE_ALIAS) {
 			dump_alias(subname,
-			    pp::alias_from_dirent(array->at(i)));
+			    hwpp::alias_from_dirent(array->at(i)));
 		}
 	}
 }
 
 static void
-dump_alias(const string &name, const pp::ConstAliasPtr &alias)
+dump_alias(const string &name, const hwpp::ConstAliasPtr &alias)
 {
 	if (!skip_aliases) {
 		cout << name << ": ->"
@@ -86,7 +86,7 @@ dump_alias(const string &name, const pp::ConstAliasPtr &alias)
 }
  
 static void
-dump_scope(const string &name, const pp::ConstScopePtr &scope)
+dump_scope(const string &name, const hwpp::ConstScopePtr &scope)
 {
 	if (!skip_scopes) {
 		cout << name << "/";
@@ -100,25 +100,25 @@ dump_scope(const string &name, const pp::ConstScopePtr &scope)
 		string subname = sprintfxx("%s/%s",name,scope->dirent_name(i));
 		if (scope->dirent(i)->is_field()) {
 			dump_field(subname,
-			    pp::field_from_dirent(scope->dirent(i)));
+			    hwpp::field_from_dirent(scope->dirent(i)));
 		} else if (scope->dirent(i)->is_register()) {
 			dump_register(subname,
-			    pp::register_from_dirent(scope->dirent(i)));
+			    hwpp::register_from_dirent(scope->dirent(i)));
 		} else if (scope->dirent(i)->is_scope()) {
 			dump_scope(subname,
-			    pp::scope_from_dirent(scope->dirent(i)));
+			    hwpp::scope_from_dirent(scope->dirent(i)));
 		} else if (scope->dirent(i)->is_array()) {
 			dump_array(subname,
-			    pp::array_from_dirent(scope->dirent(i)));
+			    hwpp::array_from_dirent(scope->dirent(i)));
 		} else if (scope->dirent(i)->is_alias()) {
 			dump_alias(subname,
-			    pp::alias_from_dirent(scope->dirent(i)));
+			    hwpp::alias_from_dirent(scope->dirent(i)));
 		}
 	}
 }
 
 static void do_help(...);
-static struct cmdline_opt pp_opts[] = {
+static struct cmdline_opt hwpp_opts[] = {
 	{
 		"nr", "no-registers",
 		CMDLINE_OPT_BOOL, &skip_regs,
@@ -162,7 +162,7 @@ usage(const char *bad_opt)
 	*out << "usage: " << cmdline_progname << " [OPTIONS]" << std::endl;
 	*out << std::endl;
 	*out << "OPTIONS:" << std::endl;
-	while (const char *help_str = cmdline_help(pp_opts)) {
+	while (const char *help_str = cmdline_help(hwpp_opts)) {
 		*out << "  " << help_str << std::endl;
 	}
 	*out << std::endl;
@@ -178,14 +178,14 @@ do_help(...)
 int
 main(int argc, const char *argv[])
 {
-	cmdline_parse(&argc, &argv, pp_opts);
+	cmdline_parse(&argc, &argv, hwpp_opts);
 	if (argc != 1) {
 		usage(argv[1]);
 		exit(EXIT_FAILURE);
 	}
 
-	pp::ScopePtr root = pp::initialize_device_tree();
-	pp::do_discovery();
+	hwpp::ScopePtr root = hwpp::initialize_device_tree();
+	hwpp::do_discovery();
 	dump_scope("", root);
 
 	return 0;

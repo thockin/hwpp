@@ -1,6 +1,6 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_DEBUG_H__
-#define PP_DEBUG_H__
+#ifndef HWPP_DEBUG_H__
+#define HWPP_DEBUG_H__
 
 #include "util/assert.h"
 
@@ -73,4 +73,4 @@
 
 #endif // DEBUG
 
-#endif // PP_DEBUG_H__
+#endif // HWPP_DEBUG_H__

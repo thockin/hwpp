@@ -1,13 +1,13 @@
 // Language-related stuff that needs to be exposed, since I can't inject code
 // into the lex and yacc generated headers.
 
-#ifndef PP_LANGUAGE_LANGUAGE_H__
-#define PP_LANGUAGE_LANGUAGE_H__
+#ifndef HWPP_LANGUAGE_LANGUAGE_H__
+#define HWPP_LANGUAGE_LANGUAGE_H__
 
 // The grammar.l and grammar.y files include this header, which will screw
 // them up if they include their own auto-generated headers, so don't include
 // auto.*.h here.
-#include "pp.h"
+#include "hwpp.h"
 #include <stdio.h>
 #include <map>
 #include <string>
@@ -16,7 +16,7 @@
 // Forward declaration.
 union YYSTYPE;
 
-namespace pp {
+namespace hwpp {
 namespace language {
 
 // Wrap all of the lex logic.
@@ -89,8 +89,8 @@ class Parser {
 };
 
 }  // namespace language
-}  // namespace pp
+}  // namespace hwpp
 
-#endif  // PP_LANGUAGE_LANGUAGE_H__
+#endif  // HWPP_LANGUAGE_LANGUAGE_H__
 
 // vim: set ai tabstop=4 shiftwidth=4 noexpandtab:

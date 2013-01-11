@@ -1,10 +1,10 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "util/printfxx.h"
 #include "datatype_types.h"
 #include "pci_driver.h"
 #include "pci_binding.h"
 
-namespace pp { 
+namespace hwpp { 
 
 // this forces linkage and avoids the static initialization order fiasco
 Driver *
@@ -145,4 +145,4 @@ PciDriver::find_discovery_request(const PciAddress &addr) const
 	return NULL;
 }
 
-}  // namespace pp
+}  // namespace hwpp

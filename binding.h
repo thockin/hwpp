@@ -1,12 +1,12 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_BINDING_H__
-#define PP_BINDING_H__
+#ifndef HWPP_BINDING_H__
+#define HWPP_BINDING_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include <stdexcept>
 #include <ostream>
 
-namespace pp {
+namespace hwpp {
 
 /*
  * Binding - abstract base class for bound register spaces.
@@ -96,6 +96,6 @@ class SimpleBinding: public Binding
 	Tio m_io;
 };
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_BINDING_H__
+#endif // HWPP_BINDING_H__

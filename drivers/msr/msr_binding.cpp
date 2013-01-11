@@ -1,4 +1,4 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "util/printfxx.h"
 
 #include <stdint.h>
@@ -13,7 +13,7 @@
 #include "util/syserror.h"
 #include "util/bit_buffer.h"
 
-namespace pp { 
+namespace hwpp { 
 
 #define MSR_DEVICE_DIR	"/dev/cpu"
 #define MSR_DEV_MAJOR	202
@@ -141,4 +141,4 @@ MsrIo::seek(const Value &offset) const
 	m_file->seek(offset.as_uint(), SEEK_SET);
 }
 
-}  // namespace pp
+}  // namespace hwpp

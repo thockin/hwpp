@@ -2,7 +2,7 @@
 #include "fake_language.h"
 #include "datatype_types.h"
 
-namespace pp {
+namespace hwpp {
 namespace device {
 
 /*
@@ -108,4 +108,4 @@ global_datatypes_init()
 }
 
 }  // namespace device
-}  // namespace pp
+}  // namespace hwpp

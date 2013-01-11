@@ -1,8 +1,8 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "devices/pci/generic_device.h"
 #include "fake_language.h"
 
-namespace pp {
+namespace hwpp {
 namespace device {
 
 //FIXME unify cap, sts, en, dis, msk, svr names everywhere.  Look at aer
@@ -1759,4 +1759,4 @@ PCI_SCOPE(const string &name, const Value &seg, const Value &bus,
 }
 
 }  // namespace device
-}  // namespace pp
+}  // namespace hwpp

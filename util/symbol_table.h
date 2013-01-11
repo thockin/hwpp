@@ -1,5 +1,5 @@
-#ifndef PP_UTIL_SYMBOL_TABLE_H__
-#define PP_UTIL_SYMBOL_TABLE_H__
+#ifndef HWPP_UTIL_SYMBOL_TABLE_H__
+#define HWPP_UTIL_SYMBOL_TABLE_H__
 
 #include <map>
 #include <vector>
@@ -127,4 +127,4 @@ class SymbolTable {
 
 }  // namespace util
 
-#endif  // PP_UTIL_SYMBOL_TABLE_H__
+#endif  // HWPP_UTIL_SYMBOL_TABLE_H__

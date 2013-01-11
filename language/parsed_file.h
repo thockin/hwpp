@@ -1,17 +1,17 @@
-#ifndef PP_LANGUAGE_PARSED_FILE_H__
-#define PP_LANGUAGE_PARSED_FILE_H__
+#ifndef HWPP_LANGUAGE_PARSED_FILE_H__
+#define HWPP_LANGUAGE_PARSED_FILE_H__
 
 // The grammar.l and grammar.y files include this header, which will screw
 // them up if they include their own auto-generated headers, so don't include
 // auto.*.h here.
-#include "pp.h"
+#include "hwpp.h"
 #include <map>
 #include <string>
 #include <vector>
 #include "language/syntax_tree.h"
 #include "util/assert.h"
 
-namespace pp {
+namespace hwpp {
 namespace language {
 
 class ParsedFile {
@@ -160,8 +160,8 @@ class ParsedFile {
 };
 
 }  // namespace language
-}  // namespace pp
+}  // namespace hwpp
 
-#endif  // PP_LANGUAGE_PARSED_FILE_H__
+#endif  // HWPP_LANGUAGE_PARSED_FILE_H__
 
 // vim: set ai tabstop=4 shiftwidth=4 noexpandtab:

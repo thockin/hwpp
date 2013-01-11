@@ -2,13 +2,13 @@
  * This is a temporary home for calls to global stuff that should actually
  * be defined in the PP language.
  */
-#ifndef PP_DEVICE_INIT_H__
-#define PP_DEVICE_INIT_H__
+#ifndef HWPP_DEVICE_INIT_H__
+#define HWPP_DEVICE_INIT_H__
 
 #include "runtime.h"
 #include "scope.h"
 
-namespace pp {
+namespace hwpp {
 namespace device {
 
 void
@@ -37,6 +37,6 @@ initialize_device_tree() {
 	return root;
 }
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_DEVICE_INIT_H__
+#endif // HWPP_DEVICE_INIT_H__

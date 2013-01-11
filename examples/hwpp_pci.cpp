@@ -1,4 +1,4 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "util/printfxx.h"
 #include "drivers.h"
 #include "device_init.h"
@@ -10,20 +10,20 @@
 using namespace std;
 
 static void
-dump_field(const string &name, const pp::ConstFieldPtr &field,
+dump_field(const string &name, const hwpp::ConstFieldPtr &field,
            const string &indent="");
 static void
-dump_reg(const string &name, const pp::ConstRegisterPtr &reg,
+dump_reg(const string &name, const hwpp::ConstRegisterPtr &reg,
          const string &indent="");
 static void
-dump_scope(const string &name, const pp::ConstScopePtr &scope,
+dump_scope(const string &name, const hwpp::ConstScopePtr &scope,
            const string &indent="");
 static void
-dump_array(const string &name, const pp::ConstArrayPtr &array,
+dump_array(const string &name, const hwpp::ConstArrayPtr &array,
            const string &indent="");
 
 static void
-dump_field(const string &name, const pp::ConstFieldPtr &field,
+dump_field(const string &name, const hwpp::ConstFieldPtr &field,
            const string &indent)
 {
 	cout << indent;
@@ -35,7 +35,7 @@ dump_field(const string &name, const pp::ConstFieldPtr &field,
 }
 
 static void
-dump_reg(const string &name, const pp::ConstRegisterPtr &reg,
+dump_reg(const string &name, const hwpp::ConstRegisterPtr &reg,
          const string &indent)
 {
 	cout << indent;
@@ -46,29 +46,29 @@ dump_reg(const string &name, const pp::ConstRegisterPtr &reg,
 }
 
 static void
-dump_array(const string &name, const pp::ConstArrayPtr &array,
+dump_array(const string &name, const hwpp::ConstArrayPtr &array,
            const string &indent)
 {
 	for (size_t i = 0; i < array->size(); i++) {
 		string subname = sprintfxx("%s[%d]", name, i);
-		if (array->array_type() == pp::DIRENT_TYPE_FIELD) {
-			const pp::ConstFieldPtr &field =
-			    pp::field_from_dirent(array->at(i));
+		if (array->array_type() == hwpp::DIRENT_TYPE_FIELD) {
+			const hwpp::ConstFieldPtr &field =
+			    hwpp::field_from_dirent(array->at(i));
 			dump_field(subname, field, indent);
-		} else if (array->array_type() == pp::DIRENT_TYPE_SCOPE) {
-			const pp::ConstScopePtr &scope =
-			    pp::scope_from_dirent(array->at(i));
+		} else if (array->array_type() == hwpp::DIRENT_TYPE_SCOPE) {
+			const hwpp::ConstScopePtr &scope =
+			    hwpp::scope_from_dirent(array->at(i));
 			dump_scope(subname, scope, indent);
-		} else if (array->array_type() == pp::DIRENT_TYPE_ARRAY) {
-			const pp::ConstArrayPtr &subarray =
-			    pp::array_from_dirent(array->at(i));
+		} else if (array->array_type() == hwpp::DIRENT_TYPE_ARRAY) {
+			const hwpp::ConstArrayPtr &subarray =
+			    hwpp::array_from_dirent(array->at(i));
 			dump_array(subname, subarray, indent);
 		}
 	}
 }
 
 static void
-dump_scope(const string &name, const pp::ConstScopePtr &scope,
+dump_scope(const string &name, const hwpp::ConstScopePtr &scope,
            const string &indent)
 {
 	cout << indent << name;
@@ -80,19 +80,19 @@ dump_scope(const string &name, const pp::ConstScopePtr &scope,
 	for (size_t i = 0; i < scope->n_dirents(); i++) {
 		if (scope->dirent(i)->is_register()) {
 			dump_reg(scope->dirent_name(i),
-			    pp::register_from_dirent(scope->dirent(i)),
+			    hwpp::register_from_dirent(scope->dirent(i)),
 			    indent+"    ");
 		} else if (scope->dirent(i)->is_field()) {
 			dump_field(scope->dirent_name(i),
-			    pp::field_from_dirent(scope->dirent(i)),
+			    hwpp::field_from_dirent(scope->dirent(i)),
 			    indent+"    ");
 		} else if (scope->dirent(i)->is_scope()) {
 			dump_scope(scope->dirent_name(i),
-			    pp::scope_from_dirent(scope->dirent(i)),
+			    hwpp::scope_from_dirent(scope->dirent(i)),
 			    indent+"    ");
 		} else if (scope->dirent(i)->is_array()) {
 			dump_array(scope->dirent_name(i),
-			    pp::array_from_dirent(scope->dirent(i)),
+			    hwpp::array_from_dirent(scope->dirent(i)),
 			    indent+"    ");
 		}
 	}
@@ -103,8 +103,8 @@ dump_scope(const string &name, const pp::ConstScopePtr &scope,
 int
 main()
 {
-	pp::ScopePtr root = pp::initialize_device_tree();
-	pp::do_discovery("pci");
+	hwpp::ScopePtr root = hwpp::initialize_device_tree();
+	hwpp::do_discovery("pci");
 	dump_scope("", root);
 	return 0;
 }

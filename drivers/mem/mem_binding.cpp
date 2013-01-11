@@ -1,4 +1,4 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "util/printfxx.h"
 
 #include <stdint.h>
@@ -11,7 +11,7 @@
 #include "driver.h"
 #include "util/filesystem.h"
 
-namespace pp { 
+namespace hwpp { 
 
 #define MEM_DEVICE	"/dev/mem"
 
@@ -162,4 +162,4 @@ MemIo::do_write(const Value &offset, const Value &value) const
 	*ptr = data;
 }
 
-}  // namespace pp
+}  // namespace hwpp

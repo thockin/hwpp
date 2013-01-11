@@ -1,6 +1,6 @@
 /* Copyright (c) Tim Hockin, 2008 */
-#ifndef PP_UTIL_SHARED_OBJECT_H__
-#define PP_UTIL_SHARED_OBJECT_H__
+#ifndef HWPP_UTIL_SHARED_OBJECT_H__
+#define HWPP_UTIL_SHARED_OBJECT_H__
 
 #include <stdexcept>
 #include <string>
@@ -134,4 +134,4 @@ class SharedObject
 
 } // namespace util
 
-#endif // PP_UTIL_SHARED_OBJECT_H__
+#endif // HWPP_UTIL_SHARED_OBJECT_H__

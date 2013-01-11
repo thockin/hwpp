@@ -1,12 +1,12 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_DRIVERS_PCI_PCI_DRIVER_H__
-#define PP_DRIVERS_PCI_PCI_DRIVER_H__
+#ifndef HWPP_DRIVERS_PCI_PCI_DRIVER_H__
+#define HWPP_DRIVERS_PCI_PCI_DRIVER_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include "driver.h"
 #include "pci_binding.h"
 
-namespace pp { 
+namespace hwpp { 
 
 /*
  * PciDriver - PCI driver plugin.
@@ -71,6 +71,6 @@ class PciDriver: public Driver
 
 #define new_pci_driver(...) DriverPtr(new PciDriver(__VA_ARGS__))
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_DRIVERS_PCI_PCI_DRIVER_H__
+#endif // HWPP_DRIVERS_PCI_PCI_DRIVER_H__

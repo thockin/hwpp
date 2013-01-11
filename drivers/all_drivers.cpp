@@ -1,8 +1,8 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "drivers.h"
 #include "driver.h"
 
-namespace pp {
+namespace hwpp {
 
 typedef Driver *(*DriverInitFunction)();
 
@@ -25,4 +25,4 @@ load_all_drivers()
 	}
 }
 
-}  // namespace pp
+}  // namespace hwpp

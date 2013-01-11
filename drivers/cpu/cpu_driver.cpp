@@ -1,4 +1,4 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "datatype_types.h"
 #include "cpu_driver.h"
 #include "cpu_address.h"
@@ -13,7 +13,7 @@
 #include "util/simple_regex.h"
 #include "util/bit_buffer.h"
 
-namespace pp {
+namespace hwpp {
 
 #define CPU_SYSFS_DIR	"/sys/devices/system/cpu"
 
@@ -242,4 +242,4 @@ CpuDriver::do_io_error(const CpuAddress &address, const string &str)
 	throw Driver::IoError(to_string(address) + ": " + str);
 }
 
-}  // namespace pp
+}  // namespace hwpp

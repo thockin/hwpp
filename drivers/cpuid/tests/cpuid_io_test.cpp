@@ -1,9 +1,9 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "drivers/cpuid/cpuid_driver.h"
 #include "drivers/cpuid/cpuid_binding.h"
 #include "util/test.h"
 
-namespace pp {
+namespace hwpp {
 
 TEST(test_cpuid_io)
 {
@@ -80,4 +80,4 @@ TEST(test_cpuid_io)
 
 //FIXME: test enumerate()
 
-}  // namespace pp
+}  // namespace hwpp

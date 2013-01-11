@@ -1,8 +1,8 @@
 /* Copyright (c) Tim Hockin, 2008 */
-#ifndef PP_CONTEXT_H__
-#define PP_CONTEXT_H__
+#ifndef HWPP_CONTEXT_H__
+#define HWPP_CONTEXT_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include "scope.h"
 #include "path.h"
 #include "dirent.h"
@@ -10,14 +10,14 @@
 #include "field.h"
 #include "datatype.h"
 
-namespace pp {
+namespace hwpp {
 
 /*
  * This encapsulates a context of the PP tree.
  */
 class Context;
 typedef boost::shared_ptr<Context> ContextPtr;
-#define new_pp_context(...) ::pp::ContextPtr(new ::pp::Context(__VA_ARGS__))
+#define new_hwpp_context(...) ::hwpp::ContextPtr(new ::hwpp::Context(__VA_ARGS__))
 
 class Context
 {
@@ -42,7 +42,7 @@ class Context
 	ContextPtr
 	snapshot() const
 	{
-		ContextPtr new_ctxt = new_pp_context(*this);
+		ContextPtr new_ctxt = new_hwpp_context(*this);
 		new_ctxt->m_readonly = true;
 		return new_ctxt;
 	}
@@ -124,6 +124,6 @@ class Context
 	}
 };
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_CONTEXT_H__
+#endif // HWPP_CONTEXT_H__

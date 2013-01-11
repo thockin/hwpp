@@ -1,15 +1,15 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_ARRAY_H__
-#define PP_ARRAY_H__
+#ifndef HWPP_ARRAY_H__
+#define HWPP_ARRAY_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include "util/printfxx.h"
 #include <vector>
 #include <stdexcept>
 #include "path.h"
 #include "dirent.h"
 
-namespace pp {
+namespace hwpp {
 
 //
 // Array - an array of dirents.
@@ -79,7 +79,7 @@ class Array: public Dirent
 typedef boost::shared_ptr<Array> ArrayPtr;
 typedef boost::shared_ptr<const Array> ConstArrayPtr;
 
-#define new_pp_array(...) ::pp::ArrayPtr(new ::pp::Array(__VA_ARGS__))
+#define new_hwpp_array(...) ::hwpp::ArrayPtr(new ::hwpp::Array(__VA_ARGS__))
 
 // const
 inline ConstArrayPtr
@@ -98,6 +98,6 @@ array_from_dirent(const DirentPtr &dirent)
 	return const_pointer_cast<Array>(array_from_dirent(const_dirent));
 }
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_ARRAY_H__
+#endif // HWPP_ARRAY_H__

@@ -1,9 +1,9 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "drivers/pci/pci_driver.h"
 #include "drivers/pci/pci_binding.h"
 #include "util/test.h"
 
-namespace pp {
+namespace hwpp {
 
 TEST(test_pci_io)
 {
@@ -89,4 +89,4 @@ TEST(test_pci_io)
 	system("rm -rf test_data");
 }
 
-}  // namespace pp
+}  // namespace hwpp

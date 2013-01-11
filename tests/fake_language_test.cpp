@@ -2,32 +2,32 @@
  * Copyright 2008 Tim Hockin
  */
 
-#include "pp.h"
+#include "hwpp.h"
 #include "fake_language.h"
 #include "device_init.h"
 #include "tests/test_binding.h"
 #include "util/test.h"
 
 // used later, must be out-of-line
-class TestProcs: public pp::RwProcs
+class TestProcs: public hwpp::RwProcs
 {
-	pp::Value
+	hwpp::Value
 	read() const
 	{
 		return 0;
 	}
 	void
-	write(const pp::Value &value) const
+	write(const hwpp::Value &value) const
 	{
 		(void)value;
 	}
 };
 
-static pp::ScopePtr pp_tree_root;
+static hwpp::ScopePtr hwpp_tree_root;
 TEST_SETUP()
 {
 	// without this, there is no "current context"
-	pp_tree_root = pp::initialize_device_tree();
+	hwpp_tree_root = hwpp::initialize_device_tree();
 }
 
 TEST(test_parse_errors)
@@ -44,7 +44,7 @@ TEST(test_parse_errors)
 	try {
 		GET_DIRENT("valid");
 		TEST_FAIL("GET_DIRENT()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("GET_DIRENT()");
 	} catch (std::exception &e) {
 		// expected
@@ -53,7 +53,7 @@ TEST(test_parse_errors)
 	try {
 		GET_DIRENT("123_invalid");
 		TEST_FAIL("GET_DIRENT()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("GET_DIRENT()");
@@ -66,7 +66,7 @@ TEST(test_parse_errors)
 	try {
 		GET_FIELD("valid");
 		TEST_FAIL("GET_FIELD()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("GET_FIELD()");
 	} catch (std::exception &e) {
 		// expected
@@ -75,7 +75,7 @@ TEST(test_parse_errors)
 	try {
 		GET_FIELD("123_invalid");
 		TEST_FAIL("GET_FIELD()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("GET_FIELD()");
@@ -88,7 +88,7 @@ TEST(test_parse_errors)
 	try {
 		GET_REGISTER("valid");
 		TEST_FAIL("GET_REGISTER()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("GET_REGISTER()");
 	} catch (std::exception &e) {
 		// expected
@@ -97,7 +97,7 @@ TEST(test_parse_errors)
 	try {
 		GET_REGISTER("123_invalid");
 		TEST_FAIL("GET_REGISTER()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("GET_REGISTER()");
@@ -110,7 +110,7 @@ TEST(test_parse_errors)
 	try {
 		DEFINED("valid");
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("DEFINED()");
 	} catch (std::exception &e) {
 		TEST_FAIL("DEFINED()");
@@ -119,7 +119,7 @@ TEST(test_parse_errors)
 	try {
 		DEFINED("123_invalid");
 		TEST_FAIL("DEFINED()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("DEFINED()");
@@ -132,7 +132,7 @@ TEST(test_parse_errors)
 	try {
 		READ(REG32(0));
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("READ()");
 	} catch (std::exception &e) {
 		TEST_FAIL("READ()");
@@ -141,7 +141,7 @@ TEST(test_parse_errors)
 	try {
 		READ("valid");
 		TEST_FAIL("READ()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("READ()");
 	} catch (std::exception &e) {
 		// expected
@@ -149,7 +149,7 @@ TEST(test_parse_errors)
 	try {
 		READ(REG32(0));
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("READ()");
 	} catch (std::exception &e) {
 		TEST_FAIL("READ()");
@@ -158,7 +158,7 @@ TEST(test_parse_errors)
 	try {
 		READ("123_invalid");
 		TEST_FAIL("READ()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("READ()");
@@ -171,7 +171,7 @@ TEST(test_parse_errors)
 	try {
 		WRITE(REG32(0), 0);
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("WRITE()");
 	} catch (std::exception &e) {
 		TEST_FAIL("WRITE()");
@@ -180,7 +180,7 @@ TEST(test_parse_errors)
 	try {
 		WRITE("valid", 123);
 		TEST_FAIL("WRITE()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("WRITE()");
 	} catch (std::exception &e) {
 		// expected
@@ -188,7 +188,7 @@ TEST(test_parse_errors)
 	try {
 		WRITE(REG32(0), 0);
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("READ()");
 	} catch (std::exception &e) {
 		TEST_FAIL("READ()");
@@ -197,7 +197,7 @@ TEST(test_parse_errors)
 	try {
 		WRITE("123_invalid", 123);
 		TEST_FAIL("WRITE()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("WRITE()");
@@ -211,7 +211,7 @@ TEST(test_parse_errors)
 		OPEN_SCOPE("scope1");
 		CLOSE_SCOPE();
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("OPEN_SCOPE()");
 	} catch (std::exception &e) {
 		TEST_FAIL("OPEN_SCOPE()");
@@ -220,7 +220,7 @@ TEST(test_parse_errors)
 	try {
 		OPEN_SCOPE("%invalid");
 		TEST_ERROR("OPEN_SCOPE()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_ERROR("OPEN_SCOPE()");
@@ -229,7 +229,7 @@ TEST(test_parse_errors)
 	try {
 		OPEN_SCOPE("123_invalid");
 		TEST_FAIL("OPEN_SCOPE()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("OPEN_SCOPE()");
@@ -242,7 +242,7 @@ TEST(test_parse_errors)
 	try {
 		REG8("%reg8", 0);
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("REG8()");
 	} catch (std::exception &e) {
 		TEST_FAIL("REG8()");
@@ -251,7 +251,7 @@ TEST(test_parse_errors)
 	try {
 		REG8(0);
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("REG8()");
 	} catch (std::exception &e) {
 		TEST_FAIL("REG8()");
@@ -260,7 +260,7 @@ TEST(test_parse_errors)
 	try {
 		REG8("%bound_reg8", new_test_binding(), 0);
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("REG8()");
 	} catch (std::exception &e) {
 		TEST_FAIL("REG8()");
@@ -269,7 +269,7 @@ TEST(test_parse_errors)
 	try {
 		REG8(new_test_binding(), 0);
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("REG8()");
 	} catch (std::exception &e) {
 		TEST_FAIL("REG8()");
@@ -278,7 +278,7 @@ TEST(test_parse_errors)
 	try {
 		REG8("%123_invalid", 123);
 		TEST_FAIL("REG8()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("REG8()");
@@ -287,7 +287,7 @@ TEST(test_parse_errors)
 	try {
 		REG16("%reg16", 0);
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("REG16()");
 	} catch (std::exception &e) {
 		TEST_FAIL("REG16()");
@@ -296,7 +296,7 @@ TEST(test_parse_errors)
 	try {
 		REG16("%123_invalid", 123);
 		TEST_FAIL("REG16()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("REG16()");
@@ -305,7 +305,7 @@ TEST(test_parse_errors)
 	try {
 		REG32("%reg32", 0);
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("REG32()");
 	} catch (std::exception &e) {
 		TEST_FAIL("REG32()");
@@ -314,7 +314,7 @@ TEST(test_parse_errors)
 	try {
 		REG32("%123_invalid", 123);
 		TEST_FAIL("REG32()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("REG32()");
@@ -323,7 +323,7 @@ TEST(test_parse_errors)
 	try {
 		REG64("%reg64", 0);
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("REG64()");
 	} catch (std::exception &e) {
 		TEST_FAIL("REG64()");
@@ -332,7 +332,7 @@ TEST(test_parse_errors)
 	try {
 		REG64("%123_invalid", 123);
 		TEST_FAIL("REG64()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("REG64()");
@@ -341,7 +341,7 @@ TEST(test_parse_errors)
 	try {
 		REG128("%reg128", 0);
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("REG128()");
 	} catch (std::exception &e) {
 		TEST_FAIL("REG128()");
@@ -350,7 +350,7 @@ TEST(test_parse_errors)
 	try {
 		REG128("%123_invalid", 123);
 		TEST_FAIL("REG128()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("REG128()");
@@ -359,7 +359,7 @@ TEST(test_parse_errors)
 	try {
 		REG8("%proc_reg8", PROCS(TestProcs));
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("REG8()");
 	} catch (std::exception &e) {
 		TEST_FAIL("REG8()");
@@ -368,7 +368,7 @@ TEST(test_parse_errors)
 	try {
 		REG8(PROCS(TestProcs));
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("REG8()");
 	} catch (std::exception &e) {
 		TEST_FAIL("REG8()");
@@ -377,7 +377,7 @@ TEST(test_parse_errors)
 	try {
 		REG8("%123_invalid", PROCS(TestProcs));
 		TEST_FAIL("REG8()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("REG8()");
@@ -386,7 +386,7 @@ TEST(test_parse_errors)
 	try {
 		REG16("%proc_reg16", PROCS(TestProcs));
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("REG16()");
 	} catch (std::exception &e) {
 		TEST_FAIL("REG16()");
@@ -395,7 +395,7 @@ TEST(test_parse_errors)
 	try {
 		REG16("%123_invalid", PROCS(TestProcs));
 		TEST_FAIL("REG16()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("REG16()");
@@ -404,7 +404,7 @@ TEST(test_parse_errors)
 	try {
 		REG32("%proc_reg32", PROCS(TestProcs));
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("REG32()");
 	} catch (std::exception &e) {
 		TEST_FAIL("REG32()");
@@ -413,7 +413,7 @@ TEST(test_parse_errors)
 	try {
 		REG32("%123_invalid", PROCS(TestProcs));
 		TEST_FAIL("REG32()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("REG32()");
@@ -422,7 +422,7 @@ TEST(test_parse_errors)
 	try {
 		REG64("%proc_reg64", PROCS(TestProcs));
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("REG64()");
 	} catch (std::exception &e) {
 		TEST_FAIL("REG64()");
@@ -431,7 +431,7 @@ TEST(test_parse_errors)
 	try {
 		REG64("%123_invalid", PROCS(TestProcs));
 		TEST_FAIL("REG64()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("REG64()");
@@ -440,7 +440,7 @@ TEST(test_parse_errors)
 	try {
 		REG128("%proc_reg128", PROCS(TestProcs));
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("REG128()");
 	} catch (std::exception &e) {
 		TEST_FAIL("REG128()");
@@ -449,7 +449,7 @@ TEST(test_parse_errors)
 	try {
 		REG128("%123_invalid", PROCS(TestProcs));
 		TEST_FAIL("REG128()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("REG128()");
@@ -462,7 +462,7 @@ TEST(test_parse_errors)
 	try {
 		BITS("%reg8");
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("BITS()");
 	} catch (std::exception &e) {
 		TEST_FAIL("BITS()");
@@ -471,7 +471,7 @@ TEST(test_parse_errors)
 	try {
 		BITS("%reg8", 0);
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("BITS()");
 	} catch (std::exception &e) {
 		TEST_FAIL("BITS()");
@@ -480,7 +480,7 @@ TEST(test_parse_errors)
 	try {
 		BITS("%reg8", 7, 0);
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("BITS()");
 	} catch (std::exception &e) {
 		TEST_FAIL("BITS()");
@@ -489,7 +489,7 @@ TEST(test_parse_errors)
 	try {
 		BITS(REG8(0));
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("BITS()");
 	} catch (std::exception &e) {
 		TEST_FAIL("BITS()");
@@ -498,7 +498,7 @@ TEST(test_parse_errors)
 	try {
 		BITS(REG8(0), 0);
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("BITS()");
 	} catch (std::exception &e) {
 		TEST_FAIL("BITS()");
@@ -507,7 +507,7 @@ TEST(test_parse_errors)
 	try {
 		BITS(REG8(0), 7, 0);
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("BITS()");
 	} catch (std::exception &e) {
 		TEST_FAIL("BITS()");
@@ -516,7 +516,7 @@ TEST(test_parse_errors)
 	try {
 		BITS("%123_invalid");
 		TEST_FAIL("BITS()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("BITS()");
@@ -525,7 +525,7 @@ TEST(test_parse_errors)
 	try {
 		BITS("%reg8", 8);
 		TEST_FAIL("BITS()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("BITS()");
 	} catch (std::exception &e) {
 		// expected
@@ -534,7 +534,7 @@ TEST(test_parse_errors)
 	try {
 		BITS("%reg8", 8, 0);
 		TEST_FAIL("BITS()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("BITS()");
 	} catch (std::exception &e) {
 		// expected
@@ -543,7 +543,7 @@ TEST(test_parse_errors)
 	try {
 		BITS(REG8(0), 8);
 		TEST_FAIL("BITS()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("BITS()");
 	} catch (std::exception &e) {
 		// expected
@@ -552,7 +552,7 @@ TEST(test_parse_errors)
 	try {
 		BITS(REG8(0), 8, 0);
 		TEST_FAIL("BITS()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("BITS()");
 	} catch (std::exception &e) {
 		// expected
@@ -565,7 +565,7 @@ TEST(test_parse_errors)
 	try {
 		FIELD("field1", "int_t", BITS("%reg8"));
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("FIELD()");
 	} catch (std::exception &e) {
 		TEST_FAIL("FIELD()");
@@ -574,7 +574,7 @@ TEST(test_parse_errors)
 	try {
 		FIELD("%invalid", "int_t", BITS("%reg8"));
 		TEST_ERROR("FIELD()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_ERROR("FIELD()");
@@ -583,7 +583,7 @@ TEST(test_parse_errors)
 	try {
 		FIELD("123_invalid", "int_t", BITS("%reg8"));
 		TEST_FAIL("FIELD()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("FIELD()");
@@ -592,7 +592,7 @@ TEST(test_parse_errors)
 	try {
 		FIELD("field2", "int_t", 123);
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("FIELD()");
 	} catch (std::exception &e) {
 		TEST_FAIL("FIELD()");
@@ -601,7 +601,7 @@ TEST(test_parse_errors)
 	try {
 		FIELD("123_invalid", "int_t", 123);
 		TEST_FAIL("FIELD()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("FIELD()");
@@ -610,7 +610,7 @@ TEST(test_parse_errors)
 	try {
 		FIELD("field3", "int_t", PROCS(TestProcs));
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("FIELD()");
 	} catch (std::exception &e) {
 		TEST_FAIL("FIELD()");
@@ -619,7 +619,7 @@ TEST(test_parse_errors)
 	try {
 		FIELD("123_invalid", "int_t", PROCS(TestProcs));
 		TEST_FAIL("FIELD()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("FIELD()");
@@ -632,7 +632,7 @@ TEST(test_parse_errors)
 	try {
 		ALIAS("valid_from1", "field1");
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_ERROR("ALIAS()");
 	} catch (std::exception &e) {
 		TEST_ERROR("ALIAS()");
@@ -641,7 +641,7 @@ TEST(test_parse_errors)
 	try {
 		ALIAS("valid_from2", "%reg8");
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_ERROR("ALIAS()");
 	} catch (std::exception &e) {
 		TEST_ERROR("ALIAS()");
@@ -650,7 +650,7 @@ TEST(test_parse_errors)
 	try {
 		ALIAS("123_invalid_from", "valid_to");
 		TEST_ERROR("FIELD()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_ERROR("FIELD()");
@@ -659,7 +659,7 @@ TEST(test_parse_errors)
 	try {
 		ALIAS("valid_from3", "123_invalid_to");
 		TEST_ERROR("FIELD()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_ERROR("FIELD()");
@@ -668,7 +668,7 @@ TEST(test_parse_errors)
 	try {
 		ALIAS("123_invalid_from", "123_invalid_to");
 		TEST_ERROR("FIELD()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_ERROR("FIELD()");
@@ -681,7 +681,7 @@ TEST(test_parse_errors)
 	try {
 		INT("int1");
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("INT()");
 	} catch (std::exception &e) {
 		TEST_FAIL("INT()");
@@ -690,7 +690,7 @@ TEST(test_parse_errors)
 	try {
 		INT("123_invalid");
 		TEST_FAIL("INT()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("INT()");
@@ -699,7 +699,7 @@ TEST(test_parse_errors)
 	try {
 		ANON_INT();
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("ANON_INT()");
 	} catch (std::exception &e) {
 		TEST_FAIL("ANON_INT()");
@@ -712,7 +712,7 @@ TEST(test_parse_errors)
 	try {
 		HEX("hex1");
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("HEX()");
 	} catch (std::exception &e) {
 		TEST_FAIL("HEX()");
@@ -721,7 +721,7 @@ TEST(test_parse_errors)
 	try {
 		HEX("123_invalid");
 		TEST_FAIL("HEX()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("HEX()");
@@ -730,7 +730,7 @@ TEST(test_parse_errors)
 	try {
 		ANON_HEX();
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("ANON_HEX()");
 	} catch (std::exception &e) {
 		TEST_FAIL("ANON_HEX()");
@@ -743,7 +743,7 @@ TEST(test_parse_errors)
 	try {
 		BITMASK("bitmask1", KV("valid1", 1));
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("BITMASK()");
 	} catch (std::exception &e) {
 		TEST_FAIL("BITMASK()");
@@ -752,7 +752,7 @@ TEST(test_parse_errors)
 	try {
 		BITMASK("bitmask2", KV("valid1", 1), KV("valid2", 2));
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("BITMASK()");
 	} catch (std::exception &e) {
 		TEST_FAIL("BITMASK()");
@@ -761,7 +761,7 @@ TEST(test_parse_errors)
 	try {
 		BITMASK("123_invalid", KV("valid1", 1), KV("valid2", 2));
 		TEST_FAIL("BITMASK()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("BITMASK()");
@@ -770,7 +770,7 @@ TEST(test_parse_errors)
 	try {
 		BITMASK("bitmask3", KV("123_valid", 1));
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("BITMASK()");
 	} catch (std::exception &e) {
 		TEST_FAIL("BITMASK()");
@@ -779,7 +779,7 @@ TEST(test_parse_errors)
 	try {
 		ANON_BITMASK(KV("valid1", 1), KV("valid2", 2));
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("ANON_BITMASK()");
 	} catch (std::exception &e) {
 		TEST_FAIL("ANON_BITMASK()");
@@ -816,7 +816,7 @@ TEST(test_parse_errors)
 		MULTI("123_invalid", RANGE(ANON_INT(), 0, 10),
 					 RANGE("hex32_t", 11, 15));
 		TEST_FAIL("MULTI()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("MULTI()");
@@ -827,7 +827,7 @@ TEST(test_parse_errors)
 				 RANGE("hex32_t", 11, 15),
 				 RANGE(ANON_INT("units"), 10, 11));
 		TEST_FAIL("MULTI()");
-	} catch (pp::Datatype::InvalidError &e) {
+	} catch (hwpp::Datatype::InvalidError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("MULTI()");
@@ -840,7 +840,7 @@ TEST(test_parse_errors)
 	try {
 		ENUM("enum1", KV("valid1", 1));
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("ENUM()");
 	} catch (std::exception &e) {
 		TEST_FAIL("ENUM()");
@@ -849,7 +849,7 @@ TEST(test_parse_errors)
 	try {
 		ENUM("enum2", KV("valid1", 1), KV("valid2", 2));
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("ENUM()");
 	} catch (std::exception &e) {
 		TEST_FAIL("ENUM()");
@@ -858,7 +858,7 @@ TEST(test_parse_errors)
 	try {
 		ENUM("123_invalid", KV("valid1", 1), KV("valid2", 2));
 		TEST_FAIL("ENUM()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("ENUM()");
@@ -867,7 +867,7 @@ TEST(test_parse_errors)
 	try {
 		ENUM("enum3", KV("123_valid", 1));
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("ENUM()");
 	} catch (std::exception &e) {
 		TEST_FAIL("ENUM()");
@@ -876,7 +876,7 @@ TEST(test_parse_errors)
 	try {
 		ANON_ENUM(KV("valid1", 1), KV("valid2", 2));
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("ANON_ENUM()");
 	} catch (std::exception &e) {
 		TEST_FAIL("ANON_ENUM()");
@@ -889,7 +889,7 @@ TEST(test_parse_errors)
 	try {
 		BOOL("bool1", "valid1", "valid2");
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("BOOL()");
 	} catch (std::exception &e) {
 		TEST_FAIL("BOOL()");
@@ -898,7 +898,7 @@ TEST(test_parse_errors)
 	try {
 		BOOL("123_invalid", "valid1", "valid2");
 		TEST_FAIL("BOOL()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("BOOL()");
@@ -907,7 +907,7 @@ TEST(test_parse_errors)
 	try {
 		BOOL("bool3", "123_valid", "456_valid");
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("BOOL()");
 	} catch (std::exception &e) {
 		TEST_FAIL("BOOL()");
@@ -916,7 +916,7 @@ TEST(test_parse_errors)
 	try {
 		ANON_BOOL("valid1", "valid2");
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("ANON_BOOL()");
 	} catch (std::exception &e) {
 		TEST_FAIL("ANON_BOOL()");
@@ -929,7 +929,7 @@ TEST(test_parse_errors)
 	try {
 		FIXED("int1", 1);
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("FIXED()");
 	} catch (std::exception &e) {
 		TEST_FAIL("FIXED()");
@@ -938,7 +938,7 @@ TEST(test_parse_errors)
 	try {
 		FIXED("123_invalid", 1);
 		TEST_FAIL("FIXED()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("FIXED()");
@@ -947,7 +947,7 @@ TEST(test_parse_errors)
 	try {
 		ANON_FIXED(1);
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("ANON_FIXED()");
 	} catch (std::exception &e) {
 		TEST_FAIL("ANON_FIXED()");
@@ -960,7 +960,7 @@ TEST(test_parse_errors)
 	try {
 		BOOKMARK("valid");
 		// expected
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		TEST_FAIL("BOOKMARK()");
 	} catch (std::exception &e) {
 		TEST_FAIL("BOOKMARK()");
@@ -969,7 +969,7 @@ TEST(test_parse_errors)
 	try {
 		BOOKMARK("123_invalid");
 		TEST_FAIL("BOOKMARK()");
-	} catch (pp::ParseError &e) {
+	} catch (hwpp::ParseError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_FAIL("BOOKMARK()");
@@ -1041,7 +1041,7 @@ TEST(test_read_write)
 	try {
 		ALIAS("bad_alias", "non_existent");
 		TEST_ERROR("ALIAS(non_existent)");
-	} catch (pp::Path::NotFoundError &e) {
+	} catch (hwpp::Path::NotFoundError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_ERROR("ALIAS(non_existent)");
@@ -1064,7 +1064,7 @@ TEST(test_alias_to_array)
 	try {
 		ALIAS("alias2", "%reg[1]");
 		TEST_ERROR("ALIAS(%reg[1])");
-	} catch (pp::Path::NotFoundError &e) {
+	} catch (hwpp::Path::NotFoundError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_ERROR("ALIAS(%reg[1])");
@@ -1085,7 +1085,7 @@ TEST(test_alias_to_array)
 	try {
 		ALIAS("alias6", "%reg[]");
 		TEST_ERROR("ALIAS(%reg[])");
-	} catch (pp::Path::NotFoundError &e) {
+	} catch (hwpp::Path::NotFoundError &e) {
 		// expected
 	} catch (std::exception &e) {
 		TEST_ERROR("ALIAS(%reg[])");

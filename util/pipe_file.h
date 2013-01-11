@@ -1,8 +1,8 @@
 // Tim Hockin <thockin@hockin.org>
 // Similar to ostringstream, but for stdio FILEs.
 
-#ifndef PP_UTIL_PIPE_FILE_H__
-#define PP_UTIL_PIPE_FILE_H__
+#ifndef HWPP_UTIL_PIPE_FILE_H__
+#define HWPP_UTIL_PIPE_FILE_H__
 
 #include <fcntl.h>
 #include <stdio.h>
@@ -117,4 +117,4 @@ class PipeFile {
 
 }  // namespace util
 
-#endif  // PP_UTIL_PIPE_FILE_H__
+#endif  // HWPP_UTIL_PIPE_FILE_H__

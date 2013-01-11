@@ -1,19 +1,19 @@
 //FIXME: fix include paths
-#include "pp.h"
+#include "hwpp.h"
 #include "language/environment.h"
 #include "language/language.h"
 #include "language/parsed_file.h"
 #include "util/pipe_file.h"
 #include "util/test.h"
 
-static pp::language::Environment *env;
+static hwpp::language::Environment *env;
 static util::PipeFile *pipef;
-static const pp::language::ParsedFile *parsed_file;
+static const hwpp::language::ParsedFile *parsed_file;
 
 static void reinit()
 {
 	delete env;
-	env = new pp::language::Environment();
+	env = new hwpp::language::Environment();
 
 	delete pipef;
 	pipef = new util::PipeFile();
@@ -84,7 +84,7 @@ TEST(test_basic_definitions) {
 		    "int i = l[0]; \n"
 		);
 		TEST_FAIL();
-	} catch (pp::language::SyntaxError &e) {
+	} catch (hwpp::language::SyntaxError &e) {
 	} catch (...) {
 		TEST_FAIL();
 	}
@@ -96,7 +96,7 @@ TEST(test_basic_definitions) {
 		    "int i = t[0]; \n"
 		);
 		TEST_FAIL();
-	} catch (pp::language::SyntaxError &e) {
+	} catch (hwpp::language::SyntaxError &e) {
 	} catch (...) {
 		TEST_FAIL();
 	}
@@ -108,7 +108,7 @@ TEST(test_basic_definitions) {
 		    "var i = t[1]; \n"
 		);
 		TEST_FAIL();
-	} catch (pp::language::SyntaxError &e) {
+	} catch (hwpp::language::SyntaxError &e) {
 	} catch (...) {
 		TEST_FAIL();
 	}

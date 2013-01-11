@@ -1,4 +1,4 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "util/printfxx.h"
 
 #include <stdint.h>
@@ -15,7 +15,7 @@
 #include "util/filesystem.h"
 #include "util/bit_buffer.h"
 
-namespace pp { 
+namespace hwpp { 
 
 // helpers, local to this file
 static void
@@ -249,4 +249,4 @@ enumerate_procfs(std::vector<PciAddress> *addresses)
 	}
 }
 
-}  // namespace pp
+}  // namespace hwpp

@@ -1,13 +1,13 @@
 #include "language/syntax_tree.h"
 
-#include "pp.h"
+#include "hwpp.h"
 #include <map>
 #include <string>
 #include <vector>
 #include "language/type.h"
 #include "language/variable.h"
 
-namespace pp {
+namespace hwpp {
 namespace language {
 namespace syntax {
 
@@ -527,6 +527,6 @@ TupleLiteralExpression::evaluate(Variable *out_result)
 
 }  // namespace syntax
 }  // namespace language
-}  // namespace pp
+}  // namespace hwpp
 
 // vim: set ai tabstop=4 shiftwidth=4 noexpandtab:

@@ -1,14 +1,14 @@
 /* Copyright (c) Tim Hockin, 2008 */
-#ifndef PP_DRIVERS_CPU_CPU_DRIVER_H__
-#define PP_DRIVERS_CPU_CPU_DRIVER_H__
+#ifndef HWPP_DRIVERS_CPU_CPU_DRIVER_H__
+#define HWPP_DRIVERS_CPU_CPU_DRIVER_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include "driver.h"
 #include "cpu_address.h"
 
 #include <vector>
 
-namespace pp { 
+namespace hwpp { 
 
 /*
  * CpuDriver - CPU driver plugin.
@@ -77,6 +77,6 @@ class CpuDriver: public Driver
 
 #define new_cpu_driver(...) DriverPtr(new CpuDriver(__VA_ARGS__))
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_DRIVERS_CPU_CPU_DRIVER_H__
+#endif // HWPP_DRIVERS_CPU_CPU_DRIVER_H__

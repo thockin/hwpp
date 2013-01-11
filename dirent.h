@@ -1,11 +1,11 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_DIRENT_H__
-#define PP_DIRENT_H__
+#ifndef HWPP_DIRENT_H__
+#define HWPP_DIRENT_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include <ostream>
 
-namespace pp {
+namespace hwpp {
 
 // The specific type of a dirent.
 typedef enum {
@@ -112,6 +112,6 @@ class Dirent
 typedef boost::shared_ptr<Dirent> DirentPtr;
 typedef boost::shared_ptr<const Dirent> ConstDirentPtr;
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_DIRENT_H__
+#endif // HWPP_DIRENT_H__

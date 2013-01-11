@@ -1,9 +1,9 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "drivers/mem/mem_driver.h"
 #include "drivers/mem/mem_binding.h"
 #include "util/test.h"
 
-namespace pp {
+namespace hwpp {
 
 TEST(test_mem_io)
 {
@@ -67,4 +67,4 @@ TEST(test_mem_io)
 	system("rm -rf test_data");
 }
 
-}  // namespace pp
+}  // namespace hwpp

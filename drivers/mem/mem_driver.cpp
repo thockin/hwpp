@@ -1,9 +1,9 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "datatype_types.h"
 #include "mem_driver.h"
 #include "mem_binding.h"
 
-namespace pp { 
+namespace hwpp { 
 
 // this forces linkage and avoids the static initialization order fiasco
 Driver *
@@ -49,4 +49,4 @@ MemDriver::new_binding(const std::vector<Value> &args) const
 	return new_mem_binding(MemAddress(base.as_uint(), size.as_uint()));
 }
 
-}  // namespace pp
+}  // namespace hwpp

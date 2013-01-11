@@ -1,11 +1,11 @@
-#ifndef PP_DRIVERS_H__
-#define PP_DRIVERS_H__
+#ifndef HWPP_DRIVERS_H__
+#define HWPP_DRIVERS_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include "driver.h"
 #include "runtime.h"
 
-namespace pp {
+namespace hwpp {
 
 extern void
 register_driver(Driver *driver);
@@ -27,6 +27,6 @@ do_discovery()
 	do_discovery("");
 }
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_DRIVERS_H__
+#endif // HWPP_DRIVERS_H__

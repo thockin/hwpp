@@ -1,12 +1,12 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_DRIVER_H__
-#define PP_DRIVER_H__
+#ifndef HWPP_DRIVER_H__
+#define HWPP_DRIVER_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include "binding.h"
 #include "scope.h"
 
-namespace pp {
+namespace hwpp {
 
 //
 // Driver - abstract base class for driver plugins.
@@ -106,6 +106,6 @@ class Driver
 };
 typedef boost::shared_ptr<Driver> DriverPtr;
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_DRIVER_H__
+#endif // HWPP_DRIVER_H__

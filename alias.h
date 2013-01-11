@@ -1,12 +1,12 @@
 /* Copyright (c) Tim Hockin, 2008 */
-#ifndef PP_ALIAS_H__
-#define PP_ALIAS_H__
+#ifndef HWPP_ALIAS_H__
+#define HWPP_ALIAS_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include "dirent.h"
 #include "path.h"
 
-namespace pp {
+namespace hwpp {
 
 /*
  * Alias - a symbolic link to a dirent.
@@ -31,7 +31,7 @@ class Alias: public Dirent
 typedef boost::shared_ptr<Alias> AliasPtr;
 typedef boost::shared_ptr<const Alias> ConstAliasPtr;
 
-#define new_pp_alias(...) ::pp::AliasPtr(new ::pp::Alias(__VA_ARGS__))
+#define new_hwpp_alias(...) ::hwpp::AliasPtr(new ::hwpp::Alias(__VA_ARGS__))
 
 // const
 inline ConstAliasPtr
@@ -51,6 +51,6 @@ alias_from_dirent(const DirentPtr &dirent)
 	       alias_from_dirent(const_dirent));
 }
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_ALIAS_H__
+#endif // HWPP_ALIAS_H__

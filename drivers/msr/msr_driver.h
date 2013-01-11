@@ -1,12 +1,12 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_DRIVERS_MSR_MSR_DRIVER_H__
-#define PP_DRIVERS_MSR_MSR_DRIVER_H__
+#ifndef HWPP_DRIVERS_MSR_MSR_DRIVER_H__
+#define HWPP_DRIVERS_MSR_MSR_DRIVER_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include "driver.h"
 #include "msr_binding.h"
 
-namespace pp { 
+namespace hwpp { 
 
 /*
  * MsrDriver - MSR driver plugin.
@@ -38,6 +38,6 @@ class MsrDriver: public Driver
 
 #define new_msr_driver(...) DriverPtr(new MsrDriver(__VA_ARGS__))
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_DRIVERS_MSR_MSR_DRIVER_H__
+#endif // HWPP_DRIVERS_MSR_MSR_DRIVER_H__

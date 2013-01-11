@@ -1,9 +1,9 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "util/printfxx.h"
 #include "binding.h"
 #include "register_types.h"
 
-namespace pp {
+namespace hwpp {
 
 /*
  * A magic binding which always reads a certain value.
@@ -54,4 +54,4 @@ ConstRegisterPtr magic_ones(new BoundRegister(
 		BindingPtr(new ConstantValueBinding(MASK(BIT_WIDTH_MAX))),
 		0x0, BIT_WIDTH_MAX));
 
-}  // namespace pp
+}  // namespace hwpp

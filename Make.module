@@ -30,5 +30,5 @@ tests/field_test: runtime.o path.o
 tests/scope_test: scope.o path.o
 tests/array_test:
 tests/alias_test: path.o
-tests/fake_language_test: fake_language.o libpp.a
+tests/fake_language_test: fake_language.o libhwpp.a
 tests/magic_regs_test: magic_regs.o

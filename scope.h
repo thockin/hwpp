@@ -1,8 +1,8 @@
 // Copyright (c) Tim Hockin, 2007
-#ifndef PP_SCOPE_H__
-#define PP_SCOPE_H__
+#ifndef HWPP_SCOPE_H__
+#define HWPP_SCOPE_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include <stdexcept>
 #include <map>
 #include "path.h"
@@ -15,7 +15,7 @@
 #include "array.h"
 #include <boost/enable_shared_from_this.hpp>
 
-namespace pp {
+namespace hwpp {
 
 //
 // Scope - a lexical scope.
@@ -80,7 +80,7 @@ class Scope: public Dirent, public boost::enable_shared_from_this<Scope>
 	// Add a named datatype to this scope.
 	//
 	// Throws:
-	// 	pp_parse_error		- invalid name
+	// 	hwpp_parse_error		- invalid name
 	//
 	//
 	void
@@ -220,7 +220,7 @@ class Scope: public Dirent, public boost::enable_shared_from_this<Scope>
 	          ConstDirentPtr *out_de, Path *out_path) const;
 };
 
-#define new_pp_scope(...) ::pp::ScopePtr(new ::pp::Scope(__VA_ARGS__))
+#define new_hwpp_scope(...) ::hwpp::ScopePtr(new ::hwpp::Scope(__VA_ARGS__))
 
 // const
 inline ConstScopePtr
@@ -239,6 +239,6 @@ scope_from_dirent(const DirentPtr &dirent)
 	return const_pointer_cast<Scope>(scope_from_dirent(const_dirent));
 }
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_SCOPE_H__
+#endif // HWPP_SCOPE_H__

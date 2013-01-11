@@ -1,6 +1,6 @@
 /* Copyright (c) Tim Hockin, 2008 */
-#ifndef PP_UTIL_SIMPLE_REGEX_H__
-#define PP_UTIL_SIMPLE_REGEX_H__
+#ifndef HWPP_UTIL_SIMPLE_REGEX_H__
+#define HWPP_UTIL_SIMPLE_REGEX_H__
 
 #include <stdexcept>
 #include <sys/types.h>
@@ -163,4 +163,4 @@ class SimpleRegex
 
 } // namespace util
 
-#endif // PP_UTIL_SIMPLE_REGEX_H__
+#endif // HWPP_UTIL_SIMPLE_REGEX_H__

@@ -11,14 +11,14 @@ SPACE			[ \t\n\v\f\r]
 /* Enable start condition stacks. */
 %option stack
 /* Define a prefix that should make this code hard to collide with. */
-%option prefix="pp__language__internal__"
+%option prefix="hwpp__language__internal__"
 /* This is intended to be used with bison. */
 %option bison-bridge
 /* Remarks in the flex 'info' page and the generated code have scared me away
  * from using the C++ scanner option. */
 %option reentrant
 /* Keep extra state for the lexer. */
-%option extra-type="pp::language::Lexer::ExtraState *"
+%option extra-type="hwpp::language::Lexer::ExtraState *"
 
 %{
 
@@ -26,14 +26,14 @@ SPACE			[ \t\n\v\f\r]
 #include <stdio.h>
 #include <stdexcept>
 #include <string>
-#include "pp.h"
+#include "hwpp.h"
 #include "language/language.h"
 #include "language/syntax_tree.h"
 #include "language/auto.yacc.h"
 #include "util/printfxx.h"
 
-using namespace pp;
-using namespace pp::language;
+using namespace hwpp;
+using namespace hwpp::language;
 
 static void dump(yyscan_t scanner);
 static int int_literal(yyscan_t scanner);
@@ -41,10 +41,10 @@ static int string_literal(yyscan_t scanner);
 static int bool_literal(yyscan_t scanner);
 static int identifier(yyscan_t scanner);
 
-void pp__language__internal__push_lexer_state(int new_state, yyscan_t scanner);
-void pp__language__internal__pop_lexer_state(yyscan_t scanner);
-#define push_state pp__language__internal__push_lexer_state
-#define pop_state pp__language__internal__pop_lexer_state
+void hwpp__language__internal__push_lexer_state(int new_state, yyscan_t scanner);
+void hwpp__language__internal__pop_lexer_state(yyscan_t scanner);
+#define push_state hwpp__language__internal__push_lexer_state
+#define pop_state hwpp__language__internal__pop_lexer_state
 
 %}
 
@@ -507,14 +507,14 @@ identifier(yyscan_t scanner)
 // right-shift.  When parsing template-args right-shift does not apply, but
 // ">>" can mean the end of a nested template-arg declaration.
 void
-pp__language__internal__push_lexer_state(int new_state, yyscan_t scanner)
+hwpp__language__internal__push_lexer_state(int new_state, yyscan_t scanner)
 {
 	//struct yyguts_t *yyg = (struct yyguts_t*)scanner;
 	//printf("DBG: PUSH %d -> %d\n", YY_START, new_state);
 	yy_push_state(new_state, scanner);
 }
 void
-pp__language__internal__pop_lexer_state(yyscan_t scanner)
+hwpp__language__internal__pop_lexer_state(yyscan_t scanner)
 {
 	yy_pop_state(scanner);
 	//struct yyguts_t *yyg = (struct yyguts_t*)scanner;

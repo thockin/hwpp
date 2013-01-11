@@ -4,7 +4,7 @@
 #define STRINGIFY(x) STRINGIFY2(x)
 #define STRINGIFY2(x) #x
 
-namespace pp {
+namespace hwpp {
 
 // version constants
 const uint8_t  ver_major = PRJ_VER_MAJOR;
@@ -18,4 +18,4 @@ const char *version_string = STRINGIFY(PRJ_VER_MAJOR) "."
 #undef STRINGIFY
 #undef STRINGIFY2
 
-}  // namespace pp
+}  // namespace hwpp

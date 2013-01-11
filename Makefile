@@ -1,12 +1,12 @@
 TOPDIR := $(shell pwd)
-include pp.mk
+include HWPP.mk
 
 # These variables get added to by modules.
 SRCS :=
 OBJS = $(SRCS:.cpp=.o)  # This is intentionally not a := variable.
 BINS :=
 TESTS :=
-CLEANS := libpp.a
+CLEANS := libhwpp.a
 DISTCLEANS :=
 
 # This is a private helper for IMPORT_MODULE.
@@ -26,11 +26,11 @@ $(call IMPORT_MODULE, util)
 
 all: $(BINS) $(TESTS)
 
-$(BINS): %: %.o libpp.a
+$(BINS): %: %.o libhwpp.a
 $(TESTS): %: %.o
 CLEANS += $(BINS) $(BINS:=.o) $(TESTS) $(TESTS:=.o)
 
-libpp.a: $(OBJS)
+libhwpp.a: $(OBJS)
 	$(RM) $@
 	ar rcs $@ $^
 	ranlib $@

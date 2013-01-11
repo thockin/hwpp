@@ -4,14 +4,14 @@
 #include "language/language.h"
 #include "language/parsed_file.h"
 
-namespace pp_lang = pp::language;
+namespace hwpp_lang = hwpp::language;
 
 int
 main(void)
 {
-	pp_lang::Environment env;
+	hwpp_lang::Environment env;
 
-	const pp_lang::ParsedFile *parsed_file = env.parse_file("/dev/stdin");
+	const hwpp_lang::ParsedFile *parsed_file = env.parse_file("/dev/stdin");
 	printf("%zd top-level statements\n", parsed_file->n_statements());
 	printf("%zd top-level symbols\n", parsed_file->n_symbols());
 

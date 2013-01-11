@@ -1,13 +1,13 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_DRIVERS_CPUID_CPUID_BINDING_H__
-#define PP_DRIVERS_CPUID_CPUID_BINDING_H__
+#ifndef HWPP_DRIVERS_CPUID_CPUID_BINDING_H__
+#define HWPP_DRIVERS_CPUID_CPUID_BINDING_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include "binding.h"
 #include "driver.h"
 #include <iostream>
 
-namespace pp { 
+namespace hwpp { 
 
 /*
  * CpuidAddress
@@ -74,6 +74,6 @@ typedef SimpleBinding<CpuidIo, CpuidAddress> CpuidBinding;
 
 #define new_cpuid_binding(...) BindingPtr(new CpuidBinding(__VA_ARGS__))
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_DRIVERS_CPUID_CPUID_BINDING_H__
+#endif // HWPP_DRIVERS_CPUID_CPUID_BINDING_H__

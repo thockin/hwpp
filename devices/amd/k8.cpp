@@ -9,13 +9,13 @@
 // Tim Hockin
 // May, 2008
 
-#include "pp.h"
+#include "hwpp.h"
 #include "fake_language.h"
 #include "devices/pci/generic_device.h"
 #include "devices/cpuid/generic_device.h"
 #include "devices/msr/generic_device.h"
 
-namespace pp {
+namespace hwpp {
 namespace device {
 
 static void
@@ -3221,4 +3221,4 @@ class K8Discovery
 static K8Discovery the_k8_discovery;
 
 }  // namespace device
-}  // namespace pp
+}  // namespace hwpp

@@ -1,19 +1,19 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "binding.h"
 #include "test_binding.h"
 #include "util/test.h"
 
-TEST(test_pp_binding)
+TEST(test_hwpp_binding)
 {
 	/* test the read() method */
-	pp::BindingPtr sp = new_test_binding();
-	if (sp->read(0, pp::BITS8) != 0xff) {
-		TEST_FAIL("pp::Binding::read()");
+	hwpp::BindingPtr sp = new_test_binding();
+	if (sp->read(0, hwpp::BITS8) != 0xff) {
+		TEST_FAIL("hwpp::Binding::read()");
 	}
 
 	/* test the write() method */
-	sp->write(0, pp::BITS8, 0x11);
-	if (sp->read(0, pp::BITS16) != 0xff11) {
-		TEST_FAIL("pp::Binding::write()");
+	sp->write(0, hwpp::BITS8, 0x11);
+	if (sp->read(0, hwpp::BITS16) != 0xff11) {
+		TEST_FAIL("hwpp::Binding::write()");
 	}
 }

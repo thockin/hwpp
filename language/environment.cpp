@@ -5,7 +5,7 @@
 #include "language/parsed_file.h"
 #include "util/string_file.h"
 
-namespace pp {
+namespace hwpp {
 namespace language {
 
 Environment::~Environment()
@@ -99,6 +99,6 @@ Environment::lookup_module(const string &name)
 }
 
 }  // namespace language
-}  // namespace pp
+}  // namespace hwpp
 
 // vim: set ai tabstop=4 shiftwidth=4 noexpandtab:

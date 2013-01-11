@@ -7,11 +7,11 @@
 #include <vector>
 #include <exception>
 
-#include "pp.h"
+#include "hwpp.h"
 #include "driver.h"
 #include "util/filesystem.h"
 
-namespace pp {
+namespace hwpp {
 
 // this is a map of driver name to Driver pointer
 typedef std::map<string, Driver *> DriverMap;
@@ -69,7 +69,7 @@ extern int force_devices_linkage;
 void
 init_devices()
 {
-	pp::device::force_devices_linkage = 1;
+	hwpp::device::force_devices_linkage = 1;
 }
 
 //
@@ -103,4 +103,4 @@ do_discovery(const string &driver_name)
 	}
 }
 
-}  // namespace pp
+}  // namespace hwpp

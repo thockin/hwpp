@@ -1,15 +1,15 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_DATATYPES_H__
-#define PP_DATATYPES_H__
+#ifndef HWPP_DATATYPES_H__
+#define HWPP_DATATYPES_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include "util/printfxx.h"
 #include "datatype.h"
 #include "util/keyed_vector.h"
 #include "language.h"
 #include "util/bit_buffer.h"
 
-namespace pp {
+namespace hwpp {
 
 /*
  * MultiDatatype - datatype for combining multiple subtypes based
@@ -20,19 +20,19 @@ namespace pp {
 class MultiDatatype: public Datatype
 {
     private:
-	struct pp_multi_range
+	struct hwpp_multi_range
 	{
-		pp_multi_range(const ConstDatatypePtr &datatype,
+		hwpp_multi_range(const ConstDatatypePtr &datatype,
 		               Value min, Value max)
 		    : type(datatype), low(min), high(max) {}
 		ConstDatatypePtr type;
 		Value low;
 		Value high;
 	};
-	std::vector<pp_multi_range> m_parts;
+	std::vector<hwpp_multi_range> m_parts;
 
 	static bool
-	val_in_range(const Value &value, const pp_multi_range &range) {
+	val_in_range(const Value &value, const hwpp_multi_range &range) {
 		return ((value >= range.low) && (value <= range.high));
 	}
 
@@ -113,14 +113,14 @@ class MultiDatatype: public Datatype
 	}
 
 	/*
-	 * MultiDatatype::add_range(pp_multi_range)
+	 * MultiDatatype::add_range(hwpp_multi_range)
 	 * MultiDatatype::add_range(datatype, min, max)
 	 *
 	 * Add a new range->datatype mapping to this multi datatype.
 	 *
 	 */
 	void
-	add_range(const pp_multi_range &range)
+	add_range(const hwpp_multi_range &range)
 	{
 		add_range(range.type, range.low, range.high);
 	}
@@ -137,17 +137,17 @@ class MultiDatatype: public Datatype
 		// If the vector is empty, we can add it right away
 		if (m_parts.size() == 0) {
 			m_parts.push_back(
-				pp_multi_range(datatype, min, max));
+				hwpp_multi_range(datatype, min, max));
 			return;
 		}
 
 		// See if we can add it in the middle
-		std::vector<pp_multi_range>::iterator iter;
+		std::vector<hwpp_multi_range>::iterator iter;
 		for (iter = m_parts.begin(); iter != m_parts.end(); iter++) {
 			if (min > iter->high) {
 				continue;
 			} else if (max < iter->low) {
-				m_parts.insert(iter, pp_multi_range(
+				m_parts.insert(iter, hwpp_multi_range(
 							datatype, min, max));
 				return;
 			} else {
@@ -158,13 +158,13 @@ class MultiDatatype: public Datatype
 
 		// Range is higher than everything else; add to end
 		m_parts.push_back(
-			pp_multi_range(datatype, min, max));
+			hwpp_multi_range(datatype, min, max));
 	}
 };
 typedef boost::shared_ptr<MultiDatatype> MultiDatatypePtr;
 
-#define new_pp_multi_datatype(...) \
-		::pp::MultiDatatypePtr(new ::pp::MultiDatatype(__VA_ARGS__))
+#define new_hwpp_multi_datatype(...) \
+		::hwpp::MultiDatatypePtr(new ::hwpp::MultiDatatype(__VA_ARGS__))
 
 /*
  * EnumDatatype - datatype for enumerated values.
@@ -274,8 +274,8 @@ class EnumDatatype: public Datatype
 };
 typedef boost::shared_ptr<EnumDatatype> EnumDatatypePtr;
 
-#define new_pp_enum_datatype(...) \
-		::pp::EnumDatatypePtr(new ::pp::EnumDatatype(__VA_ARGS__))
+#define new_hwpp_enum_datatype(...) \
+		::hwpp::EnumDatatypePtr(new ::hwpp::EnumDatatype(__VA_ARGS__))
 
 /*
  * BoolDatatype - datatype for boolean values.
@@ -303,8 +303,8 @@ class BoolDatatype: public EnumDatatype
 };
 typedef boost::shared_ptr<BoolDatatype> BoolDatatypePtr;
 
-#define new_pp_bool_datatype(...) \
-		::pp::BoolDatatypePtr(new ::pp::BoolDatatype(__VA_ARGS__))
+#define new_hwpp_bool_datatype(...) \
+		::hwpp::BoolDatatypePtr(new ::hwpp::BoolDatatype(__VA_ARGS__))
 
 /*
  * BitmaskDatatype - datatype for bitmasks.
@@ -419,8 +419,8 @@ class BitmaskDatatype: public Datatype
 };
 typedef boost::shared_ptr<BitmaskDatatype> BitmaskDatatypePtr;
 
-#define new_pp_bitmask_datatype(...) \
-		::pp::BitmaskDatatypePtr(new ::pp::BitmaskDatatype(__VA_ARGS__))
+#define new_hwpp_bitmask_datatype(...) \
+		::hwpp::BitmaskDatatypePtr(new ::hwpp::BitmaskDatatype(__VA_ARGS__))
 
 /*
  * StringDatatype - datatype for string values
@@ -482,8 +482,8 @@ class StringDatatype: public Datatype
 };
 typedef boost::shared_ptr<StringDatatype> StringDatatypePtr;
 
-#define new_pp_string_datatype(...) \
-		::pp::StringDatatypePtr(new ::pp::StringDatatype(__VA_ARGS__))
+#define new_hwpp_string_datatype(...) \
+		::hwpp::StringDatatypePtr(new ::hwpp::StringDatatype(__VA_ARGS__))
 
 /*
  * IntDatatype - datatype for signed integer values.
@@ -546,8 +546,8 @@ class IntDatatype: public Datatype
 };
 typedef boost::shared_ptr<IntDatatype> IntDatatypePtr;
 
-#define new_pp_int_datatype(...) \
-		::pp::IntDatatypePtr(new ::pp::IntDatatype(__VA_ARGS__))
+#define new_hwpp_int_datatype(...) \
+		::hwpp::IntDatatypePtr(new ::hwpp::IntDatatype(__VA_ARGS__))
 
 /*
  * HexDatatype - datatype for hexadecimal values.
@@ -588,8 +588,8 @@ class HexDatatype: public IntDatatype
 };
 typedef boost::shared_ptr<HexDatatype> HexDatatypePtr;
 
-#define new_pp_hex_datatype(...) \
-		::pp::HexDatatypePtr(new ::pp::HexDatatype(__VA_ARGS__))
+#define new_hwpp_hex_datatype(...) \
+		::hwpp::HexDatatypePtr(new ::hwpp::HexDatatype(__VA_ARGS__))
 
 /*
  * TransformDatatype - datatype wrapper to perform a transform on data
@@ -653,11 +653,11 @@ typedef boost::shared_ptr<Datatype> TransformDatatypePtr;
 // happens on functions, not classes.
 template<typename Tdefunc, typename Tenfunc>
 TransformDatatypePtr
-new_pp_transform_datatype(const ConstDatatypePtr &real_type,
+new_hwpp_transform_datatype(const ConstDatatypePtr &real_type,
     const Tdefunc &decode_func, const Tenfunc &encode_func)
 {
 	return TransformDatatypePtr(
-	    new ::pp::TransformDatatype<Tdefunc, Tenfunc>(real_type,
+	    new ::hwpp::TransformDatatype<Tdefunc, Tenfunc>(real_type,
 	        decode_func, encode_func));
 }
 
@@ -733,9 +733,9 @@ class FixedDatatype: public Datatype
 };
 typedef boost::shared_ptr<FixedDatatype> FixedDatatypePtr;
 
-#define new_pp_fixed_datatype(...) \
-		::pp::FixedDatatypePtr(new ::pp::FixedDatatype(__VA_ARGS__))
+#define new_hwpp_fixed_datatype(...) \
+		::hwpp::FixedDatatypePtr(new ::hwpp::FixedDatatype(__VA_ARGS__))
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_DATATYPES_H__
+#endif // HWPP_DATATYPES_H__

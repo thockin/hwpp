@@ -1,8 +1,8 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "drivers/cpu/cpu_driver.h"
 #include "util/test.h"
 
-namespace pp {
+namespace hwpp {
 
 TEST(test_enumerate)
 {
@@ -91,4 +91,4 @@ TEST(test_enumerate)
 	}
 }
 
-}  // namespace pp
+}  // namespace hwpp

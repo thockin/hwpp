@@ -1,15 +1,15 @@
-MODULE_BINS := examples/pp_discover \
-               examples/pp_pci \
-               examples/pp_read \
-               examples/pp_fuse \
-               examples/pp_server \
-               examples/pp_client
+MODULE_BINS := examples/hwpp_discover \
+               examples/hwpp_pci \
+               examples/hwpp_read \
+               examples/hwpp_fuse \
+               examples/hwpp_server \
+               examples/hwpp_client
 
 BINS += $(MODULE_BINS)
 CLEANS += examples/cmdline.o
 
 $(MODULE_BINS): examples/cmdline.o
 
-examples/pp_fuse: TGT_LDLIBS_STATIC += -lfuse
-examples/pp_fuse: TGT_LDLIBS_DYNAMIC += -lpthread -ldl -lrt
+examples/hwpp_fuse: TGT_LDLIBS_STATIC += -lfuse
+examples/hwpp_fuse: TGT_LDLIBS_DYNAMIC += -lpthread -ldl -lrt
 

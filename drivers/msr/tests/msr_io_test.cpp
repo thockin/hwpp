@@ -1,4 +1,4 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "drivers/msr/msr_driver.h"
 #include "drivers/msr/msr_binding.h"
 #include "util/test.h"
@@ -9,7 +9,7 @@
 #define ZERO_MAJOR	1
 #define ZERO_MINOR	5
 
-namespace pp {
+namespace hwpp {
 
 TEST(test_msr_io)
 {
@@ -64,4 +64,4 @@ TEST(test_msr_io)
 	system("rm -rf test_data");
 }
 
-}  // namespace pp
+}  // namespace hwpp

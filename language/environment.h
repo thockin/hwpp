@@ -1,5 +1,5 @@
-#ifndef PP_LANGUAGE_ENVIRONMENT_H__
-#define PP_LANGUAGE_ENVIRONMENT_H__
+#ifndef HWPP_LANGUAGE_ENVIRONMENT_H__
+#define HWPP_LANGUAGE_ENVIRONMENT_H__
 
 // The grammar.l and grammar.y files include this header, which will screw
 // them up if they include their own auto-generated headers, so don't include
@@ -11,7 +11,7 @@
 #include "language/language.h"
 #include "util/symbol_table.h"
 
-namespace pp {
+namespace hwpp {
 namespace language {
 
 // Forward declarations.
@@ -152,8 +152,8 @@ class Environment {
 };
 
 }  // namespace language
-}  // namespace pp
+}  // namespace hwpp
 
-#endif  // PP_LANGUAGE_ENVIRONMENT_H__
+#endif  // HWPP_LANGUAGE_ENVIRONMENT_H__
 
 // vim: set ai tabstop=4 shiftwidth=4 noexpandtab:

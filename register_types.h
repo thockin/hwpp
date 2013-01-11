@@ -1,15 +1,15 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_REGISTER_TYPES_H__
-#define PP_REGISTER_TYPES_H__
+#ifndef HWPP_REGISTER_TYPES_H__
+#define HWPP_REGISTER_TYPES_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include "register.h"
 #include "binding.h"
 #include "rwprocs.h"
 #include "context.h"
 #include "runtime.h"
 
-namespace pp {
+namespace hwpp {
 
 /*
  * BoundRegister - a register definition.
@@ -61,8 +61,8 @@ class BoundRegister: public Register
 	}
 };
 
-#define new_pp_bound_register(...) \
-		::pp::RegisterPtr(new ::pp::BoundRegister(__VA_ARGS__))
+#define new_hwpp_bound_register(...) \
+		::hwpp::RegisterPtr(new ::hwpp::BoundRegister(__VA_ARGS__))
 
 /*
  * ProcRegister - a procedure-register definition.
@@ -122,9 +122,9 @@ class ProcRegister: public Register
 	}
 };
 
-#define new_pp_proc_register(...) \
-		::pp::RegisterPtr(new ::pp::ProcRegister(__VA_ARGS__))
+#define new_hwpp_proc_register(...) \
+		::hwpp::RegisterPtr(new ::hwpp::ProcRegister(__VA_ARGS__))
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_REGISTER_TYPES_H__
+#endif // HWPP_REGISTER_TYPES_H__
