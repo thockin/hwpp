@@ -1,12 +1,12 @@
 /* Copyright (c) Tim Hockin, 2008 */
-#ifndef PP_LANGUAGE_H__
-#define PP_LANGUAGE_H__
+#ifndef HWPP_LANGUAGE_H__
+#define HWPP_LANGUAGE_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include <exception>
 #include <ostream>
 
-namespace pp {
+namespace hwpp {
 
 class ParseLocation
 {
@@ -40,7 +40,7 @@ operator<<(std::ostream& o, const ParseLocation &loc)
 {
 	return o << loc.file() << ":" << loc.line();
 }
-#define THIS_LOCATION  ::pp::ParseLocation(__FILE__, __LINE__)
+#define THIS_LOCATION  ::hwpp::ParseLocation(__FILE__, __LINE__)
 
 class ParseError: public std::exception
 {
@@ -96,6 +96,6 @@ lang_valid_datatype_name(const string &name);
 extern bool
 lang_valid_bookmark_name(const string &name);
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_LANGUAGE_H__
+#endif // HWPP_LANGUAGE_H__

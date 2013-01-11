@@ -1,8 +1,8 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "devices/msr/generic_device.h"
 #include "fake_language.h"
 
-namespace pp {
+namespace hwpp {
 namespace device {
 
 // populate the current scope with generic MSR device fields
@@ -305,4 +305,4 @@ MSR_SCOPE(const string &name, const Value &cpu)
 }
 
 }  // namespace device
-}  // namespace pp
+}  // namespace hwpp

@@ -1,9 +1,9 @@
 #include "language/variable.h"
-#include "pp.h"
+#include "hwpp.h"
 #include <string>
 #include <boost/smart_ptr.hpp>
 
-namespace pp {
+namespace hwpp {
 namespace language {
 
 Variable::Datum::Datum(const Type &type) : m_type(type), m_type_locked(true)
@@ -208,6 +208,6 @@ Variable::Datum::check_type_primitive(Type::Primitive primitive) const
 }
 
 }  // namespace language
-}  // namespace pp
+}  // namespace hwpp
 
 // vim: set ai tabstop=4 shiftwidth=4 noexpandtab:

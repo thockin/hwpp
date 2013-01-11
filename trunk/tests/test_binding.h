@@ -1,34 +1,34 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_TESTS_TEST_BINDING_H__
-#define PP_TESTS_TEST_BINDING_H__
+#ifndef HWPP_TESTS_TEST_BINDING_H__
+#define HWPP_TESTS_TEST_BINDING_H__
 
 #include "binding.h"
 #include "driver.h"
-#include "pp.h"
+#include "hwpp.h"
 #
 /* define a test binding */
-class TestBinding: public pp::Binding
+class TestBinding: public hwpp::Binding
 {
     public:
-	explicit TestBinding(): m_data(pp::MASK(pp::BIT_WIDTH_MAX)) {}
+	explicit TestBinding(): m_data(hwpp::MASK(hwpp::BIT_WIDTH_MAX)) {}
 	virtual ~TestBinding() {}
 
-	virtual pp::Value
-	read(const pp::Value &address, const pp::BitWidth width) const
+	virtual hwpp::Value
+	read(const hwpp::Value &address, const hwpp::BitWidth width) const
 	{
 		if (address == 0x12345678)
-			throw pp::Driver::IoError("test binding read");
-		return (m_data & pp::MASK(width));
+			throw hwpp::Driver::IoError("test binding read");
+		return (m_data & hwpp::MASK(width));
 	}
 
 	virtual void
-	write(const pp::Value &address, const pp::BitWidth width,
-	    const pp::Value &value) const
+	write(const hwpp::Value &address, const hwpp::BitWidth width,
+	    const hwpp::Value &value) const
 	{
 		if (address == 0x12345678)
-			throw pp::Driver::IoError("test binding write");
-		m_data ^= (m_data & pp::MASK(width));
-		m_data |= value & pp::MASK(width);
+			throw hwpp::Driver::IoError("test binding write");
+		m_data ^= (m_data & hwpp::MASK(width));
+		m_data |= value & hwpp::MASK(width);
 	}
 
 	virtual string
@@ -38,9 +38,9 @@ class TestBinding: public pp::Binding
 	}
 
     private:
-	mutable pp::Value m_data;
+	mutable hwpp::Value m_data;
 };
 
-#define new_test_binding(...) pp::BindingPtr(new TestBinding(__VA_ARGS__))
+#define new_test_binding(...) hwpp::BindingPtr(new TestBinding(__VA_ARGS__))
 
-#endif // PP_TESTS_TEST_BINDING_H__
+#endif // HWPP_TESTS_TEST_BINDING_H__

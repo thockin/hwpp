@@ -2,7 +2,7 @@
  * Copyright 2007 Google Inc. All Rights Reserved.
  */
 
-#include "pp.h"
+#include "hwpp.h"
 #include "util/printfxx.h"
 #include "fake_language.h"
 #include "language.h"
@@ -19,7 +19,7 @@
 
 #include <stdexcept>
 
-namespace pp {
+namespace hwpp {
 
 //
 // Resolve a path to a dirent, relative to the current scope.
@@ -220,14 +220,14 @@ fkl_open_scope(const ParseLocation &loc,
 		}
 
 		// make a new scope and link it into the tree
-		ScopePtr scope_ptr = new_pp_scope(binding);
+		ScopePtr scope_ptr = new_hwpp_scope(binding);
 		scope_ptr->set_parent(global_runtime()->current_context()->scope());
 
 		// add the new scope to the parent
 		global_runtime()->current_context()->add_dirent(elem, scope_ptr);
 
 		// save the current scope, and set the new scope
-		global_runtime()->context_push(new_pp_context(elem, scope_ptr));
+		global_runtime()->context_push(new_hwpp_context(elem, scope_ptr));
 	} catch (Path::InvalidError &e) {
 		throw ParseError(e.what(), loc);
 	}
@@ -304,7 +304,7 @@ fkl_reg(const ParseLocation &loc,
 			WARN(sprintfxx("%s: '%s' redefined", loc, name));
 		}
 
-		RegisterPtr reg_ptr = new_pp_bound_register(
+		RegisterPtr reg_ptr = new_hwpp_bound_register(
 				binding, address, width);
 		global_runtime()->current_context()->add_dirent(elem, reg_ptr);
 		return reg_ptr;
@@ -328,7 +328,7 @@ fkl_reg(const ParseLocation &loc,
         BitWidth width)
 {
 	(void)loc;
-	return new_pp_bound_register(binding, address, width);
+	return new_hwpp_bound_register(binding, address, width);
 }
 
 
@@ -356,7 +356,7 @@ fkl_reg(const ParseLocation &loc,
 		}
 
 		RegisterPtr reg_ptr
-		    = new_pp_proc_register(access, width, global_runtime());
+		    = new_hwpp_proc_register(access, width, global_runtime());
 		global_runtime()->current_context()->add_dirent(elem, reg_ptr);
 		return reg_ptr;
 	} catch (Path::InvalidError &e) {
@@ -367,7 +367,7 @@ RegisterPtr
 fkl_reg(const ParseLocation &loc, const RwProcsPtr &access, BitWidth width)
 {
 	(void)loc;
-	return new_pp_proc_register(access, width, global_runtime());
+	return new_hwpp_proc_register(access, width, global_runtime());
 }
 
 //
@@ -450,7 +450,7 @@ fkl_field(const ParseLocation &loc,
 		}
 
 		// create a field and add it to the current scope
-		DirectFieldPtr field_ptr = new_pp_direct_field(type, bits);
+		DirectFieldPtr field_ptr = new_hwpp_direct_field(type, bits);
 		global_runtime()->current_context()->add_dirent(elem, field_ptr);
 		return field_ptr;
 	} catch (Path::InvalidError &e) {
@@ -494,7 +494,7 @@ fkl_field(const ParseLocation &loc,
 		}
 
 		// create a field and add it to the current scope
-		ConstantFieldPtr field_ptr = new_pp_constant_field(type, value);
+		ConstantFieldPtr field_ptr = new_hwpp_constant_field(type, value);
 		global_runtime()->current_context()->add_dirent(elem, field_ptr);
 		return field_ptr;
 	} catch (Path::InvalidError &e) {
@@ -537,7 +537,7 @@ fkl_field(const ParseLocation &loc,
 		}
 
 		// create a field and add it to the current scope
-		ProcFieldPtr field_ptr = new_pp_proc_field(type, access);
+		ProcFieldPtr field_ptr = new_hwpp_proc_field(type, access);
 		global_runtime()->current_context()->add_dirent(elem, field_ptr);
 		return field_ptr;
 	} catch (Path::InvalidError &e) {
@@ -577,7 +577,7 @@ fkl_alias(const ParseLocation &loc, const string &name, const string &target)
 		if (!path.is_initialized()) {
 			throw Path::NotFoundError(target);
 		}
-		AliasPtr alias_ptr = new_pp_alias(path);
+		AliasPtr alias_ptr = new_hwpp_alias(path);
 		global_runtime()->current_context()->add_dirent(elem, alias_ptr);
 		return alias_ptr;
 	} catch (Path::InvalidError &e) {
@@ -605,7 +605,7 @@ fkl_int(const ParseLocation &loc, const string &name, const string &units)
 	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 		"current_context is read-only");
 
-	IntDatatypePtr int_ptr = new_pp_int_datatype(units);
+	IntDatatypePtr int_ptr = new_hwpp_int_datatype(units);
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
 		global_runtime()->current_context()->add_datatype(name, int_ptr);
@@ -625,7 +625,7 @@ fkl_hex(const ParseLocation &loc,
 	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 		"current_context is read-only");
 
-	HexDatatypePtr hex_ptr = new_pp_hex_datatype(width, units);
+	HexDatatypePtr hex_ptr = new_hwpp_hex_datatype(width, units);
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
 		global_runtime()->current_context()->add_datatype(name, hex_ptr);
@@ -645,7 +645,7 @@ fkl_bitmask(const ParseLocation &loc,
 	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 		"current_context is read-only");
 
-	BitmaskDatatypePtr bitmask_ptr = new_pp_bitmask_datatype(kvlist);
+	BitmaskDatatypePtr bitmask_ptr = new_hwpp_bitmask_datatype(kvlist);
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
 		global_runtime()->current_context()->add_datatype(name, bitmask_ptr);
@@ -664,7 +664,7 @@ fkl_string(const ParseLocation &loc, const string &name)
 	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 		"current_context is read-only");
 
-	StringDatatypePtr string_ptr = new_pp_string_datatype();
+	StringDatatypePtr string_ptr = new_hwpp_string_datatype();
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
 		global_runtime()->current_context()->add_datatype(name, string_ptr);
@@ -684,7 +684,7 @@ fkl_enum(const ParseLocation &loc,
 	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 		"current_context is read-only");
 
-	EnumDatatypePtr enum_ptr = new_pp_enum_datatype(kvlist);
+	EnumDatatypePtr enum_ptr = new_hwpp_enum_datatype(kvlist);
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
 		global_runtime()->current_context()->add_datatype(name, enum_ptr);
@@ -704,7 +704,7 @@ fkl_multi(const ParseLocation &loc,
 	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 		"current_context is read-only");
 
-	MultiDatatypePtr multi_ptr = new_pp_multi_datatype();
+	MultiDatatypePtr multi_ptr = new_hwpp_multi_datatype();
 	for (size_t i = 0; i < rangelist.size(); i++) {
 		multi_ptr->add_range(rangelist[i].type,
 				rangelist[i].low, rangelist[i].high);
@@ -728,7 +728,7 @@ fkl_bool(const ParseLocation &loc,
 	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 		"current_context is read-only");
 
-	BoolDatatypePtr bool_ptr = new_pp_bool_datatype(
+	BoolDatatypePtr bool_ptr = new_hwpp_bool_datatype(
 			true_str, false_str);
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
@@ -749,7 +749,7 @@ fkl_fixed(const ParseLocation &loc,
 	DASSERT_MSG(!global_runtime()->current_context()->is_readonly(),
 		"current_context is read-only");
 
-	FixedDatatypePtr fixed_ptr = new_pp_fixed_datatype(nbits, units);
+	FixedDatatypePtr fixed_ptr = new_hwpp_fixed_datatype(nbits, units);
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
 		global_runtime()->current_context()->add_datatype(name, fixed_ptr);
@@ -757,4 +757,4 @@ fkl_fixed(const ParseLocation &loc,
 	return fixed_ptr;
 }
 
-}  // namespace pp
+}  // namespace hwpp

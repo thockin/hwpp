@@ -1,13 +1,13 @@
-#ifndef PP_DEVICES_CPUID_GENERIC_DEVICE_H__
-#define PP_DEVICES_CPUID_GENERIC_DEVICE_H__
+#ifndef HWPP_DEVICES_CPUID_GENERIC_DEVICE_H__
+#define HWPP_DEVICES_CPUID_GENERIC_DEVICE_H__
 
-namespace pp {
+namespace hwpp {
 namespace device {
 
 extern void
 CPUID_SCOPE(const string &name, const Value &cpu);
 
 }  // namespace device
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_DEVICES_CPUID_GENERIC_DEVICE_H__
+#endif // HWPP_DEVICES_CPUID_GENERIC_DEVICE_H__

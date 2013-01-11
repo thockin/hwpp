@@ -1,10 +1,10 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "util/printfxx.h"
 #include <vector>
 #include "fake_language.h"
 #include "devices/pci/generic_device.h"
 
-namespace pp {
+namespace hwpp {
 namespace device {
 
 void
@@ -175,4 +175,4 @@ class PciDiscovery
 static PciDiscovery the_pci_discovery;
 
 }  // namespace device
-}  // namespace pp
+}  // namespace hwpp

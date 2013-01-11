@@ -1,9 +1,9 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "datatype_types.h"
 #include "msr_driver.h"
 #include "msr_binding.h"
 
-namespace pp { 
+namespace hwpp { 
 
 // this forces linkage and avoids the static initialization order fiasco
 Driver *
@@ -44,4 +44,4 @@ MsrDriver::new_binding(const std::vector<Value> &args) const
 	return new_msr_binding(MsrAddress(cpu.as_uint()));
 }
 
-}  // namespace pp
+}  // namespace hwpp

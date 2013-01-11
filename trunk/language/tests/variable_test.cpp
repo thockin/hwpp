@@ -2,12 +2,12 @@
 
 //FIXME: fix include paths
 #include "language/variable.h"
-#include "pp.h"
+#include "hwpp.h"
 #include "util/test.h"
 
 TEST(test_datum) {
-	using pp::language::Type;
-	using pp::language::Variable;
+	using hwpp::language::Type;
+	using hwpp::language::Variable;
 
 	{
 		Variable::Datum d(Type::INT);
@@ -165,7 +165,7 @@ TEST(test_datum) {
 	}
 
 	{
-		Variable::Datum d1(Type::INT, pp::Value(42));
+		Variable::Datum d1(Type::INT, hwpp::Value(42));
 		Variable::Datum d2(d1);
 		TEST_ASSERT(d1.int_value() == 42);
 		TEST_ASSERT(d2.int_value() == 42);
@@ -187,7 +187,7 @@ TEST(test_datum) {
 
 	{
 		Variable::List *list = new Variable::List();
-		list->append(new Variable(Type::INT, pp::Value(42)));
+		list->append(new Variable(Type::INT, hwpp::Value(42)));
 		Type type(Type::LIST);
 		type.add_argument(Type::INT);
 		Variable::Datum d1(type, list);
@@ -207,7 +207,7 @@ TEST(test_datum) {
 
 	{
 		Variable::Tuple *tuple = new Variable::Tuple();
-		tuple->append(new Variable(Type::INT, pp::Value(42)));
+		tuple->append(new Variable(Type::INT, hwpp::Value(42)));
 		Type type(Type::TUPLE);
 		type.add_argument(Type::INT);
 		Variable::Datum d1(type, tuple);
@@ -220,8 +220,8 @@ TEST(test_datum) {
 }
 
 TEST(test_basics) {
-	using pp::language::Type;
-	using pp::language::Variable;
+	using hwpp::language::Type;
+	using hwpp::language::Variable;
 
 	{
 		Variable v(Type::BOOL);
@@ -295,12 +295,12 @@ TEST(test_basics) {
 	}
 
 	{
-		Variable v1(Type::INT, pp::Value(42));
+		Variable v1(Type::INT, hwpp::Value(42));
 		Variable v2(v1);
 		TEST_ASSERT(v1.int_value() == 42);
 		TEST_ASSERT(v2.int_value() == 42);
 
-		Variable v3(Type::INT, pp::Value(93));
+		Variable v3(Type::INT, hwpp::Value(93));
 		TEST_ASSERT(v3.int_value() == 93);
 		v3.assign_from(v1);
 		TEST_ASSERT(v3.int_value() == 42);
@@ -322,7 +322,7 @@ TEST(test_basics) {
 
 	{
 		Variable::List *list = new Variable::List();
-		list->append(new Variable(Type::INT, pp::Value(42)));
+		list->append(new Variable(Type::INT, hwpp::Value(42)));
 		Type type(Type::LIST);
 		type.add_argument(Type::INT);
 		Variable v1(type, list);
@@ -347,7 +347,7 @@ TEST(test_basics) {
 
 	{
 		Variable::Tuple *tuple = new Variable::Tuple();
-		tuple->append(new Variable(Type::INT, pp::Value(42)));
+		tuple->append(new Variable(Type::INT, hwpp::Value(42)));
 		Type type(Type::TUPLE);
 		type.add_argument(Type::INT);
 		Variable v1(type, tuple);

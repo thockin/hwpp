@@ -1,9 +1,9 @@
 #include "language/type.h"
-#include "pp.h"
+#include "hwpp.h"
 #include <string>
 #include <boost/smart_ptr.hpp>
 
-namespace pp {
+namespace hwpp {
 namespace language {
 
 Type::Type(const Type &other)
@@ -237,6 +237,6 @@ Type::is_initializable_from(const Type &other) const
 }
 
 }  // namespace language
-}  // namespace pp
+}  // namespace hwpp
 
 // vim: set ai tabstop=4 shiftwidth=4 noexpandtab:

@@ -1,9 +1,9 @@
-#include "pp.h"
+#include "hwpp.h"
 #include <vector>
 #include "fake_language.h"
 #include "devices/cpuid/generic_device.h"
 
-namespace pp {
+namespace hwpp {
 namespace device {
 
 void
@@ -311,4 +311,4 @@ cpuid_datatypes_init()
 }
 
 }  // namespace device
-}  // namespace pp
+}  // namespace hwpp

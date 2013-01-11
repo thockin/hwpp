@@ -2,8 +2,8 @@
 // Thin wrappers around standard file/directory IO.
 // Tim Hockin <thockin@hockin.org>
 //
-#ifndef PP_UTIL_FILESYSTEM_HPP__
-#define PP_UTIL_FILESYSTEM_HPP__
+#ifndef HWPP_UTIL_FILESYSTEM_HHWPP__
+#define HWPP_UTIL_FILESYSTEM_HHWPP__
 
 #undef _FILE_OFFSET_BITS
 #define _FILE_OFFSET_BITS 64
@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 #include <sys/mman.h>
 
-#include "pp.h"
+#include "hwpp.h"
 #include "syserror.h"
 
 namespace filesystem {
@@ -814,4 +814,4 @@ getcwd()
 
 } // namespace fs
 
-#endif // PP_UTIL_FILESYSTEM_HPP__
+#endif // HWPP_UTIL_FILESYSTEM_HHWPP__

@@ -6,11 +6,11 @@
 // http://www.sandpile.org/ia32/cpuid.htm
 //
 
-#include "pp.h"
+#include "hwpp.h"
 #include "devices/cpuid/generic_device.h"
 #include "fake_language.h"
 
-namespace pp {
+namespace hwpp {
 namespace device {
 
 // Functions for easy access to individual registers returned by cpuid
@@ -932,4 +932,4 @@ CPUID_SCOPE(const string &name, const Value &cpu)
 }
 
 }  // namespace device
-}  // namespace pp
+}  // namespace hwpp

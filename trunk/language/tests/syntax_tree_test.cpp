@@ -1,10 +1,10 @@
 #include "language/syntax_tree.h"
-#include "pp.h"
+#include "hwpp.h"
 #include "util/test.h"
 
 #if 0
 TEST(test_syntax_node) {
-	using pp::language::syntax::SyntaxNode;
+	using hwpp::language::syntax::SyntaxNode;
 
 	// SyntaxNode is not directly usable, you have to inherit from it.
 	class TestNode : public SyntaxNode {
@@ -19,9 +19,9 @@ TEST(test_syntax_node) {
 }
 
 TEST(test_expression) {
-	using pp::language::syntax::Expression;
-	using pp::language::Type;
-	using pp::language::Variable;
+	using hwpp::language::syntax::Expression;
+	using hwpp::language::Type;
+	using hwpp::language::Variable;
 
 	// Expression is pure virtual.
 	class TestExpression : public Expression {

@@ -1,6 +1,6 @@
 // Copyright (c) Tim Hockin, 2008
-#ifndef PP_UTIL_BIT_BUFFER_H__
-#define PP_UTIL_BIT_BUFFER_H__
+#ifndef HWPP_UTIL_BIT_BUFFER_H__
+#define HWPP_UTIL_BIT_BUFFER_H__
 
 #include <ostream>
 #include <sstream>
@@ -146,4 +146,4 @@ BitBuffer::to_string() const
 
 } // namespace util
 
-#endif // PP_UTIL_BIT_BUFFER_H__
+#endif // HWPP_UTIL_BIT_BUFFER_H__

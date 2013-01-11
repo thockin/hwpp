@@ -1,6 +1,6 @@
 /* Copyright (c) Tim Hockin, 2008 */
-#ifndef PP_UTIL_BIGNUM_LAMBDA_H__
-#define PP_UTIL_BIGNUM_LAMBDA_H__
+#ifndef HWPP_UTIL_BIGNUM_LAMBDA_H__
+#define HWPP_UTIL_BIGNUM_LAMBDA_H__
 
 #include <boost/lambda/lambda.hpp>
 
@@ -33,4 +33,4 @@ struct plain_return_type_2<arithmetic_action<Taction>,
 } // namespace lambda
 } // namespace boost
 
-#endif // PP_UTIL_BIGNUM_LAMBDA_H__
+#endif // HWPP_UTIL_BIGNUM_LAMBDA_H__

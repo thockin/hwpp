@@ -1,5 +1,5 @@
 // Copyright (c) Tim Hockin, 2007
-#include "pp.h"
+#include "hwpp.h"
 #include "util/printfxx.h"
 #include "scope.h"
 #include <stdexcept>
@@ -14,7 +14,7 @@
 #include "alias.h"
 #include "language.h"
 
-namespace pp {
+namespace hwpp {
 
 //
 // Get a pointer to the parent scope of this object.  If this
@@ -194,7 +194,7 @@ Scope::add_dirent(const Path::Element &elem,
 			ar->append(new_dirent);
 		} else {
 			// if not, add the array and append the new dirent
-			ArrayPtr ar = new_pp_array(new_dirent->dirent_type());
+			ArrayPtr ar = new_hwpp_array(new_dirent->dirent_type());
 			m_dirents.insert(elem.name(), ar);
 			ar->append(new_dirent);
 		}
@@ -452,4 +452,4 @@ Scope::has_bookmark(const string &name) const
 	return (m_bookmarks.find(name) != m_bookmarks.end());
 }
 
-}  // namespace pp
+}  // namespace hwpp

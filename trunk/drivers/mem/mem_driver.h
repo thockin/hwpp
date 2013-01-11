@@ -1,12 +1,12 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_DRIVERS_MEM_MEM_DRIVER_H__
-#define PP_DRIVERS_MEM_MEM_DRIVER_H__
+#ifndef HWPP_DRIVERS_MEM_MEM_DRIVER_H__
+#define HWPP_DRIVERS_MEM_MEM_DRIVER_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include "driver.h"
 #include "mem_binding.h"
 
-namespace pp { 
+namespace hwpp { 
 
 /*
  * MemDriver - IO driver plugin.
@@ -38,6 +38,6 @@ class MemDriver: public Driver
 
 #define new_mem_driver(...) DriverPtr(new MemDriver(__VA_ARGS__))
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_DRIVERS_MEM_MEM_DRIVER_H__
+#endif // HWPP_DRIVERS_MEM_MEM_DRIVER_H__

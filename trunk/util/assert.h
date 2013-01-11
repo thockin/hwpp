@@ -1,6 +1,6 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_UTIL_ASSERT_H__
-#define PP_UTIL_ASSERT_H__
+#ifndef HWPP_UTIL_ASSERT_H__
+#define HWPP_UTIL_ASSERT_H__
 
 #include <stdlib.h>
 #include <iostream>
@@ -52,4 +52,4 @@
 
 #endif // DEBUG
 
-#endif // PP_UTIL_ASSERT_H__
+#endif // HWPP_UTIL_ASSERT_H__

@@ -114,7 +114,7 @@ Registers
   Syntax: REG64(register_name, accessor)
   Syntax: REG128(register_name, accessor)
     Define a procedure register.  The accessor is the name of a C++ class
-    which inherits from pp_rwprocs.  The accessor class must implement the
+    which inherits from hwpp_rwprocs.  The accessor class must implement the
     read() and write() methods.  When the register is read or written, the
     accessor's methods will be run.  See below for information on the READ
     and WRITE functions.
@@ -378,7 +378,7 @@ Fields
   Syntax: FIELD(dirent_name, datatype_name, accessor)
   Syntax: FIELD(dirent_name, datatype, accessor)
     Define a procedure field.  The accessor is the name of a C++ class
-    which inherits from pp_rwprocs.  The accessor class must implement the
+    which inherits from hwpp_rwprocs.  The accessor class must implement the
     read() and write() methods.  When the field is read or written, the
     accessor's methods will be run.  See below for information on the READ
     and WRITE functions.
@@ -406,18 +406,18 @@ Flow Control
   There are a few caveats, though.
 
   Internally PP uses a bignum class for arbitrary width numbers.  This is
-  known as 'pp_value'.  When dealing with values read from registers, fields,
-  or regbits, always use pp_value.  It is OK to use native types for things
+  known as 'hwpp_value'.  When dealing with values read from registers, fields,
+  or regbits, always use hwpp_value.  It is OK to use native types for things
   like loop counters.
 
-  Because pp_value is not a native integral type, C++ can not switch on it.
+  Because hwpp_value is not a native integral type, C++ can not switch on it.
 
-  Because pp_value can be arbitrarily large, it may be initialized from an
+  Because hwpp_value can be arbitrarily large, it may be initialized from an
   integer literal (signed or unsigned) or from a string literal.
 
   Sometimes C++ does not know whether you intended to use a string or a
-  pp_value.  When in doubt, convert to pp_value explicitly.  For example:
-  pp_value(0) or pp_value("0x1234").
+  hwpp_value.  When in doubt, convert to hwpp_value explicitly.  For example:
+  hwpp_value(0) or hwpp_value("0x1234").
 
   When you need to analyze the value of a field, you should use the following
   comparison functions.
@@ -541,25 +541,25 @@ Reading and Writing
   Syntax: READ(register_name)
   Syntax: READ(field_name)
     Read the value of the specified field or register.  Note that for
-    fields, READ() returns a raw pp_value which has not been evaluated by a
+    fields, READ() returns a raw hwpp_value which has not been evaluated by a
     datatype.  If the datatype does a non-trivial evaluation, the value
     returned from READ() may not resemble the evaluated form of the field.
 
-  Syntax: WRITE(register_name, pp_value)
-  Syntax: WRITE(field_name, pp_value)
+  Syntax: WRITE(register_name, hwpp_value)
+  Syntax: WRITE(field_name, hwpp_value)
     Write a value to the specified field or register.  Note that for fields,
-    WRITE() takes a raw pp_value, which which has not been evaluated by a
+    WRITE() takes a raw hwpp_value, which which has not been evaluated by a
     datatype.  If the datatype does a non-trivial evaluation, the value
     passed to WRITE() may not resemble the evaluated form of the field.
 
   PP also allows you to read and write regbits directly.
 
   Syntax: READ(regbits)
-    Read a pp_value from a regbits.  This can be a single bit or any number
+    Read a hwpp_value from a regbits.  This can be a single bit or any number
     of bits from multiple registers.
 
-  Syntax: WRITE(regbits, pp_value)
-    Write a pp_value to a regbits.  This can be a single bit or any number
+  Syntax: WRITE(regbits, hwpp_value)
+    Write a hwpp_value to a regbits.  This can be a single bit or any number
     of bits from multiple registers.
 
 Handling the Unexpected
@@ -569,7 +569,7 @@ Handling the Unexpected
 
   Syntax: WARN(fmt, ...)
     Issue a warning message.  The arguments to this function are similar to
-    printf, except that pp_value objects are supported.
+    printf, except that hwpp_value objects are supported.
 
 Killing Time
 

@@ -1,6 +1,6 @@
 /* Copyright (c) Andrew Schran, 2008 */
-#ifndef PP_UTIL_SOCKETS_H__
-#define PP_UTIL_SOCKETS_H__
+#ifndef HWPP_UTIL_SOCKETS_H__
+#define HWPP_UTIL_SOCKETS_H__
 
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -232,4 +232,4 @@ class Server
 
 } // namespace unix_socket
 
-#endif  // PP_UTIL_SOCKETS_H__
+#endif  // HWPP_UTIL_SOCKETS_H__

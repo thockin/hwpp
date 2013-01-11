@@ -1,11 +1,11 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_DATATYPE_H__
-#define PP_DATATYPE_H__
+#ifndef HWPP_DATATYPE_H__
+#define HWPP_DATATYPE_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include <stdexcept>
 
-namespace pp {
+namespace hwpp {
 
 /*
  * Datatype - abstract base class for all datatypes.
@@ -99,6 +99,6 @@ class Datatype
 typedef boost::shared_ptr<Datatype> DatatypePtr;
 typedef boost::shared_ptr<const Datatype> ConstDatatypePtr;
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_DATATYPE_H__
+#endif // HWPP_DATATYPE_H__

@@ -1,12 +1,12 @@
 // SyntaxNode tree support.
 
-#ifndef PP_LANGUAGE_SYNTAX_TREE_H__
-#define PP_LANGUAGE_SYNTAX_TREE_H__
+#ifndef HWPP_LANGUAGE_SYNTAX_TREE_H__
+#define HWPP_LANGUAGE_SYNTAX_TREE_H__
 
 // The grammar.l and grammar.y files include this header, which will screw
 // them up if they include their own auto-generated headers, so don't include
 // auto.*.h here.
-#include "pp.h"
+#include "hwpp.h"
 #include <string>
 #include <vector>
 #include <boost/scoped_ptr.hpp>
@@ -17,7 +17,7 @@
 #include "language/variable.h"
 #include "util/pointer.h"
 
-namespace pp {
+namespace hwpp {
 namespace language {
 namespace syntax {
 
@@ -1623,8 +1623,8 @@ class TupleLiteralExpression : public Expression {
 
 }  // namespace syntax
 }  // namespace language
-}  // namespace pp
+}  // namespace hwpp
 
-#endif  // PP_LANGUAGE_SYNTAX_TREE_H__
+#endif  // HWPP_LANGUAGE_SYNTAX_TREE_H__
 
 // vim: set ai tabstop=4 shiftwidth=4 noexpandtab:

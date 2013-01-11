@@ -1,9 +1,9 @@
 /* Copyright (c) Tim Hockin, 2008 */
-#include "pp.h"
+#include "hwpp.h"
 #include "language.h"
 #include "util/simple_regex.h"
 
-namespace pp {
+namespace hwpp {
 
 static const util::SimpleRegex c_token("^[A-Za-z_][A-Za-z0-9_]*$");
 
@@ -19,4 +19,4 @@ lang_valid_bookmark_name(const string &name)
 	return c_token.matches(name);
 }
 
-}  // namespace pp
+}  // namespace hwpp

@@ -1,14 +1,14 @@
 //
 // Copyright 2008 Tim Hockin.
 //
-#ifndef PP_RUNTIME_H__
-#define PP_RUNTIME_H__
+#ifndef HWPP_RUNTIME_H__
+#define HWPP_RUNTIME_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include "context.h"
 #include <vector>
 
-namespace pp {
+namespace hwpp {
 
 class Runtime {
  public:
@@ -42,6 +42,6 @@ class Runtime {
 Runtime *
 global_runtime();
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_RUNTIME_H__
+#endif // HWPP_RUNTIME_H__

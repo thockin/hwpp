@@ -1,8 +1,8 @@
 //
 // Tim Hockin <thockin@hockin.org>
 //
-#ifndef PP_UTIL_SYSERROR_HPP__
-#define PP_UTIL_SYSERROR_HPP__
+#ifndef HWPP_UTIL_SYSERROR_HHWPP__
+#define HWPP_UTIL_SYSERROR_HHWPP__
 
 #include <stdexcept>
 #include <string>
@@ -191,4 +191,4 @@ throw_errno_error(int error, std::string msg)
 
 } // namespace syserr
 
-#endif // PP_UTIL_SYSERROR_HPP__
+#endif // HWPP_UTIL_SYSERROR_HHWPP__

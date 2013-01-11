@@ -26,4 +26,4 @@ MAKEFLAGS += --no-print-directory
 
 
 # include the generic rules
-include $(TOPDIR)/rules.mk
+include $(TOPDIR)/MakeRules.mk

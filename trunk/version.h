@@ -1,13 +1,13 @@
 /* Copyright (c) Tim Hockin, 2009 */
-#ifndef PP_VERSION_H__
-#define PP_VERSION_H__
+#ifndef HWPP_VERSION_H__
+#define HWPP_VERSION_H__
 
 #include <stdint.h>
 
-namespace pp {
+namespace hwpp {
 
 //
-// PP version constants - these need to be extern so they are always linked.
+// HWPP version constants - these need to be extern so they are always linked.
 //
 extern const uint8_t  ver_major;
 extern const uint8_t  ver_minor;
@@ -21,6 +21,6 @@ MAKE_VERSION(uint8_t major, uint8_t minor, uint16_t micro)
 	return ((major << 24) | (minor << 16) | (micro));
 }
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_VERSION_H__
+#endif // HWPP_VERSION_H__

@@ -1,9 +1,9 @@
-#include "pp.h"
+#include "hwpp.h"
 #include "datatype_types.h"
 #include "io_driver.h"
 #include "io_binding.h"
 
-namespace pp { 
+namespace hwpp { 
 
 #define IO_SPACE_SIZE	0x10000
 
@@ -51,4 +51,4 @@ IoDriver::new_binding(const std::vector<Value> &args) const
 	return new_io_binding(IoAddress(base.as_uint(), size.as_uint()));
 }
 
-}  // namespace pp
+}  // namespace hwpp

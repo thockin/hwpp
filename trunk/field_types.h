@@ -1,6 +1,6 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_FIELDS_H__
-#define PP_FIELDS_H__
+#ifndef HWPP_FIELDS_H__
+#define HWPP_FIELDS_H__
 
 #include "field.h"
 #include "datatype.h"
@@ -11,7 +11,7 @@
 #include "runtime.h"
 #include <vector>
 
-namespace pp {
+namespace hwpp {
 
 /*
  * DirectField - a field that maps directly to register bits.
@@ -67,8 +67,8 @@ class DirectField: public Field
 };
 typedef boost::shared_ptr<DirectField> DirectFieldPtr;
 
-#define new_pp_direct_field(...) \
-	::pp::DirectFieldPtr(new ::pp::DirectField(__VA_ARGS__))
+#define new_hwpp_direct_field(...) \
+	::hwpp::DirectFieldPtr(new ::hwpp::DirectField(__VA_ARGS__))
 
 /*
  * ProcField - a field that is a procedure.
@@ -134,8 +134,8 @@ class ProcField: public Field
 };
 typedef boost::shared_ptr<ProcField> ProcFieldPtr;
 
-#define new_pp_proc_field(...) \
-	::pp::ProcFieldPtr(new ::pp::ProcField(__VA_ARGS__))
+#define new_hwpp_proc_field(...) \
+	::hwpp::ProcFieldPtr(new ::hwpp::ProcField(__VA_ARGS__))
 
 /*
  * ConstantField - a field that returns a constant value.
@@ -191,9 +191,9 @@ class ConstantField: public Field
 };
 typedef boost::shared_ptr<ConstantField> ConstantFieldPtr;
 
-#define new_pp_constant_field(...) \
-	::pp::ConstantFieldPtr(new ::pp::ConstantField(__VA_ARGS__))
+#define new_hwpp_constant_field(...) \
+	::hwpp::ConstantFieldPtr(new ::hwpp::ConstantField(__VA_ARGS__))
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_FIELDS_H__
+#endif // HWPP_FIELDS_H__

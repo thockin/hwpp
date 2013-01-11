@@ -1,5 +1,5 @@
-#ifndef PP_UTIL_PRINTFXX_H__
-#define PP_UTIL_PRINTFXX_H__
+#ifndef HWPP_UTIL_PRINTFXX_H__
+#define HWPP_UTIL_PRINTFXX_H__
 
 #include <string>
 #include <iostream>
@@ -75,13 +75,13 @@ printfxx(const std::string& fmt, \
 template <BOOST_PP_ENUM_PARAMS(N, class T)> \
 void \
 fprintfxx(std::ostream &out, const std::string& fmt, \
-         BOOST_PP_ENUM_BINARY_PARAMS(N, const T, &a)) { \
+          BOOST_PP_ENUM_BINARY_PARAMS(N, const T, &a)) { \
 	out << boost::format(fmt) BOOST_PP_REPEAT(N, GEN_ARG, _); \
 } \
 template <BOOST_PP_ENUM_PARAMS(N, class T)> \
 std::string \
 sprintfxx(const std::string& fmt, \
-         BOOST_PP_ENUM_BINARY_PARAMS(N, const T, &a)) { \
+          BOOST_PP_ENUM_BINARY_PARAMS(N, const T, &a)) { \
 	return to_string(boost::format(fmt) BOOST_PP_REPEAT(N, GEN_ARG, _)); \
 }
 
@@ -108,4 +108,4 @@ sprintfxx(const std::string &fmt)
 	return to_string(boost::format(fmt));
 }
 
-#endif // PP_UTIL_PRINTFXX_H__
+#endif // HWPP_UTIL_PRINTFXX_H__

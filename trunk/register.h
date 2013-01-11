@@ -1,11 +1,11 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_REGISTER_H__
-#define PP_REGISTER_H__
+#ifndef HWPP_REGISTER_H__
+#define HWPP_REGISTER_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include "dirent.h"
 
-namespace pp {
+namespace hwpp {
 
 /*
  * Register - abstract base class for a register
@@ -81,6 +81,6 @@ register_from_dirent(const DirentPtr &dirent)
 	       register_from_dirent(const_dirent));
 }
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_REGISTER_H__
+#endif // HWPP_REGISTER_H__

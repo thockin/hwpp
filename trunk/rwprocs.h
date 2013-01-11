@@ -1,10 +1,10 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_RWPROCS_H__
-#define PP_RWPROCS_H__
+#ifndef HWPP_RWPROCS_H__
+#define HWPP_RWPROCS_H__
 
-#include "pp.h"
+#include "hwpp.h"
 
-namespace pp {
+namespace hwpp {
 
 // a helper for things which delegate read and write operations
 struct RwProcs
@@ -15,6 +15,6 @@ struct RwProcs
 };
 typedef boost::shared_ptr<const RwProcs> RwProcsPtr;
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_RWPROCS_H__
+#endif // HWPP_RWPROCS_H__

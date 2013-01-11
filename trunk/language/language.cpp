@@ -1,7 +1,7 @@
 #include "language/language.h"
 #include <stdio.h>
 #include <string>
-#include "pp.h"
+#include "hwpp.h"
 #include "language/parsed_file.h"
 #include "language/syntax_tree.h"
 // Leave these last.
@@ -9,16 +9,16 @@
 #include "auto.lex.h"  // depends on auto.yacc.h being first
 
 // For some reason auto.yacc.h does not export this.
-extern int pp__language__internal__parse(yyscan_t scanner,
-    pp::language::Parser *parser,
-    pp::language::ParsedFile *out_parsed_file);
+extern int hwpp__language__internal__parse(yyscan_t scanner,
+    hwpp::language::Parser *parser,
+    hwpp::language::ParsedFile *out_parsed_file);
 
 // These are exposed from the lexer to the parser and for testing.
-extern void pp__language__internal__push_lexer_state(int new_state,
+extern void hwpp__language__internal__push_lexer_state(int new_state,
                                                      yyscan_t scanner);
-extern void pp__language__internal__pop_lexer_state(yyscan_t scanner);
+extern void hwpp__language__internal__pop_lexer_state(yyscan_t scanner);
 
-namespace pp {
+namespace hwpp {
 namespace language {
 
 // This is the actual lexer class implementation.  It is entirely contained in
@@ -27,37 +27,37 @@ class LexerImpl {
  public:
 	LexerImpl()
 	{
-		pp__language__internal__lex_init_extra(&m_extra, &m_scanner);
+		hwpp__language__internal__lex_init_extra(&m_extra, &m_scanner);
 	}
 
 	~LexerImpl()
 	{
-		pp__language__internal__lex_destroy(m_scanner);
+		hwpp__language__internal__lex_destroy(m_scanner);
 	}
 
 	int lex(YYSTYPE *semantic)
 	{
-		return pp__language__internal__lex(semantic, m_scanner);
+		return hwpp__language__internal__lex(semantic, m_scanner);
 	}
 
 	int line_number() const
 	{
-		return pp__language__internal__get_lineno(m_scanner);
+		return hwpp__language__internal__get_lineno(m_scanner);
 	}
 
 	string matched_string() const
 	{
-		return pp__language__internal__get_text(m_scanner);
+		return hwpp__language__internal__get_text(m_scanner);
 	}
 
 	void restart(FILE *file)
 	{
-		pp__language__internal__restart(file, m_scanner);
+		hwpp__language__internal__restart(file, m_scanner);
 	}
 
 	void push_state(int state)
 	{
-		pp__language__internal__push_lexer_state(state, m_scanner);
+		hwpp__language__internal__push_lexer_state(state, m_scanner);
 	}
 
 	yyscan_t scanner() const
@@ -125,7 +125,7 @@ class ParserImpl {
 		m_name = name;
 		m_lexer.restart(file);
 		yyscan_t scanner = m_lexer.internal_impl()->scanner();
-		return pp__language__internal__parse(scanner, m_outer_parser,
+		return hwpp__language__internal__parse(scanner, m_outer_parser,
 		                                     out_parsed_file);
 	}
 
@@ -133,7 +133,7 @@ class ParserImpl {
 	current_line()
 	{
 		yyscan_t scanner = m_lexer.internal_impl()->scanner();
-		return pp__language__internal__get_lineno(scanner);
+		return hwpp__language__internal__get_lineno(scanner);
 	}
 
 	const string &
@@ -187,6 +187,6 @@ Parser::current_position()
 }
 
 }  // namespace language
-}  // namespace pp
+}  // namespace hwpp
 
 // vim: set ai tabstop=4 shiftwidth=4 noexpandtab:

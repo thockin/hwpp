@@ -1,14 +1,14 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_DRIVERS_MSR_MSR_BINDING_H__
-#define PP_DRIVERS_MSR_MSR_BINDING_H__
+#ifndef HWPP_DRIVERS_MSR_MSR_BINDING_H__
+#define HWPP_DRIVERS_MSR_MSR_BINDING_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include "binding.h"
 #include "driver.h"
 #include "util/filesystem.h"
 #include <iostream>
 
-namespace pp { 
+namespace hwpp { 
 
 /*
  * MsrAddress
@@ -84,6 +84,6 @@ typedef SimpleBinding<MsrIo, MsrAddress> MsrBinding;
 
 #define new_msr_binding(...) BindingPtr(new MsrBinding(__VA_ARGS__))
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_DRIVERS_MSR_MSR_BINDING_H__
+#endif // HWPP_DRIVERS_MSR_MSR_BINDING_H__

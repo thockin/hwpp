@@ -6,7 +6,7 @@
 //
 
 #include <string>
-#include "pp.h"
+#include "hwpp.h"
 #include "language/language.h"
 #include "language/parsed_file.h"
 #include "language/syntax_tree.h"
@@ -14,15 +14,15 @@
 %}
 
 /* Define a prefix that should make this code hard to collide with. */
-%name-prefix="pp__language__internal__"
+%name-prefix="hwpp__language__internal__"
 /* Generate a pure parser */
 %pure-parser
 /* The lexer context gets passed in to yyparse() and through to yylex(). */
 %lex-param {yyscan_t scanner}
 %parse-param {yyscan_t scanner}
 /* The Parser object gets passed into yyparse and can be user therein. */
-%parse-param {pp::language::Parser *parser}
-%parse-param {pp::language::ParsedFile *out_parsed_file}
+%parse-param {hwpp::language::Parser *parser}
+%parse-param {hwpp::language::ParsedFile *out_parsed_file}
 
 /* We use GLR parsing because we need more look-ahead to resolve some rules. */
 %glr-parser
@@ -34,24 +34,24 @@
 // header needs to first include the headers to satisfy this struct.
 %union {
 	bool bool_val;
-	pp::Value *int_val;
+	hwpp::Value *int_val;
 	string *string_val;
-	pp::language::syntax::Statement *stmt;
-	pp::language::syntax::StatementList *stmt_list;
-	pp::language::syntax::Identifier *ident;
-	pp::language::syntax::InitializedIdentifier *init_ident;
-	pp::language::syntax::InitializedIdentifierList *init_ident_list;
-	pp::language::syntax::Expression *expr;
-	pp::language::syntax::ExpressionList *expr_list;
-	pp::language::syntax::UnaryExpression::Operator unary_op;
-	pp::language::syntax::BinaryExpression::Operator binary_op;
-	pp::language::syntax::Argument *arg;
-	pp::language::syntax::ArgumentList *arg_list;
-	pp::language::syntax::DefinitionStatement *defn_stmt;
-	pp::language::syntax::ParameterDeclaration *param_decl;
-	pp::language::syntax::ParameterDeclarationList *param_decl_list;
-	pp::language::Type *type;
-	pp::language::syntax::TypeList *type_list;
+	hwpp::language::syntax::Statement *stmt;
+	hwpp::language::syntax::StatementList *stmt_list;
+	hwpp::language::syntax::Identifier *ident;
+	hwpp::language::syntax::InitializedIdentifier *init_ident;
+	hwpp::language::syntax::InitializedIdentifierList *init_ident_list;
+	hwpp::language::syntax::Expression *expr;
+	hwpp::language::syntax::ExpressionList *expr_list;
+	hwpp::language::syntax::UnaryExpression::Operator unary_op;
+	hwpp::language::syntax::BinaryExpression::Operator binary_op;
+	hwpp::language::syntax::Argument *arg;
+	hwpp::language::syntax::ArgumentList *arg_list;
+	hwpp::language::syntax::DefinitionStatement *defn_stmt;
+	hwpp::language::syntax::ParameterDeclaration *param_decl;
+	hwpp::language::syntax::ParameterDeclarationList *param_decl_list;
+	hwpp::language::Type *type;
+	hwpp::language::syntax::TypeList *type_list;
 }
 
 %{
@@ -64,27 +64,27 @@
 #define YY_HEADER_EXPORT_START_CONDITIONS 1
 #include "auto.lex.h"
 
-// Act as if this code were in the pp::language::syntax namespace.
-using namespace pp;
-using namespace pp::language;
-using namespace pp::language::syntax;
+// Act as if this code were in the hwpp::language::syntax namespace.
+using namespace hwpp;
+using namespace hwpp::language;
+using namespace hwpp::language::syntax;
 
 // This is called on a parse error.
 static void
-pp__language__internal__error(yyscan_t scanner, Parser *parser,
+hwpp__language__internal__error(yyscan_t scanner, Parser *parser,
                               ParsedFile *out_parsed_file, const char *str);
 
 // These are exposed from the lexer to the parser.
 extern void
-pp__language__internal__push_lexer_state(int new_state, yyscan_t scanner);
+hwpp__language__internal__push_lexer_state(int new_state, yyscan_t scanner);
 extern void
-pp__language__internal__pop_lexer_state(yyscan_t scanner);
+hwpp__language__internal__pop_lexer_state(yyscan_t scanner);
 
 // Utility defines make code easier to read.
-#define lex_lineno()      pp__language__internal__get_lineno(scanner)
-#define lex_text()        pp__language__internal__get_text(scanner)
-#define lex_push_state(x) pp__language__internal__push_lexer_state(x, scanner)
-#define lex_pop_state()   pp__language__internal__pop_lexer_state(scanner)
+#define lex_lineno()      hwpp__language__internal__get_lineno(scanner)
+#define lex_text()        hwpp__language__internal__get_text(scanner)
+#define lex_push_state(x) hwpp__language__internal__push_lexer_state(x, scanner)
+#define lex_pop_state()   hwpp__language__internal__pop_lexer_state(scanner)
 
 #define DO_SYNTRACE 0
 #if DO_SYNTRACE
@@ -1205,7 +1205,7 @@ discover_statement
 
 //TODO: make better error messages!
 static void
-pp__language__internal__error(yyscan_t scanner, Parser *parser,
+hwpp__language__internal__error(yyscan_t scanner, Parser *parser,
                               ParsedFile *out_parsed_file, const char *str)
 {
 	(void)parser;

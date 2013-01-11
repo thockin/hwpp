@@ -1,17 +1,17 @@
 // Language-related errors.  These are the only errors that should propagate
 // up out of the language code.
 
-#ifndef PP_LANGUAGE_ERRORS_H__
-#define PP_LANGUAGE_ERRORS_H__
+#ifndef HWPP_LANGUAGE_ERRORS_H__
+#define HWPP_LANGUAGE_ERRORS_H__
 
 // The grammar.l and grammar.y files include this header, which will screw
 // them up if they include their own auto-generated headers, so don't include
 // auto.*.h here.
-#include "pp.h"
+#include "hwpp.h"
 #include <stdexcept>
 #include <string>
 
-namespace pp {
+namespace hwpp {
 namespace language {
 
 struct LanguageError: public std::runtime_error
@@ -31,8 +31,8 @@ struct SyntaxError: public LanguageError
 };
 
 }  // namespace language
-}  // namespace pp
+}  // namespace hwpp
 
-#endif  // PP_LANGUAGE_ERRORS_H__
+#endif  // HWPP_LANGUAGE_ERRORS_H__
 
 // vim: set ai tabstop=4 shiftwidth=4 noexpandtab:

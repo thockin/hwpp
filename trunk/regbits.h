@@ -1,12 +1,12 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_REGBITS_H__
-#define PP_REGBITS_H__
+#ifndef HWPP_REGBITS_H__
+#define HWPP_REGBITS_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include "util/printfxx.h"
 #include "register.h"
 
-namespace pp {
+namespace hwpp {
 
 /*
  * RegBits - a bit range from a register.
@@ -74,7 +74,7 @@ class RegBits
 		init(reg, hi_bit, lo_bit);
 	}
 	/*
-	 * Join two regbits.  We always append new regbits at teh LSB (the
+	 * Join two regbits.  We always append new regbits at the LSB (the
 	 * right hand side in common notation).  This has the effect of
 	 * shifting the existing bits left in order to make room for the new
 	 * bits.  To be precise:
@@ -239,6 +239,6 @@ class RegBits
 	}
 };
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_REGBITS_H__
+#endif // HWPP_REGBITS_H__

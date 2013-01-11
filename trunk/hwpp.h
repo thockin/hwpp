@@ -1,6 +1,6 @@
 /* Copyright (c) Tim Hockin, 2007 */
-#ifndef PP_PP_H__
-#define PP_PP_H__
+#ifndef HWPP_HWPP_H__
+#define HWPP_HWPP_H__
 
 #define __STDC_LIMIT_MACROS
 #define _FILE_OFFSET_BITS 64
@@ -21,7 +21,7 @@ using boost::const_pointer_cast;
 #include "debug.h"
 #include "version.h"
 
-namespace pp {
+namespace hwpp {
 
 /*
  * Value - a numeric value, such as data from a register.
@@ -74,6 +74,6 @@ WARN(const string &message)
 	std::cerr << "WARN: " << message << std::endl;
 }
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_PP_H__
+#endif // HWPP_HWPP_H__

@@ -2,11 +2,11 @@
 
 //FIXME: fix include paths
 #include "language/type.h"
-#include "pp.h"
+#include "hwpp.h"
 #include "util/test.h"
 
 TEST(test_type) {
-	using pp::language::Type;
+	using hwpp::language::Type;
 
 	// Test the class basics for primitive types.
 	{

@@ -1,12 +1,12 @@
-#ifndef PP_LANGUAGE_VARIABLE_H__
-#define PP_LANGUAGE_VARIABLE_H__
+#ifndef HWPP_LANGUAGE_VARIABLE_H__
+#define HWPP_LANGUAGE_VARIABLE_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include <string>
 #include <boost/smart_ptr.hpp>
 #include "type.h"
 
-namespace pp {
+namespace hwpp {
 namespace language {
 
 // This represents a reference to an instance of a specific datatype.  All
@@ -370,8 +370,8 @@ class Variable {
 };
 
 }  // namespace language
-}  // namespace pp
+}  // namespace hwpp
 
-#endif  // PP_LANGUAGE_VARIABLE_H__
+#endif  // HWPP_LANGUAGE_VARIABLE_H__
 
 // vim: set ai tabstop=4 shiftwidth=4 noexpandtab:

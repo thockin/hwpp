@@ -2,11 +2,11 @@
  * Copyright 2008 Google Inc. All Rights Reserved.
  */
 
-#include "pp.h"
+#include "hwpp.h"
 #include "runtime.h"
 #include "context.h"
 
-namespace pp {
+namespace hwpp {
 
 Runtime *
 global_runtime()
@@ -15,13 +15,13 @@ global_runtime()
 	return &the_runtime;
 }
 
-// Initialize the PP runtime.
+// Initialize the HWPP runtime.
 Runtime::Runtime()
 {
 	// The name of the root scope doesn't matter, we just need to retain
 	// a pointer to it.
-	m_root_scope = new_pp_scope();
-	context_push(new_pp_context("pp", m_root_scope));
+	m_root_scope = new_hwpp_scope();
+	context_push(new_hwpp_context("hwpp", m_root_scope));
 }
 
 ContextPtr
@@ -57,4 +57,4 @@ Runtime::context_pop()
 	m_context_stack.pop_back();
 }
 
-}  // namespace pp
+}  // namespace hwpp

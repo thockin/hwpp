@@ -2,10 +2,10 @@
 // Copyright 2007 Google, Inc. All Rights Reserved.
 // Copyright 2008 Tim Hockin.
 //
-#ifndef PP_FAKE_LANGUAGE_H__
-#define PP_FAKE_LANGUAGE_H__
+#ifndef HWPP_FAKE_LANGUAGE_H__
+#define HWPP_FAKE_LANGUAGE_H__
 
-#include "pp.h"
+#include "hwpp.h"
 #include "language.h"
 #include "dirent.h"
 #include "register_types.h"
@@ -22,7 +22,7 @@
 
 #include "field_types.h"
 
-namespace pp {
+namespace hwpp {
 
 //
 // Print a message
@@ -66,20 +66,20 @@ MSLEEP(int msecs)
 //
 extern ConstDirentPtr
 fkl_get_dirent(const ParseLocation &loc, const string &path);
-#define GET_DIRENT(...)    ::pp::fkl_get_dirent(THIS_LOCATION, ##__VA_ARGS__)
+#define GET_DIRENT(...)    ::hwpp::fkl_get_dirent(THIS_LOCATION, ##__VA_ARGS__)
 extern ConstFieldPtr
 fkl_get_field(const ParseLocation &loc, const string &path);
-#define GET_FIELD(...)     ::pp::fkl_get_field(THIS_LOCATION, ##__VA_ARGS__)
+#define GET_FIELD(...)     ::hwpp::fkl_get_field(THIS_LOCATION, ##__VA_ARGS__)
 extern ConstRegisterPtr
 fkl_get_register(const ParseLocation &loc, const string &path);
-#define GET_REGISTER(...)  ::pp::fkl_get_register(THIS_LOCATION, ##__VA_ARGS__)
+#define GET_REGISTER(...)  ::hwpp::fkl_get_register(THIS_LOCATION, ##__VA_ARGS__)
 
 //
 // Test for the existence of a dirent.
 //
 extern bool
 fkl_defined(const ParseLocation &loc, const string &path);
-#define DEFINED(...)  ::pp::fkl_defined(THIS_LOCATION, ##__VA_ARGS__)
+#define DEFINED(...)  ::hwpp::fkl_defined(THIS_LOCATION, ##__VA_ARGS__)
 
 //
 // Read/write a field, register, or regbits.
@@ -88,14 +88,14 @@ extern Value
 fkl_read(const ParseLocation &loc, const string &path);
 extern Value
 fkl_read(const ParseLocation &loc, const RegBits &bits);
-#define READ(...)  ::pp::fkl_read(THIS_LOCATION, ##__VA_ARGS__)
+#define READ(...)  ::hwpp::fkl_read(THIS_LOCATION, ##__VA_ARGS__)
 extern void
 fkl_write(const ParseLocation &loc,
           const string &path, const Value &value);
 extern void
 fkl_write(const ParseLocation &loc,
           const RegBits &bits, const Value &value);
-#define WRITE(...)  ::pp::fkl_write(THIS_LOCATION, ##__VA_ARGS__)
+#define WRITE(...)  ::hwpp::fkl_write(THIS_LOCATION, ##__VA_ARGS__)
 
 //
 // Perform comparison operations on fields.
@@ -126,21 +126,21 @@ fkl_open_scope(const ParseLocation &loc, const string &name)
 {
 	fkl_open_scope(loc, name, BindingPtr());
 }
-#define OPEN_SCOPE(...)  ::pp::fkl_open_scope(THIS_LOCATION, ##__VA_ARGS__)
+#define OPEN_SCOPE(...)  ::hwpp::fkl_open_scope(THIS_LOCATION, ##__VA_ARGS__)
 
 //
 // Close the current scope.
 //
 extern void
 fkl_close_scope(const ParseLocation &loc);
-#define CLOSE_SCOPE(...)  ::pp::fkl_close_scope(THIS_LOCATION, ##__VA_ARGS__)
+#define CLOSE_SCOPE(...)  ::hwpp::fkl_close_scope(THIS_LOCATION, ##__VA_ARGS__)
 
 //
 // Bookmark the current scope.
 //
 extern void
 fkl_bookmark(const ParseLocation &loc, const string &name);
-#define BOOKMARK(...)  ::pp::fkl_bookmark(THIS_LOCATION, ##__VA_ARGS__)
+#define BOOKMARK(...)  ::hwpp::fkl_bookmark(THIS_LOCATION, ##__VA_ARGS__)
 
 // These are helpers for ARGS()
 struct FklValArg {
@@ -199,11 +199,11 @@ fkl_reg(const ParseLocation &loc,
 extern RegisterPtr
 fkl_reg(const ParseLocation &loc,
         const ConstBindingPtr &binding, const Value &address, BitWidth width);
-#define REG8(...)    ::pp::fkl_reg(THIS_LOCATION, ##__VA_ARGS__, pp::BITS8)
-#define REG16(...)   ::pp::fkl_reg(THIS_LOCATION, ##__VA_ARGS__, pp::BITS16)
-#define REG32(...)   ::pp::fkl_reg(THIS_LOCATION, ##__VA_ARGS__, pp::BITS32)
-#define REG64(...)   ::pp::fkl_reg(THIS_LOCATION, ##__VA_ARGS__, pp::BITS64)
-#define REG128(...)  ::pp::fkl_reg(THIS_LOCATION, ##__VA_ARGS__, pp::BITS128)
+#define REG8(...)    ::hwpp::fkl_reg(THIS_LOCATION, ##__VA_ARGS__, hwpp::BITS8)
+#define REG16(...)   ::hwpp::fkl_reg(THIS_LOCATION, ##__VA_ARGS__, hwpp::BITS16)
+#define REG32(...)   ::hwpp::fkl_reg(THIS_LOCATION, ##__VA_ARGS__, hwpp::BITS32)
+#define REG64(...)   ::hwpp::fkl_reg(THIS_LOCATION, ##__VA_ARGS__, hwpp::BITS64)
+#define REG128(...)  ::hwpp::fkl_reg(THIS_LOCATION, ##__VA_ARGS__, hwpp::BITS128)
 
 //
 // Declare a proc-register
@@ -214,7 +214,7 @@ fkl_reg(const ParseLocation &loc,
 extern RegisterPtr
 fkl_reg(const ParseLocation &loc,
         const RwProcsPtr &access, BitWidth width);
-#define PROCS(procs)  pp::RwProcsPtr(new procs)
+#define PROCS(procs)  hwpp::RwProcsPtr(new procs)
 
 //
 // Create a register-bits structure.
@@ -235,13 +235,13 @@ extern RegBits
 fkl_bits(const ParseLocation &loc,
          const ConstRegisterPtr &regname,
          BitWidth hi_bit, BitWidth lo_bit);
-#define BITS(...)  ::pp::fkl_bits(THIS_LOCATION, ##__VA_ARGS__)
+#define BITS(...)  ::hwpp::fkl_bits(THIS_LOCATION, ##__VA_ARGS__)
 
-}  // namespace pp
+}  // namespace hwpp
 
 #include "datatype.h"
 
-namespace pp {
+namespace hwpp {
 
 //
 // Create a field which gets it's value from regbits.
@@ -309,20 +309,20 @@ fkl_field(const ParseLocation &loc,
           const string &name, const string &type,
           const RwProcsPtr &access);
 
-#define FIELD(...)  ::pp::fkl_field(THIS_LOCATION, ##__VA_ARGS__)
+#define FIELD(...)  ::hwpp::fkl_field(THIS_LOCATION, ##__VA_ARGS__)
 
 //
 // Create an alias to another dirent
 //
 extern AliasPtr
 fkl_alias(const ParseLocation &loc, const string &name, const string &tgt_path);
-#define ALIAS(...)  ::pp::fkl_alias(THIS_LOCATION, ##__VA_ARGS__)
+#define ALIAS(...)  ::hwpp::fkl_alias(THIS_LOCATION, ##__VA_ARGS__)
 
-}  // namespace pp
+}  // namespace hwpp
 
 #include "datatype_types.h"
 
-namespace pp {
+namespace hwpp {
 
 // helper for types, exposed here because of templates
 extern void
@@ -348,8 +348,8 @@ fkl_anon_int(const ParseLocation &loc)
 {
 	return fkl_int(loc, "", "");
 }
-#define INT(...)       ::pp::fkl_int(THIS_LOCATION, ##__VA_ARGS__)
-#define ANON_INT(...)  ::pp::fkl_anon_int(THIS_LOCATION, ##__VA_ARGS__)
+#define INT(...)       ::hwpp::fkl_int(THIS_LOCATION, ##__VA_ARGS__)
+#define ANON_INT(...)  ::hwpp::fkl_anon_int(THIS_LOCATION, ##__VA_ARGS__)
 
 //
 // Declare a hex datatype.
@@ -365,12 +365,12 @@ fkl_hex(const ParseLocation &loc, const string &name, const BitWidth width)
 inline DatatypePtr
 fkl_hex(const ParseLocation &loc, const string &name, const string &units)
 {
-	return fkl_hex(loc, name, pp::BITS0, units);
+	return fkl_hex(loc, name, hwpp::BITS0, units);
 }
 inline DatatypePtr
 fkl_hex(const ParseLocation &loc, const string &name)
 {
-	return fkl_hex(loc, name, pp::BITS0, "");
+	return fkl_hex(loc, name, hwpp::BITS0, "");
 }
 inline DatatypePtr
 fkl_anon_hex(const ParseLocation &loc, const BitWidth width)
@@ -380,15 +380,15 @@ fkl_anon_hex(const ParseLocation &loc, const BitWidth width)
 inline DatatypePtr
 fkl_anon_hex(const ParseLocation &loc, const string &units)
 {
-	return fkl_hex(loc, "", pp::BITS0, units);
+	return fkl_hex(loc, "", hwpp::BITS0, units);
 }
 inline DatatypePtr
 fkl_anon_hex(const ParseLocation &loc)
 {
-	return fkl_hex(loc, "", pp::BITS0, "");
+	return fkl_hex(loc, "", hwpp::BITS0, "");
 }
-#define HEX(...)       ::pp::fkl_hex(THIS_LOCATION, ##__VA_ARGS__)
-#define ANON_HEX(...)  ::pp::fkl_anon_hex(THIS_LOCATION, ##__VA_ARGS__)
+#define HEX(...)       ::hwpp::fkl_hex(THIS_LOCATION, ##__VA_ARGS__)
+#define ANON_HEX(...)  ::hwpp::fkl_anon_hex(THIS_LOCATION, ##__VA_ARGS__)
 
 //
 // Declare a string datatype.
@@ -400,17 +400,17 @@ fkl_anon_string(const ParseLocation &loc)
 {
 	return fkl_string(loc, "");
 }
-#define STRING(...)       ::pp::fkl_string(THIS_LOCATION, ##__VA_ARGS__)
-#define ANON_STRING(...)  ::pp::fkl_anon_string(THIS_LOCATION, ##__VA_ARGS__)
+#define STRING(...)       ::hwpp::fkl_string(THIS_LOCATION, ##__VA_ARGS__)
+#define ANON_STRING(...)  ::hwpp::fkl_anon_string(THIS_LOCATION, ##__VA_ARGS__)
 
-// These are helpers for type safety in pp_enum and pp_bitmask.
+// These are helpers for type safety in hwpp_enum and hwpp_bitmask.
 struct fkl_kvpair
 {
 	fkl_kvpair(const string &k, const Value &v): key(k), value(v) {}
 	string key;
 	Value value;
 };
-#define KV(k,v)  ::pp::fkl_kvpair(k, v)
+#define KV(k,v)  ::hwpp::fkl_kvpair(k, v)
 typedef util::KeyedVector<string, Value> FklKvPairList;
 inline FklKvPairList
 operator,(const fkl_kvpair &lhs, const fkl_kvpair &rhs)
@@ -458,9 +458,9 @@ fkl_bitmask(const ParseLocation &loc,
 	return fkl_bitmask(loc, name, tmp);
 }
 #define BITMASK(name, ...) \
-    ::pp::fkl_bitmask(THIS_LOCATION, name, (__VA_ARGS__))
+    ::hwpp::fkl_bitmask(THIS_LOCATION, name, (__VA_ARGS__))
 #define ANON_BITMASK(...)   \
-    ::pp::fkl_bitmask(THIS_LOCATION, "", (__VA_ARGS__))
+    ::hwpp::fkl_bitmask(THIS_LOCATION, "", (__VA_ARGS__))
 
 //
 // Declare an enum datatype.
@@ -482,10 +482,10 @@ fkl_enum(const ParseLocation &loc,
 	tmp.insert(kvpair.key, kvpair.value);
 	return fkl_enum(loc, name, tmp);
 }
-#define ENUM(name, ...)  ::pp::fkl_enum(THIS_LOCATION, name, (__VA_ARGS__))
-#define ANON_ENUM(...)   ::pp::fkl_enum(THIS_LOCATION, "", (__VA_ARGS__))
+#define ENUM(name, ...)  ::hwpp::fkl_enum(THIS_LOCATION, name, (__VA_ARGS__))
+#define ANON_ENUM(...)   ::hwpp::fkl_enum(THIS_LOCATION, "", (__VA_ARGS__))
 
-// These are helpers for type safety in pp_multi
+// These are helpers for type safety in hwpp_multi
 struct fkl_range
 {
 	fkl_range(const ConstDatatypePtr &datatype,
@@ -500,7 +500,7 @@ struct fkl_range
 	Value low;
 	Value high;
 };
-#define RANGE(d, l, h)  ::pp::fkl_range(d, l, h)
+#define RANGE(d, l, h)  ::hwpp::fkl_range(d, l, h)
 typedef std::vector<fkl_range> FklRangeList;
 inline FklRangeList
 operator,(const fkl_range &lhs, const fkl_range &rhs)
@@ -538,8 +538,8 @@ fkl_multi(const ParseLocation &loc,
 	return fkl_multi(loc, name, tmp);
 }
 // Note: copied Tim's "macro magic" from the BITMASK macro definition above
-#define MULTI(name, ...)  ::pp::fkl_multi(THIS_LOCATION, name, (__VA_ARGS__))
-#define ANON_MULTI(...)   ::pp::fkl_multi(THIS_LOCATION, "", (__VA_ARGS__))
+#define MULTI(name, ...)  ::hwpp::fkl_multi(THIS_LOCATION, name, (__VA_ARGS__))
+#define ANON_MULTI(...)   ::hwpp::fkl_multi(THIS_LOCATION, "", (__VA_ARGS__))
 
 //
 // Declare a boolean datatype.
@@ -548,9 +548,9 @@ extern DatatypePtr
 fkl_bool(const ParseLocation &loc,
          const string &name, const string &true_str, const string &false_str);
 #define BOOL(name, true_, false_) \
-    ::pp::fkl_bool(THIS_LOCATION, name, true_, false_)
+    ::hwpp::fkl_bool(THIS_LOCATION, name, true_, false_)
 #define ANON_BOOL(true_, false_) \
-    ::pp::fkl_bool(THIS_LOCATION, "", true_, false_)
+    ::hwpp::fkl_bool(THIS_LOCATION, "", true_, false_)
 
 //
 // Declare a transform datatype wrapper.
@@ -570,7 +570,7 @@ fkl_xform(const ParseLocation &loc,
 
 	DASSERT_MSG(real_type, "found NULL real_type for xform " + name);
 
-	TransformDatatypePtr xform_ptr = new_pp_transform_datatype(
+	TransformDatatypePtr xform_ptr = new_hwpp_transform_datatype(
 	    real_type, decode_func, encode_func);
 	if (name != "") {
 		fkl_validate_type_name(name, loc);
@@ -588,8 +588,8 @@ fkl_xform(const ParseLocation &loc,
 	    global_runtime()->current_context()->resolve_datatype(real_type),
 	    decode_func, encode_func);
 }
-#define XFORM(...)       ::pp::fkl_xform(THIS_LOCATION, ##__VA_ARGS__)
-#define ANON_XFORM(...)  ::pp::fkl_xform(THIS_LOCATION, "", ##__VA_ARGS__)
+#define XFORM(...)       ::hwpp::fkl_xform(THIS_LOCATION, ##__VA_ARGS__)
+#define ANON_XFORM(...)  ::hwpp::fkl_xform(THIS_LOCATION, "", ##__VA_ARGS__)
 #define LAMBDA // for clarity in callers
 
 //
@@ -613,9 +613,9 @@ fkl_anon_fixed(const ParseLocation &loc, int nbits)
 {
 	return fkl_fixed(loc, "", nbits, "");
 }
-#define FIXED(...)       ::pp::fkl_fixed(THIS_LOCATION, ##__VA_ARGS__)
-#define ANON_FIXED(...)  ::pp::fkl_anon_fixed(THIS_LOCATION, ##__VA_ARGS__)
+#define FIXED(...)       ::hwpp::fkl_fixed(THIS_LOCATION, ##__VA_ARGS__)
+#define ANON_FIXED(...)  ::hwpp::fkl_anon_fixed(THIS_LOCATION, ##__VA_ARGS__)
 
-}  // namespace pp
+}  // namespace hwpp
 
-#endif // PP_FAKE_LANGUAGE_H__
+#endif // HWPP_FAKE_LANGUAGE_H__

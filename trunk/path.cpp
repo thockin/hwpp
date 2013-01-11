@@ -1,13 +1,13 @@
 // Copyright 2008 Google Inc. All Rights Reserved.
 
-#include "pp.h"
+#include "hwpp.h"
 #include "path.h"
 #include <stdexcept>
 #include <vector>
 #include <boost/algorithm/string.hpp>
 #include <ctype.h>
 
-namespace pp {
+namespace hwpp {
 
 //
 // Path::Element
@@ -321,4 +321,4 @@ Path::append(const string &str)
 	}
 }
 
-}  // namespace pp
+}  // namespace hwpp

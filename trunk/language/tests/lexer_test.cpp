@@ -7,11 +7,11 @@ using std::string;
 #define YY_HEADER_EXPORT_START_CONDITIONS 1
 #include "auto.lex.h"  // for states
 #include "language/string_file.h"
-using pp::language::StringFile;
+using hwpp::language::StringFile;
 #include "util/test.h"
 
 // These are used throughout the test.  Wrapped to make them simpler to use.
-static pp::language::Lexer *lexer;
+static hwpp::language::Lexer *lexer;
 static YYSTYPE semantic;
 
 static int lex()
@@ -32,7 +32,7 @@ static void push_lexer_state(int state)
 }
 
 TEST_SETUP_EACH() {
-	lexer = new pp::language::Lexer();
+	lexer = new hwpp::language::Lexer();
 }
 
 TEST_CLEANUP_EACH() {

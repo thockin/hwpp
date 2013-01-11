@@ -1,6 +1,6 @@
 /* Copyright (c) Tim Hockin, 2010 */
-#ifndef PP_UTIL_POINTER_H__
-#define PP_UTIL_POINTER_H__
+#ifndef HWPP_UTIL_POINTER_H__
+#define HWPP_UTIL_POINTER_H__
 
 #include <boost/scoped_ptr.hpp>
 #include "assert.h"
@@ -111,4 +111,4 @@ class MaybeNullScopedPtr : public boost::scoped_ptr<Tptr>
 
 }  // namespace util
 
-#endif // PP_UTIL_POINTER_H__
+#endif // HWPP_UTIL_POINTER_H__
