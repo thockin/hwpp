@@ -60,7 +60,7 @@ ERROR(const char *file, int line, const char *func,
 #define LOG(level, ...) do { \
 	if (::log::logging_is_enabled()) { \
 		::log::internal::level(__FILE__, __LINE__, __func__, \
-		                       sprintfxx(__VA_ARGS__)); \
+		                       ::printfxx::sprintfxx(__VA_ARGS__)); \
 	} \
 } while (0)
 
@@ -69,7 +69,7 @@ ERROR(const char *file, int line, const char *func,
 	if (::log::logging_is_enabled() \
 	 && ::log::logging_verbosity() >= vlevel) { \
 		::log::internal::INFO(__FILE__, __LINE__, __func__, \
-		                      sprintfxx(__VA_ARGS__)); \
+		                      ::printfxx::sprintfxx(__VA_ARGS__)); \
 	} \
 } while (0)
 

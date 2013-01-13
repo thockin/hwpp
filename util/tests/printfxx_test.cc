@@ -2,6 +2,8 @@
 #include <cstdio>
 #include "util/test.h"
 
+using printfxx::sprintfxx;
+
 TEST(test_sprintf)
 {
 	std::string s;
@@ -76,5 +78,26 @@ TEST(test_sprintf)
 
 	s = sprintfxx("foo %02x %04x %08x", 10, 11, 12);
 	TEST_ASSERT_EQ(s, "foo 0a 000b 0000000c")
+	    << "sprintfxx(): got '" << s << "'";
+}
+
+struct FooBar {
+	FooBar(int f, int b) : foo(f), bar(b) {}
+	int foo;
+	int bar;
+};
+inline std::ostream &
+operator<<(std::ostream& o, const FooBar &foobar)
+{
+	return o << "{" << foobar.foo << "," << foobar.bar << "}";
+}
+
+TEST(test_user_defined_types)
+{
+	std::string s;
+
+	FooBar fb(93, 76);
+	s = sprintfxx("fb %s", fb);
+	TEST_ASSERT_EQ(s, "fb {93,76}")
 	    << "sprintfxx(): got '" << s << "'";
 }

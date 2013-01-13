@@ -64,7 +64,7 @@ MASK(BitWidth nbits)
 // Initialize HWPP.
 //FIXME: pass an options struct?
 void
-hwpp_init(const char *argv0, bool enable_logging, uint8_t log_verbosity);
+hwpp_init(bool enable_logging, uint8_t log_verbosity);
 
 }  // namespace hwpp
 

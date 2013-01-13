@@ -2,8 +2,6 @@
 #ifndef HWPP_DEBUG_H__
 #define HWPP_DEBUG_H__
 
-#include "util/assert.h"
-
 #if DEBUG
 
 #include <iostream>
