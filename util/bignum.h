@@ -7,8 +7,8 @@
 #include <gmpxx.h>
 #include <ostream>
 #include <sstream>
-#include "assert.h"
-#include "bit_buffer.h"
+#include "util/assert.h"
+#include "util/bit_buffer.h"
 
 namespace bignum {
 
@@ -55,7 +55,7 @@ class BigInt: public mpz_class
 	{
 		*this = value;
 	}
-	BigInt(const util::BitBuffer &bitbuf)
+	BigInt(const ::util::BitBuffer &bitbuf)
 	{
 		*this = bitbuf;
 	}
@@ -150,7 +150,7 @@ class BigInt: public mpz_class
 		return *this;
 	}
 	BigInt &
-	operator=(const util::BitBuffer &bitbuf)
+	operator=(const ::util::BitBuffer &bitbuf)
 	{
 		// mpz_import() seems to not work.
 		*this = 0;
@@ -223,12 +223,12 @@ class BigInt: public mpz_class
 
 	// Don't call this for negative numbers, which effectively have an
 	// infinite number of bits.
-	util::BitBuffer
+	::util::BitBuffer
 	to_bitbuffer() const
 	{
 		return to_bitbuffer(0);
 	}
-	util::BitBuffer
+	::util::BitBuffer
 	to_bitbuffer(std::size_t bits) const
 	{
 		ASSERT(*this >= 0);
@@ -244,7 +244,7 @@ class BigInt: public mpz_class
 				tmp >>= CHAR_BIT;
 			}
 		}
-		util::BitBuffer bitbuf(bytes * CHAR_BIT);
+		::util::BitBuffer bitbuf(bytes * CHAR_BIT);
 
 		BigInt myval(*this);
 		for (std::size_t i = 0; i < bytes; i++) {

@@ -6,7 +6,7 @@
 #include <sys/un.h>
 #include <stdlib.h>
 #include <string>
-#include "syserror.h"
+#include "util/syserror.h"
 
 namespace unix_socket {
 

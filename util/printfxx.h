@@ -6,7 +6,7 @@
 #include <sstream>
 #include <boost/format.hpp>
 #include <boost/preprocessor.hpp>
-#include "strings.h"
+#include "util/strings.h"
 
 // Note: this is in the top-level namespace.
 namespace printfxx {
