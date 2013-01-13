@@ -33,7 +33,7 @@
 	} \
 } while (0)
 
-#define ASSERT_MSG(predicate, message) do { \
+#define ASSERTM(predicate, message) do { \
 	if (!(predicate)) { \
 		ASSERT_PRINT_ERR__(predicate) \
 			<< ":" \
@@ -47,13 +47,13 @@
 
 #if DEBUG
 
-#define DASSERT(predicate)               ASSERT(predicate)
-#define DASSERT_MSG(predicate, message)  ASSERT_MSG(predicate, message)
+#define DASSERT(predicate)            ASSERT(predicate)
+#define DASSERTM(predicate, message)  ASSERTM(predicate, message)
 
 #else // !DEBUG
 
 #define DASSERT(predicate)
-#define DASSERT_MSG(predicate, message)
+#define DASSERTM(predicate, message)
 
 #endif // DEBUG
 

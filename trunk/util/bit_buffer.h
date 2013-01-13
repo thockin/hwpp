@@ -12,7 +12,6 @@
 
 namespace util {
 
-//
 // This is a simple buffer of a fixed bit width.  It is a suitable place
 // to store data for lower-level things like read() and write().  Once
 // initialized, it can not be resized except through a call to reset().
@@ -20,7 +19,6 @@ namespace util {
 // Bitbuffers are always stored in little endian form as an array of
 // 'uint8_t'.  Bits beyond the specified bit width are initialized to 0,
 // but could be changed by the caller.
-//
 class BitBuffer
 {
     private:
@@ -30,17 +28,38 @@ class BitBuffer
 	std::size_t m_bytes;
 
     public:
-	BitBuffer(std::size_t bits = 0, uint8_t pattern = 0)
+	BitBuffer()
+	{
+		reset();
+	}
+	BitBuffer(std::size_t bits)
+	{
+		reset(bits);
+	}
+	BitBuffer(std::size_t bits, uint8_t pattern)
 	{
 		reset(bits, pattern);
 	}
-	BitBuffer(unsigned long bits, uint8_t *data)
+	BitBuffer(unsigned long bits, const uint8_t *data)
 	{
-		reset(bits, data);
+		reset_from_data(bits, data);
 	}
 
+	// Initialize (or re-initialize) the buffer.
 	void
-	reset(std::size_t bits = 0, uint8_t pattern = 0)
+	reset()
+	{
+		reset(0, 0);
+	}
+	// Initialize (or re-initialize) the fixed size buffer.
+	void
+	reset(std::size_t bits)
+	{
+		reset(bits, 0);
+	}
+	// Initialize (or re-initialize) the  fixed size buffer from a pattern.
+	void
+	reset(std::size_t bits, uint8_t pattern)
 	{
 		m_bits = bits;
 		m_bytes = (m_bits+(CHAR_BIT-1))/CHAR_BIT;
@@ -53,8 +72,9 @@ class BitBuffer
 		m_array = tmp;
 	}
 
+	// Initialize (or re-initialize) the buffer from a pointer to data.
 	void
-	reset(std::size_t bits, uint8_t *data)
+	reset_from_data(std::size_t bits, const uint8_t *data)
 	{
 		m_bits = bits;
 		m_bytes = (m_bits+(CHAR_BIT-1))/CHAR_BIT;
@@ -67,12 +87,14 @@ class BitBuffer
 		m_array = tmp;
 	}
 
+	// Fill the buffer with a pattern.
 	void
 	fill(uint8_t pattern)
 	{
 		memset(m_array.get(), pattern, m_bytes);
 	}
 
+	// Get a pointer to the raw data.
 	uint8_t *
 	get()
 	{
@@ -84,6 +106,7 @@ class BitBuffer
 		return m_array.get();
 	}
 
+	// Get the size of the buffer.
 	std::size_t
 	size_bits() const
 	{
@@ -95,6 +118,7 @@ class BitBuffer
 		return m_bytes;
 	}
 
+	// Access the raw data.
 	uint8_t &
 	byte_at(int index)
 	{
@@ -115,17 +139,17 @@ inline std::ostream &
 operator<<(std::ostream& o, const BitBuffer &bitbuf)
 {
 	o << "0x";
-	// this is signed on purpose
+	// This is signed on purpose.
 	signed long i = bitbuf.size_bytes()-1;
 	if (i >= 0) {
-		// skip leading zeros
+		// Skip leading zeros.
 		while (i > 0 && bitbuf.get()[i] == 0) {
 			i--;
 		}
-		// print the most-significant non-zero byte
+		// Print the most-significant non-zero byte.
 		o << boost::format("%x") %(int)bitbuf.get()[i];
 		i--;
-		// print the rest
+		// Print the rest.
 		for (i=i; i >= 0; i--) {
 			o << boost::format("%02x") %(int)bitbuf.get()[i];
 		}

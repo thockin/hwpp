@@ -1,4 +1,5 @@
-/* Copyright (c) Tim Hockin, 2007 */
+// More full-featured support for big-int values than GMPXX provides natively.
+// Copyright (c) Tim Hockin, 2007
 #ifndef HWPP_UTIL_BIGNUM_H__
 #define HWPP_UTIL_BIGNUM_H__
 
@@ -9,11 +10,10 @@
 #include "assert.h"
 #include "bit_buffer.h"
 
-#define BITS_PER_LONG	(sizeof(long)*CHAR_BIT)
-
 namespace bignum {
 
-//
+static const int BITS_PER_LONG = (sizeof(long)*CHAR_BIT);
+
 // All BigInts are signed.  GMP will allow you to create a BigInt from
 // either signed or unsigned raw integers, and it will do "the right
 // thing".  Unsigned raw integers will always create a positive BigInt.  It
@@ -22,7 +22,6 @@ namespace bignum {
 // is also not clear what happens if you read a negative BigInt as an
 // unsigned value (e.g. -1 read back as unsigned int).  Just don't do those
 // things, and we'll all be happy.
-//
 class BigInt: public mpz_class
 {
     public:
@@ -31,9 +30,10 @@ class BigInt: public mpz_class
 	BigInt(const BigInt &that): mpz_class(that) {}
 	template <class T, class U>
 	BigInt(const __gmp_expr<T, U> &expr): mpz_class(expr) {}
-	explicit BigInt(const char *str, int base=0): mpz_class(str, base) {}
-	explicit BigInt(const std::string &str, int base=0)
-	    : mpz_class(str, base) {}
+	explicit BigInt(const char *str): mpz_class(str, 0) {}
+	BigInt(const char *str, int base): mpz_class(str, base) {}
+	explicit BigInt(const std::string &str) : mpz_class(str, 0) {}
+	BigInt(const std::string &str, int base) : mpz_class(str, base) {}
 	BigInt(signed char value): mpz_class(value) {}
 	BigInt(unsigned char value): mpz_class(value) {}
 	BigInt(signed short value): mpz_class(value) {}
@@ -223,22 +223,28 @@ class BigInt: public mpz_class
 
 	// Don't call this for negative numbers, which effectively have an
 	// infinite number of bits.
-	util::BitBuffer 
-	to_bitbuffer(std::size_t bits=0) const
+	util::BitBuffer
+	to_bitbuffer() const
+	{
+		return to_bitbuffer(0);
+	}
+	util::BitBuffer
+	to_bitbuffer(std::size_t bits) const
 	{
 		ASSERT(*this >= 0);
 
 		// mpz_export() seems to not work.
 		std::size_t bytes = 0;
-		BigInt tmp(*this);
-		while (tmp != 0) {
-			bytes++;
-			tmp >>= CHAR_BIT;
-		}
 		if (bits) {
 			bytes = (bits + (CHAR_BIT-1)) / CHAR_BIT;
+		} else {
+			BigInt tmp(*this);
+			while (tmp != 0) {
+				bytes++;
+				tmp >>= CHAR_BIT;
+			}
 		}
-		util::BitBuffer bitbuf(bits ? bits : (bytes * CHAR_BIT));
+		util::BitBuffer bitbuf(bytes * CHAR_BIT);
 
 		BigInt myval(*this);
 		for (std::size_t i = 0; i < bytes; i++) {
