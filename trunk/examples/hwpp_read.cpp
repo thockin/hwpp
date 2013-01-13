@@ -1,4 +1,4 @@
-// This tool takes a list of PP paths (on the commandline or stdin) and
+// This tool takes a list of HWPP paths (on the commandline or stdin) and
 // reads them.  If a path is a scope or array, it will recurse.
 #include "hwpp.h"
 #include "util/printfxx.h"

@@ -1,6 +1,6 @@
 /*
  * This is a temporary home for calls to global stuff that should actually
- * be defined in the PP language.
+ * be defined in the HWPP language.
  */
 #ifndef HWPP_DEVICE_INIT_H__
 #define HWPP_DEVICE_INIT_H__
