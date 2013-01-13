@@ -24,7 +24,7 @@
 #include <sys/mman.h>
 
 #include "hwpp.h"
-#include "syserror.h"
+#include "util/syserror.h"
 
 namespace filesystem {
 

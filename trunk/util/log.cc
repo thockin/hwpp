@@ -1,4 +1,7 @@
-#include "log.h"
+// Basic logging support which can be turned on or off globally.
+// Tim Hockin, 2013
+#include "util/log.h"
+
 #include <stdlib.h>
 #include <stdint.h>
 #include <iostream>

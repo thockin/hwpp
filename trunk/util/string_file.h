@@ -4,7 +4,7 @@
 #ifndef HWPP_UTIL_STRING_FILE_H__
 #define HWPP_UTIL_STRING_FILE_H__
 
-#include "pipe_file.h"
+#include "util/pipe_file.h"
 
 namespace util {
 
