@@ -8,25 +8,12 @@
 
 #include <iostream>
 
-#define DWARN(message) do { \
-	std::cerr \
-		<< "DBG: warning at " \
-		<< __FILE__ \
-		<< ":" \
-		<< __LINE__ \
-		<< " " \
-		<< __func__ \
-		<< "(): " \
-		<< message \
-		<< std::endl; \
-} while (0)
-
 #define DTRACE(condition, message) do { \
 	if (condition) { \
 		std::cerr \
-			<< "DBG: " \
-			<< message \
-			<< std::endl; \
+		  << "DBG: " \
+		  << message \
+		  << std::endl; \
 	} \
 } while (0)
 
@@ -68,7 +55,6 @@
 
 #else // !DEBUG
 
-#define DWARN(message)
 #define DTRACE(condition, message)
 
 #endif // DEBUG

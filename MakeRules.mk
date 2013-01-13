@@ -99,7 +99,7 @@ PRJ_TRACE    = $(foreach trace, $(TRACE), -DTRACE_$(trace)=1)
 PRJ_CDEBUG   = -O0 -ggdb -DDEBUG -UNDEBUG $(PRJ_TRACE)
 PRJ_CXXDEBUG = $(PRJ_CDEBUG) -fno-default-inline
 else
-PRJ_CDEBUG   = -O2 -DNDEBUG
+PRJ_CDEBUG   = -O2 -UDEBUG -DNDEBUG
 endif
 
 CPPFLAGS += $(PRJ_DEFS) $(PRJ_INCLUDES)

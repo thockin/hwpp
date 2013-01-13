@@ -1,34 +1,35 @@
-SRCS += fake_language.cc \
-        runtime.cc \
-        language.cc \
-        magic_regs.cc \
-        drivers.cc \
-        path.cc \
-        scope.cc \
-        version.cc
+SRCS += hwpp.cc \
+        version.cc #FIXME: #\
+        #fake_language.cc \
+        #runtime.cc \
+        #language.cc \
+        #magic_regs.cc \
+        #drivers.cc \
+        #path.cc \
+        #scope.cc
 
-TESTS += tests/path_test \
-         tests/dirent_test \
-         tests/binding_test \
-         tests/register_test \
-         tests/regbits_test \
-         tests/datatype_test \
-         tests/field_test \
-         tests/scope_test \
-         tests/array_test \
-         tests/alias_test \
-         tests/fake_language_test \
-         tests/magic_regs_test
+TESTS += #tests/path_test \
+         #tests/dirent_test \
+         #tests/binding_test \
+         #tests/register_test \
+         #tests/regbits_test \
+         #tests/datatype_test \
+         #tests/field_test \
+         #tests/scope_test \
+         #tests/array_test \
+         #tests/alias_test \
+         #tests/fake_language_test \
+         #tests/magic_regs_test
 
-tests/path_test: path.o
-tests/dirent_test:
-tests/binding_test:
-tests/register_test: runtime.o path.o
-tests/regbits_test:
-tests/datatype_test:
-tests/field_test: runtime.o path.o
-tests/scope_test: scope.o path.o
-tests/array_test:
-tests/alias_test: path.o
-tests/fake_language_test: fake_language.o libhwpp.a
-tests/magic_regs_test: magic_regs.o
+#tests/path_test: path.o
+#tests/dirent_test:
+#tests/binding_test:
+#tests/register_test: runtime.o path.o
+#tests/regbits_test:
+#tests/datatype_test:
+#tests/field_test: runtime.o path.o
+#tests/scope_test: scope.o path.o
+#tests/array_test:
+#tests/alias_test: path.o
+#tests/fake_language_test: fake_language.o libhwpp.a
+#tests/magic_regs_test: magic_regs.o
