@@ -1,5 +1,5 @@
-SRCS += drivers/mem/mem_driver.cpp \
-        drivers/mem/mem_binding.cpp
+SRCS += drivers/mem/mem_driver.cc \
+        drivers/mem/mem_binding.cc
 
 TESTS += drivers/mem/tests/mem_io_test
 

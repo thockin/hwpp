@@ -39,10 +39,10 @@ Driver stuff:
  - add do_error() for non-io-errors
 
 Code stuff:
- - create and use namespace hwhwpp::
+ - create and use namespace hwpp::
  - capitalize HWPP_foo or HWPP_Foo or PpFoo for types?
- - move more code to .cpp files
- - move datatypes.h to a .cpp
+ - move more code to .cc files
+ - move datatypes.h to a .cc
  - hwpp_exception: http://marknelson.us/2007/11/13/no-exceptions/
  - make hwpp_path::invalid be a subclas of parse_error?
  - put all fkl_ functions into a namespace?
@@ -70,7 +70,7 @@ Bugs and features:
  - hwpp_context and current context is awful
  	- all the scope wrappers - just go to the scope directly!
  - HWPP_WARN should pass control to an app-specific stream, if the app cares
- - provide a foo{bar} syntax rather than foo.bar (hwhwpp.hash)
+ - provide a foo{bar} syntax rather than foo.bar (hwpp.hash)
  - drop INT(name) and HEX(name) and drop all ANON_ prefixes!
  - provide a way to write a string to a field?
  	- WRITE("field", string) ?

@@ -1,4 +1,4 @@
-SRCS += drivers/cpu/cpu_driver.cpp
+SRCS += drivers/cpu/cpu_driver.cc
 
 TESTS += drivers/cpu/tests/cpu_driver_test
 

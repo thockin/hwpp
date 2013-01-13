@@ -164,7 +164,7 @@ class Identifier : public SyntaxNode {
 
 	virtual string to_string() const;
 
-	//FIXME: move all of the validate methods to the .cpp file.
+	//FIXME: move all of the validate methods to the .cc file.
 	virtual int
 	validate(const ValidateOptions & /*flags*/, Environment * /*env*/)
 	{
@@ -335,7 +335,7 @@ class Definition : public SyntaxNode {
 	Type m_type;
 	util::NeverNullScopedPtr<InitializedIdentifier> m_init_ident;
 
-	//FIXME: move to .cpp, make file static
+	//FIXME: move to .cc, make file static
 	void
 	detect_final_type_from_init(Type *type, Expression *init_expr)
 		//FIXME: handle list<list>

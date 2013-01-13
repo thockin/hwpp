@@ -1,5 +1,5 @@
-SRCS += drivers/cpuid/cpuid_driver.cpp \
-        drivers/cpuid/cpuid_binding.cpp
+SRCS += drivers/cpuid/cpuid_driver.cc \
+        drivers/cpuid/cpuid_binding.cc
 
 TESTS += drivers/cpuid/tests/cpuid_io_test
 

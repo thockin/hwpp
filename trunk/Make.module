@@ -1,11 +1,11 @@
-SRCS += fake_language.cpp \
-        runtime.cpp \
-        language.cpp \
-        magic_regs.cpp \
-        drivers.cpp \
-        path.cpp \
-        scope.cpp \
-        version.cpp
+SRCS += fake_language.cc \
+        runtime.cc \
+        language.cc \
+        magic_regs.cc \
+        drivers.cc \
+        path.cc \
+        scope.cc \
+        version.cc
 
 TESTS += tests/path_test \
          tests/dirent_test \
