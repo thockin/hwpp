@@ -4,7 +4,7 @@ include HWPP.mk
 # These variables get added to by modules.
 SRCS :=
 OBJS = $(SRCS:.cc=.o)  # This is intentionally not a := variable.
-BINS :=
+BINS := testlog #FIXME
 TESTS :=
 CLEANS := libhwpp.a
 DISTCLEANS :=
@@ -18,10 +18,10 @@ IMPORT_MODULE = $(eval $(call _IMPORT_MODULE,$(strip $(1))))
 
 # Import all of the sub-modules.
 $(call IMPORT_MODULE, .)
-$(call IMPORT_MODULE, devices)
-$(call IMPORT_MODULE, drivers)
-$(call IMPORT_MODULE, examples)
-$(call IMPORT_MODULE, language)
+#$(call IMPORT_MODULE, devices)
+#$(call IMPORT_MODULE, drivers)
+#$(call IMPORT_MODULE, examples)
+#$(call IMPORT_MODULE, language)
 $(call IMPORT_MODULE, util)
 
 all: $(BINS) $(TESTS)

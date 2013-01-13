@@ -23,14 +23,10 @@ using boost::const_pointer_cast;
 
 namespace hwpp {
 
-/*
- * Value - a numeric value, such as data from a register.
- */
+// Value - a numeric value, such as data from a register.
 typedef ::bignum::BigInt Value;
 
-/*
- * BitWidth - how wide something is, in bits.
- */
+// BitWidth - how wide something is, in bits.
 typedef unsigned int BitWidth;
 static const BitWidth BITS0   = 0;
 static const BitWidth BITS4   = 4;
@@ -55,7 +51,7 @@ BITS_TO_BYTES(BitWidth bits)
 	return size_t(((bits)+(CHAR_BIT-1)) / CHAR_BIT);
 }
 
-/* generate a bitmask of n bits */
+// Generate a bitmask of N bits.
 inline Value
 MASK(BitWidth nbits)
 {
@@ -65,14 +61,10 @@ MASK(BitWidth nbits)
 	return val;
 }
 
-//
-// WARN() - issue a runtime warning
-//
-inline void
-WARN(const string &message)
-{
-	std::cerr << "WARN: " << message << std::endl;
-}
+// Initialize HWPP.
+//FIXME: pass an options struct?
+void
+hwpp_init(const char *argv0, bool enable_logging, uint8_t log_verbosity);
 
 }  // namespace hwpp
 
