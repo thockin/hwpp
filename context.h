@@ -13,7 +13,7 @@
 namespace hwpp {
 
 /*
- * This encapsulates a context of the PP tree.
+ * This encapsulates a context of the HWPP tree.
  */
 class Context;
 typedef boost::shared_ptr<Context> ContextPtr;
