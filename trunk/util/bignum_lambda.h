@@ -1,33 +1,33 @@
-/* Copyright (c) Tim Hockin, 2008 */
+// Define some specializations for boost::lamba.  It should 'Just Work'.
+// Copyright (c) Tim Hockin, 2008
 #ifndef HWPP_UTIL_BIGNUM_LAMBDA_H__
 #define HWPP_UTIL_BIGNUM_LAMBDA_H__
 
 #include <boost/lambda/lambda.hpp>
+// It's assumed that, if they need this, the caller is already including
+// "util/bignum.h".
 
 using boost::lambda::_1;
 using boost::lambda::_2;
 using boost::lambda::_3;
 
-//
-// Define some specializations for boost::lamba.  It should 'Just Work'.
-//
 namespace boost {
 namespace lambda {
 
 template<class Taction>
 struct plain_return_type_2<arithmetic_action<Taction>,
-                           bignum::BigInt, bignum::BigInt> {
-	typedef bignum::BigInt type;
+                           ::bignum::BigInt, ::bignum::BigInt> {
+	typedef ::bignum::BigInt type;
 };
 template<typename Taction, typename Tother>
 struct plain_return_type_2<arithmetic_action<Taction>,
-                           bignum::BigInt, Tother> {
-	typedef bignum::BigInt type;
+                           ::bignum::BigInt, Tother> {
+	typedef ::bignum::BigInt type;
 };
 template<typename Taction, typename Tother>
 struct plain_return_type_2<arithmetic_action<Taction>,
-                           Tother, bignum::BigInt> {
-	typedef bignum::BigInt type;
+                           Tother, ::bignum::BigInt> {
+	typedef ::bignum::BigInt type;
 };
 
 } // namespace lambda
