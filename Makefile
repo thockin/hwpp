@@ -3,7 +3,7 @@ include HWPP.mk
 
 # These variables get added to by modules.
 SRCS :=
-OBJS = $(SRCS:.cpp=.o)  # This is intentionally not a := variable.
+OBJS = $(SRCS:.cc=.o)  # This is intentionally not a := variable.
 BINS :=
 TESTS :=
 CLEANS := libhwpp.a

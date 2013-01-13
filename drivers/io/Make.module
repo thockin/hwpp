@@ -1,5 +1,5 @@
-SRCS += drivers/io/io_driver.cpp \
-        drivers/io/io_binding.cpp
+SRCS += drivers/io/io_driver.cc \
+        drivers/io/io_binding.cc
 
 TESTS += drivers/io/tests/io_io_test
 

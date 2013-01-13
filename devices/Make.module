@@ -1,15 +1,15 @@
 OBJS += devices/all_devices.o
 
-MODULE_SRCS := devices/global.cpp \
-               devices/pci/pci.cpp \
-               devices/pci/generic_device.cpp \
-               devices/cpu/cpu.cpp \
-               devices/cpuid/cpuid.cpp \
-               devices/cpuid/generic_device.cpp \
-               devices/msr/msr.cpp \
-               devices/msr/generic_device.cpp \
-               devices/amd/k8.cpp
-MODULE_OBJS := $(MODULE_SRCS:.cpp=.o)
+MODULE_SRCS := devices/global.cc \
+               devices/pci/pci.cc \
+               devices/pci/generic_device.cc \
+               devices/cpu/cpu.cc \
+               devices/cpuid/cpuid.cc \
+               devices/cpuid/generic_device.cc \
+               devices/msr/msr.cc \
+               devices/msr/generic_device.cc \
+               devices/amd/k8.cc
+MODULE_OBJS := $(MODULE_SRCS:.cc=.o)
 
 CLEANS += $(MODULE_OBJS)
 

@@ -1,4 +1,4 @@
-SRCS += drivers/all_drivers.cpp
+SRCS += drivers/all_drivers.cc
 
 # This is a private helper for IMPORT_DRIVER.
 ALL_DRIVERS :=

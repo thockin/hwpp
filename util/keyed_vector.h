@@ -1,4 +1,4 @@
-// keyed_vector.cpp
+// keyed_vector
 //
 // Tim Hockin <thockin@hockin.org>
 // 2007
