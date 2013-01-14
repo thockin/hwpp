@@ -4,6 +4,7 @@
 // but assertions can not.
 //
 // Copyright (c) Tim Hockin, 2007
+
 #ifndef HWPP_UTIL_ASSERT_H__
 #define HWPP_UTIL_ASSERT_H__
 

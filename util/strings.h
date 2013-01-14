@@ -1,3 +1,6 @@
+// Simple string utils.
+// Tim Hockin, 2013
+
 #ifndef HWPP_UTIL_STRINGS_H__
 #define HWPP_UTIL_STRINGS_H__
 

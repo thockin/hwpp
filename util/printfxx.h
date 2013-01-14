@@ -1,3 +1,6 @@
+// A type-safe C++ form of printf(), sprintf(), and fprintf().
+// Tim Hockin
+
 #ifndef HWPP_UTIL_PRINTFXX_H__
 #define HWPP_UTIL_PRINTFXX_H__
 

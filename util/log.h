@@ -5,6 +5,7 @@
 // requested.
 //
 // Copyright (c) Tim Hockin, 2013
+
 #ifndef HWPP_UTIL_LOG_H__
 #define HWPP_UTIL_LOG_H__
 

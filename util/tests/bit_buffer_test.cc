@@ -1,6 +1,8 @@
 #include "util/bit_buffer.h"
 #include "util/test.h"
 
+#include <string.h>
+
 namespace util {
 
 TEST(test_ctors)
@@ -74,7 +76,7 @@ TEST(test_get)
 {
 	// test get()
 	{
-		BitBuffer bb(1024 * CHAR_BIT);
+		BitBuffer bb(1024);
 		TEST_ASSERT(bb.get()[0] == 0,
 			"BitBuffer::get(int)");
 		memset(bb.get(), 0x5a, bb.size_bytes());
