@@ -2559,7 +2559,7 @@ TEST(test_operators)
 		TEST_ASSERT(val == 1, "BigInt::operator>>=()");
 	}
 
-	// Most operators with (signd or unsigned) long long fail, because
+	// Most operators with (signed or unsigned) long long fail, because
 	// GMP does not natively support them.  There must be some hack to
 	// make this work  (and the above bugs with | & ^), but I can't be
 	// bothered to mess with it any further.

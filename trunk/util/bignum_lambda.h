@@ -1,5 +1,6 @@
 // Define some specializations for boost::lamba.  It should 'Just Work'.
 // Copyright (c) Tim Hockin, 2008
+
 #ifndef HWPP_UTIL_BIGNUM_LAMBDA_H__
 #define HWPP_UTIL_BIGNUM_LAMBDA_H__
 
