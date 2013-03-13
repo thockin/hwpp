@@ -1,6 +1,7 @@
 #include "util/bignum.h"
-#include "util/bit_buffer.h"
 #include "util/test.h"
+#include <sstream>
+#include "util/bit_buffer.h"
 
 namespace bignum {
 
@@ -1452,7 +1453,7 @@ TEST(test_large_arithmetic)
 	}
 }
 
-//NOTE:
+// NOTE:
 //  Bitwise NOT is supported, but what does it really mean for an
 //  arbitrary-width number?
 TEST(test_small_logical)
@@ -1709,7 +1710,8 @@ TEST(test_small_io)
 	}
 	{
 		#if 0
-		// This test fails, but I don't care.
+		// This test fails because gmpxx adds the leading '+' in octal
+		// mode, but libstdc++ does not.  Very minor issue.
 		BigInt val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::showpos);
@@ -1725,7 +1727,8 @@ TEST(test_small_io)
 	}
 	{
 		#if 0
-		// This test fails, but I don't care.
+		// This test fails because gmpxx adds the leading '+' in hex
+		// mode, but libstdc++ does not.  Very minor issue.
 		BigInt val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::showpos);
@@ -2027,9 +2030,6 @@ TEST(test_small_io)
 			"BigInt::operator<<(ostream)");
 	}
 	{
-		#if 0
-		// This test fails, and I think the standard version is
-		// wrong.
 		BigInt val(15);
 		std::ostringstream rawoss;
 		rawoss.setf(std::ios_base::right);
@@ -2047,7 +2047,6 @@ TEST(test_small_io)
 		valoss << val;
 		TEST_ASSERT(rawoss.str() == valoss.str(),
 			"BigInt::operator<<(ostream)");
-		#endif
 	}
 }
 
@@ -2112,21 +2111,18 @@ TEST(test_operators)
 		val /= (signed char)2;
 		TEST_ASSERT(val == 1, "BigInt::operator/=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val | (signed char)3;
-		//TEST_ASSERT(val2 == 3, "BigInt::operator|()");
+		val2 = val | (signed char)3;
+		TEST_ASSERT(val2 == 3, "BigInt::operator|()");
 		val |= (signed char)3;
 		TEST_ASSERT(val == 3, "BigInt::operator|=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val & (signed char)2;
-		//TEST_ASSERT(val2 == 2, "BigInt::operator&()");
+		val2 = val & (signed char)2;
+		TEST_ASSERT(val2 == 2, "BigInt::operator&()");
 		val &= (signed char)2;
 		TEST_ASSERT(val == 2, "BigInt::operator&=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val ^ (signed char)1;
-		//TEST_ASSERT(val2 == 3, "BigInt::operator^()");
+		val2 = val ^ (signed char)1;
+		TEST_ASSERT(val2 == 3, "BigInt::operator^()");
 		val ^= (signed char)1;
 		TEST_ASSERT(val == 3, "BigInt::operator^=()");
 
@@ -2171,21 +2167,18 @@ TEST(test_operators)
 		val /= (unsigned char)2;
 		TEST_ASSERT(val == 1, "BigInt::operator/=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val | (unsigned char)3;
-		//TEST_ASSERT(val2 == 3, "BigInt::operator|()");
+		val2 = val | (unsigned char)3;
+		TEST_ASSERT(val2 == 3, "BigInt::operator|()");
 		val |= (unsigned char)3;
 		TEST_ASSERT(val == 3, "BigInt::operator|=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val & (unsigned char)2;
-		//TEST_ASSERT(val2 == 2, "BigInt::operator&()");
+		val2 = val & (unsigned char)2;
+		TEST_ASSERT(val2 == 2, "BigInt::operator&()");
 		val &= (unsigned char)2;
 		TEST_ASSERT(val == 2, "BigInt::operator&=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val ^ (unsigned char)1;
-		//TEST_ASSERT(val2 == 3, "BigInt::operator^()");
+		val2 = val ^ (unsigned char)1;
+		TEST_ASSERT(val2 == 3, "BigInt::operator^()");
 		val ^= (unsigned char)1;
 		TEST_ASSERT(val == 3, "BigInt::operator^=()");
 
@@ -2230,21 +2223,18 @@ TEST(test_operators)
 		val /= (signed short)2;
 		TEST_ASSERT(val == 1, "BigInt::operator/=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val | (signed short)3;
-		//TEST_ASSERT(val2 == 3, "BigInt::operator|()");
+		val2 = val | (signed short)3;
+		TEST_ASSERT(val2 == 3, "BigInt::operator|()");
 		val |= (signed short)3;
 		TEST_ASSERT(val == 3, "BigInt::operator|=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val & (signed short)2;
-		//TEST_ASSERT(val2 == 2, "BigInt::operator&()");
+		val2 = val & (signed short)2;
+		TEST_ASSERT(val2 == 2, "BigInt::operator&()");
 		val &= (signed short)2;
 		TEST_ASSERT(val == 2, "BigInt::operator&=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val ^ (signed short)1;
-		//TEST_ASSERT(val2 == 3, "BigInt::operator^()");
+		val2 = val ^ (signed short)1;
+		TEST_ASSERT(val2 == 3, "BigInt::operator^()");
 		val ^= (signed short)1;
 		TEST_ASSERT(val == 3, "BigInt::operator^=()");
 
@@ -2289,21 +2279,18 @@ TEST(test_operators)
 		val /= (unsigned short)2;
 		TEST_ASSERT(val == 1, "BigInt::operator/=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val | (unsigned short)3;
-		//TEST_ASSERT(val2 == 3, "BigInt::operator|()");
+		val2 = val | (unsigned short)3;
+		TEST_ASSERT(val2 == 3, "BigInt::operator|()");
 		val |= (unsigned short)3;
 		TEST_ASSERT(val == 3, "BigInt::operator|=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val & (unsigned short)2;
-		//TEST_ASSERT(val2 == 2, "BigInt::operator&()");
+		val2 = val & (unsigned short)2;
+		TEST_ASSERT(val2 == 2, "BigInt::operator&()");
 		val &= (unsigned short)2;
 		TEST_ASSERT(val == 2, "BigInt::operator&=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val ^ (unsigned short)1;
-		//TEST_ASSERT(val2 == 3, "BigInt::operator^()");
+		val2 = val ^ (unsigned short)1;
+		TEST_ASSERT(val2 == 3, "BigInt::operator^()");
 		val ^= (unsigned short)1;
 		TEST_ASSERT(val == 3, "BigInt::operator^=()");
 
@@ -2348,21 +2335,18 @@ TEST(test_operators)
 		val /= (signed int)2;
 		TEST_ASSERT(val == 1, "BigInt::operator/=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val | (signed int)3;
-		//TEST_ASSERT(val2 == 3, "BigInt::operator|()");
+		val2 = val | (signed int)3;
+		TEST_ASSERT(val2 == 3, "BigInt::operator|()");
 		val |= (signed int)3;
 		TEST_ASSERT(val == 3, "BigInt::operator|=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val & (signed int)2;
-		//TEST_ASSERT(val2 == 2, "BigInt::operator&()");
+		val2 = val & (signed int)2;
+		TEST_ASSERT(val2 == 2, "BigInt::operator&()");
 		val &= (signed int)2;
 		TEST_ASSERT(val == 2, "BigInt::operator&=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val ^ (signed int)1;
-		//TEST_ASSERT(val2 == 3, "BigInt::operator^()");
+		val2 = val ^ (signed int)1;
+		TEST_ASSERT(val2 == 3, "BigInt::operator^()");
 		val ^= (signed int)1;
 		TEST_ASSERT(val == 3, "BigInt::operator^=()");
 
@@ -2407,21 +2391,18 @@ TEST(test_operators)
 		val /= (unsigned int)2;
 		TEST_ASSERT(val == 1, "BigInt::operator/=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val | (unsigned int)3;
-		//TEST_ASSERT(val2 == 3, "BigInt::operator|()");
+		val2 = val | (unsigned int)3;
+		TEST_ASSERT(val2 == 3, "BigInt::operator|()");
 		val |= (unsigned int)3;
 		TEST_ASSERT(val == 3, "BigInt::operator|=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val & (unsigned int)2;
-		//TEST_ASSERT(val2 == 2, "BigInt::operator&()");
+		val2 = val & (unsigned int)2;
+		TEST_ASSERT(val2 == 2, "BigInt::operator&()");
 		val &= (unsigned int)2;
 		TEST_ASSERT(val == 2, "BigInt::operator&=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val ^ (unsigned int)1;
-		//TEST_ASSERT(val2 == 3, "BigInt::operator^()");
+		val2 = val ^ (unsigned int)1;
+		TEST_ASSERT(val2 == 3, "BigInt::operator^()");
 		val ^= (unsigned int)1;
 		TEST_ASSERT(val == 3, "BigInt::operator^=()");
 
@@ -2466,21 +2447,18 @@ TEST(test_operators)
 		val /= (signed long)2;
 		TEST_ASSERT(val == 1, "BigInt::operator/=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val | (signed long)3;
-		//TEST_ASSERT(val2 == 3, "BigInt::operator|()");
+		val2 = val | (signed long)3;
+		TEST_ASSERT(val2 == 3, "BigInt::operator|()");
 		val |= (signed long)3;
 		TEST_ASSERT(val == 3, "BigInt::operator|=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val & (signed long)2;
-		//TEST_ASSERT(val2 == 2, "BigInt::operator&()");
+		val2 = val & (signed long)2;
+		TEST_ASSERT(val2 == 2, "BigInt::operator&()");
 		val &= (signed long)2;
 		TEST_ASSERT(val == 2, "BigInt::operator&=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val ^ (signed long)1;
-		//TEST_ASSERT(val2 == 3, "BigInt::operator^()");
+		val2 = val ^ (signed long)1;
+		TEST_ASSERT(val2 == 3, "BigInt::operator^()");
 		val ^= (signed long)1;
 		TEST_ASSERT(val == 3, "BigInt::operator^=()");
 
@@ -2525,21 +2503,18 @@ TEST(test_operators)
 		val /= (unsigned long)2;
 		TEST_ASSERT(val == 1, "BigInt::operator/=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val | (unsigned long)3;
-		//TEST_ASSERT(val2 == 3, "BigInt::operator|()");
+		val2 = val | (unsigned long)3;
+		TEST_ASSERT(val2 == 3, "BigInt::operator|()");
 		val |= (unsigned long)3;
 		TEST_ASSERT(val == 3, "BigInt::operator|=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val & (unsigned long)2;
-		//TEST_ASSERT(val2 == 2, "BigInt::operator&()");
+		val2 = val & (unsigned long)2;
+		TEST_ASSERT(val2 == 2, "BigInt::operator&()");
 		val &= (unsigned long)2;
 		TEST_ASSERT(val == 2, "BigInt::operator&=()");
 
-		// a bug(?) in gmpxx prevents this from working
-		//val2 = val ^ (unsigned long)1;
-		//TEST_ASSERT(val2 == 3, "BigInt::operator^()");
+		val2 = val ^ (unsigned long)1;
+		TEST_ASSERT(val2 == 3, "BigInt::operator^()");
 		val ^= (unsigned long)1;
 		TEST_ASSERT(val == 3, "BigInt::operator^=()");
 
@@ -2561,8 +2536,7 @@ TEST(test_operators)
 
 	// Most operators with (signed or unsigned) long long fail, because
 	// GMP does not natively support them.  There must be some hack to
-	// make this work  (and the above bugs with | & ^), but I can't be
-	// bothered to mess with it any further.
+	// make this work, but I can't be bothered to mess with it any further.
 	#if 0
 	{
 		BigInt val = 1;

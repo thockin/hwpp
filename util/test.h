@@ -26,7 +26,9 @@
 //
 // In order to keep this a single header file, the "public" API is mixed
 // up with the "private" details.  In order to avoid name conflicts, all
-// symbols which begin with "TEST" are reserved.
+// symbols which begin with "TEST" are reserved for use by this header, and
+// all symbols which begin with "TEST_INTERNAL" or "TEST_" followed by a
+// lower-case letter are considered internal and not for use by callers.
 //
 // Here is the public API:
 //
@@ -91,6 +93,28 @@
 //   	TEST_ASSERT(condition(), "condition() was false");
 //   	TEST_ASSERT(condition(), "condition() was false: ") << status;
 //   	TEST_ASSERT(condition()) << "condition() was false: " << status;
+//
+// * TEST_ASSERT_TRUE(pred)
+// * TEST_ASSERT_TRUE(pred, msg)
+//
+//   Assert that pred evaluates to boolean true (non-zero).  This is a synonym
+//   for TEST_ASSERT().
+//
+//   Example:
+//   	TEST_ASSERT_TRUE(condition(), "condition() was false");
+//   	TEST_ASSERT_TRUE(condition(), "condition() was false: ") << status;
+//   	TEST_ASSERT_TRUE(condition()) << "condition() was false: " << status;
+//
+// * TEST_ASSERT_FALSE(pred)
+// * TEST_ASSERT_FALSE(pred, msg)
+//
+//   Assert that pred evaluates to boolean false (zero).  This is the inverse
+//   of TEST_ASSERT_TRUE().
+//
+//   Example:
+//   	TEST_ASSERT_FALSE(condition(), "condition() was true");
+//   	TEST_ASSERT_FALSE(condition(), "condition() was true: ") << status;
+//   	TEST_ASSERT_FALSE(condition()) << "condition() was true: " << status;
 //
 // * TEST_ASSERT_EQ(lhs, rhs)
 // * TEST_ASSERT_EQ(lhs, rhs, msg)
@@ -282,33 +306,35 @@
 //   If this macro is defined before this file is #include-ed, it will
 //   become the prefix for all test-related paths.
 //
-// * TEST_TMP_DIR
+// * TEST_TMP_DIR()
 //
-//   This macro is a string literal which contains the path to a usable
-//   temporary directory under the TEST_PATH_PREFIX.  This directory will
-//   be destroyed and created anew for each test function.
+//   This function returns a const std::string & to the path to a usable
+//   temporary directory under the TEST_PATH_PREFIX.  This directory will be
+//   destroyed and created anew for each test function.
 
 #ifndef HWPP_UTIL_TEST_H__
 #define HWPP_UTIL_TEST_H__
 
-#include <iostream>
+#include <stdlib.h>
 #include <fstream>
+#include <iostream>
 #include <stdexcept>
+#include <string>
 #include <vector>
 #include <boost/smart_ptr.hpp>
-#include <stdlib.h>
+#include "util/execxx.h"
 
-// how many failures have we had?
+// How many failures have we had?
 static int TEST_error_count;
 
-// the global list of tests to run
+// The global list of tests to run.
 struct TEST_definition;
 static std::vector<TEST_definition *> TEST_list;
 
-// the currently running test
+// The currently running test.
 static const TEST_definition *TEST_current;
 
-// the main test definition class
+// The main test definition class.
 struct TEST_definition
 {
 	std::string test_name;
@@ -321,54 +347,79 @@ struct TEST_definition
 	}
 };
 
-// define a test
+// Define a test.
 #define TEST(name_) \
 	void name_(void); \
 	static TEST_definition TEST_##name_##definition(#name_, name_); \
 	void name_(void)
 
-// test paths, for use inside tests
+// Test paths, for use inside tests.
 #ifndef TEST_PATH_PREFIX
-#  define TEST_PATH_PREFIX "./"
+#  define TEST_PATH_PREFIX "/tmp"
 #endif
-#define TEST_TMP_DIR TEST_PATH_PREFIX "test_tmp"
 
-// a helper to use ostreams for error message output while
-// handling newline output sanely (on the client side, at least)
-struct TEST_output_helper
+// Internal: Helper for initializing statics.
+static const std::string *
+TEST_init_tmpdir_string()
+{
+	std::string *s = new std::string(TEST_PATH_PREFIX);
+	s->append("/");
+	const char *user = getenv("USER");
+	if (user) {
+		s->append(user);
+		s->append(".");
+	}
+	char pid[256] = {'\0'};
+	snprintf(pid, sizeof(pid), "%d", getpid());
+	s->append(pid);
+	s->append("/test_temp/");
+	return s;
+}
+
+// Get the path to the temp dir for this test.
+static const std::string &
+TEST_TMP_DIR()
+{
+	static const std::string *tmp_dir = TEST_init_tmpdir_string();
+	return *tmp_dir;
+}
+
+// A helper to use ostreams for error message output while
+// handling newline output sanely (on the client side, at least).
+struct TEST_output_stream
 {
 	std::ostream &output_stream;
+	bool is_error;
 
-	explicit
-	TEST_output_helper(std::ostream &o): output_stream(o)
-	{
-	}
-	~TEST_output_helper()
+	TEST_output_stream(std::ostream &o, bool e)
+	    : output_stream(o), is_error(e) {}
+	~TEST_output_stream()
 	{
 		output_stream << std::endl;
 	}
 };
 
-// a refcounted smart pointer ensures that the dtor only gets called once
-typedef boost::shared_ptr<TEST_output_helper> TEST_output_helper_ptr;
+// A refcounted smart pointer ensures that the dtor only gets called once.
+typedef boost::shared_ptr<TEST_output_stream> TEST_output_stream_ptr;
 
-// a helper to simplify code
-inline TEST_output_helper_ptr
-TEST_new_output_helper(std::ostream &output_stream)
+// Internal: Simplify code
+inline TEST_output_stream_ptr
+TEST_new_output_stream(std::ostream &output_stream, bool is_error)
 {
-	return TEST_output_helper_ptr(new TEST_output_helper(output_stream));
+	return TEST_output_stream_ptr(
+	    new TEST_output_stream(output_stream, is_error));
 }
 
-// provide a way to stream output through a TEST_output_helper
+// Provide a way to stream output through a TEST_output_stream.
 template <typename Tdata>
-inline const TEST_output_helper_ptr &
-operator<<(const TEST_output_helper_ptr &output, const Tdata &data)
+inline const TEST_output_stream_ptr &
+operator<<(const TEST_output_stream_ptr &output, const Tdata &data)
 {
 	output->output_stream << data;
 	return output;
 }
 
-inline TEST_output_helper_ptr
+inline TEST_output_stream_ptr
 TEST_start_msg(const std::string &prefix)
 {
 	static const TEST_definition *last_test;
@@ -377,181 +428,176 @@ TEST_start_msg(const std::string &prefix)
 		std::cerr << TEST_current->test_name << "(): " << std::endl;
 	}
 	std::cerr << "  " << prefix << ": ";
-	return TEST_new_output_helper(std::cerr);
+	return TEST_new_output_stream(std::cerr, true);
 }
 
-// generate a test warning message
-inline TEST_output_helper_ptr
+// Generate a test warning message.
+inline TEST_output_stream_ptr
 TEST_warn_msg()
 {
 	return TEST_start_msg("WARN");
 }
-inline TEST_output_helper_ptr
+inline TEST_output_stream_ptr
 TEST_warn_msg(const std::string &file, int line)
 {
 	return TEST_warn_msg() << "[" << file << ":" << line << "] ";
 }
 
-// log a test warning
+// Log a test warning.
 #define TEST_WARN(...) TEST_warn(__FILE__, __LINE__, ##__VA_ARGS__)
-inline TEST_output_helper_ptr
-TEST_warn(const std::string &file, int line, const std::string &msg="")
+inline TEST_output_stream_ptr
+TEST_warn(const std::string &file, int line, const char *msg=NULL)
 {
 	return TEST_warn_msg(file, line) << msg;
 }
 
-// generate a test failure message
-inline TEST_output_helper_ptr
+// Generate a test failure message.
+inline TEST_output_stream_ptr
 TEST_fail_msg()
 {
 	return TEST_start_msg("FAIL");
 }
-inline TEST_output_helper_ptr
+inline TEST_output_stream_ptr
 TEST_fail_msg(const std::string &file, int line)
 {
 	return TEST_fail_msg() << "[" << file << ":" << line << "] ";
 }
 
-// log a test failure
+// Log a test failure.
 #define TEST_FAIL(...) TEST_fail(__FILE__, __LINE__, ##__VA_ARGS__)
-inline TEST_output_helper_ptr
-TEST_fail(const std::string &file, int line, const std::string &msg="")
+inline TEST_output_stream_ptr
+TEST_fail(const std::string &file, int line, const char *msg=NULL)
 {
 	return TEST_fail_msg(file, line) << msg;
 }
 
-// generate a test error message
-inline TEST_output_helper_ptr
+// Generate a test error message.
+inline TEST_output_stream_ptr
 TEST_error_msg()
 {
 	return TEST_start_msg("ERROR");
 }
-inline TEST_output_helper_ptr
+inline TEST_output_stream_ptr
 TEST_error_msg(const std::string &file, int line)
 {
 	return TEST_error_msg() << "[" << file << ":" << line << "] ";
 }
 
-// log a test error
+// Log a test error.
 #define TEST_ERROR(...) TEST_error(__FILE__, __LINE__, ##__VA_ARGS__)
-inline TEST_output_helper_ptr
-TEST_error(const std::string &file, int line, const std::string &msg="")
+inline TEST_output_stream_ptr
+TEST_error(const std::string &file, int line, const char *msg=NULL)
 {
 	TEST_error_count++;
 	return TEST_error_msg(file, line) << msg;
 }
 
-// assert a condition and fail if the condition is false
-#define TEST_ASSERT(...) TEST_assert(__FILE__, __LINE__, ##__VA_ARGS__)
-inline TEST_output_helper_ptr
+// Internal: Stringify an argument
+#define TEST_INTERNAL_STRINGIFY(arg) TEST_INTERNAL_STRINGIFY_INNER(arg)
+#define TEST_INTERNAL_STRINGIFY_INNER(arg) #arg
+
+// Internal: Assert a condition with file and line numbers.
+#define TEST_INTERNAL_ASSERT_FROM(file, line, pred, ...) \
+    TEST_assert(file, line, pred, TEST_INTERNAL_STRINGIFY(pred), ##__VA_ARGS__)
+
+// Assert a condition and fail if the condition is false.
+#define TEST_ASSERT(pred, ...) TEST_INTERNAL_ASSERT_FROM(__FILE__, __LINE__, \
+                                                         pred, ##__VA_ARGS__)
+inline TEST_output_stream_ptr
 TEST_assert(const std::string &file, int line,
-            bool predicate, const std::string &msg="")
+            bool predicate, const char *pred_str,
+            const char *msg=NULL)
 {
+	if (!msg) {
+		msg = pred_str;
+	}
 	if (!predicate) {
 		return TEST_fail(file, line, msg);
 	} else {
 		static std::ofstream null_stream("/dev/null");
-		return TEST_new_output_helper(null_stream);
+		return TEST_new_output_stream(null_stream, false);
 	}
 }
 
-// helpers for testing comparisons reciprocally
-#define TEST_ASSERT_EQ(...) TEST_assert_eq(__FILE__, __LINE__, ##__VA_ARGS__)
-template <typename Tlhs, typename Trhs>
-inline TEST_output_helper_ptr
-TEST_assert_eq(const std::string &file, int line,
-               const Tlhs &lhs, const Trhs &rhs, const std::string &msg="")
-{
-	return TEST_assert(file, line, ((lhs == rhs) && (rhs == lhs)), msg);
-}
-#define TEST_ASSERT_EQZ(...) TEST_assert_eqz(__FILE__, __LINE__, ##__VA_ARGS__)
-template <typename Tlhs>
-inline TEST_output_helper_ptr
-TEST_assert_eqz(const std::string &file, int line,
-                const Tlhs &lhs, const std::string &msg="")
-{
-	return TEST_assert_eq(file, line, lhs, 0, msg);
-}
-#define TEST_ASSERT_NE(...) TEST_assert_ne(__FILE__, __LINE__, ##__VA_ARGS__)
-template <typename Tlhs, typename Trhs>
-inline TEST_output_helper_ptr
-TEST_assert_ne(const std::string &file, int line,
-               const Tlhs &lhs, const Trhs &rhs, const std::string &msg="")
-{
-	return TEST_assert(file, line, ((lhs != rhs) && (rhs != lhs)), msg);
-}
-#define TEST_ASSERT_NEZ(...) TEST_assert_nez(__FILE__, __LINE__, ##__VA_ARGS__)
-template <typename Tlhs>
-inline TEST_output_helper_ptr
-TEST_assert_nez(const std::string &file, int line,
-                const Tlhs &lhs, const std::string &msg="")
-{
-	return TEST_assert_ne(file, line, lhs, 0, msg);
-}
-#define TEST_ASSERT_LT(...) TEST_assert_lt(__FILE__, __LINE__, ##__VA_ARGS__)
-template <typename Tlhs, typename Trhs>
-inline TEST_output_helper_ptr
-TEST_assert_lt(const std::string &file, int line,
-               const Tlhs &lhs, const Trhs &rhs, const std::string &msg="")
-{
-	return TEST_assert(file, line, ((lhs < rhs) && (rhs >= lhs)), msg);
-}
-#define TEST_ASSERT_LTZ(...) TEST_assert_ltz(__FILE__, __LINE__, ##__VA_ARGS__)
-template <typename Tlhs>
-inline TEST_output_helper_ptr
-TEST_assert_ltz(const std::string &file, int line,
-                const Tlhs &lhs, const std::string &msg="")
-{
-	return TEST_assert_lt(file, line, lhs, 0, msg);
-}
-#define TEST_ASSERT_GT(...) TEST_assert_gt(__FILE__, __LINE__, ##__VA_ARGS__)
-template <typename Tlhs, typename Trhs>
-inline TEST_output_helper_ptr
-TEST_assert_gt(const std::string &file, int line,
-               const Tlhs &lhs, const Trhs &rhs, const std::string &msg="")
-{
-	return TEST_assert(file, line, ((lhs > rhs) && (rhs <= lhs)), msg);
-}
-#define TEST_ASSERT_GTZ(...) TEST_assert_gtz(__FILE__, __LINE__, ##__VA_ARGS__)
-template <typename Tlhs>
-inline TEST_output_helper_ptr
-TEST_assert_gtz(const std::string &file, int line,
-                const Tlhs &lhs, const std::string &msg="")
-{
-	return TEST_assert_gt(file, line, lhs, 0, msg);
-}
-#define TEST_ASSERT_LE(...) TEST_assert_le(__FILE__, __LINE__, ##__VA_ARGS__)
-template <typename Tlhs, typename Trhs>
-inline TEST_output_helper_ptr
-TEST_assert_le(const std::string &file, int line,
-               const Tlhs &lhs, const Trhs &rhs, const std::string &msg="")
-{
-	return TEST_assert(file, line, ((lhs <= rhs) && (rhs > lhs)), msg);
-}
-#define TEST_ASSERT_LEZ(...) TEST_assert_lez(__FILE__, __LINE__, ##__VA_ARGS__)
-template <typename Tlhs>
-inline TEST_output_helper_ptr
-TEST_assert_lez(const std::string &file, int line,
-                const Tlhs &lhs, const std::string &msg="")
-{
-	return TEST_assert_le(file, line, lhs, 0, msg);
-}
-#define TEST_ASSERT_GE(...) TEST_assert_ge(__FILE__, __LINE__, ##__VA_ARGS__)
-template <typename Tlhs, typename Trhs>
-inline TEST_output_helper_ptr
-TEST_assert_ge(const std::string &file, int line,
-               const Tlhs &lhs, const Trhs &rhs, const std::string &msg="")
-{
-	return TEST_assert(file, line, ((lhs >= rhs) && (rhs < lhs)), msg);
-}
-#define TEST_ASSERT_GEZ(...) TEST_assert_ge(__FILE__, __LINE__, ##__VA_ARGS__)
-template <typename Tlhs>
-inline TEST_output_helper_ptr
-TEST_assert_gez(const std::string &file, int line,
-                const Tlhs &lhs, const std::string &msg="")
-{
-	return TEST_assert_ge(file, line, lhs, 0, msg);
-}
+// Assert a boolean condition.
+#define TEST_ASSERT_TRUE(pred, ...)  TEST_ASSERT(pred, ##__VA_ARGS__)
+#define TEST_ASSERT_FALSE(pred, ...) TEST_ASSERT(!pred, ##__VA_ARGS__)
+
+// Internal: Define an assertion function which tests the binary expression in
+// both directions.
+#define TEST_INTERNAL_DEFINE_RECIPROCAL_ASSERT(func_name, lr_op, rl_op)        \
+	template <typename Tlhs, typename Trhs>                                \
+	inline TEST_output_stream_ptr                                          \
+	func_name (                                                            \
+	      const std::string &file, int line,                               \
+	      const Tlhs &lhs, const char *lhs_str,                            \
+	      const Trhs &rhs, const char *rhs_str,                            \
+	      const char *msg=NULL)                                            \
+	{                                                                      \
+		bool pred = (lhs lr_op rhs);                                   \
+		std::string pred_str                                           \
+		    = std::string(lhs_str) + " " + #lr_op + " " + rhs_str;     \
+		const TEST_output_stream_ptr &out                              \
+		    = TEST_assert(file, line, pred, pred_str.c_str(), msg);    \
+		if (out->is_error) {                                           \
+			return out;                                            \
+		}                                                              \
+		pred = (rhs rl_op lhs);                                        \
+		pred_str                                                       \
+		    = std::string(rhs_str) + " " + #rl_op + " " + lhs_str;     \
+		return TEST_assert(file, line, pred, pred_str.c_str(), msg);   \
+	}
+
+// Assert binary expression conditions.  These all work reciprocally (testing
+// A < B also tests that B >= A).  These have to bounce through functions to
+// prevent double evaluation of macro arguments.
+TEST_INTERNAL_DEFINE_RECIPROCAL_ASSERT(TEST_assert_eq, ==, ==)
+#define TEST_ASSERT_EQ(lhs, rhs, ...) TEST_assert_eq( \
+    __FILE__, __LINE__, \
+    lhs, TEST_INTERNAL_STRINGIFY(lhs), \
+    rhs, TEST_INTERNAL_STRINGIFY(rhs), \
+    ##__VA_ARGS__)
+#define TEST_ASSERT_EQZ(lhs, ...) TEST_ASSERT_EQ(lhs, 0, ##__VA_ARGS__)
+
+TEST_INTERNAL_DEFINE_RECIPROCAL_ASSERT(TEST_assert_ne, !=, !=)
+#define TEST_ASSERT_NE(lhs, rhs, ...) TEST_assert_ne( \
+    __FILE__, __LINE__, \
+    lhs, TEST_INTERNAL_STRINGIFY(lhs), \
+    rhs, TEST_INTERNAL_STRINGIFY(rhs), \
+    ##__VA_ARGS__)
+#define TEST_ASSERT_NEZ(lhs, ...) TEST_ASSERT_NE(lhs, 0, ##__VA_ARGS__)
+
+TEST_INTERNAL_DEFINE_RECIPROCAL_ASSERT(TEST_assert_lt, <, >=)
+#define TEST_ASSERT_LT(lhs, rhs, ...) TEST_assert_lt( \
+    __FILE__, __LINE__, \
+    lhs, TEST_INTERNAL_STRINGIFY(lhs), \
+    rhs, TEST_INTERNAL_STRINGIFY(rhs), \
+    ##__VA_ARGS__)
+#define TEST_ASSERT_LTZ(lhs, ...) TEST_ASSERT_LT(lhs, 0, ##__VA_ARGS__)
+
+TEST_INTERNAL_DEFINE_RECIPROCAL_ASSERT(TEST_assert_gt, >, <=)
+#define TEST_ASSERT_GT(lhs, rhs, ...) TEST_assert_gt( \
+    __FILE__, __LINE__, \
+    lhs, TEST_INTERNAL_STRINGIFY(lhs), \
+    rhs, TEST_INTERNAL_STRINGIFY(rhs), \
+    ##__VA_ARGS__)
+#define TEST_ASSERT_GTZ(lhs, ...) TEST_ASSERT_GT(lhs, 0, ##__VA_ARGS__)
+
+TEST_INTERNAL_DEFINE_RECIPROCAL_ASSERT(TEST_assert_le, <, >=)
+#define TEST_ASSERT_LE(lhs, rhs, ...) TEST_assert_le( \
+    __FILE__, __LINE__, \
+    lhs, TEST_INTERNAL_STRINGIFY(lhs), \
+    rhs, TEST_INTERNAL_STRINGIFY(rhs), \
+    ##__VA_ARGS__)
+#define TEST_ASSERT_LEZ(lhs, ...) TEST_ASSERT_LE(lhs, 0, ##__VA_ARGS__)
+
+TEST_INTERNAL_DEFINE_RECIPROCAL_ASSERT(TEST_assert_ge, >, <=)
+#define TEST_ASSERT_GE(lhs, rhs, ...) TEST_assert_ge( \
+    __FILE__, __LINE__, \
+    lhs, TEST_INTERNAL_STRINGIFY(lhs), \
+    rhs, TEST_INTERNAL_STRINGIFY(rhs), \
+    ##__VA_ARGS__)
+#define TEST_ASSERT_GEZ(lhs, ...) TEST_ASSERT_GE(lhs, 0, ##__VA_ARGS__)
 
 // exit the test
 #define TEST_EXIT() exit(TEST_error_count ?  EXIT_FAILURE : EXIT_SUCCESS)
@@ -591,7 +637,7 @@ static void (*TEST_cleanup_each_ptr)(void);
 	  TEST_cleanup_each_assign(&TEST_cleanup_each_ptr, TEST_CLEANUP_EACH); \
 	void TEST_CLEANUP_EACH(void)
 
-// helpers to call the setup/cleanup functions
+// Internal: Helpers to call the setup/cleanup functions.
 inline void
 TEST_setup_global(void)
 {
@@ -607,20 +653,22 @@ TEST_cleanup_global(void)
 inline void
 TEST_setup_each(void)
 {
-	system("rm -rf " TEST_TMP_DIR);
-	system("mkdir -p " TEST_TMP_DIR);
-	if (TEST_setup_each_ptr)
+	execxx::systemxx("rm -rf " + TEST_TMP_DIR());
+	execxx::systemxx("mkdir -p " + TEST_TMP_DIR());
+	if (TEST_setup_each_ptr != NULL) {
 		TEST_setup_each_ptr();
+	}
 }
 inline void
 TEST_cleanup_each(void)
 {
-	if (TEST_cleanup_each_ptr)
+	if (TEST_cleanup_each_ptr != NULL) {
 		TEST_cleanup_each_ptr();
-	system("rm -rf " TEST_TMP_DIR);
+	}
+	execxx::systemxx("rm -rf " + TEST_TMP_DIR());
 }
 
-// the test main() entry point
+// The test main() entry point.
 int
 main(void)
 {

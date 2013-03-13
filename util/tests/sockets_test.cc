@@ -2,7 +2,7 @@
 #include "util/test.h"
 
 #define UNIX_SOCKET_NAME		"socket.exists"
-#define UNIX_SOCKET_PATH		TEST_TMP_DIR "/" UNIX_SOCKET_NAME
+#define UNIX_SOCKET_PATH		TEST_TMP_DIR() + "/" + UNIX_SOCKET_NAME
 
 TEST(test_ctors)
 {

@@ -14,5 +14,5 @@ TESTS += util/tests/bignum_test \
          util/tests/syserror_test
          #util/tests/shared_object_test
 
-util/tests/bignum_test: util/bignum.o
+util/tests/bignum_test: util/bignum.o util/bit_buffer.o
 util/tests/bit_buffer_test: util/bit_buffer.o

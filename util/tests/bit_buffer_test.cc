@@ -42,6 +42,14 @@ TEST(test_ctors)
 		TEST_ASSERT(bb.size_bytes() == 9,
 			"BitBuffer::BitBuffer(int)");
 	}
+	{
+		BitBuffer bb(93);
+		TEST_ASSERT(bb.size_bits() == 93,
+			"BitBuffer::BitBuffer(int)");
+		BitBuffer bb2(bb);
+		TEST_ASSERT(bb2.size_bits() == 93,
+			"BitBuffer::BitBuffer(int)");
+	}
 }
 
 TEST(test_reset)

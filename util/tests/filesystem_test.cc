@@ -1,49 +1,89 @@
 #include "util/filesystem.h"
 #include <iostream>
 #include <set>
+#include "util/execxx.h"
+#include "util/strings.h"
 #include "util/test.h"
+
+using std::string;
+using execxx::systemxx;
+using strings::string_cat;
 
 namespace filesystem {
 
 #define FILE_EXISTS_NAME	"file.exists"
-#define FILE_EXISTS_PATH	TEST_TMP_DIR "/" FILE_EXISTS_NAME
+#define FILE_EXISTS_PATH	string(TEST_TMP_DIR()) + "/" + FILE_EXISTS_NAME
 #define FILE_EXISTS_DATA	"data.exists"
 #define FILE_EXISTS_SIZE	strlen(FILE_EXISTS_DATA)
 #define FILE_NOT_EXISTS_PATH	FILE_EXISTS_PATH ".not"
 
+#define FLINK_EXISTS_NAME	"flink.exists"
+#define FLINK_EXISTS_PATH	string(TEST_TMP_DIR()) + "/" + FLINK_EXISTS_NAME
+#define DLINK_EXISTS_NAME	"dlink.exists"
+#define DLINK_EXISTS_PATH	string(TEST_TMP_DIR()) + "/" + DLINK_EXISTS_NAME
+#define LINK_NOT_EXISTS_PATH	FLINK_EXISTS_PATH ".not"
+
 #define DIR_EXISTS_NAME		"dir.exists"
-#define DIR_EXISTS_PATH		TEST_TMP_DIR "/" DIR_EXISTS_NAME
+#define DIR_EXISTS_PATH		string(TEST_TMP_DIR()) + "/" + DIR_EXISTS_NAME
 #define DIR_NOT_EXISTS_PATH	DIR_EXISTS_PATH ".not"
 
-#define TEMPFILE_TEMPLATE	TEST_TMP_DIR "/tempfile.XXXXXX"
+#define TEMPFILE_TEMPLATE	string(TEST_TMP_DIR()) + "/tempfile.XXXXXX"
 
 TEST_SETUP_EACH()
 {
-	system("rm -f " FILE_EXISTS_PATH);
-	system("echo -n " FILE_EXISTS_DATA " > " FILE_EXISTS_PATH);
+	systemxx(string_cat("rm -f ", FILE_EXISTS_PATH));
+	systemxx(
+	    string_cat("echo -n ", FILE_EXISTS_DATA, " > ", FILE_EXISTS_PATH));
 
-	system("rm -rf " DIR_EXISTS_PATH);
-	system("mkdir " DIR_EXISTS_PATH);
-	system("echo -n " FILE_EXISTS_DATA " > "
-	       DIR_EXISTS_PATH "/" FILE_EXISTS_NAME);
+	systemxx(
+	    string_cat("ln -s ", FILE_EXISTS_PATH, " ", FLINK_EXISTS_PATH));
+	systemxx(
+	    string_cat("ln -s ", DIR_EXISTS_PATH, " ", DLINK_EXISTS_PATH));
+
+	systemxx(string_cat("rm -rf ", DIR_EXISTS_PATH));
+	systemxx(string_cat("mkdir ", DIR_EXISTS_PATH));
+	systemxx(
+	    string_cat("echo -n ", FILE_EXISTS_DATA, " > ",
+	               DIR_EXISTS_PATH, "/", FILE_EXISTS_NAME));
 }
 
 TEST_CLEANUP_EACH()
 {
-	system("rm -f " FILE_EXISTS_PATH);
-	system("rm -rf " DIR_EXISTS_PATH);
+	systemxx(string_cat("rm -f ", FILE_EXISTS_PATH));
+	systemxx(string_cat("rm -rf ", DIR_EXISTS_PATH));
+}
+
+TEST(direntry_statics)
+{
+	TEST_ASSERT_FALSE(Direntry::exists(FILE_NOT_EXISTS_PATH));
+	TEST_ASSERT_TRUE(Direntry::exists(FILE_EXISTS_PATH));
+	TEST_ASSERT_TRUE(Direntry::exists(DIR_EXISTS_PATH));
+	TEST_ASSERT_TRUE(Direntry::exists(FLINK_EXISTS_PATH));
+	TEST_ASSERT_TRUE(Direntry::exists(DLINK_EXISTS_PATH));
+
+	TEST_ASSERT_FALSE(Direntry::is_file(FILE_NOT_EXISTS_PATH));
+	TEST_ASSERT_FALSE(Direntry::is_file(DIR_EXISTS_PATH));
+	TEST_ASSERT_FALSE(Direntry::is_file(DLINK_EXISTS_PATH));
+	TEST_ASSERT_TRUE(Direntry::is_file(FILE_EXISTS_PATH));
+	TEST_ASSERT_TRUE(Direntry::is_file(FLINK_EXISTS_PATH));
+
+	TEST_ASSERT_FALSE(Direntry::is_dir(DIR_NOT_EXISTS_PATH));
+	TEST_ASSERT_FALSE(Direntry::is_dir(FILE_EXISTS_PATH));
+	TEST_ASSERT_FALSE(Direntry::is_dir(FLINK_EXISTS_PATH));
+	TEST_ASSERT_TRUE(Direntry::is_dir(DIR_EXISTS_PATH));
+	TEST_ASSERT_TRUE(Direntry::is_dir(DLINK_EXISTS_PATH));
+
+	TEST_ASSERT_FALSE(Direntry::is_link(LINK_NOT_EXISTS_PATH));
+	TEST_ASSERT_FALSE(Direntry::is_link(DIR_EXISTS_PATH));
+	TEST_ASSERT_FALSE(Direntry::is_link(FILE_EXISTS_PATH));
+	TEST_ASSERT_TRUE(Direntry::is_link(FLINK_EXISTS_PATH));
+	TEST_ASSERT_TRUE(Direntry::is_link(DLINK_EXISTS_PATH));
+
+	//FIXME: do is_fifo(), is_socket(), is_chrdev(), is_blkdev(), is_dev()
 }
 
 TEST(test_file)
 {
-	if (Direntry::exists(FILE_NOT_EXISTS_PATH)) {
-		TEST_FAIL("filesystem::Direntry::exists()");
-	}
-
-	if (!Direntry::exists(FILE_EXISTS_PATH)) {
-		TEST_FAIL("filesystem::Direntry::exists()");
-	}
-
 	if (File::size(FILE_EXISTS_PATH) != FILE_EXISTS_SIZE) {
 		TEST_FAIL("filesystem::File::size(std::string)");
 	}

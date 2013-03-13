@@ -9,8 +9,9 @@
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <vector>
 #include <boost/format.hpp>
-#include <boost/scoped_array.hpp>
+#include "util/assert.h"
 
 namespace util {
 
@@ -20,10 +21,10 @@ BitBuffer::reset(std::size_t bits, uint8_t pattern)
 	m_bits = bits;
 	m_bytes = (m_bits+(CHAR_BIT-1))/CHAR_BIT;
 	if (m_bytes > 0) {
-		m_array.reset(new uint8_t[m_bytes]);
+		m_data.resize(m_bytes);
 		fill(pattern);
 	} else {
-		m_array.reset();
+		m_data.clear();
 	}
 }
 
@@ -33,23 +34,27 @@ BitBuffer::reset_from_data(std::size_t bits, const uint8_t *data)
 	m_bits = bits;
 	m_bytes = (m_bits+(CHAR_BIT-1))/CHAR_BIT;
 	if (m_bytes) {
-		m_array.reset(new uint8_t[m_bytes]);
+		ASSERT(data != NULL);
+		m_data.resize(m_bytes);
 		fill_from_data(data);
 	} else {
-		m_array.reset();
+		m_data.clear();
 	}
 }
 
 void
 BitBuffer::fill(uint8_t pattern)
 {
-	memset(m_array.get(), pattern, m_bytes);
+	ASSERT(m_bytes > 0);
+	memset(get(), pattern, m_bytes);
 }
 
 void
 BitBuffer::fill_from_data(const uint8_t *data)
 {
-	memcpy(m_array.get(), data, m_bytes);
+	ASSERT(data != NULL);
+	ASSERT(m_bytes > 0);
+	memcpy(get(), data, m_bytes);
 }
 
 std::string

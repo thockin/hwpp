@@ -82,7 +82,7 @@ DEFINE_ERROR(HostUnreachable);
 DEFINE_ERROR(NetUnreachable);
 DEFINE_ERROR(UnknownError);
 
-inline std::runtime_error
+inline void
 throw_specific_errno_error(int error, const std::string &msg)
 {
 	switch (error) {
@@ -175,18 +175,18 @@ throw_specific_errno_error(int error, const std::string &msg)
 }
 
 // callers can simply say "syserr::throw_errno_error(errno);"
-inline std::runtime_error
+inline void
 throw_errno_error(int error)
 {
 	std::string msg(::strerror(error));
-	return throw_specific_errno_error(error, msg);
+	throw_specific_errno_error(error, msg);
 }
 
-inline std::runtime_error
+inline void
 throw_errno_error(int error, std::string msg)
 {
 	msg += std::string(": ") + ::strerror(error);
-	return throw_specific_errno_error(error, msg);
+	throw_specific_errno_error(error, msg);
 }
 
 } // namespace syserr
