@@ -11,11 +11,9 @@
 
 namespace hwpp {
 
-//
 // This template class is a thin wrapper to make iterators work for
 // Path objects.  This is largely based on the boost example
 // code for boost::iterator_facade.
-//
 template<typename Titer, typename Tval>
 class PathIterator
     : public boost::iterator_facade<PathIterator<Titer, Tval>, Tval,
@@ -96,6 +94,9 @@ class PathIterator
 	Tval *m_trap;
 };
 
+// This is the primary interface to parsing and managing HWPP path strings.  A
+// Path models a std::list<> in most regards, and can be iterated like any STL
+// container.
 class Path
 {
     public:
@@ -532,7 +533,7 @@ operator!=(const Path &left, const Path &right)
 inline bool
 operator==(const Path &left, const string &right)
 {
-	return to_string(left) == right;
+	return strings::to_string(left) == right;
 }
 inline bool
 operator==(const string &left, const Path &right)

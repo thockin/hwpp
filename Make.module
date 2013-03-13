@@ -1,14 +1,14 @@
 SRCS += hwpp.cc \
-        version.cc #FIXME: #\
+        version.cc \
+        path.cc #FIXME:\
         #fake_language.cc \
         #runtime.cc \
         #language.cc \
         #magic_regs.cc \
         #drivers.cc \
-        #path.cc \
         #scope.cc
 
-TESTS += #tests/path_test \
+TESTS += tests/path_test #FIXME:\
          #tests/dirent_test \
          #tests/binding_test \
          #tests/register_test \
@@ -21,7 +21,7 @@ TESTS += #tests/path_test \
          #tests/fake_language_test \
          #tests/magic_regs_test
 
-#tests/path_test: path.o
+tests/path_test: path.o
 #tests/dirent_test:
 #tests/binding_test:
 #tests/register_test: runtime.o path.o

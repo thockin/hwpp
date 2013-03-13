@@ -1,11 +1,12 @@
 // Copyright 2008 Google Inc. All Rights Reserved.
 
-#include "hwpp.h"
 #include "path.h"
-#include <stdexcept>
-#include <vector>
-#include <boost/algorithm/string.hpp>
+
 #include <ctype.h>
+#include <vector>
+#include <stdexcept>
+#include <boost/algorithm/string.hpp>
+#include "util/strings.h"
 
 namespace hwpp {
 
@@ -20,7 +21,7 @@ Path::Element::to_string() const
 	if (is_array()) {
 		ret = name() + "[";
 		if (m_array_mode == ARRAY_INDEX) {
-			ret += ::to_string(m_array_index);
+			ret += strings::to_string(m_array_index);
 		}
 		ret += "]";
 	} else if (is_bookmark()) {
