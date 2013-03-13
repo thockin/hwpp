@@ -1,29 +1,27 @@
-//
 // Thin wrappers around standard file/directory IO.
 // Tim Hockin <thockin@hockin.org>
-//
+
 #ifndef HWPP_UTIL_FILESYSTEM_HHWPP__
 #define HWPP_UTIL_FILESYSTEM_HHWPP__
 
 #undef _FILE_OFFSET_BITS
 #define _FILE_OFFSET_BITS 64
 
+#include <dirent.h>
+#include <fcntl.h>
+#include <stdint.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <unistd.h>
+#include <cstdlib>
+#include <cstring>
+#include <cerrno>
 #include <string>
 #include <stdexcept>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
-
-#include <unistd.h>
-#include <cstdlib>
-#include <fcntl.h>
-#include <cstring>
-#include <cerrno>
-#include <dirent.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
-
-#include "hwpp.h"
+#include "util/strings.h"
 #include "util/syserror.h"
 
 namespace filesystem {
@@ -31,26 +29,26 @@ namespace filesystem {
 using std::size_t;
 using ::off_t;
 
-// a file
+// A file.  Users will almost always want to use FilePtr, rather than File.
 class File;
 typedef boost::shared_ptr<File> FilePtr;
 typedef boost::shared_ptr<const File> ConstFilePtr;
 typedef boost::weak_ptr<File> WeakFilePtr;
 
-// a memory-mapped area of a file
+// A memory-mapped area of a file.  Users will almost always want to use
+// FileMappingPtr.
 class FileMapping;
 typedef boost::shared_ptr<FileMapping> FileMappingPtr;
 
-// a directory
+// A directory.  Users will almost always want to use DirectoryPtr.
 class Directory;
 typedef boost::shared_ptr<Directory> DirectoryPtr;
 
-// a directory entry
+// A directory entry.  Users will almost always want to use DirentryPtr.
 class Direntry;
 typedef boost::shared_ptr<Direntry> DirentryPtr;
 
 
-//
 // FileMapping
 //
 // This class tracks an individual mmap() of a file.  When this class is
@@ -58,15 +56,24 @@ typedef boost::shared_ptr<Direntry> DirentryPtr;
 //
 // Users can not create instances of this class.  To create a mapping call
 // filesystem::File::mmap(), which returns a smart pointer to one of these.
-//
 class FileMapping
 {
 	friend class File;
 
     private:
-	// constructors - private to prevent abuse, defined later
+	// Constructors - private to prevent misuse.
 	FileMapping(const ConstFilePtr &file, off_t offset, size_t length,
-			int prot = PROT_READ, int flags = MAP_SHARED);
+	            int prot, int flags)
+	    : m_file(file),
+	      m_offset(offset),
+	      m_length(length),
+	      m_prot(prot),
+	      m_flags(flags),
+	      m_real_offset(0),
+	      m_real_length(0),
+	      m_real_address(NULL),
+	      m_address(NULL)
+	{}
 
     public:
 	// destructor
@@ -83,8 +90,8 @@ class FileMapping
 		}
 
 		// If other references exist, this can be bad.  Better to
-		// use the destructor whenever possible.
-		int r = munmap(m_real_address, m_real_length);
+		// use FileMappingPtr and its refcounting whenever possible.
+		int r = ::munmap(m_real_address, m_real_length);
 		if (r < 0) {
 			syserr::throw_errno_error(errno,
 			    "filesystem::FileMapping::unmap()");
@@ -130,18 +137,23 @@ class FileMapping
 	}
 
     private:
+	// Actually do the mmap().  Defined out of line.
+	//FIXME: error code?
+	void do_mmap();
+
 	ConstFilePtr m_file;
 	// these are the file offset and map length that were requested
 	off_t m_offset;
 	size_t m_length;
-	uint8_t *m_address;
+	// flags for the mapping
+	int m_prot;
+	int m_flags;
 	// these are the aligned file offset and map length
 	off_t m_real_offset;
 	size_t m_real_length;
 	uint8_t *m_real_address;
-	// flags for the mapping
-	int m_prot;
-	int m_flags;
+	// the returned address
+	uint8_t *m_address;
 };
 
 //
@@ -157,7 +169,8 @@ class File
 {
     private:
 	// constructors - private to prevent abuse
-	File(): m_path(""), m_flags(-1), m_fd(-1)
+	File()
+	    : m_path(""), m_flags(-1), m_fd(-1)
 	{
 	}
 	File(const File &that)
@@ -200,7 +213,7 @@ class File
 	}
 
 	static FilePtr
-	fdopen(int fd, const std::string &path = "", int flags = -1)
+	fdopen(int fd, const std::string &path, int flags)
 	{
 		FilePtr f(new File());
 
@@ -211,13 +224,18 @@ class File
 
 		return f;
 	}
+	static FilePtr
+	fdopen(int fd)
+	{
+		return fdopen(fd, "", -1);
+	}
 
 	static FilePtr
-	tempfile(std::string path_template = "")
+	tempfile(std::string path_template)
 	{
 		if (path_template == "") {
 			path_template = find_tmp_dir() + "/"
-				+ to_string(getpid()) + ".XXXXXX";
+				+ ::strings::to_string(getpid()) + ".XXXXXX";
 		}
 
 		int r;
@@ -233,8 +251,13 @@ class File
 
 		return fdopen(r, buf, O_RDWR);
 	}
+	static FilePtr
+	tempfile()
+	{
+		return tempfile("");
+	}
 
-	// warning: this is racy, but sometimes that is OK
+	// Warning: this is racy, but sometimes that is OK.
 	static std::string
 	tempname(std::string path_template = "")
 	{
@@ -244,6 +267,11 @@ class File
 		f->close();
 		unlink(filename);
 		return filename;
+	}
+	static std::string
+	tempname()
+	{
+		return tempname("");
 	}
 
 	void
@@ -323,12 +351,13 @@ class File
 	{
 		std::string s;
 		char buf[2] = " ";
+		int r;
 
 		do {
-			read(buf, 1);
+			r = read(buf, 1);
 			//FIXME: check for errors
 			s.append(buf);
-		} while (buf[0] != '\n');
+		} while (r == 1 && buf[0] != '\n');
 
 		return s;
 	}
@@ -348,22 +377,30 @@ class File
 	}
 
 	FileMappingPtr
-	mmap(off_t offset, size_t length, int prot = -1,
-			int flags = MAP_SHARED) const
+	mmap(off_t offset, size_t length, int prot, int flags) const
 	{
-		if (prot == -1) {
-			if (mode() == O_RDONLY) {
-				prot = PROT_READ;
-			} else if (mode() == O_WRONLY) {
-				prot = PROT_WRITE;
-			} else if (mode() == O_RDWR) {
-				prot = PROT_READ | PROT_WRITE;
-			}
+		FileMappingPtr m(new FileMapping(ConstFilePtr(m_this_ptr),
+		                                 offset, length, prot, flags));
+		m->do_mmap();
+		return m;
+	}
+	FileMappingPtr
+	mmap(off_t offset, size_t length, int prot) const
+	{
+		return mmap(offset, length, prot, MAP_SHARED);
+	}
+	FileMappingPtr
+	mmap(off_t offset, size_t length) const
+	{
+		int prot;
+		if (mode() == O_RDONLY) {
+			prot = PROT_READ;
+		} else if (mode() == O_WRONLY) {
+			prot = PROT_WRITE;
+		} else if (mode() == O_RDWR) {
+			prot = PROT_READ | PROT_WRITE;
 		}
-
-		return FileMappingPtr(new FileMapping(
-				ConstFilePtr(m_this_ptr),
-				offset, length, prot, flags));
+		return mmap(offset, length, prot);
 	}
 
 	size_t
@@ -481,27 +518,23 @@ class File
 	}
 };
 
-inline
-FileMapping::FileMapping(const ConstFilePtr &file,
-    off_t offset, size_t length, int prot, int flags)
-    : m_file(file),
-      m_offset(offset), m_length(length), m_address(NULL),
-      m_real_offset(0), m_real_length(0), m_real_address(NULL),
-      m_prot(prot), m_flags(flags)
+inline void
+FileMapping::do_mmap()
 {
 	size_t pgsize;
 	size_t pgmask;
 	off_t ptr_off;
 
-	// maps need to be page aligned
+	// Maps need to be page aligned.
 	pgsize = getpagesize();
 	pgmask = pgsize - 1;
 	ptr_off = m_offset & pgmask;
 	m_real_offset = m_offset & ~((uint64_t)pgmask);
 	m_real_length = pgsize + ((m_length + pgmask) & ~pgmask);
 
-	m_real_address = (uint8_t *)mmap(NULL, m_real_length, prot,
-			flags, m_file->fd(), m_real_offset);
+	m_real_address = (uint8_t *)::mmap(NULL, m_real_length,
+	                                   m_prot, m_flags,
+	                                   m_file->fd(), m_real_offset);
 	if (!m_real_address || m_real_address == MAP_FAILED) {
 		syserr::throw_errno_error(errno,
 		    "filesystem::FileMapping::FileMapping()");
@@ -585,7 +618,8 @@ class Direntry
 	is_file(const std::string &path)
 	{
 		struct ::stat st;
-		return (::stat(path.c_str(), &st) == 0 && S_ISREG(st.st_mode));
+		int r = ::stat(path.c_str(), &st);
+		return (r == 0 && S_ISREG(st.st_mode));
 	}
 
 	bool
@@ -598,7 +632,8 @@ class Direntry
 	is_dir(const std::string &path)
 	{
 		struct ::stat st;
-		return (::stat(path.c_str(), &st) == 0 && S_ISDIR(st.st_mode));
+		int r = ::stat(path.c_str(), &st);
+		return (r == 0 && S_ISDIR(st.st_mode));
 	}
 
 	bool
@@ -611,7 +646,8 @@ class Direntry
 	is_link(const std::string &path)
 	{
 		struct ::stat st;
-		return (::stat(path.c_str(), &st) == 0 && S_ISLNK(st.st_mode));
+		int r = ::lstat(path.c_str(), &st);
+		return (r == 0 && S_ISLNK(st.st_mode));
 	}
 
 	bool
@@ -624,7 +660,8 @@ class Direntry
 	is_fifo(const std::string &path)
 	{
 		struct ::stat st;
-		return (::stat(path.c_str(), &st) == 0 && S_ISFIFO(st.st_mode));
+		int r = ::stat(path.c_str(), &st);
+		return (r == 0 && S_ISFIFO(st.st_mode));
 	}
 
 	bool
@@ -637,7 +674,8 @@ class Direntry
 	is_socket(const std::string &path)
 	{
 		struct ::stat st;
-		return (::stat(path.c_str(), &st) == 0 && S_ISSOCK(st.st_mode));
+		int r = ::stat(path.c_str(), &st);
+		return (r == 0 && S_ISSOCK(st.st_mode));
 	}
 
 	bool
@@ -650,7 +688,8 @@ class Direntry
 	is_chrdev(const std::string &path)
 	{
 		struct ::stat st;
-		return (::stat(path.c_str(), &st) == 0 && S_ISCHR(st.st_mode));
+		int r = ::stat(path.c_str(), &st);
+		return (r == 0 && S_ISCHR(st.st_mode));
 	}
 
 	bool
@@ -663,7 +702,8 @@ class Direntry
 	is_blkdev(const std::string &path)
 	{
 		struct ::stat st;
-		return (::stat(path.c_str(), &st) == 0 && S_ISBLK(st.st_mode));
+		int r = ::stat(path.c_str(), &st);
+		return (r == 0 && S_ISBLK(st.st_mode));
 	}
 
 	bool
@@ -677,8 +717,8 @@ class Direntry
 	is_dev(const std::string &path)
 	{
 		struct ::stat st;
-		return (::stat(path.c_str(), &st) == 0
-		    && (S_ISCHR(st.st_mode) || S_ISBLK(st.st_mode)));
+		int r = ::stat(path.c_str(), &st);
+		return (r == 0 && (S_ISCHR(st.st_mode) || S_ISBLK(st.st_mode)));
 	}
 
     private:
@@ -782,7 +822,7 @@ class Directory
 };
 
 inline void
-chdir(const string &path)
+chdir(const std::string &path)
 {
 	int ret = ::chdir(path.c_str());
 	if (ret < 0) {
@@ -791,7 +831,7 @@ chdir(const string &path)
 }
 //FIXME: chdir(directory)
 
-inline const string
+inline const std::string
 getcwd()
 {
 	#ifdef _GNU_SOURCE
@@ -799,7 +839,7 @@ getcwd()
 	if (p == NULL) {
 		syserr::throw_errno_error(errno, "filesystem::getcwd()");
 	}
-	string cwd(p);
+	std::string cwd(p);
 	free(p);
 	return cwd;
 	#else

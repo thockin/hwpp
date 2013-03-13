@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <ostream>
 #include <string>
-#include <boost/scoped_array.hpp>
+#include <vector>
 
 namespace util {
 
@@ -15,14 +15,13 @@ namespace util {
 // to store data for lower-level things like read() and write().  Once
 // initialized, it can not be resized except through a call to reset().
 //
-// BitBuffers are always stored in little endian form as an array of
-// 'uint8_t'.  Bits beyond the specified bit width are initialized to 0,
-// but could be changed by the caller.
+// BitBuffers are always stored in little endian form as a vector of
+// 'uint8_t'.  Bits beyond the specified bit width, up to the next byte
+// alignment, are ignored.
 class BitBuffer
 {
     private:
-	typedef boost::scoped_array<uint8_t> Uint8Array;
-	Uint8Array m_array;
+	std::vector<uint8_t> m_data;
 	std::size_t m_bits;
 	std::size_t m_bytes;
 
@@ -70,16 +69,20 @@ class BitBuffer
 	void
 	fill_from_data(const uint8_t *data);
 
-	// Get a pointer to the raw data.
+	// Get a pointer to the raw data array.
 	uint8_t *
 	get()
 	{
-		return m_array.get();
+		const BitBuffer *const_this = this;
+		return const_cast<uint8_t*>(const_this->get());
 	}
 	const uint8_t *
 	get() const
 	{
-		return m_array.get();
+		if (m_bytes > 0) {
+			return &m_data.front();
+		}
+		return NULL;
 	}
 
 	// Get the size of the buffer.
@@ -98,12 +101,13 @@ class BitBuffer
 	uint8_t &
 	byte_at(int index)
 	{
-		return m_array[index];
+		const BitBuffer *const_this = this;
+		return const_cast<uint8_t&>(const_this->byte_at(index));
 	}
 	const uint8_t &
 	byte_at(int index) const
 	{
-		return m_array[index];
+		return m_data[index];
 	}
 
 	std::string

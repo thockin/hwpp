@@ -3,6 +3,7 @@
 
 #include "util/bignum.h"
 
+#include <limits.h>
 #include <ostream>
 #include <sstream>
 #include "util/assert.h"

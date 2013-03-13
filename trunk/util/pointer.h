@@ -23,17 +23,17 @@ class NeverNullScopedPtr : public boost::scoped_ptr<Tptr>
 	// This allows us to strip the const off of Tptr, if present.  This
 	// allows us to have const and non-const ctors.
 	template<typename T>
-	struct UnConst {
+	struct RemoveConst {
 		typedef T type;
 	};
 	template<typename T>
-	struct UnConst<const T> {
+	struct RemoveConst<const T> {
 		typedef T type;
 	};
 
  public:
 	explicit
-	NeverNullScopedPtr(typename UnConst<Tptr>::type *pointer)
+	NeverNullScopedPtr(typename RemoveConst<Tptr>::type *pointer)
 	    : boost::scoped_ptr<Tptr>(pointer)
 	{
 		if (pointer == NULL) {
@@ -42,7 +42,7 @@ class NeverNullScopedPtr : public boost::scoped_ptr<Tptr>
 		}
 	}
 	explicit
-	NeverNullScopedPtr(const typename UnConst<Tptr>::type *pointer)
+	NeverNullScopedPtr(const typename RemoveConst<Tptr>::type *pointer)
 	    : boost::scoped_ptr<Tptr>(pointer)
 	{
 		if (pointer == NULL) {
@@ -60,7 +60,7 @@ class NeverNullScopedPtr : public boost::scoped_ptr<Tptr>
 	}
 
 	void
-	reset(typename UnConst<Tptr>::type *pointer)
+	reset(typename RemoveConst<Tptr>::type *pointer)
 	{
 		if (pointer == NULL) {
 			throw NullPointerError(
@@ -69,7 +69,7 @@ class NeverNullScopedPtr : public boost::scoped_ptr<Tptr>
 		boost::scoped_ptr<Tptr>::reset(pointer);
 	}
 	void
-	reset(const typename UnConst<Tptr>::type *pointer)
+	reset(const typename RemoveConst<Tptr>::type *pointer)
 	{
 		if (pointer == NULL) {
 			throw NullPointerError(

@@ -15,11 +15,9 @@
 
 namespace util {
 
-//
 // This template class is a thin wrapper to make iterators work for
 // KeyedVector objects.  This is largely based on the boost example
 // code for boost::iterator_facade.
-//
 template<typename Titer, typename Tval>
 class KeyedVectorIterator
     : public boost::iterator_facade<KeyedVectorIterator<Titer, Tval>, Tval,
@@ -100,7 +98,6 @@ class KeyedVectorIterator
 	Tval *m_trap;
 };
 
-//
 // template class KeyedVector<Tkey, Tval>
 //
 // This template class implements a vector in which each stored object
@@ -128,7 +125,6 @@ class KeyedVectorIterator
 //     integral primitive.
 //   - Keys must be unique.  Inserting a duplicate key will over-write the
 //     original value.
-//
 template<typename Tkey, typename Tval>
 class KeyedVector
 {
@@ -325,7 +321,8 @@ class KeyedVector
 		if (it != end()) {
 			return *it;
 		}
-		throw std::out_of_range("key not found: " + to_string(index));
+		throw std::out_of_range(
+		    "key not found: " + strings::to_string(index));
 	}
 	reference
 	operator[](const Tkey &index)
@@ -481,8 +478,8 @@ class KeyedVector
 	bounds_check(size_type index) const
 	{
 		if (index >= size()) {
-			throw std::out_of_range("index out of range: "
-			    + to_string(index));
+			throw std::out_of_range(
+			    "index out of range: " + strings::to_string(index));
 		}
 	}
 
